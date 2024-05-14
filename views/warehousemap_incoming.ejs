@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+    <style>
+
+        table, th, td {
+            border: 1px solid ;
+            border-collapse: collapse;
+            padding: 5px;
+        }
+        .data_color {
+          background-color: rgb(73, 150, 74);
+          color: #050505;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table-responsive {
+            overflow-x: scroll;
+
+        }
+        table {
+            border: 1px solid rgb(244, 244, 244);
+            width: 100%;
+            text-align: center;
+
+        }
+
+        @media only screen and (max-width: 600px) {
+          
+
+        }
+      
+      .modal {
+          display: none; /* Hidden by default */
+          position: fixed; /* Stay in place */
+          z-index: 9999999999999; /* Sit on top */
+          padding-top: 100px; /* Location of the box */
+          left: 0;
+          top: 0;
+        
+          
+        }
+        
+        /* Modal Content */
+        .modal-content {
+          position: relative;
+          background-color: #fefefe;
+          margin: auto;
+          padding: 0;
+          border: 1px solid #888;
+          width: 50%;
+          box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+          -webkit-animation-name: animatetop;
+          -webkit-animation-duration: 0.4s;
+          animation-name: animatetop;
+          animation-duration: 0.4s
+        }
+        
+        /* Add Animation */
+        @-webkit-keyframes animatetop {
+          from {top:-300px; opacity:0} 
+          to {top:0; opacity:1}
+        }
+        
+        @keyframes animatetop {
+          from {top:-300px; opacity:0}
+          to {top:0; opacity:1}
+        }
+        
+        /* The Close Button */
+        .close {
+          color: white;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+        }
+        
+        .close:hover,
+        .close:focus {
+          color: #000;
+          text-decoration: none;
+          cursor: pointer;
+        }
+        
+        .modal-header {
+          padding: 2px 16px;
+          background-color: rgba(34, 34, 51, 0.705);
+          color: white;
+        }
+        
+        .modal-body {padding: 2px 16px;}
+        
+        .modal-footer {
+          padding: 2px 16px;
+          background-color: rgba(34, 34, 51, 0.705);
+          color: white;
+          display: flex;
+          justify-content: center;
+          display: grid;
+            place-items: center;
+        }
+
+
+        .emailcontainer {
+            display: none;
+            position: absolute;
+            background-color: rgb(255, 255, 255);
+            color:#000000;
+            border:solid 1px #000000;
+            padding:10px;
+            overflow-x: auto; 
+            z-index: 9999999999999;
+        }
+        /* table td {
+            word-wrap: break-word;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        } */
+
+        .button-text.contactme {
+            position: relative;
+        }
+
+
+
+        .popup {
+          position: relative;
+          display: inline-block;
+          cursor: pointer;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+        }
+
+        /* The actual popup */
+        .popup .popuptext {
+          visibility: hidden;
+          width: 160px;
+          background-color: #555;
+          color: #fff;
+          text-align: center;
+          border-radius: 6px;
+          padding: 8px 0;
+          position: absolute;
+          z-index: 1;
+          bottom: 125%;
+          left: 50%;
+          margin-left: -80px;
+        }
+
+        /* Popup arrow */
+        .popup .popuptext::after {
+          content: "";
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          margin-left: -5px;
+          border-width: 5px;
+          border-style: solid;
+          border-color: #555 transparent transparent transparent;
+        }
+
+        /* Toggle this class - hide and show the popup */
+        .popup .show {
+          visibility: visible;
+          -webkit-animation: fadeIn ;
+          animation: fadeIn ;
+        }
+
+        /* Add animation (fade in the popup) */
+        @-webkit-keyframes fadeIn {
+          from {opacity: 0;} 
+          to {opacity: 1;}
+        }
+
+        @keyframes fadeIn {
+          from {opacity: 0;}
+          to {opacity:1 ;}
+        }
+
+
+        .popup .hide {
+          visibility: hidden;
+          -webkit-animation: fadeOut 1s;
+          animation: fadeOut 1s;
+        }
+        @-webkit-keyframes fadeOut {
+          from {opacity: 1;} 
+          to {opacity: 0;}
+        }
+
+        @keyframes fadeOut {
+          from {opacity: 1;}
+          to {opacity:0 ;}
+        }
+    </style>
+</head>
+
+<body>
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <div id="main-wrapper" >
+        <%- include('./partials/header_logo'); -%>
+        <%- include('./partials/header',{titel: language.WareHouse_Map}); -%>
+        <%- include('./partials/sidebar'); -%>
+        <div class="content-body">
+          <div class="container-fluid">
+              <div class="col-lg-12">
+                  <div class="card">
+                    <div class="card-header">
+                      <h4 class="card-title col-6"></h4>
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-3">
+                          <div class="form-group">
+                              <label for="invoice_no"> Warehouse </label>
+                              <select class="form-control" name="warehouse_name" id="warehouse_name" onchange="level_show()">
+                                <!-- <option value="all">All</option> -->
+                                <% warehouse.map((data) => { %>
+                                  <option value="<%= data._id %>"><%= data.name %></option>
+                                <% }) %>
+                              </select>
+                          </div>
+                        </div>
+                        <div class="col-3">
+                          <div class="form-group">
+                              <label for="invoice_no"> Level </label>
+                              <select class="form-control" name="level" id="level">
+
+                              </select>
+                          </div>
+                        </div>
+
+                        <div class="col-3">
+                          <div class="form-group">
+                            <button class="btn btn-primary" type="submit" id="submit">Generate</button>
+                          </div>
+                        </div>
+
+                        
+                      </div>
+                    </div>
+
+                    <div class="card-body table-container">
+                      <table id="dataTable">
+                        <tbody>
+
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+    <%- include('./partials/footer'); -%>
+    <%- include('./partials/toastr'); -%>
+    <%- include('./partials/script'); -%>
+    <script>
+        function level_show(){
+          var variable = document.getElementById("warehouse_name").value;
+          var selectRoom = document.getElementById("level");
+
+          $.ajax({
+              url: '/warehousemap_Income/Rooms_data',
+              method: 'POST',
+              data: { warehouse_name: variable },
+              success: function (response) {
+                let dataView = "";
+                // dataView += "<option value='all'>All</option>";
+                for (let index = 0; index <= response.length -1; index++) {
+                  const element = response[index];
+
+                  dataView += "<option value='"+element.room_name+"'>" + element.room_name + "</option>";
+                  
+                }
+                selectRoom.innerHTML = dataView;
+              }
+          });
+        }
+
+        function data_used(){
+                var warehouse = document.getElementById("warehouse_name").value;
+                var room = document.getElementById("level").value;
+                var levels = [];
+                let outputArray = [];
+                
+                if(warehouse == "TAGUIG"){
+                    
+                    switch(room){
+                        case "1":
+                        levels = [
+                            {
+                                "start": 1,
+                                "end": 16,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 17,
+                                "end": 38,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 39,
+                                "end": 60,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 61,
+                                "end": 76,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 77,
+                                "end": 92,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 93,
+                                "end": 108,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 109,
+                                "end": 124,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 125,
+                                "end": 150,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 151,
+                                "end": 176,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 177,
+                                "end": 202,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "2":
+                        levels = [
+                            {
+                                "start": 203,
+                                "end": 226,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 227,
+                                "end": 250,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 251,
+                                "end": 266,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 267,
+                                "end": 282,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 283,
+                                "end": 298,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 299,
+                                "end": 314,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 315,
+                                "end": 340,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 341,
+                                "end": 366,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 367,
+                                "end": 392,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+
+                        case "3":
+                        levels = [
+                            {
+                                "start": 393,
+                                "end": 416,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 417,
+                                "end": 440,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 441,
+                                "end": 458,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 459,
+                                "end": 476,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 477,
+                                "end": 494,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 495,
+                                "end": 512,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 513,
+                                "end": 538,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 539,
+                                "end": 563,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 564,
+                                "end": 589,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "3":
+                        levels = [
+                            {
+                                "start": 393,
+                                "end": 416,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 417,
+                                "end": 440,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 441,
+                                "end": 458,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 459,
+                                "end": 476,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 477,
+                                "end": 494,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 495,
+                                "end": 512,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 513,
+                                "end": 538,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 539,
+                                "end": 563,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 564,
+                                "end": 589,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "4":
+                        levels = [
+                            {
+                                "start": 590,
+                                "end": 607,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 608,
+                                "end": 625,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 626,
+                                "end": 643,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 644,
+                                "end": 661,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 662,
+                                "end": 689,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 690,
+                                "end": 716,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 717,
+                                "end": 744,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "5":
+                        levels = [
+                            {
+                                "start": 745,
+                                "end": 762,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 763,
+                                "end": 780,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 781,
+                                "end": 798,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 799,
+                                "end": 816,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 817,
+                                "end": 844,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 845,
+                                "end": 871,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 872,
+                                "end": 899,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "6":
+                        levels = [
+                            {
+                                "start": 899,
+                                "end": 926,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 927,
+                                "end": 953,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 954,
+                                "end": 981,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+                    }
+                    
+                  return levels
+                }
+        }
+
+        function data_array(jsondata){
+          var data = {};
+
+          jsondata.forEach((item) => {
+            var level = item.level;
+            var bay = parseInt(item.bay);
+            var count = item.totalQuantity;
+
+            if (!data[level]) {
+              data[level] = {};
+            }
+
+            if (!data[level][bay]) {
+              data[level][bay] = {
+                palletCount: count,
+                productData: [],
+              };
+            }
+
+            item.products.forEach((product) => {
+              data[level][bay].productData.push({
+                product_name: product.product_name,
+                product_quantity: product.product_quantity,
+                product_code: product.product_code,
+              });
+            });
+          });
+
+          return data;
+        }
+
+        function myFunction(i) {
+      
+          var popup = document.getElementById("myPopup"+i);
+          popup.classList.toggle("show");
+
+        }
+
+
+        function myFunctionout(i) {
+          var popup = document.getElementById("myPopup"+i);
+          popup.classList.toggle("hide");
+        }
+
+
+        $(document).ready(function() {
+          level_show();
+
+
+          $('#submit').click(function() {
+            var warehouse_value = $('#warehouse_name').val();
+            var room_value = $('#level').val();
+            let dataBody = $('#dataTable tbody');
+            $.ajax({
+              url: '/warehousemap_Income/map_value',
+              method: 'POST',
+              data: { warehouse_name: warehouse_value, room_value: room_value },
+              success: function (datareponse) {
+                dataBody.empty();
+                let datachoices = data_used();
+                var dataItems = '';
+                var json2array = data_array(datareponse);
+                // console.log(json2array)
+                datachoices.forEach((data) => {
+                  
+                  dataItems += '<tr><td rowspan="3"><strong><h1>' + data.letter + '</h1></strong></td></tr>';
+                  for(let x = data.start; x <= data.end; x++){
+                    // console.log(x)
+                    dataItems += '<td><h4>' + x + '</h4></td>';
+                  }
+                  dataItems += '</tr><tr>';
+
+                    var datahoverItem = [];
+                  for(let a = data.start; a <= data.end; a++){
+                    // for(let b = 0; b <= datareponse.length - 1; b++){
+                    //   const data_resoonse = datareponse[b];
+                      
+                    //   if(data_resoonse.level == data.letter && data_resoonse.bay == a){
+                    //     // console.log(data_resoonse.level +" == " + data.letter + " && " + data_resoonse.bay + " == " + a)
+                        
+                       
+                        
+                    //     // console.log(datahoverItem)
+                    //     dataItems += '<td class="data_color" id="data_qty" data-has-data="' + (datahoverItem[data_resoonse.bay][a]  ? true : false) + '">'+data_resoonse.totalQuantity+'<div class="emailcontainer"><table style="width: 100%;"><thead><tr><td>Product Code</td><td>Product Name</td><td>Qty</td></tr></thead><tbody>'+datahoverItem[data_resoonse.bay][a] +'</tbody></table></div></td>';
+                    //   }else{
+       
+                    //     dataItems += '<td>&nbsp;'+a+'</td>';
+                    //   }
+                    // }
+                      // console.log(json2array[data.letter][a])
+
+                    // if(datareponse.level == data.letter && data_resoonse.bay == a){
+
+                    // }else{
+                    //   dataItems += '<td>&nbsp;'+a+'</td>';
+                    // }
+                    if(json2array && json2array[data.letter] && json2array[data.letter][a]){
+                      // dataItems += '<td class="data_color" id="data_qty" data-has-data="' + (datahoverItem[data_resoonse.bay][a]  ? true : false) + '">'+data_resoonse.totalQuantity+'<div class="emailcontainer"><table style="width: 100%;"><thead><tr><td>Product Code</td><td>Product Name</td><td>Qty</td></tr></thead><tbody>'+datahoverItem[data_resoonse.bay][a] +'</tbody></table></div></td>';
+                      if (!datahoverItem[data.letter]) {
+                        datahoverItem[data.letter] = {};
+                      }
+                      datahoverItem[data.letter][a] = '';
+
+                      console.log(json2array[data.letter][a].productData)
+                      const data_detl = json2array[data.letter][a].productData;
+                      for(let d = 0; d <= data_detl.length -1; d++){
+                          const product_detl = data_detl[d];
+
+                          datahoverItem[data.letter][a] += '<tr>';
+                          datahoverItem[data.letter][a]  += '<td>';
+                          datahoverItem[data.letter][a]  += product_detl.product_code;
+                          datahoverItem[data.letter][a] += '</td>';
+                          datahoverItem[data.letter][a]  += '<td>';
+                          datahoverItem[data.letter][a]  += product_detl.product_name;
+                          datahoverItem[data.letter][a] += '</td>';
+                          datahoverItem[data.letter][a] += '<td>';
+                          datahoverItem[data.letter][a]  += product_detl.product_quantity;
+                          datahoverItem[data.letter][a]  += '</td>';
+                          datahoverItem[data.letter][a]  += '</tr>';
+                          
+                        }
+
+
+                      dataItems += '<td class="data_color" id="data_qty'+a+'" data-has-data="' + (datahoverItem[data.letter][a]  ? true : false) + '">'+json2array[data.letter][a].palletCount+'<div class="emailcontainer"><table style="width: 100%;"><thead><tr><td>Product Code</td><td>Product Name</td><td>Qty</td></tr></thead><tbody>'+datahoverItem[data.letter][a] +'</tbody></table></div></td>';
+                   
+                      $(document).ready(function () {
+                      $("#data_qty"+a).hover(function () {
+                            // alert($(this).data("has-data"))
+                              if ($(this).data("has-data") === true) {
+                                  $(this).find('.emailcontainer').show('slow');
+                              }
+                              // alert("test")
+                          }, function () {
+                              $(this).find('.emailcontainer').hide('slow');
+                          });
+                      });
+                    }else{
+                      dataItems += '<td onmouseover="myFunction('+a+')" onmouseout="myFunctionout('+a+')"><div class="popup"> <span class="popuptext" id="myPopup'+a+'">Vacant!</span></div></td>';
+                    }
+
+                      // console.log(data.letter + " <> " + a)
+                    
+                  }
+                  dataItems += '</tr>';
+                 
+                })
+               
+                
+                  
+                
+
+                dataBody.append(dataItems);
+                
+              },
+            });
+            
+          })
+
+
+         
+        })
+    </script>
+
+</html>
