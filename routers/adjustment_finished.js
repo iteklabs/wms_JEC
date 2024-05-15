@@ -195,8 +195,8 @@ router.get("/view/add_adjustment", auth, async (req, res) => {
         }else if(master[0].language == "Arabic (ae)") {
             var lan_data = users.Arabic
         }
-        res.json(warehouse_data);
-        return
+        // res.json(warehouse_data);
+        // return
         const randominv = getRandom8DigitNumber();
 
         randominv.then(invoicedata => {
@@ -1168,8 +1168,8 @@ router.post("/barcode_scanner", async (req, res) => {
                     primary_code: { $first: "$product_details.primary_code" },
                     secondary_code: {$first: "$product_details.secondary_code" },
                     product_code: { $first: "$product_details.product_code" },
-                    level: { $first: "$product_details.bay" },
-                    isle: { $first: "$product_details.bin" },
+                    level: { $first: "$product_details.level" },
+                    bay: { $first: "$product_details.bay" },
                     type: { $first: "$product_details.type" },
                     pallet: { $first: "$product_details.floorlevel" },
                     unit: { $first: "$product_details.unit" },
@@ -1206,8 +1206,8 @@ router.post("/barcode_scanner", async (req, res) => {
                     primary_code: { $first: "$product_details.primary_code" },
                     secondary_code: {$first: "$product_details.secondary_code" },
                     product_code: { $first: "$product_details.product_code" },
-                    level: { $first: "$product_details.bay" },
-                    isle: { $first: "$product_details.bin" },
+                    level: { $first: "$product_details.level" },
+                    bay: { $first: "$product_details.bay" },
                     type: { $first: "$product_details.type" },
                     pallet: { $first: "$product_details.floorlevel" },
                     unit: { $first: "$product_details.unit" },

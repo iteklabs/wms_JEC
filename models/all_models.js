@@ -1929,7 +1929,10 @@ const adjustment_data_finished = new mongoose.Schema({
             type: String
         },
         bay:{
-            type: Number
+            type: String
+        },
+        level:{
+            type: String
         },
         stockBefore:{
             type: Number

@@ -784,6 +784,7 @@ router.post("/preview/:id", auth , async (req, res) => {
                     product_name: element.product_name, 
                     product_stock: element.quantity, 
                     bay: element.bay, 
+                    level: element.level, 
                     product_code: element.product_code, 
                     primary_code: element.primary_code, 
                     secondary_code: element.secondary_code, 
