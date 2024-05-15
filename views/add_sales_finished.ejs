@@ -1068,23 +1068,17 @@
         function agentlist(int){
            
             var dataSelectID = document.getElementById('agent'+int);
-            
+            console.log(int)
             $.ajax({
                 url: '/warehousemap_Income/staff_sales',
                 method: 'POST',
                 // data: { warehouse_name: variable },
                 success: function (response) {
-                    var dataselect = "";
-                    dataselect = "<select class='form-control' style='width: 150px;' name='agentSelected'>";
-
-                    $.each(response, function (index, data) {
-                        dataselect += "<option value='"+data._id+"'>";
-                        dataselect += data.name;
-                        dataselect += "<option>";
-                    });
-
-                    
-                    dataselect += "<select>";
+                    let dataselect = "";
+                    for(let a = 0; a <=  response.length - 1; a++){
+                        var data = response[a];
+                        dataselect += "<option value='"+data._id+"'> "+data.name+"</option>";
+                    }
                     dataSelectID.innerHTML = dataselect
                 }
             });
@@ -1179,8 +1173,8 @@ $(document).ready(function() {
                 row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+x+'" value="" readonly>'));
                 row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="RoomAssigned" id="RoomAssigned'+x+'" value="'+data.roomNamed+'" readonly>'));
                 
-                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="level2" value="' + valCatwars+data.level + '" readonly>'));
-                row.append($('<td>').html('<div id="agent'+x+'"></div>'));
+                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="level2" value="' + data.level+data.bay + '" readonly>'));
+                row.append($('<td>').html('<select id="agent'+x+'" class="form-control" style="width: 150px;"" name="agentSelected"></select>'));
                 row.append($('<td>').html('<button type="button" class="btn btn-square btn-dark" id="remove">Remove</button>'));
                 
 

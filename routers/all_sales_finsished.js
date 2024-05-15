@@ -472,7 +472,10 @@ router.post("/view/add_sales", auth, async (req, res) => {
 
 
         level_array.forEach((value,i) => {
-            newproduct[i].bay = value
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].bay = number
+            newproduct[i].level = letter
         });
 
 
@@ -2223,8 +2226,8 @@ router.post("/barcode_scanner", async (req, res) => {
                     primary_code: { $first: "$product_details.primary_code" },
                     secondary_code: {$first: "$product_details.secondary_code" },
                     product_code: { $first: "$product_details.product_code" },
-                    level: { $first: "$product_details.bay" },
-                    isle: { $first: "$product_details.bin" },
+                    level: { $first: "$product_details.level" },
+                    bay: { $first: "$product_details.bay" },
                     type: { $first: "$product_details.type" },
                     pallet: { $first: "$product_details.floorlevel" },
                     unit: { $first: "$product_details.unit" },

@@ -140,8 +140,6 @@ router.get("/view/add_adjustment", auth, async (req, res) => {
                     $match: { 
                         "status" : 'Enabled', 
                         name: staff_data.warehouse,
-                        "warehouse_category" : "Finished Goods",
-                        "name": { $ne: "QA Warehouse" }
                     }
                 },
                 {
@@ -157,8 +155,6 @@ router.get("/view/add_adjustment", auth, async (req, res) => {
                 {
                     $match: { 
                         "status" : 'Enabled',
-                        "warehouse_category" : "Finished Goods",
-                        "name": { $ne: "QA Warehouse" }
                     }
                 },
                 {
@@ -199,7 +195,8 @@ router.get("/view/add_adjustment", auth, async (req, res) => {
         }else if(master[0].language == "Arabic (ae)") {
             var lan_data = users.Arabic
         }
-
+        res.json(warehouse_data);
+        return
         const randominv = getRandom8DigitNumber();
 
         randominv.then(invoicedata => {

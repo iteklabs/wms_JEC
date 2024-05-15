@@ -1232,17 +1232,11 @@ const sales_data_finished = new mongoose.Schema({
         product_code: {
             type: String
         },
-        storage:{
-            type: String
-        },
-        rack:{
+        level:{
             type: String
         },
         bay:{
            type: Number 
-        },
-        bin:{
-            type: mongoose.Schema.Types.Mixed
         },
         type:{
             type: String
