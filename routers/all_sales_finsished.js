@@ -394,7 +394,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
             var primary_code_array = [req.body.primary_code]
             var secondary_code_array = [req.body.secondary_code]
             var prod_code_array = [req.body.prod_code]
-            var level_array = [req.body.level]
+            var level_array = [req.body.level2]
             var unit_array = [req.body.primary_unit]
             var secondaryUnit_array = [req.body.secondary_unit]
             var batchcode_array = [req.body.batch_code]
@@ -415,7 +415,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
             var primary_code_array = [...req.body.primary_code]
             var secondary_code_array = [...req.body.secondary_code]
             var prod_code_array = [...req.body.prod_code]
-            var level_array = [...req.body.level]
+            var level_array = [...req.body.level2]
             var unit_array = [...req.body.primary_unit]
             var secondaryUnit_array = [...req.body.secondary_unit]
             var batchcode_array = [...req.body.batch_code]
@@ -470,10 +470,12 @@ router.post("/view/add_sales", auth, async (req, res) => {
             newproduct[i].product_code = value
         });
 
-
         level_array.forEach((value,i) => {
             var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
             var number = parseInt(value.match(/\d+/)[0]);
+
+
+            console.log(value)
             newproduct[i].bay = number
             newproduct[i].level = letter
         });
@@ -513,6 +515,8 @@ router.post("/view/add_sales", auth, async (req, res) => {
         prod_invoice_array.forEach((value, i) =>{
             newproduct[i].invoice = value
         })
+// res.json(newproduct)
+//         return 
         var error = 0
         newproduct.forEach(data => {
             // console.log(parseFloat(data.stock) + "<" + parseFloat(data.quantity) + "&&" + parseFloat(data.quantity) + ">" + parseFloat(data.stock));
