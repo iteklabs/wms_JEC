@@ -229,9 +229,13 @@ router.post("/add_sales", auth,  async(req, res) => {
         id_transaction_array.forEach((value,i) => {
             newproduct[i].id_transaction_from = value
         });
+
+
+    
         const invoice = new invoice_sa();
         await invoice.save();
-
+        // res.json(invoice);
+        // return
         const role_data = req.user
         const staff_data = await staff.findOne({email: role_data.email});
 

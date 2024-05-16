@@ -272,7 +272,10 @@ router.post("/view/add_adjustment", auth, async(req, res) => {
         })
         
         level_array.forEach((value,i) => {
-            newproduct[i].bay = value
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].level = letter
+            newproduct[i].bay = number
         });
 
 
