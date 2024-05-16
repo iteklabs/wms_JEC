@@ -1086,7 +1086,7 @@
                         row.append($('<td>').html('<select class="form-control" style="width: 150px;" onchange="myFunctionCompute('+ x +')" name="types" id="types' + x + '"> <option value="minus"> Subtract </option> <option value="add"> Add </option></select>'));
                         row.append($('<td>').html('<input type="text" class="form-control unit" style="width: 100px;" name="unit" id="unit' + x + '" value="" readonly>'));
                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 100px;" name="Rooms" value="' + data.roomNamed + '" readonly>'));
-                        row.append($('<td>').html('<input type="text" class="form-control level" style="width: 80px;" name="level2" id="level2'+data.product_code+ x +'" value="' + valCatwars+levelData + '" readonly>'));
+                        row.append($('<td>').html('<input type="text" class="form-control level" style="width: 80px;" name="level2" id="level2'+data.product_code+ x +'" value="' + data.level+data.bay + '" readonly>'));
                         row.append($('<td>').html('<input type="number" class="form-control new_adjust_qty" style="width: 95px;" name="new_adjust_qty" id="new_adjust_qty' + x + '" value="" readonly>'));
                         row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
                     

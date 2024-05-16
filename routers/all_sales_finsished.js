@@ -828,84 +828,82 @@ router.post("/preview/:id", auth , async (req, res) => {
                                         '<td style="border: 1px solid black;">' + product_list[n].bay+ '</td>'
                 }
 
-
-                let mailTransporter = nodemailer.createTransport({
-                    host: email_data.host,
-                    port: Number(email_data.port),
-                    secure: false,
-                    auth: {
-                        user: email_data.email,
-                        pass: email_data.password
-                    }
-                });
-                let mailDetails = {
-                    from: email_data.email,
-                    to: supervisor_data[0].FGSEmail,
-                    subject:'Sales Mail',
-                    attachments: [{
-                        filename: 'Logo.png',
-                        path: __dirname + '/../public' +'/upload/'+master[0].image,
-                        cid: 'logo'
-                    }],
-                    html:'<!DOCTYPE html>'+
-                        '<html><head><title></title>'+
-                        '</head><body>'+
-                            '<div>'+
-                                '<div style="display: flex; align-items: center; justify-content: center;">'+
-                                    '<div>'+
-                                        '<img src="cid:logo" class="rounded" width="66.5px" height="66.5px"></img>'+
-                                    '</div>'+
+            // if(email_data.length > 0){
+            //     let mailTransporter = nodemailer.createTransport({
+            //         host: email_data.host,
+            //         port: Number(email_data.port),
+            //         secure: false,
+            //         auth: {
+            //             user: email_data.email,
+            //             pass: email_data.password
+            //         }
+            //     });
+            //     let mailDetails = {
+            //         from: email_data.email,
+            //         to: supervisor_data[0].FGSEmail,
+            //         subject:'Sales Mail',
+            //         attachments: [{
+            //             filename: 'Logo.png',
+            //             path: __dirname + '/../public' +'/upload/'+master[0].image,
+            //             cid: 'logo'
+            //         }],
+            //         html:'<!DOCTYPE html>'+
+            //             '<html><head><title></title>'+
+            //             '</head><body>'+
+            //                 '<div>'+
+            //                     '<div style="display: flex; align-items: center; justify-content: center;">'+
+            //                         '<div>'+
+            //                             '<img src="cid:logo" class="rounded" width="66.5px" height="66.5px"></img>'+
+            //                         '</div>'+
                                 
-                                    '<div>'+
-                                        '<h2> '+ master[0].site_title +' </h2>'+
-                                    '</div>'+
-                                '</div>'+
-                                '<hr class="my-3">'+
-                                '<div>'+
-                                    '<h5 style="text-align: left;">'+
-                                        ' Order Number : '+ new_sales.invoice +' '+
-                                        '<span style="float: right;">'+
-                                            ' Order Date : '+ new_sales.date +' '+
-                                        '</span>'+
+            //                         '<div>'+
+            //                             '<h2> '+ master[0].site_title +' </h2>'+
+            //                         '</div>'+
+            //                     '</div>'+
+            //                     '<hr class="my-3">'+
+            //                     '<div>'+
+            //                         '<h5 style="text-align: left;">'+
+            //                             ' Order Number : '+ new_sales.invoice +' '+
+            //                             '<span style="float: right;">'+
+            //                                 ' Order Date : '+ new_sales.date +' '+
+            //                             '</span>'+
                                         
-                                    '</h5>'+
-                                '</div>'+
-                                '<table style="width: 100% !important;">'+
-                                    '<thead style="width: 100% !important;">'+
-                                        '<tr>'+
-                                            '<th style="border: 1px solid black;"> Product Name </th>'+
-                                            '<th style="border: 1px solid black;"> Product Code </th>'+
-                                            '<th style="border: 1px solid black;"> Product Quantity </th>'+
-                                            '<th style="border: 1px solid black;"> Unit </th>'+
-                                            '<th style="border: 1px solid black;"> Secondary Unit </th>'+
-                                            '<th style="border: 1px solid black;"> Warehouse</th>'+
-                                            '<th style="border: 1px solid black;"> Room</th>'+
-                                            '<th style="border: 1px solid black;"> Location </th>'+
-                                        '</tr>'+
-                                    '</thead>'+
-                                    '<tbody style="text-align: center;">'+
-                                        ' '+ arrayItems +' '+
-                                    '</tbody>'+
-                                '</table>'+
+            //                         '</h5>'+
+            //                     '</div>'+
+            //                     '<table style="width: 100% !important;">'+
+            //                         '<thead style="width: 100% !important;">'+
+            //                             '<tr>'+
+            //                                 '<th style="border: 1px solid black;"> Product Name </th>'+
+            //                                 '<th style="border: 1px solid black;"> Product Code </th>'+
+            //                                 '<th style="border: 1px solid black;"> Product Quantity </th>'+
+            //                                 '<th style="border: 1px solid black;"> Unit </th>'+
+            //                                 '<th style="border: 1px solid black;"> Secondary Unit </th>'+
+            //                                 '<th style="border: 1px solid black;"> Warehouse</th>'+
+            //                                 '<th style="border: 1px solid black;"> Room</th>'+
+            //                                 '<th style="border: 1px solid black;"> Location </th>'+
+            //                             '</tr>'+
+            //                         '</thead>'+
+            //                         '<tbody style="text-align: center;">'+
+            //                             ' '+ arrayItems +' '+
+            //                         '</tbody>'+
+            //                     '</table>'+
                             
-                                '<div>'+
-                                    '<strong> Regards </strong>'+
-                                    '<h5>'+ master[0].site_title +'</h5>'+
-                                '</div>'+
-                            '</div>'+
-                        '</body></html>'
-                };
-
-
-
-                mailTransporter.sendMail(mailDetails, function(err, data) {
-                    if(err) {
-                        console.log(err);
-                        console.log('Error Occurs');
-                    } else {
-                        console.log('Email sent successfully');
-                    }
-                });
+            //                     '<div>'+
+            //                         '<strong> Regards </strong>'+
+            //                         '<h5>'+ master[0].site_title +'</h5>'+
+            //                     '</div>'+
+            //                 '</div>'+
+            //             '</body></html>'
+            //     };
+            //     mailTransporter.sendMail(mailDetails, function(err, data) {
+            //         if(err) {
+            //             console.log(err);
+            //             console.log('Error Occurs');
+            //         } else {
+            //             console.log('Email sent successfully');
+            //         }
+            //     });
+            // }
                 req.flash("success", `Sales Update successfully`)
                 res.redirect("/picking_list/pdf/"+_id)
     } catch (error) {
