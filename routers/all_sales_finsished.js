@@ -7,6 +7,7 @@ const nodemailer = require('nodemailer');
 const users = require("../public/language/languages.json");
 
 
+
 router.get("/view", auth, async (req, res) => {
     try {
         const {username, email, role} = req.user
@@ -406,7 +407,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
             var prod_invoice_array = [req.body.prod_invoice]
             var id_transaction_from_array = [req.body.id_transaction_from]
             var agentSelected_array = [req.body.agentSelected]
-            
+            var uuid_array = [req.body.uuid]
             
         }else{
             var product_name_array = [...req.body.product_name]
@@ -427,6 +428,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
             var prod_invoice_array = [...req.body.prod_invoice]
             var id_transaction_from_array = [...req.body.id_transaction_from]
             var agentSelected_array = [...req.body.agentSelected]
+            var uuid_array = [...req.body.uuid]
         } 
 
         
@@ -449,6 +451,11 @@ router.post("/view/add_sales", auth, async (req, res) => {
 
         agentSelected_array.forEach((value,i) => {
             newproduct[i].agent_id = value
+        })
+
+
+        uuid_array.forEach((value,i) => {
+            newproduct[i].uuid = value
         })
 
 
@@ -748,7 +755,8 @@ router.post("/preview/:id", auth , async (req, res) => {
        
          // --------- warehouse ------- //
         const new_sales = await sales_finished.findOne({ invoice: invoice });
-
+        // res.json(new_sales);
+        // return
         for (let index = 0; index <= new_sales.sale_product.length-1; index++) {
             const element = new_sales.sale_product[index];
             var warehouse_data = await warehouse.findOne({ name: warehouse_name, room: element.room_name });
@@ -756,12 +764,13 @@ router.post("/preview/:id", auth , async (req, res) => {
             // deduct in warehouse
             for (let a = 0; a <= warehouse_data.product_details.length-1; a++) {
                 const warehouse_detl = warehouse_data.product_details[a];
-                if (warehouse_detl._id == element.id_transaction_from) {
+                if (warehouse_detl._id == element.id_transaction_from && warehouse_detl.uuid == element.uuid) {
                     totalstock = Math.max(0, Math.abs(warehouse_detl.product_stock) - Math.abs(element.quantity))
                     await warehouse.updateOne(
                         { 
-                            _id: warehouse_data._id.valueOf(), // Warehouse ID
-                            "product_details._id": warehouse_detl._id.valueOf() // Product detail ID
+                            _id: warehouse_data._id.valueOf(),
+                            "product_details._id": warehouse_detl._id.valueOf(),
+                            "product_details.uuid": element.uuid
                         },
                         { 
                             $set: { 
@@ -777,12 +786,15 @@ router.post("/preview/:id", auth , async (req, res) => {
             var c = 0;
             for (let b = 0; b <= to_sales_data.product_list.length-1; b++) {
                 const staff_data = to_sales_data.product_list[b];
-                if(element.id_transaction_from == staff_data.warehouse_id){
+                console.log(element.id_transaction_from + " == " + staff_data.warehouse_id + " && " + element._id + " == " + element._id)
+                if(element.id_transaction_from == staff_data.warehouse_id && element._id == 1){
                     staff_data.product_stock = Math.abs(staff_data.product_stock) + Math.abs(element.quantity)
                     c++;
                 }
                 
             }
+
+            console.log("int",c)
             if (c == "0") {
                 to_sales_data.product_list = to_sales_data.product_list.concat({ 
                     product_name: element.product_name, 
@@ -803,6 +815,7 @@ router.post("/preview/:id", auth , async (req, res) => {
                     invoice: element.invoice,
                     warehouse_id: element.id_transaction_from,
                     id_incoming: element._id,
+                    uuid: element.uuid, 
                 })
                 await to_sales_data.save();
             }
@@ -2208,7 +2221,8 @@ router.post("/barcode_scanner", async (req, res) => {
     const { product_code, warehouse_name, rooms_data, Roomslist } = req.body;
     const RoomAll = Roomslist.split(",");
     const results = [];
-
+    
+    
     // Define a function to fetch stock data asynchronously
     async function fetchStockData(value) {
         const stock_data = await warehouse.aggregate([
@@ -2245,6 +2259,7 @@ router.post("/barcode_scanner", async (req, res) => {
                     computeUsed : { $first: "P" },
                     roomNamed : { $first: "$room" },
                     invoice : { $first: "$product_details.invoice" },
+                    uuid : { $first: "$product_details.uuid" }
                    
                 }
             },
@@ -2284,7 +2299,8 @@ router.post("/barcode_scanner", async (req, res) => {
                     product_cat:{ $first: "$product_details.product_cat" },
                     computeUsed : { $first: "S" },
                     roomNamed : { $first: "$room" },
-                    invoice : { $first: "$product_details.invoice" }
+                    invoice : { $first: "$product_details.invoice" },
+                    uuid : { $first: "$product_details.uuid" }
                 }
             },
         ]);

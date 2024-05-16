@@ -1188,6 +1188,14 @@ $(document).ready(function() {
 
                 $('<input>').attr({
                     type: 'hidden',
+                    id: 'uuid',
+                    name: 'uuid',
+                    value: data.uuid
+                }).appendTo(row);
+
+
+                $('<input>').attr({
+                    type: 'hidden',
                     id: 'primary_unit'+x,
                     name: 'primary_unit',
                     value: data.unit

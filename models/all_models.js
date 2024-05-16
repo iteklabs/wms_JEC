@@ -276,6 +276,9 @@ const warehouse_data = new mongoose.Schema({
             },
             id_incoming: {
                 type: String
+            },
+            uuid: {
+                type: String
             }
         }
     ]
@@ -408,6 +411,9 @@ const staff_data = new mongoose.Schema({
             isConfirm: {
                 type: String,
                 default: "false"
+            },
+            uuid: {
+                type: String
             }
         }
     ]
@@ -859,6 +865,9 @@ const purchases_data_finished = new mongoose.Schema({
         },
         invoice: {
             type: String
+        },
+        uuid: {
+            type: String
         }
     }],
     note: {
@@ -1278,6 +1287,9 @@ const sales_data_finished = new mongoose.Schema({
             type: String
         },
         agent_id:{
+            type: String
+        },
+        uuid: {
             type: String
         }
     }],

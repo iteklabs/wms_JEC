@@ -401,6 +401,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             var prod_cat_array = [req.body.prod_cat]
             var RoomAssign_array = [req.body.RoomAssign]
             var prod_invoice_array = [req.body.prod_invoice]
+            var uuid_array = [req.body.uuid]
             // console.log("if");
         }else{
             var product_name_array = [...req.body.prod_name]
@@ -419,6 +420,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             var prod_cat_array = [...req.body.prod_cat]
             var RoomAssign_array = [...req.body.RoomAssign]
             var prod_invoice_array = [...req.body.prod_invoice]
+            var uuid_array = [...req.body.uuid]
         } 
         
         const newproduct = product_name_array.map((value)=>{
@@ -431,6 +433,10 @@ router.post("/view/add_purchases", auth, async (req, res) => {
         
         proudct_code_array.forEach((value,i) => {
             newproduct[i].product_code = value
+        });
+
+        uuid_array.forEach((value,i) => {
+            newproduct[i].uuid = value
         });
         
         
@@ -581,7 +587,8 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                         batch_code: product_details.batch_code,
                         product_cat: product_details.product_cat,
                         invoice: product_details.invoice,
-                        id_incoming: product_details._id
+                        id_incoming: product_details._id,
+                        uuid: product_details.uuid
                     })
                 }
         
@@ -1676,6 +1683,7 @@ router.get("/barcode/:id", auth, async (req, res) => {
 
 router.post("/barcode_scanner", async (req, res) => {
     const { product_code } = req.body
+    
 
  var checkData;
     const product_data1 = await product.aggregate([
