@@ -232,6 +232,20 @@
                 totalPrice.value = totalAll;
                 console.log(x)
             }
+            function checkingQuantityStocks(x){
+                var qty_value = document.getElementById("quantity"+x).value;
+                var stock_qty = document.getElementById("stock_qty"+x).value;
+
+                if(stock_qty < qty_value){
+                    Swal.fire({
+                        title: "Warning!",
+                        text: "The requested quantity exceeds the available stock.",
+                        icon: "warning"
+                    });
+                    document.getElementById("quantity"+x).value = "";
+                }
+                
+            }
             $(document).on('click', 'button#remove', function(event) {
                     removeSelfRow(event);
             });
@@ -295,8 +309,8 @@
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="batch_code" value="' + data.product_list.batch_code + '" readonly>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="production_date" value="' + data.product_list.production_date + '" readonly>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="expiry_date" value="' + data.product_list.expiry_date + '" readonly>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" value="' + data.product_list.product_stock + '" readonly>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" id="quantity'+x+'" value="">'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="' + data.product_list.product_stock + '" readonly>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onkeyup="checkingQuantityStocks('+x+')" id="quantity'+x+'" value="" required>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + data.product_list.unit + '" readonly>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
@@ -335,6 +349,8 @@
                     })
                 })
             })
+        
+        
         </script>
 </body>
 
