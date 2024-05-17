@@ -121,7 +121,10 @@ router.post("/view/:id", auth, upload.single("image"), async(req, res) => {
             profile_data.firstname = firstname
             profile_data.lastname = lastname
             profile_data.email = email
-            profile_data.image = image
+            if(image.length > 0){
+                profile_data.image = image
+            }
+            
             console.log("profile_data", profile_data);
     
             await profile_data.save()
