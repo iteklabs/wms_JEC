@@ -1005,11 +1005,10 @@
                 TotalQtyStock = new_adjust_qty.value / c;
                 TotalQtyAdjustment = adjust_qty.value / c
             }
+            console.log(TotalQtyStock)
             New_Qty_Converted.value = TotalQtyStock;
             New_Qty_Converted_adj.value = TotalQtyAdjustment;
-            // stock.value = TotalQtyStock;
-            // unit.value = UOM;
-            // console.log(TotalQtyAdjustment + " <> " + adjust_qty + " <> " + c )
+
 
         }
 
@@ -1077,7 +1076,8 @@
                         
                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 130px;" name="prod_code" value="' + data.product_code + '" readonly>'));
                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 400px;" name="prod_name" value="' + data.name + '" readonly>'));
-                        row.append($('<td>').html('<input type="number" class="form-control adjust_qty" style="width: 150px;" name="adjust_qty" id="adjust_qty' + x + '" oninput="myFunctionCompute('+ x +')"  onkeyup="ValidationForMaxQTY('+ data.product_code +', ' + x + '); ComputeConversionI('+x+', '+data.maxPerUnit+');" value="">'));
+                        // row.append($('<td>').html('<input type="number" class="form-control adjust_qty" style="width: 150px;" name="adjust_qty" id="adjust_qty' + x + '" oninput="myFunctionCompute('+ x +')"  onkeyup="ValidationForMaxQTY('+ data.product_code +', ' + x + '); ComputeConversionI('+x+', '+data.maxPerUnit+');" value="">'));
+                            row.append($('<td>').html('<input type="number" class="form-control adjust_qty" style="width: 150px;" name="adjust_qty" id="adjust_qty' + x + '" oninput="myFunctionCompute('+ x +')"  onkeyup="ComputeConversionI('+x+', '+data.maxPerUnit+');" value="">'));
                         row.append($('<td>').html('<input type="text" class="form-control batch_code" style="width: 150px;" name="batch_code" id="batch_code' + x + '" value="'+data.batch_code+'" readonly>'));
                         row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="product_date" value="'+ data.production_date +'" readonly>'));
                         row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="expiry_date" value="'+ data.expiry_date +'" readonly>'));
@@ -1097,7 +1097,7 @@
                         type: 'hidden',
                         id: 'level'+data.product_code,
                         name: 'level',
-                        value: levelData
+                        value: data.level+data.bay
                         }).appendTo(row);
 
                         $('<input>').attr({
@@ -1178,6 +1178,14 @@
                             id: 'prod_invoice'+x,
                             name: 'prod_invoice',
                             value: data.invoice
+                        }).appendTo(row);
+
+
+                        $('<input>').attr({
+                            type: 'hidden',
+                            id: 'id_transaction_from',
+                            name: 'id_transaction_from',
+                            value: data._id
                         }).appendTo(row);
 
                         $('#tblPage_new').append(row);

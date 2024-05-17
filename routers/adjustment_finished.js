@@ -244,6 +244,7 @@ router.post("/view/add_adjustment", auth, async(req, res) => {
             var Rooms_array = [req.body.Rooms]
             var maxPerUnit_array = [req.body.maxPerUnit]
             var prod_invoice_array = [req.body.prod_invoice]
+            var id_transaction_array = [req.body.id_transaction_from]
         
         }else{
             var product_name_array = [...req.body.prod_name]
@@ -262,14 +263,18 @@ router.post("/view/add_adjustment", auth, async(req, res) => {
             var Rooms_array = [...req.body.Rooms]
             var maxPerUnit_array = [...req.body.maxPerUnit]
             var prod_invoice_array = [...req.body.prod_invoice]
+            var id_transaction_array = [...req.body.id_transaction_from]
         } 
-        
+        // res.json(req.body);
+        // return;
         const newproduct = product_name_array.map((value)=>{
             
             return  value  = {
                         product_name : value,
                     } 
         })
+
+        
         
         level_array.forEach((value,i) => {
             var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
@@ -277,6 +282,10 @@ router.post("/view/add_adjustment", auth, async(req, res) => {
             newproduct[i].level = letter
             newproduct[i].bay = number
         });
+
+        id_transaction_array.forEach((value, i) => {
+            newproduct[i].id_transaction = value
+        })
 
 
         stock_array.forEach((value,i) => {
@@ -338,7 +347,6 @@ router.post("/view/add_adjustment", auth, async(req, res) => {
         })
 
 
-        
 
         const newFilter = newproduct.filter(obj => obj.adjust_qty !== "0" && obj.adjust_qty !== "");
         var error = 0
@@ -355,6 +363,8 @@ router.post("/view/add_adjustment", auth, async(req, res) => {
             return res.redirect("back")
         }
 
+        // res.json(newproduct);
+        // return;
         const data = new adjustment_finished({ warehouse_name, date, product:newFilter, note, room: Room_name, invoice, JO_number, expiry_date })
 
         const adjustment_data = await data.save() 
@@ -403,7 +413,7 @@ router.get("/preview/:id", auth , async (req, res) => {
             {
                 $match: { 
                     "name": adjustment_data.warehouse_name,
-                    "warehouse_category" : "Finished Goods"
+                    // "warehouse_category" : "Finished Goods"
                     // "room": adjustment_data.room 
                 }
             },
@@ -433,52 +443,6 @@ router.get("/preview/:id", auth , async (req, res) => {
             },
         ])
 
-        // res.json(stock_data)
-        // return
-        // const RoomAll = adjustment_data.product;
-        
-        // const results = [];
-        // async function fetchStockData(value) {
-        //     const stock_data = await warehouse.aggregate([
-        //         {
-        //             $match: { 
-        //                 "name": adjustment_data.warehouse_name,
-        //                 "room": value 
-        //             }
-        //         },
-        //         {
-        //             $unwind: "$product_details"
-        //         },
-        //         {
-        //             $group: {
-        //                 _id: "$product_details._id",
-        //                 name: { $first: "$product_details.product_name"},
-        //                 product_stock: { $first: "$product_details.product_stock" },
-        //                 bay: { $first: "$product_details.bay" },
-        //                 bin: { $first: "$product_details.bin" },
-        //                 type: { $first: "$product_details.type" },
-        //                 floorlevel: { $first: "$product_details.floorlevel" },
-        //                 primary_code: { $first: "$product_details.primary_code" },
-        //                 secondary_code: { $first: "$product_details.secondary_code" },
-        //                 product_code: { $first: "$product_details.product_code" },
-        //                 storage: { $first: "$product_details.storage" },
-        //                 rack: { $first: "$product_details.rack" },
-        //                 expiry_date: { $first: "$product_details.expiry_date" },
-        //                 production_date: { $first: "$product_details.production_date" },
-        //                 batch_code: { $first: "$product_details.batch_code"},
-        //                 maxPerUnit: { $first: "$product_details.maxPerUnit"},
-        //             }
-        //         },
-        //     ])
-
-        //     results.push(stock_data);
-
-        // }
-
-
-        // const promises = RoomAll.map((value) => fetchStockData(value.room_names));
-        // await Promise.all(promises);
-
         if (master[0].language == "English (US)") {
             var lan_data = users.English
             console.log(lan_data);
@@ -503,7 +467,8 @@ router.get("/preview/:id", auth , async (req, res) => {
         }else if(master[0].language == "Arabic (ae)") {
             var lan_data = users.Arabic
         }
-
+// res.json(adjustment_data);
+// return;
         res.render("edit_adjustment_finished_view", {
             success: req.flash('success'), 
             errors: req.flash('errors'),
@@ -535,17 +500,17 @@ router.post("/preview/:id", auth , async (req, res) => {
         const promises = data.product.map( async (product_details) => {
             
             if(product_details.adjust_qty > 0){
-                warehouse_data = await warehouse.findOne({ name: warehouse_name, room: product_details.room_names, warehouse_category : "Finished Goods" });
+                warehouse_data = await warehouse.findOne({ name: warehouse_name, room: product_details.room_names });
                 
                 const match_data = warehouse_data.product_details.map((data) => {
                     console.log(product_details.types)
                     if (product_details.types == "minus") {
-                        if (data.product_name == product_details.product_name  && data.bay == product_details.bay && data.expiry_date == product_details.expiry_date  && data.production_date == product_details.production_date && data.batch_code == product_details.batch_code && data.invoice == product_details.invoice) {
+                        if (data._id == product_details.id_transaction) {
                             data.product_stock = data.product_stock - product_details.adjust_qty
                         }
                     } else if(product_details.types == "add") {
                         
-                        if (data.product_name == product_details.product_name && data.bay == product_details.bay && data.expiry_date == product_details.expiry_date  && data.production_date == product_details.production_date && data.batch_code == product_details.batch_code && data.invoice == product_details.invoice) {
+                        if (data._id == product_details.id_transaction) {
                             data.product_stock = data.product_stock + product_details.adjust_qty
                         }
                     }
@@ -601,84 +566,84 @@ router.post("/preview/:id", auth , async (req, res) => {
                     }
 
 
-                    let mailTransporter = nodemailer.createTransport({
-                        host: email_data.host,
-                        port: Number(email_data.port),
-                        secure: false,
-                        auth: {
-                            user: email_data.email,
-                            pass: email_data.password
-                        }
-                    });
+                    // let mailTransporter = nodemailer.createTransport({
+                    //     host: email_data.host,
+                    //     port: Number(email_data.port),
+                    //     secure: false,
+                    //     auth: {
+                    //         user: email_data.email,
+                    //         pass: email_data.password
+                    //     }
+                    // });
 
 
-                    let mailDetails = {
-                        from: email_data.email,
-                        to: supervisor_data[0].FGSEmail,
-                        subject:'Adjustment Mail',
-                        attachments: [{
-                            filename: 'Logo.png',
-                            path: __dirname + '/../public' +'/upload/'+master[0].image,
-                            cid: 'logo'
-                       }],
-                        html:'<!DOCTYPE html>'+
-                            '<html><head><title></title>'+
-                            '</head><body>'+
-                                '<div>'+
-                                    '<div style="display: flex; align-items: center; justify-content: center;">'+
-                                        '<div>'+
-                                            '<img src="cid:logo" class="rounded" width="66.5px" height="66.5px"></img>'+
-                                        '</div>'+
+                    // let mailDetails = {
+                    //     from: email_data.email,
+                    //     to: supervisor_data[0].FGSEmail,
+                    //     subject:'Adjustment Mail',
+                    //     attachments: [{
+                    //         filename: 'Logo.png',
+                    //         path: __dirname + '/../public' +'/upload/'+master[0].image,
+                    //         cid: 'logo'
+                    //    }],
+                    //     html:'<!DOCTYPE html>'+
+                    //         '<html><head><title></title>'+
+                    //         '</head><body>'+
+                    //             '<div>'+
+                    //                 '<div style="display: flex; align-items: center; justify-content: center;">'+
+                    //                     '<div>'+
+                    //                         '<img src="cid:logo" class="rounded" width="66.5px" height="66.5px"></img>'+
+                    //                     '</div>'+
                                     
-                                        '<div>'+
-                                            '<h2> '+ master[0].site_title +' </h2>'+
-                                        '</div>'+
-                                    '</div>'+
-                                    '<hr class="my-3">'+
-                                    '<div>'+
-                                        '<h5 style="text-align: left;">'+
-                                            ' Order Number : '+ data.invoice +' '+
-                                            '<span style="float: right;">'+
-                                                ' Order Date : '+ data.date +' '+
-                                            '</span>'+
+                    //                     '<div>'+
+                    //                         '<h2> '+ master[0].site_title +' </h2>'+
+                    //                     '</div>'+
+                    //                 '</div>'+
+                    //                 '<hr class="my-3">'+
+                    //                 '<div>'+
+                    //                     '<h5 style="text-align: left;">'+
+                    //                         ' Order Number : '+ data.invoice +' '+
+                    //                         '<span style="float: right;">'+
+                    //                             ' Order Date : '+ data.date +' '+
+                    //                         '</span>'+
                                             
-                                        '</h5>'+
-                                    '</div>'+
-                                    '<table style="width: 100% !important;">'+
-                                        '<thead style="width: 100% !important;">'+
-                                            '<tr>'+
-                                                '<th style="border: 1px solid black;"> Product Name </th>'+
-                                                '<th style="border: 1px solid black;"> Product Code </th>'+
-                                                '<th style="border: 1px solid black;"> Product Quantity </th>'+
-                                                '<th style="border: 1px solid black;"> Unit </th>'+
-                                                '<th style="border: 1px solid black;"> Secondary Unit </th>'+
-                                                '<th style="border: 1px solid black;"> Warehouse</th>'+
-                                                '<th style="border: 1px solid black;"> Room</th>'+
-                                                '<th style="border: 1px solid black;"> Location </th>'+
-                                            '</tr>'+
-                                        '</thead>'+
-                                        '<tbody style="text-align: center;">'+
-                                            ' '+ arrayItems +' '+
-                                        '</tbody>'+
-                                    '</table>'+
+                    //                     '</h5>'+
+                    //                 '</div>'+
+                    //                 '<table style="width: 100% !important;">'+
+                    //                     '<thead style="width: 100% !important;">'+
+                    //                         '<tr>'+
+                    //                             '<th style="border: 1px solid black;"> Product Name </th>'+
+                    //                             '<th style="border: 1px solid black;"> Product Code </th>'+
+                    //                             '<th style="border: 1px solid black;"> Product Quantity </th>'+
+                    //                             '<th style="border: 1px solid black;"> Unit </th>'+
+                    //                             '<th style="border: 1px solid black;"> Secondary Unit </th>'+
+                    //                             '<th style="border: 1px solid black;"> Warehouse</th>'+
+                    //                             '<th style="border: 1px solid black;"> Room</th>'+
+                    //                             '<th style="border: 1px solid black;"> Location </th>'+
+                    //                         '</tr>'+
+                    //                     '</thead>'+
+                    //                     '<tbody style="text-align: center;">'+
+                    //                         ' '+ arrayItems +' '+
+                    //                     '</tbody>'+
+                    //                 '</table>'+
                                 
-                                    '<div>'+
-                                        '<strong> Regards </strong>'+
-                                        '<h5>'+ master[0].site_title +'</h5>'+
-                                    '</div>'+
-                                '</div>'+
-                            '</body></html>'
-                    };
+                    //                 '<div>'+
+                    //                     '<strong> Regards </strong>'+
+                    //                     '<h5>'+ master[0].site_title +'</h5>'+
+                    //                 '</div>'+
+                    //             '</div>'+
+                    //         '</body></html>'
+                    // };
 
 
-                    mailTransporter.sendMail(mailDetails, function(err, data) {
-                        if(err) {
-                            console.log(err);
-                            console.log('Error Occurs');
-                        } else {
-                            console.log('Email sent successfully');
-                        }
-                    });
+                    // mailTransporter.sendMail(mailDetails, function(err, data) {
+                    //     if(err) {
+                    //         console.log(err);
+                    //         console.log('Error Occurs');
+                    //     } else {
+                    //         console.log('Email sent successfully');
+                    //     }
+                    // });
 
 
 
@@ -993,157 +958,6 @@ router.post("/view/:id", auth, async (req, res) => {
     }
 })
 
-// router.post("/barcode_scanner", async (req, res) => {
-//     try{
-        
-//         const { primary_code, warehouse_data, room_data } = req.body
-//         var checkData;
-//         const warehouse12 = await warehouse.aggregate([
-//                 {
-//                     $match: {
-//                         "name" : warehouse_data,
-//                         "room" : room_data,
-//                         "status" : "Enabled",
-//                     }
-//                 },
-//                 {
-//                     $unwind : "$product_details"
-//                 },
-//                 {
-//                     $match: {
-//                         "product_details.primary_code" : primary_code
-//                     }
-//                 },
-//                 {
-//                     $group: {
-                       
-//                         _id: "$product_details._id",
-//                         name: { $first: "$product_details.product_name" },
-//                         product_stock: { $first: "$product_details.product_stock" },
-//                         primary_code: { $first: "$product_details.primary_code" },
-//                         secondary_code: {$first: "$product_details.secondary_code" },
-//                         product_code: { $first: "$product_details.product_code" },
-//                         level: { $first: "$product_details.bay" },
-//                         isle: { $first: "$product_details.bin" },
-//                         type: { $first: "$product_details.type" },
-//                         pallet: { $first: "$product_details.floorlevel" },
-//                         unit: { $first: "$product_details.unit" },
-//                         secondary_unit: { $first: "$product_details.secondary_unit" },
-//                         storage: { $first: "$product_details.storage" },
-//                         rack: { $first: "$product_details.rack" },
-//                         expiry_date: { $first: "$product_details.expiry_date" },
-//                         production_date: { $first: "$product_details.production_date" },
-//                         batch_code: { $first: "$product_details.batch_code"},
-//                         product_cat: { $first: "P" },
-//                         maxPerUnit: { $first: "$product_details.maxPerUnit"}
-
-//                     }
-//                 },
-//             ])
-
-//             const warehouse13 = await warehouse.aggregate([
-//                 {
-//                     $match: {
-//                         "name" : warehouse_data,
-//                         "room" : room_data,
-//                         "status" : "Enabled",
-//                     }
-//                 },
-//                 {
-//                     $unwind : "$product_details"
-//                 },
-//                 {
-//                     $match: {
-//                         "product_details.secondary_code" : primary_code
-//                     }
-//                 },
-//                 {
-//                     $group: {
-                       
-//                         _id: "$product_details._id",
-//                         name: { $first: "$product_details.product_name" },
-//                         product_stock: { $first: "$product_details.product_stock" },
-//                         primary_code: { $first: "$product_details.primary_code" },
-//                         secondary_code: {$first: "$product_details.secondary_code" },
-//                         product_code: { $first: "$product_details.product_code" },
-//                         level: { $first: "$product_details.bay" },
-//                         isle: { $first: "$product_details.bin" },
-//                         type: { $first: "$product_details.type" },
-//                         pallet: { $first: "$product_details.floorlevel" },
-//                         unit: { $first: "$product_details.unit" },
-//                         secondary_unit: { $first: "$product_details.secondary_unit" },
-//                         storage: { $first: "$product_details.storage" },
-//                         rack: { $first: "$product_details.rack" },
-//                         expiry_date: { $first: "$product_details.expiry_date" },
-//                         production_date: { $first: "$product_details.production_date" },
-//                         batch_code: { $first: "$product_details.batch_code"},
-//                         product_cat: { $first: "S" },
-//                         maxPerUnit: { $first: "$product_details.maxPerUnit"}
-
-//                     }
-//                 },
-//             ])
-
-
-//             if(warehouse12.length > 0){
-//                 checkData = warehouse12;
-//             }else if(warehouse13.length > 0){
-//                 checkData = warehouse13;
-//             }
-//         res.status(200).json( checkData )
-//     }catch(error){
-//         res.status(400).json({ "message": error.message })
-//     }
-// })
-
-
-
-// router.post("/CheckingWarehouse", async (req, res) => {
-
-//     const { primaryCode, secondaryCode, productCode, level, isle, pallet, warehouses, room } = req.body
-
-//     try{
-//         const stock_data = await warehouse.aggregate([
-//             {
-//                 $match: { 
-//                     "name": warehouses,
-//                     "room": room
-
-//                 }
-//             },
-//             {
-//                 $unwind: "$product_details"
-//             },
-//             {
-//                 $match: {
-//                     "product_details.level" : parseInt(level),
-//                     "product_details.isle" : isle,
-//                     "product_details.pallet": parseInt(pallet),
-//                     // "product_details.product_code" : productCode,
-//                     // "product_details.secondary_code": secondaryCode,
-//                     // "product_details.primary_code" : primaryCode
-//                 }
-//             },
-//             {
-//                 $group: {
-//                     _id: "$product_details._id",
-//                     name: { $first: "$product_details.product_name"},
-//                     product_stock: { $first: "$product_details.product_stock" },
-//                     level: { $first: "$product_details.level" },
-//                     isle: { $first: "$product_details.isle" },
-//                     pallet: { $first: "$product_details.pallet" },
-//                     maxProducts: { $first: "$product_details.maxProducts" }
-//                 }
-//             },
-//         ])
-
-
-//         res.status(200).json(stock_data)
-//     }catch(error){
-//         res.status(404).json({ message: error.message })
-//     }
-
-// })
 
 router.post("/barcode_scanner", async (req, res) => {
     const { primary_code, warehouse_data, rooms_data, Roomslist } = req.body;
