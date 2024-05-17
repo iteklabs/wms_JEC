@@ -261,6 +261,76 @@
                 })
                 .then((result) => {
                 if (result.isConfirmed) {
+                    var strTemp = '';
+                    var Customer = document.getElementById("customer");
+                    var Date = document.getElementById("date");
+
+
+                    Customer.style.borderColor = "";
+                    if(Customer.value.length == 0){
+                        strTemp += "Customer is required. <br>" 
+                        Customer.style.borderColor = "red";
+                        Customer.focus()
+                    }
+
+
+                    Date.style.borderColor = "";
+                    if(Date.value.length == 0){
+                        strTemp += "Date is required. <br>" 
+                        Date.style.borderColor = "red";
+                        Date.focus()
+                    }
+
+
+
+                    var table = document.getElementById("sales_tbl_new");
+                    var noofrow = table.rows.length -1;
+                    table.style.borderColor = "";
+                    if(noofrow == 0){
+                        strTemp += "Product list is empty. <br>"
+                        table.style.borderColor = "red";
+                    }
+
+
+
+                    var prod_qty = document.getElementsByName("quantity");
+                    var x = 1;
+                    for (let index = 0; index < prod_qty.length; index++) {
+                        const inputElement  = prod_qty[index];
+                        inputElement.style.borderColor = "";
+                        if(inputElement.value.length == 0){
+                            strTemp += x + ". Quantity  is required. <br>"
+                            inputElement.style.borderColor = "red";
+                            inputElement.focus()
+                        }
+                        x++;
+                    }
+
+
+
+                    var price_qty = document.getElementsByName("price");
+                    var x = 1;
+                    for (let index = 0; index < price_qty.length; index++) {
+                        const inputElement  = price_qty[index];
+                        inputElement.style.borderColor = "";
+                        if(inputElement.value.length == 0){
+                            strTemp += x + ". Price  is required. <br>"
+                            inputElement.style.borderColor = "red";
+                            inputElement.focus()
+                        }
+                        x++;
+                    }
+
+
+                    if(strTemp.length > 0){
+                        // modal.style.display = "none";
+                        Swal.fire(
+                        'Required ',
+                        "<h5>" + strTemp + "</h5>",
+                        'warning'
+                        )
+                        return;
+                    }
                     document.getElementById("form").submit();
                 }
                 })
