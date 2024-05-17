@@ -60,8 +60,8 @@ router.get("/view", auth, async(req, res) => {
         var lan_data = users.Arabic
     }
 
-    if(role_data.account_category == "wm"){
-        res.render("profile", {
+    if(role_data.account_category == "sa"){
+        res.render("profile_sa", {
             success: req.flash('success'),
             errors: req.flash('errors'),
             profile : profile_data,
@@ -70,7 +70,7 @@ router.get("/view", auth, async(req, res) => {
             language : lan_data
         })
     }else{
-        res.render("profile_sa", {
+        res.render("profile", {
             success: req.flash('success'),
             errors: req.flash('errors'),
             profile : profile_data,
