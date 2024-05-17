@@ -560,7 +560,6 @@
                                                                        <th></th>
                                                                        <th></th>
                                                                         <th><%= language.in_stock %> </th>
-                                                                        <!-- <th>Bin </th> -->
                                                                         <th>Room </th>
                                                                         <th>Location </th>
                                                                         <th><%= language.quantity %>  </th>
@@ -569,7 +568,6 @@
                                                                         <th>Batch Code </th>
                                                                         <th>Production date </th>
                                                                         <th>Expiry date </th>
-                                                                        <!-- <th>Bin </th> -->
                                                                         <th>Room </th>
                                                                         <th>Location </th>
                                                                         <th>Action </th>
@@ -595,18 +593,10 @@
                                                             </div>
                                                         </div>
                                                     </div>
-
-                                                    <!-- <div class="row">
-                                                        <button class="btn btn-primary" type="submit"
-                                                            id="submit"><%= language.submit %> </button>
-                                                    </div> -->
-                                                    
                                                 </form>
                                                 <div class="row">
                                                     <button class="btn btn-primary" onclick="showConfirmation()" type="submit"
                                                         id="purchase_submit"  >Pre Finalize </button>
-                                                        <!-- <input class="btn btn-primary"  type="submit"
-                                                        id="purchase_submit" onclick="showConfirmation()" ><%= language.submit %> </input> -->
                                                 </div>
                                                 
                                             </div>
@@ -626,29 +616,6 @@
                             <h2>Summary</h2>
                           </div>
                           <div class="modal-body">
-
-                            <!-- <div>
-                                <span style="color:black;">Document Number: <b><%= invoice %></b></span>
-                            </div>
-                            <div>
-                                <span style="color:black;">Date: <b id="dateRec"></b></span>
-                            </div>
-                            <div>
-                                <span style="color:black;">From Warehouse: <b id="houseware"></b></span>
-                            </div>
-                            <div>
-                                <span style="color:black;">From Room: <b id="moor"></b></span>
-                            </div>
-
-
-                            <div>
-                                <span style="color:black;">To Warehouse: <b id="to_houseware"></b></span>
-                            </div>
-                            <div>
-                                <span style="color:black;">To Room: <b id="to_moor"></b></span>
-                            </div> -->
-
-
                             <table style="width:50%" >
                                 <thead>
                                     <tr>
@@ -727,36 +694,6 @@
         <%- include('./partials/script'); -%>
         
         <script>
-
-        // function SelectRoom(){
-                
-        //         var varibale = document.getElementById("transfer_from_warehouse").value;
-        //         var selectRoom = $('#FromRoom_name');
-
-        //         $.ajax({
-        //             url: '/warehousemap_Income/Rooms_data', 
-        //             method: 'POST',
-        //             data: { warehouse_name: varibale }, 
-        //             success: function(response) {
-
-                    
-        //                 selectRoom.empty();
-        //                     $.each(response, function(index, data) {
-        //                         var roomName = data.room_name;
-        //                         var roomCode = data.room_name
-        //                         var option = $('<option>').text(roomName).val(roomName).attr('roomcode', roomCode);;
-        //                         selectRoom.append(option);
-        //                     })
-
-
-                        
-        //             }
-        //         })
-
-                
-                
-        // }
-
         function SelectRoom() {
             var variable = document.getElementById("transfer_from_warehouse").value;
             var selectRoom = $('#FromshowRoom');
@@ -1190,106 +1127,383 @@
                 var warehouse = document.getElementById("to_warehouse").value
                 var room = document.getElementById("ToRoomAssigned"+x).value;
                 var location12 = document.getElementById("to_prod_level"+x);
-
-                // alert(warehouse + " <> " + room)
-                var levels;
-
-                if(warehouse == "DRY GOODS"){
-                    switch(room){
-                        case "Rack 1":
-                        levels = [1, 2, 3, 4, 5, 6, 7, 8,9,10,11,12,13,14,15,16];
-                        break;
-                        case "Rack 2":
-                        levels = [17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32];
-                        break;
-                        case "AISLE":
-                        levels = [0];
-                        break;
-                    }
-                    
-                    // for (let i = 0; i < selectlevel.length; i++) {
-                    //     var optionsHtml = '';
-                    //     levels.forEach(function (num) {
-                    //         optionsHtml += '<option value="' + num + '">DG' + num + '</option>';
-                    //     });
-                    //     selectlevel[i].innerHTML = optionsHtml;
-                    //     document.getElementById("MaxStocks_data"+x).value = "192"
-                    //     document.getElementById("MaxStocks_data2"+x).value = "192"
-                    // }
-                    
-                    
-
-                    var optionsHtml = '';
-                    levels.forEach(function (num) {
-                        optionsHtml += '<option value="' + num + '">DG' + num + '</option>';
-                    });
-                    location12.innerHTML = optionsHtml;
-                    document.getElementById("MaxStocks_data"+x).value = "192"
-                    document.getElementById("MaxStocks_data2"+x).value = "192"
-                    
-                }else if(warehouse == "FROZEN GOODS"){
-                    switch(room){
-                        case "Rack 1":
-                        levels = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-                        break;
-                        case "Rack 2":
-                        levels = [10, 11, 12, 13, 14, 15, 16, 17, 18];
-                        break;
-                        case "AISLE":
-                        levels = [0];
-                        break;
-                    }
-                    
-                    // for (let i = 0; i < selectlevel.length; i++) {
-                    //     var optionsHtml = '';
-                    //     levels.forEach(function (num) {
-                    //         optionsHtml += '<option value="' + num + '">FG' + num + '</option>';
-                    //     });
-                    //     selectlevel[i].innerHTML = optionsHtml;
-                    //     document.getElementById("MaxStocks_data"+x).value = "130"
-                    //     document.getElementById("MaxStocks_data2"+x).value = "130"
-                    // }
-                    
-                    
-                    var optionsHtml = '';
-                    levels.forEach(function (num) {
-                        optionsHtml += '<option value="' + num + '">FG' + num + '</option>';
-                    });
-                    location12.innerHTML = optionsHtml;
-                    document.getElementById("MaxStocks_data"+x).value = "192"
-                    document.getElementById("MaxStocks_data2"+x).value = "192"
-                    
-            }else if(warehouse == "Antarctica"){
-                    switch(room){
-                        case "Frozen Goods":
-                        levels = [1];
-                        break;
-                       
-                    }
-                    
-                    // for (let i = 0; i < selectlevel.length; i++) {
-                    //     var optionsHtml = '';
-                    //     levels.forEach(function (num) {
-                    //         optionsHtml += '<option value="' + num + '">FG' + num + '</option>';
-                    //     });
-                    //     selectlevel[i].innerHTML = optionsHtml;
-                    //     document.getElementById("MaxStocks_data"+x).value = "130"
-                    //     document.getElementById("MaxStocks_data2"+x).value = "130"
-                    // }
-                    
-                    
-                    var optionsHtml = '';
-                    levels.forEach(function (num) {
-                        optionsHtml += '<option value="' + num + '">AT' + num + '</option>';
-                    });
-                    location12.innerHTML = optionsHtml;
-                    document.getElementById("MaxStocks_data"+x).value = "192"
-                    document.getElementById("MaxStocks_data2"+x).value = "192"
-                    
-            }
-               
+                var levels = [];
+                let outputArray = [];
                 
-               
+                if(warehouse == "TAGUIG"){
+                    
+                    switch(room){
+                        case "1":
+                        levels = [
+                            {
+                                "start": 1,
+                                "end": 16,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 17,
+                                "end": 38,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 39,
+                                "end": 60,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 61,
+                                "end": 76,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 77,
+                                "end": 92,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 93,
+                                "end": 108,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 109,
+                                "end": 124,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 125,
+                                "end": 150,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 151,
+                                "end": 176,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 177,
+                                "end": 202,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "2":
+                        levels = [
+                            {
+                                "start": 203,
+                                "end": 226,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 227,
+                                "end": 250,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 251,
+                                "end": 266,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 267,
+                                "end": 282,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 283,
+                                "end": 298,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 299,
+                                "end": 314,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 315,
+                                "end": 340,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 341,
+                                "end": 366,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 367,
+                                "end": 392,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+
+                        case "3":
+                        levels = [
+                            {
+                                "start": 393,
+                                "end": 416,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 417,
+                                "end": 440,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 441,
+                                "end": 458,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 459,
+                                "end": 476,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 477,
+                                "end": 494,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 495,
+                                "end": 512,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 513,
+                                "end": 538,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 539,
+                                "end": 563,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 564,
+                                "end": 589,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "3":
+                        levels = [
+                            {
+                                "start": 393,
+                                "end": 416,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 417,
+                                "end": 440,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 441,
+                                "end": 458,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 459,
+                                "end": 476,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 477,
+                                "end": 494,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 495,
+                                "end": 512,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 513,
+                                "end": 538,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 539,
+                                "end": 563,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 564,
+                                "end": 589,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "4":
+                        levels = [
+                            {
+                                "start": 590,
+                                "end": 607,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 608,
+                                "end": 625,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 626,
+                                "end": 643,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 644,
+                                "end": 661,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 662,
+                                "end": 689,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 690,
+                                "end": 716,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 717,
+                                "end": 744,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "5":
+                        levels = [
+                            {
+                                "start": 745,
+                                "end": 762,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 763,
+                                "end": 780,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 781,
+                                "end": 798,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 799,
+                                "end": 816,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 817,
+                                "end": 844,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 845,
+                                "end": 871,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 872,
+                                "end": 899,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "6":
+                        levels = [
+                            {
+                                "start": 899,
+                                "end": 926,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 927,
+                                "end": 953,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 954,
+                                "end": 981,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+                    }
+                    
+                        let optionsHtml = "";
+                        levels.forEach((data, index) => {
+                            for(let x = data.start; x <= data.end; x++){
+                                // console.log(data.letter + " <> " + x)
+                                optionsHtml += '<option value="'+data.letter+ x + '">'+data.letter+ x + '</option>';
+                            }
+                        });
+                        location12.innerHTML = optionsHtml;
+                    
+                }
 
             }
             //Primary
@@ -1356,7 +1570,7 @@
                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 355px;" name="prod_name" id="prod_name'+ x +'" value="' + data.name + '" readonly>'));
                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="from_prod_qty" id="from_prod_qty'+x+'" value="' + data.instock + '" readonly>'));
                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="RoomAssigned" id="RoomAssigned'+x+'" value="'+data.roomNamed+'" readonly>'));
-                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="from_prod_level2" value="' + valCatwars+levelData + '" readonly>'));
+                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="from_prod_level2" value="' + data.level+data.bay + '" readonly>'));
                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="to_prod_qty" id="to_prod_qty'+ x +'" onkeyup="ValidationForMaxQTY('+ x +'); ComputeConversionI('+x+', '+data.maxPerUnit+');"  >'));
                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="unit" id="unit'+x+'" value="" readonly>'));
                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="Conver" id="Conver'+x+'" value=""  readonly>'));

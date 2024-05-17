@@ -128,8 +128,6 @@ router.get("/view/add_transfer", auth, async(req, res) => {
                     $match: { 
                         "status" : 'Enabled', 
                         name: staff_data.warehouse,
-                        "warehouse_category" : "Finished Goods",
-                        "name": { $ne: "QA Warehouse" }
                     }
                 },
                 {
@@ -145,8 +143,6 @@ router.get("/view/add_transfer", auth, async(req, res) => {
                 {
                     $match: { 
                         "status" : 'Enabled',
-                        "warehouse_category" : "Finished Goods",
-                        "name": { $ne: "QA Warehouse" }
                     }
                 },
                 {
@@ -223,7 +219,7 @@ router.post("/view/add_transfer", auth, async(req, res) => {
             var product_name_array = [req.body.prod_name]
             
             var from_qty_array = [req.body.from_prod_qty]
-            var from_level_array = [req.body.from_prod_level]
+            var from_level_array = [req.body.from_prod_level2]
         
 
             var to_qty_array = [req.body.New_Qty_Converted]
@@ -257,7 +253,7 @@ router.post("/view/add_transfer", auth, async(req, res) => {
             
 
             var from_qty_array = [...req.body.from_prod_qty]
-            var from_level_array = [...req.body.from_prod_level]
+            var from_level_array = [...req.body.from_prod_level2]
         
             
             var to_qty_array = [...req.body.New_Qty_Converted]
@@ -284,7 +280,8 @@ router.post("/view/add_transfer", auth, async(req, res) => {
             var to_invoice_array = [...req.body.to_invoice]
             var id_transaction_array = [...req.body.id_transaction]
         } 
-        
+        // res.json(req.body);
+        // return;
         const newproduct = product_name_array.map((value)=>{
             
             return  value  = {
@@ -297,7 +294,10 @@ router.post("/view/add_transfer", auth, async(req, res) => {
         });
 
         from_level_array.forEach((value,i) => {
-            newproduct[i].from_bay = value
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].from_bay = number
+            newproduct[i].from_level = letter
         });
 
         id_transaction_array.forEach((value, i) => {
@@ -319,7 +319,10 @@ router.post("/view/add_transfer", auth, async(req, res) => {
         });
         
         to_level_array.forEach((value,i) => {
-            newproduct[i].to_bay = value
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].to_level = letter
+            newproduct[i].to_bay = number
         });
         
         primary_code_array.forEach((value,i) => {
@@ -386,7 +389,7 @@ router.post("/view/add_transfer", auth, async(req, res) => {
 
         
 
-
+      
 
         const Newnewproduct = newproduct.filter(obj => obj.to_quantity !== "0" && obj.to_quantity !== "" || obj.to_floorlevel !== "0" && obj.to_floorlevel !== "");
         // res.json(Newnewproduct)
@@ -566,8 +569,7 @@ router.post("/preview/:id", auth , async (req, res) => {
         
 
         const data =  await transfers_finished.findById(req.params.id)
-        // res.json(data)
-        // return
+        
 
 
         
@@ -575,34 +577,21 @@ router.post("/preview/:id", auth , async (req, res) => {
         const promises = data.product.map( async (product_details) => {
             
             if(product_details.to_quantity > 0){
-                var from_warehouse_data = await warehouse.findOne({ name: from_warehouse, room: product_details.from_room_name, warehouse_category: "Finished Goods" });
+                var from_warehouse_data = await warehouse.findOne({ name: from_warehouse, room: product_details.from_room_name});
                 const match_data = from_warehouse_data.product_details.map((data) => {
 
                     // console.log(data._id + " <> " + product_details.id_transaction)
-                    if (data.product_name == product_details.product_name &&  data.bay == product_details.from_bay && data.expiry_date == product_details.expiry_date  && data.production_date == product_details.production_date && data.batch_code == product_details.batch_code && data.invoice == product_details.from_invoice) {
-                        // console.log("here1", typeof product_details.id_transaction)
-                        console.log("here1", data.product_stock)
-                        if(typeof product_details.id_transaction == "undefined"){
+                    if (data._id == product_details.id_transaction) {
                             data.product_stock = Math.max(0, Math.abs(data.product_stock) - Math.abs(product_details.to_quantity))
-                        }else{
-                            data.product_stock = Math.max(0, Math.abs(data.product_stock) - Math.abs(product_details.to_quantity))
-                        }
-                        // data.product_stock = data.product_stock - product_details.to_quantity
-
-                        // if(data._id == product_details.id_transaction){
-                        //     data.product_stock = Math.max(0, Math.abs(data.product_stock) - Math.abs(product_details.quantity))
-                        // }else{
-                        //     data.product_stock = Math.max(0, Math.abs(data.product_stock) - Math.abs(product_details.quantity))
-                        // }
-                        
-                        
-                        
+                            console.log(data.product_stock)
                     }
                 })
             }
 
             return from_warehouse_data;
         })
+
+
 
         Promise.all(promises)
             .then(async (updatedWarehouseDataArray) => {
@@ -648,6 +637,7 @@ router.post("/preview/:id", auth , async (req, res) => {
                                     product_name: product_details.product_name, 
                                     product_stock: product_details.to_quantity, 
                                     bay: product_details.to_bay, 
+                                    level: product_details.to_level, 
                                     product_code: product_details.product_code, 
                                     primary_code: product_details.primary_code, 
                                     secondary_code: product_details.secondary_code, 
@@ -717,84 +707,84 @@ router.post("/preview/:id", auth , async (req, res) => {
                                 }
 
 
-                                let mailTransporter = nodemailer.createTransport({
-                                    host: email_data.host,
-                                    port: Number(email_data.port),
-                                    secure: false,
-                                    auth: {
-                                        user: email_data.email,
-                                        pass: email_data.password
-                                    }
-                                });
+                                // let mailTransporter = nodemailer.createTransport({
+                                //     host: email_data.host,
+                                //     port: Number(email_data.port),
+                                //     secure: false,
+                                //     auth: {
+                                //         user: email_data.email,
+                                //         pass: email_data.password
+                                //     }
+                                // });
 
 
-                                let mailDetails = {
-                                    from: email_data.email,
-                                    to: supervisor_data[0].FGSEmail,
-                                    subject:'Transfer Mail',
-                                    attachments: [{
-                                        filename: 'Logo.png',
-                                        path: __dirname + '/../public' +'/upload/'+master[0].image,
-                                        cid: 'logo'
-                                   }],
-                                    html:'<!DOCTYPE html>'+
-                                        '<html><head><title></title>'+
-                                        '</head><body>'+
-                                            '<div>'+
-                                                '<div style="display: flex; align-items: center; justify-content: center;">'+
-                                                    '<div>'+
-                                                        '<img src="cid:logo" class="rounded" width="66.5px" height="66.5px"></img>'+
-                                                    '</div>'+
+                                // let mailDetails = {
+                                //     from: email_data.email,
+                                //     to: supervisor_data[0].FGSEmail,
+                                //     subject:'Transfer Mail',
+                                //     attachments: [{
+                                //         filename: 'Logo.png',
+                                //         path: __dirname + '/../public' +'/upload/'+master[0].image,
+                                //         cid: 'logo'
+                                //    }],
+                                //     html:'<!DOCTYPE html>'+
+                                //         '<html><head><title></title>'+
+                                //         '</head><body>'+
+                                //             '<div>'+
+                                //                 '<div style="display: flex; align-items: center; justify-content: center;">'+
+                                //                     '<div>'+
+                                //                         '<img src="cid:logo" class="rounded" width="66.5px" height="66.5px"></img>'+
+                                //                     '</div>'+
                                                 
-                                                    '<div>'+
-                                                        '<h2> '+ master[0].site_title +' </h2>'+
-                                                    '</div>'+
-                                                '</div>'+
-                                                '<hr class="my-3">'+
-                                                '<div>'+
-                                                    '<h5 style="text-align: left;">'+
-                                                        ' Order Number : '+ data.invoice +' '+
-                                                        '<span style="float: right;">'+
-                                                            ' Order Date : '+ data.date +' '+
-                                                        '</span>'+
+                                //                     '<div>'+
+                                //                         '<h2> '+ master[0].site_title +' </h2>'+
+                                //                     '</div>'+
+                                //                 '</div>'+
+                                //                 '<hr class="my-3">'+
+                                //                 '<div>'+
+                                //                     '<h5 style="text-align: left;">'+
+                                //                         ' Order Number : '+ data.invoice +' '+
+                                //                         '<span style="float: right;">'+
+                                //                             ' Order Date : '+ data.date +' '+
+                                //                         '</span>'+
                                                         
-                                                    '</h5>'+
-                                                '</div>'+
-                                                '<table style="width: 100% !important;">'+
-                                                    '<thead style="width: 100% !important;">'+
-                                                        '<tr>'+
-                                                            '<th style="border: 1px solid black;"> Product Name </th>'+
-                                                            '<th style="border: 1px solid black;"> Product Code </th>'+
-                                                            '<th style="border: 1px solid black;"> Product Quantity </th>'+
-                                                            '<th style="border: 1px solid black;"> Unit </th>'+
-                                                            '<th style="border: 1px solid black;"> Secondary Unit </th>'+
-                                                            '<th style="border: 1px solid black;"> Warehouse</th>'+
-                                                            '<th style="border: 1px solid black;"> Room</th>'+
-                                                            '<th style="border: 1px solid black;"> Location </th>'+
-                                                        '</tr>'+
-                                                    '</thead>'+
-                                                    '<tbody style="text-align: center;">'+
-                                                        ' '+ arrayItems +' '+
-                                                    '</tbody>'+
-                                                '</table>'+
+                                //                     '</h5>'+
+                                //                 '</div>'+
+                                //                 '<table style="width: 100% !important;">'+
+                                //                     '<thead style="width: 100% !important;">'+
+                                //                         '<tr>'+
+                                //                             '<th style="border: 1px solid black;"> Product Name </th>'+
+                                //                             '<th style="border: 1px solid black;"> Product Code </th>'+
+                                //                             '<th style="border: 1px solid black;"> Product Quantity </th>'+
+                                //                             '<th style="border: 1px solid black;"> Unit </th>'+
+                                //                             '<th style="border: 1px solid black;"> Secondary Unit </th>'+
+                                //                             '<th style="border: 1px solid black;"> Warehouse</th>'+
+                                //                             '<th style="border: 1px solid black;"> Room</th>'+
+                                //                             '<th style="border: 1px solid black;"> Location </th>'+
+                                //                         '</tr>'+
+                                //                     '</thead>'+
+                                //                     '<tbody style="text-align: center;">'+
+                                //                         ' '+ arrayItems +' '+
+                                //                     '</tbody>'+
+                                //                 '</table>'+
                                             
-                                                '<div>'+
-                                                    '<strong> Regards </strong>'+
-                                                    '<h5>'+ master[0].site_title +'</h5>'+
-                                                '</div>'+
-                                            '</div>'+
-                                        '</body></html>'
-                                };
+                                //                 '<div>'+
+                                //                     '<strong> Regards </strong>'+
+                                //                     '<h5>'+ master[0].site_title +'</h5>'+
+                                //                 '</div>'+
+                                //             '</div>'+
+                                //         '</body></html>'
+                                // };
 
 
-                                mailTransporter.sendMail(mailDetails, function(err, data) {
-                                    if(err) {
-                                        console.log(err);
-                                        console.log('Error Occurs');
-                                    } else {
-                                        console.log('Email sent successfully');
-                                    }
-                                });
+                                // mailTransporter.sendMail(mailDetails, function(err, data) {
+                                //     if(err) {
+                                //         console.log(err);
+                                //         console.log('Error Occurs');
+                                //     } else {
+                                //         console.log('Email sent successfully');
+                                //     }
+                                // });
 
 
                                 req.flash('success', `Transfer Finalize Successfully`);
@@ -1234,100 +1224,6 @@ router.post("/view/:id", auth, async(req, res) => {
     }
 })
 
-// router.post("/barcode_scanner", async(req, res) => {
-//     try{
-//         const { FromWareHouse, FromRoom, ToWarehouse, ToRoom, primary_code } = req.body 
-    
-        
-//         var checkBy;
-//         const warehouse_data = await warehouse.aggregate([
-//                 {
-//                     $match: { "name": FromWareHouse, room: FromRoom }
-//                 },
-//                 {
-//                     $unwind: "$product_details"
-//                 },
-//                 {
-//                     $match: { "product_details.primary_code" : primary_code }
-//                 },
-//                 {
-//                     $group: {
-//                         _id: "$product_details._id",
-//                         name: { $first: "$product_details.product_name" },
-//                         instock: { $first: "$product_details.product_stock" },
-//                         primary_code: { $first: "$product_details.primary_code" },
-//                         secondary_code: {$first: "$product_details.secondary_code" },
-//                         product_code: { $first: "$product_details.product_code" },
-//                         level: { $first: "$product_details.bay" },
-//                         isle: { $first: "$product_details.bin" },
-//                         type: { $first: "$product_details.type" },
-//                         pallet: { $first: "$product_details.floorlevel" },
-//                         unit: { $first: "$product_details.unit" },
-//                         secondary_unit: { $first: "$product_details.secondary_unit" },
-//                         storage: { $first: "$product_details.storage" },
-//                         rack: { $first: "$product_details.rack" },
-//                         expiry_date: { $first: "$product_details.expiry_date" },
-//                         production_date: { $first: "$product_details.production_date" },
-//                         batch_code: { $first: "$product_details.batch_code" },
-//                         maxPerUnit: { $first: "$product_details.maxPerUnit" },
-//                         prod_cat: { $first: "P" }
-//                     }
-//                 },
-            
-            
-//             ])
-
-
-//             const warehouse_data2 = await warehouse.aggregate([
-//                 {
-//                     $match: { "name": FromWareHouse, room: FromRoom }
-//                 },
-//                 {
-//                     $unwind: "$product_details"
-//                 },
-//                 {
-//                     $match: { "product_details.secondary_code" : primary_code }
-//                 },
-//                 {
-//                     $group: {
-//                         _id: "$product_details._id",
-//                         name: { $first: "$product_details.product_name" },
-//                         instock: { $first: "$product_details.product_stock" },
-//                         primary_code: { $first: "$product_details.primary_code" },
-//                         secondary_code: {$first: "$product_details.secondary_code" },
-//                         product_code: { $first: "$product_details.product_code" },
-//                         level: { $first: "$product_details.bay" },
-//                         isle: { $first: "$product_details.bin" },
-//                         type: { $first: "$product_details.type" },
-//                         pallet: { $first: "$product_details.floorlevel" },
-//                         unit: { $first: "$product_details.unit" },
-//                         secondary_unit: { $first: "$product_details.secondary_unit" },
-//                         storage: { $first: "$product_details.storage" },
-//                         rack: { $first: "$product_details.rack" },
-//                         expiry_date: { $first: "$product_details.expiry_date" },
-//                         production_date: { $first: "$product_details.production_date" },
-//                         batch_code: { $first: "$product_details.batch_code" },
-//                         maxPerUnit: { $first: "$product_details.maxPerUnit" },
-//                         prod_cat: { $first: "S" }
-//                     }
-//                 },
-            
-            
-//             ])
-
-//             if(warehouse_data.length > 0){
-//                 checkBy = warehouse_data;
-//             }else if(warehouse_data2.length > 0){
-//                 checkBy = warehouse_data2;
-//             }
-        
-//         res.status(200).json(checkBy)
-        
-//     }catch(error){
-//         res.status(404).json({ message : error.message })    
-//     }
-// })
-
 router.post("/barcode_scanner", async (req, res) => {
     const { FromWareHouse, FromRoom, ToWarehouse, ToRoom, primary_code , Roomslist } = req.body;
     const RoomAll = Roomslist.split(",");
@@ -1353,8 +1249,8 @@ router.post("/barcode_scanner", async (req, res) => {
                     primary_code: { $first: "$product_details.primary_code" },
                     secondary_code: {$first: "$product_details.secondary_code" },
                     product_code: { $first: "$product_details.product_code" },
-                    level: { $first: "$product_details.bay" },
-                    isle: { $first: "$product_details.bin" },
+                    bay: { $first: "$product_details.bay" },
+                    level: { $first: "$product_details.level" },
                     type: { $first: "$product_details.type" },
                     pallet: { $first: "$product_details.floorlevel" },
                     unit: { $first: "$product_details.unit" },
@@ -1391,8 +1287,8 @@ router.post("/barcode_scanner", async (req, res) => {
                     primary_code: { $first: "$product_details.primary_code" },
                     secondary_code: {$first: "$product_details.secondary_code" },
                     product_code: { $first: "$product_details.product_code" },
-                    level: { $first: "$product_details.bay" },
-                    isle: { $first: "$product_details.bin" },
+                    bay: { $first: "$product_details.bay" },
+                    level: { $first: "$product_details.level" },
                     type: { $first: "$product_details.type" },
                     pallet: { $first: "$product_details.floorlevel" },
                     unit: { $first: "$product_details.unit" },
@@ -1514,58 +1410,6 @@ router.post("/barcode_scanner3", async(req, res) => {
         res.status(404).json({ message : error.message })    
     }
 })
-
-
-
-// router.post("/CheckingWarehouse", async (req, res) => {
-
-//     const {  level, isle, pallet, warehouses, room } = req.body
-
-//     try{
-//         const stock_data = await warehouse.aggregate([
-//             {
-//                 $match: { 
-//                     "name": warehouses,
-//                     "room": room
-
-//                 }
-//             },
-//             {
-//                 $unwind: "$product_details"
-//             },
-//             {
-//                 $match: {
-//                     "product_details.level" : parseInt(level),
-//                     "product_details.isle" : isle,
-//                     "product_details.pallet": parseInt(pallet),
-//                     // "product_details.product_code" : productCode,
-//                     // "product_details.secondary_code": secondaryCode,
-//                     // "product_details.primary_code" : primaryCode
-//                 }
-//             },
-//             {
-//                 $group: {
-//                     _id: "$product_details._id",
-//                     name: { $first: "$product_details.product_name"},
-//                     product_stock: { $first: "$product_details.product_stock" },
-//                     level: { $first: "$product_details.level" },
-//                     isle: { $first: "$product_details.isle" },
-//                     pallet: { $first: "$product_details.pallet" },
-//                     maxProducts: { $first: "$product_details.maxProducts" },
-//                     expiry_date: { $first: "$product_details.expiry_date" },
-//                     production_date: { $first: "$product_details.production_date" },
-//                 }
-//             },
-//         ])
-
-
-//         res.status(200).json(stock_data)
-//     }catch(error){
-//         res.status(404).json({ message: error.message })
-//     }
-
-// })
-
 
 router.post("/CheckingWarehouse", async (req, res) => {
 

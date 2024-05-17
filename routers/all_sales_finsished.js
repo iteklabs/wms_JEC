@@ -482,7 +482,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
             var number = parseInt(value.match(/\d+/)[0]);
 
 
-            console.log(value)
+            // console.log(value)
             newproduct[i].bay = number
             newproduct[i].level = letter
         });

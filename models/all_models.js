@@ -1698,14 +1698,20 @@ const transfers_data_finished = new mongoose.Schema({
         from_quantity:{
           type: Number  
         },
+        from_level:{
+            type: String  
+        },
         from_bay:{
-            type: Number  
+            type: String  
         },
         to_quantity:{
             type: Number
         },
+        to_level:{
+            type: String  
+        },
         to_bay:{
-            type: Number
+            type: String  
         },
         maxProducts: {
             type: Number,

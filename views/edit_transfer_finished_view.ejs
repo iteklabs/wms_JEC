@@ -201,42 +201,33 @@
                                                                                 id="prod_name<%= x %>" value="<%= transfer1.product_name %>"
                                                                                 class="form-control prod_name" style="width: 355px;" readonly>
                                                                         </td>
+
+
+                                                                        <td class="align-top">
+                                                                            <input type="text" name="from_prod_qty"
+                                                                                id="from_prod_qty" value="<%= transfer1.from_quantity %>"
+                                                                                class="form-control from_prod_qty" style="width: 150px;" readonly>
+                                                                        </td>
+
+
+                                                                        <td class="align-top">
+                                                                            <input type="text" name="from_Room_assigned"
+                                                                                id="from_Room_assigned" value="<%= transfer1.from_room_name %>"
+                                                                                class="form-control from_Room_assigned" style="width: 150px;" readonly>
+                                                                        </td>
                                                                         
-                                                                        
-                                                                        <% stock.forEach((stocks) => { %>
-                                                              <!-- <h3><%= " && "  + stocks.warehoue_name  + " == " + transfer1.from_warehouse %></h3> -->
-                                                                                <% if(transfer1.product_name == stocks.name  &&  transfer1.from_bay == stocks.bay &&  transfer1.expiry_date == stocks.expiry_date && stocks.room == transfer1.from_room_name && transfer1.production_date == stocks.production_date  && stocks._id == transfer1.id_transaction) { %>
-                                                                                    <!-- <h3><%= transfer1.product_name + "==" + stocks.name  + "&&" +  transfer1.from_bay + "==" + stocks.bay + "&&" +  transfer1.expiry_date + "==" + stocks.expiry_date + "&&" + stocks.room + "==" + transfer1.from_room_name + "&&" + stocks.warehoue_name + "==" + transfer.from_warehouse %></h3> -->
-                                                                                    <td class="align-top">
-                                                                                        <input type="text" name="from_prod_qty"
-                                                                                            id="from_prod_qty" value="<%= stocks.product_stock %>"
-                                                                                            class="form-control from_prod_qty" style="width: 150px;" readonly>
-                                                                                    </td>
 
-                                                                                    <td class="align-top">
-                                                                                        <input type="text" name="from_Room_assigned"
-                                                                                            id="from_Room_assigned" value="<%= stocks.room %>"
-                                                                                            class="form-control from_Room_assigned" style="width: 150px;" readonly>
-                                                                                    </td>
+                                                                        <td class="align-top">
+                                                                            <input type="text" name="from_prod_level"
+                                                                                id="from_prod_level" value="<%= transfer1.from_level + transfer1.from_bay %>"
+                                                                                class="form-control from_prod_level" style="width: 150px;" readonly>
+                                                                        </td>
 
-
-                                                                                    
-                                                                                    
-                                                                                    
-                                                                                    <td class="align-top">
-                                                                                        <input type="text" name="from_prod_level"
-                                                                                            id="from_prod_level" value="<%= stocks.bay %>"
-                                                                                            class="form-control from_prod_level" style="width: 150px;" readonly>
-                                                                                    </td>
-
-                                                                                <% }%>
-                                                                    
-                                                                        
-                                                                        <% })%>
+                                                        
                                                                         
                                                                         
                                                                         <td class="align-top">
-                                                                            <input type="text" name="to_prod_qty" id="to_prod_qty<%= x %>" value="<%= transfer1.to_quantity %>" onkeyup="ValidationForMaxQTY('<%= x %>')"  class="form-control to_prod_qty" readonly>
+                                                                            <input type="text" name="to_prod_qty" id="to_prod_qty<%= x %>" style="width: 150px;" value="<%= transfer1.to_quantity %>" onkeyup="ValidationForMaxQTY('<%= x %>')"  class="form-control to_prod_qty" readonly>
                                                                         </td>
 
                                                                         <input type="hidden" name="secondary_unit" id="secondary_unit<%= x %>" value="<%= transfer1.secondary_unit %>"  class="form-control secondary_unit" >
@@ -275,7 +266,7 @@
 
                                                                         <td>
                                                                             <div class="input-group"> 
-                                                                                <input type="text" name="to_prod_level" class="form-control" style="width: 150px;" id="to_prod_level" value="<%= transfer1.to_bay %>" readonly> 
+                                                                                <input type="text" name="to_prod_level" class="form-control" style="width: 150px;" id="to_prod_level" value="<%= transfer1.to_level+transfer1.to_bay %>" readonly> 
                                                                             </div>
                                                                         </td>
                                                                         
