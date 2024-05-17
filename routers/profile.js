@@ -60,14 +60,26 @@ router.get("/view", auth, async(req, res) => {
         var lan_data = users.Arabic
     }
 
-    res.render("profile", {
-        success: req.flash('success'),
-        errors: req.flash('errors'),
-        profile : profile_data,
-        master_shop : master,
-        role : role_data,
-        language : lan_data
-    })
+    if(role_data.account_category == "wm"){
+        res.render("profile", {
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            profile : profile_data,
+            master_shop : master,
+            role : role_data,
+            language : lan_data
+        })
+    }else{
+        res.render("profile_sa", {
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            profile : profile_data,
+            master_shop : master,
+            role : role_data,
+            language : lan_data
+        })
+    }
+    
     } catch(error){
         console.log(error);
     }
