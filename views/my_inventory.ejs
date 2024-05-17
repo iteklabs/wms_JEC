@@ -159,16 +159,19 @@
                     let dataTableData = "";
                     for (let x = 0; x < response.length; x++) {
                         const data = response[x].product_list;
-                        dataTableData += "<tr>";
-                        dataTableData += "<td>" + data.product_code+ "</td>";
-                        dataTableData += "<td>" + data.product_name+ "</td>";
-                        dataTableData += "<td>" + data.primary_code+ "</td>";
-                        dataTableData += "<td>" + data.secondary_code+ "</td>";
-                        dataTableData += "<td>" + data.production_date+ "</td>";
-                        dataTableData += "<td>" + data.expiry_date+ "</td>";
-                        dataTableData += "<td>" + data.product_stock+ "</td>";
-                        dataTableData += "<td><button type='button' class='btn btn-primary btn-sm' onclick=\"isConfirmTrue('" + data._id + "')\">Confirm</button></td>";
-                        dataTableData += "</tr>";
+                        if(data.product_stock > 0){
+                            dataTableData += "<tr>";
+                            dataTableData += "<td>" + data.product_code+ "</td>";
+                            dataTableData += "<td>" + data.product_name+ "</td>";
+                            dataTableData += "<td>" + data.primary_code+ "</td>";
+                            dataTableData += "<td>" + data.secondary_code+ "</td>";
+                            dataTableData += "<td>" + data.production_date+ "</td>";
+                            dataTableData += "<td>" + data.expiry_date+ "</td>";
+                            dataTableData += "<td>" + data.product_stock+ "</td>";
+                            dataTableData += "<td><button type='button' class='btn btn-primary btn-sm' onclick=\"isConfirmTrue('" + data._id + "')\">Confirm</button></td>";
+                            dataTableData += "</tr>";
+                        }
+                        
 
                         // console.log(data)
                         
@@ -192,16 +195,19 @@
                    let dataTableData = "";
                    for (let x = 0; x < response.length; x++) {
                        const data = response[x].product_list;
-                       dataTableData += "<tr>";
-                       dataTableData += "<td>" + data.product_code+ "</td>";
-                       dataTableData += "<td>" + data.product_name+ "</td>";
-                       dataTableData += "<td>" + data.primary_code+ "</td>";
-                       dataTableData += "<td>" + data.secondary_code+ "</td>";
-                       dataTableData += "<td>" + data.production_date+ "</td>";
-                       dataTableData += "<td>" + data.expiry_date+ "</td>";
-                       dataTableData += "<td>" + data.product_stock+ "</td>";
-                    //    dataTableData += "<td><button type='button' class='btn btn-primary btn-sm' onclick=\"isConfirmTrue('" + data._id + "')\">Confirm</button></td>";
-                       dataTableData += "</tr>";
+                       if(data.product_stock > 0){
+                        dataTableData += "<tr>";
+                        dataTableData += "<td>" + data.product_code+ "</td>";
+                        dataTableData += "<td>" + data.product_name+ "</td>";
+                        dataTableData += "<td>" + data.primary_code+ "</td>";
+                        dataTableData += "<td>" + data.secondary_code+ "</td>";
+                        dataTableData += "<td>" + data.production_date+ "</td>";
+                        dataTableData += "<td>" + data.expiry_date+ "</td>";
+                        dataTableData += "<td>" + data.product_stock+ "</td>";
+                        //    dataTableData += "<td><button type='button' class='btn btn-primary btn-sm' onclick=\"isConfirmTrue('" + data._id + "')\">Confirm</button></td>";
+                        dataTableData += "</tr>";
+                       }
+                       
 
                     //    console.log(data)
                        
