@@ -243,7 +243,9 @@
                         text: "The requested quantity exceeds the available stock.",
                         icon: "warning"
                     });
+                    computePerPrice(x)
                     document.getElementById("quantity" + x).value = "";
+                    document.getElementById("price"+x).value = "";
                 }
                 if(qty_value <= 0){
                     Swal.fire({
@@ -251,10 +253,11 @@
                         text: "The requested quantity exceeds the available stock.",
                         icon: "warning"
                     });
+                    computePerPrice(x)
                     document.getElementById("quantity" + x).value = "";
+                    document.getElementById("price"+x).value = "";
                 }
-
-
+                computePerPrice(x)
                 // if(){
                     
                 // }
