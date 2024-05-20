@@ -238,7 +238,6 @@
                 var stock_qty = parseInt(document.getElementById("stock_qty" + x).value, 10);
 
                 if (stock_qty < qty_value) {
-                    console.log(stock_qty + " <> " + qty_value + " <> " + x);
                     Swal.fire({
                         title: "Warning!",
                         text: "The requested quantity exceeds the available stock.",
@@ -246,6 +245,19 @@
                     });
                     document.getElementById("quantity" + x).value = "";
                 }
+                if(qty_value <= 0){
+                    Swal.fire({
+                        title: "Warning!",
+                        text: "The requested quantity exceeds the available stock.",
+                        icon: "warning"
+                    });
+                    document.getElementById("quantity" + x).value = "";
+                }
+
+
+                // if(){
+                    
+                // }
             }
 
             
