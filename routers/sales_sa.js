@@ -161,7 +161,7 @@ router.get("/view_sales/:id", auth,  async(req, res) => {
 
 router.post("/add_sales", auth,  async(req, res) => {
     try {
-        const {customer, date, prod_code, note} = req.body
+        const {customer, date, prod_code, note, paid_status} = req.body
         
         if(typeof prod_code == "string"){
             var prod_code_array = [req.body.prod_code];
@@ -240,7 +240,7 @@ router.post("/add_sales", auth,  async(req, res) => {
         const staff_data = await staff.findOne({email: role_data.email});
 
 
-        const data = new sales_sa({ invoice: invoice.invoice_starts.toString().padStart(8, '0'), customer: customer, date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf() });
+        const data = new sales_sa({ invoice: invoice.invoice_starts.toString().padStart(8, '0'), customer: customer, date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf(), paid: paid_status });
         const sales_data = await data.save()
 
         console.log('Invoice created with incremented start value:', invoice.invoice_starts.toString().padStart(8, '0'));

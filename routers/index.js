@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 const auth = require("../middleware/auth");
-const { profile, sales, sales_return, purchases, purchases_return, categories, product, suppliers, customer, master_shop, transfers, adjustment, purchases_finished, sales_finished, adjustment_finished, transfers_finished } = require("../models/all_models");
+const { profile, sales, sales_return, purchases, purchases_return, categories, product, suppliers, customer, master_shop, transfers, adjustment, purchases_finished, sales_finished, adjustment_finished, transfers_finished, staff, sales_sa } = require("../models/all_models");
 const users = require("../public/language/languages.json");
 
 
@@ -239,13 +239,65 @@ router.get("/index", auth, async(req, res) => {
                 product_cnt : cnt,
             })
         }else if(role_data.account_category == "sa"){
+            const staff_data = await staff.findOne({ email: role_data.email });
+            const sales_sa_data = await sales_sa.find({ sales_staff_id : staff_data._id });
+
+            const paid_true = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "True" });
+            const paid_false = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "False" });
+            console.log(staff_data._id)
+            const sales_sa_my_inventory = await sales_sa.aggregate([
+                {
+                    $match : {
+                        sales_staff_id : staff_data._id.valueOf(),
+                    }
+                },
+                {
+                    $unwind : "$sale_product"
+                },
+                {
+                    $group: {
+                      _id: null,
+                      sumprice: { $sum: "$sale_product.price" } ,
+                      count: { $sum: 1 }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        sumprice: 1,
+                        averageprice: { $round: [{ $divide: ["$sumprice", "$count"] }, 2] } // Calculate the average price
+                    }
+                }
+            ])
+
+
+            const sales_sa_data_count = await staff.aggregate([
+                {
+                    $match: {
+                        email: role_data.email 
+                    }
+                },
+                {
+                    $unwind: "$product_list"
+                },
+                {
+                    $group: {
+                        _id: null,
+                        totalQTY: { $sum: "$product_list.product_stock" } ,
+                    }
+                }
+            ]);
             res.render("index_sa", {
                 success: req.flash('success'),
                 errors: req.flash('errors'),
                 role : role_data,
                 profile : profile_data,
                 master_shop : master,
-                language : lan_data
+                language : lan_data,
+                cntPaid : paid_true,
+                cntNotPaid : paid_false,
+                avg_price: sales_sa_my_inventory[0],
+                my_stock: sales_sa_data_count[0]
             })
         }else{
             var cnt;

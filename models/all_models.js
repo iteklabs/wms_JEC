@@ -2164,16 +2164,20 @@ const sales_sa_data = new mongoose.Schema({
             type: String
         },
         price: {
-            type: String
+            type: Number
         },
         totalprice: {
-            type: String
+            type: Number
         }
     }],
     note: {
         type: String
     },
     return_data: {
+        type: String,
+        default: "False"
+    },
+    paid: {
         type: String,
         default: "False"
     },
