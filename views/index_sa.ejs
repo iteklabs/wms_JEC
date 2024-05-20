@@ -144,7 +144,7 @@
                                                             <th scope="col">Action</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
+                                                    <tbody id="pendingInvoice">
                                                       
                                                     </tbody>
                                                 </table>
@@ -168,8 +168,7 @@
                                                             <th scope="col">Action</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
-                                                      
+                                                    <tbody id="LatesInvoice">
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -218,6 +217,86 @@
     <%- include('./partials/script'); -%>.
 
     <!-- <script src="../public/js/moment.js"></script> -->
+
+    <script>
+        function invoice_pending(){
+            $.ajax({
+                        url: '/pending_data',
+                        method: 'GET',
+                        // data: { isbool: "false" },
+                        success: function (response) {
+                            var table = document.getElementById("pendingInvoice");
+
+                            let dataOptions = "";
+
+                            for (let index = 0; index < response.length; index++) {
+                                const element = response[index];
+                                dataOptions += "<tr>";
+                                dataOptions += "<td class='text-center'><h3>"+element.invoice+"</h3></td>";
+                                dataOptions += "<td class='text-center'><button type='button' onclick=\"updatePaid('" + element._id + "')\" class='btn btn-primary'>Paid</button></td>";
+                                dataOptions += "</tr>";
+                            }
+                            table.innerHTML = dataOptions;
+                            
+                        }
+                    })
+                
+        }
+
+        function invoice_paid(){
+            $.ajax({
+                        url: '/paid_data',
+                        method: 'GET',
+                        // data: { isbool: "false" },
+                        success: function (response) {
+                            var table = document.getElementById("LatesInvoice");
+
+                            let dataOptions = "";
+
+                            for (let index = 0; index < response.length; index++) {
+                                const element = response[index];
+                                dataOptions += "<tr>";
+                                dataOptions += "<td class='text-center'><h3>"+element.invoice+"</h3></td>";
+                                dataOptions += "<td class='text-center'><button type='button' onclick=\"view('" + element._id + "')\" class='btn btn-success'>View</button></td>";
+                                dataOptions += "</tr>";
+                            }
+                            table.innerHTML = dataOptions;
+                            
+                        }
+                    })
+                
+        }
+
+        function updatePaid(id){
+            $.ajax({
+                        url: '/update_data',
+                        method: 'POST',
+                        data: { id: id },
+                        success: function (response) {
+                            if(response.paid == "True"){
+                                Swal.fire(
+                                    '',
+                                    response.invoice + ' is changed to paid.',
+                                    'success'
+                                )
+                                invoice_pending();
+                                invoice_paid();
+                            }else{
+                                Swal.fire(
+                                    '',
+                                    'Error',
+                                    'error'
+                                )
+                            }
+                        }
+                    })
+        }
+
+        $(document).ready(function() {
+            invoice_pending();
+            invoice_paid();
+        })
+    </script>
       
 
         <!--**********************************

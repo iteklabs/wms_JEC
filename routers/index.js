@@ -38,6 +38,8 @@ router.get("/index", auth, async(req, res) => {
         }else if(master[0].language == "Arabic (ae)") {
             var lan_data = users.Arabic
         }
+        // res.json(profile_data)
+        // return
         if(role_data.account_category == "wm"){
 
             var cnt;
@@ -454,7 +456,7 @@ router.get("/index", auth, async(req, res) => {
                 }
                 
             ])
-    // res.status(200).json(transfer_table_data)
+
             const categories_data = await categories.find()
     
             const product_data = await product.find()
@@ -462,17 +464,6 @@ router.get("/index", auth, async(req, res) => {
             const suppliers_data = await suppliers.find()
             
             const customer_data = await customer.find()
-    
-    
-            
-             
-            //  const checkdata = await purchases.find({"date" : "2023-12-28" });
-            //  res.json(purchases_line_graph_data);
-            //  return
-
-
-
-
 
             res.render("index", {
                 success: req.flash('success'),
@@ -506,118 +497,13 @@ router.get("/index", auth, async(req, res) => {
 })
 
 
-router.get("/raw_line", auth, async(req, res) => {
+router.get("/pending_data", auth, async(req, res) => {
     try {
-        const purchases_line_graph_data = await purchases.aggregate([
-            {
-                $unwind: "$product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$product.quantity" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-        res.json(purchases_line_graph_data);
-
-    } catch (error) {
-        res.json(error);
-    }
-})
-
-router.get("/raw_out_line", auth, async(req, res) => {
-    try {
-        const purchases_line_graph_data = await sales.aggregate([
-            {
-                $match : {
-                    "finalize" : "True"
-                }
-            },
-            {
-                $unwind: "$sale_product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$sale_product.quantity" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-        res.json(purchases_line_graph_data);
-
-    } catch (error) {
-        res.json(error);
-    }
-})
-router.get("/raw_adj_line", auth, async(req, res) => {
-    try {
-        const purchases_line_graph_data = await adjustment.aggregate([
-            {
-                $match : {
-                    "finalize" : "True"
-                }
-            },
-            {
-                $unwind: "$product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$product.adjust_qty" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-        res.json(purchases_line_graph_data);
-
-    } catch (error) {
-        res.json(error);
-    }
-})
-
-router.get("/raw_trf_line", auth, async(req, res) => {
-    try {
-        const purchases_line_graph_data = await transfers.aggregate([
-            {
-                $match : {
-                    "finalize" : "True"
-                }
-            },            
-            {
-                $unwind: "$product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$product.to_quantity" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-        res.json(purchases_line_graph_data);
+        const role_data = req.user
+        const staff_data = await staff.findOne({ email: role_data.email });
+        // const paid_true = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "True" });
+        const paid_false = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "False" });
+        res.json(paid_false);
 
     } catch (error) {
         res.json(error);
@@ -625,26 +511,13 @@ router.get("/raw_trf_line", auth, async(req, res) => {
 })
 
 
-router.get("/fg_line", auth, async(req, res) => {
+router.get("/paid_data", auth, async(req, res) => {
     try {
-        const purchases_line_graph_data = await purchases_finished.aggregate([
-            {
-                $unwind: "$product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$product.quantity" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-        res.json(purchases_line_graph_data);
+        const role_data = req.user
+        const staff_data = await staff.findOne({ email: role_data.email });
+        const paid_true = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "True" });
+        // const paid_false = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "False" });
+        res.json(paid_true);
 
     } catch (error) {
         res.json(error);
@@ -652,201 +525,15 @@ router.get("/fg_line", auth, async(req, res) => {
 })
 
 
-router.get("/fg_out_line", auth, async(req, res) => {
+router.post("/update_data", auth, async(req, res) => {
     try {
-        const purchases_line_graph_data = await sales_finished.aggregate([
-            {
-                $match : {
-                    "finalize" : "True"
-                }
-            },
-            {
-                $unwind: "$sale_product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$sale_product.quantity" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-        res.json(purchases_line_graph_data);
 
-    } catch (error) {
-        res.json(error);
-    }
-})
+        const { id } = req.body
+        const salesData = await  sales_sa.findById(id);
+        salesData.paid = "True";
+        const new_data = await salesData.save()
+        res.json(new_data)
 
-router.get("/fg_adj_line", auth, async(req, res) => {
-    try {
-        const purchases_line_graph_data = await adjustment_finished.aggregate([
-            {
-                $match : {
-                    "finalize" : "True"
-                }
-            },
-            {
-                $unwind: "$product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$product.adjust_qty" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-        res.json(purchases_line_graph_data);
-
-    } catch (error) {
-        res.json(error);
-    }
-})
-
-
-router.get("/fg_trf_line", auth, async(req, res) => {
-    try {
-        const purchases_line_graph_data = await transfers_finished.aggregate([
-            {
-                $match : {
-                    "finalize" : "True"
-                }
-            },
-            {
-                $unwind: "$product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$product.to_quantity" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-        res.json(purchases_line_graph_data);
-
-    } catch (error) {
-        res.json(error);
-    }
-})
-
-
-router.get("/rm_chart", auth, async(req, res) => {
-    try {
-        const purchases_line_graph_data = await purchases.aggregate([
-            {
-                $unwind: "$product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$product.quantity" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-        const sales_line_graph_data = await sales.aggregate([
-            {
-                $match : {
-                    "finalize" : "True"
-                }
-            },
-            {
-                $unwind: "$sale_product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$sale_product.quantity" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-
-        const adjustment_line_graph_data = await adjustment.aggregate([
-            {
-                $match : {
-                    "finalize" : "True"
-                }
-            },
-            {
-                $unwind: "$product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$product.adjust_qty" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-
-        const transfer_line_graph_data = await transfers.aggregate([
-            {
-                $match : {
-                    "finalize" : "True"
-                }
-            },            
-            {
-                $unwind: "$product" 
-            },
-            {
-                $group: {
-                
-                _id: "$date",
-                totalQuantity: { $sum: "$product.to_quantity" },
-                date: { $first: "$date" },
-                
-                }
-            },
-            {
-                $sort: { date: 1 } // Sort by date in ascending order
-            }
-        ])
-
-
-        res.json({purchases: purchases_line_graph_data, sales: sales_line_graph_data, adjustment : adjustment_line_graph_data, transfer: transfer_line_graph_data })
-    } catch (error) {
-        res.json(error);
-    }
-})
-
-
-router.get("/fg_chart", auth, async(req, res) => {
-    try {
-        const prod = await product.find({ product_category: "Finished Goods" })
-        res.json({count: prod.length})
     } catch (error) {
         res.json(error);
     }
