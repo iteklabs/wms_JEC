@@ -103,7 +103,7 @@
                                                 </span>
                                                 <div class="media-body text-center">
                                                     <p class="mb-1">No of Pending Invoice</p>
-                                                            <h4 class="mb-0"> <%= cntNotPaid.length %></h4>
+                                                            <h4 class="mb-0" id="unpaid_data_invoice"> <%= cntNotPaid.length %></h4>
                                                 </div>
                                             </div>
                                         </div>
@@ -121,7 +121,7 @@
     
                                                 <div class="media-body text-center">
                                                     <p class="mb-1">Paid Invoice</p>
-                                                        <h4 class="mb-0"> <%= cntPaid.length %></h4>
+                                                        <h4 class="mb-0" id="paid_data_invoice"> <%= cntPaid.length %></h4>
                                                 </div>
                                             </div>
                                         </div>
@@ -242,28 +242,30 @@
                     })
                 
         }
-
+        function view(id){
+            window.location.href = './sales_sa/view_sales/'+id;
+        }
         function invoice_paid(){
             $.ajax({
-                        url: '/paid_data',
-                        method: 'GET',
-                        // data: { isbool: "false" },
-                        success: function (response) {
-                            var table = document.getElementById("LatesInvoice");
+                url: '/paid_data',
+                method: 'GET',
+                // data: { isbool: "false" },
+                success: function (response) {
+                    var table = document.getElementById("LatesInvoice");
 
-                            let dataOptions = "";
+                    let dataOptions = "";
 
-                            for (let index = 0; index < response.length; index++) {
-                                const element = response[index];
-                                dataOptions += "<tr>";
-                                dataOptions += "<td class='text-center'><h3>"+element.invoice+"</h3></td>";
-                                dataOptions += "<td class='text-center'><button type='button' onclick=\"view('" + element._id + "')\" class='btn btn-success'>View</button></td>";
-                                dataOptions += "</tr>";
-                            }
-                            table.innerHTML = dataOptions;
-                            
-                        }
-                    })
+                    for (let index = 0; index < response.length; index++) {
+                        const element = response[index];
+                        dataOptions += "<tr>";
+                        dataOptions += "<td class='text-center'><h3>"+element.invoice+"</h3></td>";
+                        dataOptions += "<td class='text-center'><button type='button' onclick=\"view('" + element._id + "')\" class='btn btn-success'>View</button></td>";
+                        dataOptions += "</tr>";
+                    }
+                    table.innerHTML = dataOptions;
+                    
+                }
+            })
                 
         }
 
@@ -281,6 +283,8 @@
                                 )
                                 invoice_pending();
                                 invoice_paid();
+                                count_paid();
+                                count_unpaid();
                             }else{
                                 Swal.fire(
                                     '',
@@ -292,9 +296,50 @@
                     })
         }
 
+
+        function count_paid(){
+            $.ajax({
+                url: '/paid_data',
+                method: 'GET',
+                success: function (response) {
+                    document.getElementById("paid_data_invoice").innerHTML = response.length;
+                }
+            })
+        }
+
+
+        function count_unpaid(){
+            $.ajax({
+                url: '/pending_data',
+                method: 'GET',
+                success: function (response) {
+                    console.log(response)
+                    document.getElementById("unpaid_data_invoice").innerHTML = response.length;
+                }
+            })
+        }
+        
+        async function fetchDataAndUpdateChart(fetchFunction) {
+            const newData = await fetchFunction(); // Fetch data using the provided fetchFunction
+            await fetchFunction(); 
+        }
+
+
+        function startDataRefresh() {
+            const pollingInterval = 5000;
+            // Call fetchDataAndUpdateChart for each data source and its corresponding chart
+            setInterval(() => fetchDataAndUpdateChart(invoice_pending), pollingInterval);
+            setInterval(() => fetchDataAndUpdateChart(invoice_paid), pollingInterval);
+            setInterval(() => fetchDataAndUpdateChart(count_paid), pollingInterval);
+            setInterval(() => fetchDataAndUpdateChart(count_unpaid), pollingInterval);
+        }
+        
         $(document).ready(function() {
             invoice_pending();
             invoice_paid();
+            count_paid();
+            count_unpaid();
+            startDataRefresh();
         })
     </script>
       

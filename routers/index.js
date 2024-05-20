@@ -539,4 +539,19 @@ router.post("/update_data", auth, async(req, res) => {
     }
 })
 
+
+
+router.get("/pending_data", auth, async(req, res) => {
+    try {
+        const role_data = req.user
+        const staff_data = await staff.findOne({ email: role_data.email });
+        // const paid_true = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "True" });
+        const paid_false = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "False" });
+        res.json(paid_false);
+
+    } catch (error) {
+        res.json(error);
+    }
+})
+
 module.exports = router;
