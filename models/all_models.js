@@ -168,6 +168,13 @@ const product_data = new mongoose.Schema({
     },
     product_category:{
         type: String
+    },
+    sales_category:{
+        type: String
+    },
+    gross_price:{
+        type: Number,
+        default: 0
     }
     
 })
@@ -316,6 +323,9 @@ const staff_data = new mongoose.Schema({
         type: String 
     },
     account_category: {
+        type: String
+    },
+    type_of_acc_cat:{
         type: String
     },
     product_list: [

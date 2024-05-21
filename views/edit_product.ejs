@@ -210,14 +210,14 @@
                                                                     <label class="form-label">Maximum no. per pallet</label>
                                                                     <input type="text" placeholder="" class="form-control" name="MaxPerProduct" id="MaxPerProduct" value="<%= alldata.maxStocks %>" required>
                                                                 </div>
-                                                                <!-- <div class="mb-3 col-md-3">
-                                                                    <label class="form-label">Product Category</label>
-                                                                    <select class="form-control" name="prod_catdata" id="prod_catdata" required>
+                                                                <div class="mb-3 col-md-3">
+                                                                    <label class="form-label">Sales Category</label>
+                                                                    <select class="form-control" name="sales_cat" id="sales_cat" required>
                                                                         <option>Select</option>
-                                                                        <option <%= alldata.product_category == "Raw Materials" ? "selected" : "" %>>Raw Materials</option>
-                                                                        <option <%= alldata.product_category == "Finished Goods" ? "selected" : "" %>>Finished Goods</option>
+                                                                        <option <%= alldata.sales_category == "1" ? "selected" : "" %>>Ex truck</option>
+                                                                        <option <%= alldata.sales_category == "2" ? "selected" : "" %>>booking</option>
                                                                     </select>
-                                                                </div> -->
+                                                                </div>
                                                                 
                                                                 
                                                             </div>
