@@ -96,10 +96,10 @@ router.get("/PDF/:id", auth, async (req, res) => {
 
         doc
         .fontSize(20)
-        .text('DELI MONDO FOOD SPECIALTIES INC.', x, y);
-        doc
-        .fontSize(10)
-        .text('BRGY.HALAYHAY, TANZA CAVITE', x, y+=15);
+        .text('JAKA EQUITIES CORPORATION', x, y);
+        // doc
+        // .fontSize(10)
+        // .text('BRGY.HALAYHAY, TANZA CAVITE', x, y+=15);
 
         doc
         .fontSize(15)
@@ -571,10 +571,10 @@ router.get("/PDF_adjustment/:id", auth, async (req, res) => {
 
       doc
       .fontSize(20)
-      .text('DELI MONDO FOOD SPECIALTIES INC.', x, y);
-      doc
-      .fontSize(10)
-      .text('BRGY.HALAYHAY, TANZA CAVITE', x, y+=15);
+      .text('JAKA EQUITIES CORPORATION', x, y);
+      // doc
+      // .fontSize(10)
+      // .text('BRGY.HALAYHAY, TANZA CAVITE', x, y+=15);
 
       doc
       .fontSize(15)
@@ -1689,7 +1689,7 @@ router.get("/PDF_adjustment_rm/:id", auth, async (req, res) => {
 
       doc
       .fontSize(20)
-      .text('DELI MONDO FOOD SPECIALTIES INC.', x, y);
+      .text('JAKA EQUITIES CORPORATION', x, y);
       doc
       .fontSize(10)
       .text('BRGY.HALAYHAY, TANZA CAVITE', x, y+=15);
