@@ -246,7 +246,7 @@ router.get("/index", auth, async(req, res) => {
 
             const paid_true = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "True" });
             const paid_false = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "False" });
-            console.log(staff_data._id)
+            // console.log(staff_data._id)
             const sales_sa_my_inventory = await sales_sa.aggregate([
                 {
                     $match : {
@@ -497,6 +497,33 @@ router.get("/index", auth, async(req, res) => {
 })
 
 
+router.get("/pending_data_table", auth, async(req, res) => {
+    try {
+        const role_data = req.user
+        const staff_data = await staff.findOne({ email: role_data.email });
+        // const paid_true = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "True" });
+        // const paid_false = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "False" });
+        const paid_false = await sales_sa.aggregate([
+            { 
+                $match: {
+                    sales_staff_id : staff_data._id.valueOf(),
+                     paid: "False"
+                }
+            },
+            {
+                $limit : 4
+            },
+            {
+                $sort : { invoice : -1 }
+            }
+        ]);
+        res.json(paid_false);
+
+    } catch (error) {
+        res.json(error);
+    }
+})
+
 router.get("/pending_data", auth, async(req, res) => {
     try {
         const role_data = req.user
@@ -511,12 +538,42 @@ router.get("/pending_data", auth, async(req, res) => {
 })
 
 
-router.get("/paid_data", auth, async(req, res) => {
+router.get("/paid_data_table", auth, async(req, res) => {
     try {
         const role_data = req.user
         const staff_data = await staff.findOne({ email: role_data.email });
         const paid_true = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "True" });
-        // const paid_false = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "False" });
+     
+
+        res.json(paid_true);
+
+    } catch (error) {
+        res.json(error);
+    }
+})
+
+
+
+router.get("/paid_data", auth, async(req, res) => {
+    try {
+        const role_data = req.user
+        const staff_data = await staff.findOne({ email: role_data.email });
+        // const paid_true = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "True" });
+        const paid_true = await sales_sa.aggregate([
+            { 
+                $match: {
+                    sales_staff_id : staff_data._id.valueOf(),
+                     paid: "True"
+                }
+            },
+            {
+                $limit : 4
+            },
+            {
+                $sort : { invoice : -1 }
+            }
+        ]);
+
         res.json(paid_true);
 
     } catch (error) {
@@ -553,5 +610,147 @@ router.get("/pending_data", auth, async(req, res) => {
         res.json(error);
     }
 })
+
+
+router.get("/avg_data", auth, async(req, res) => {
+    try {
+        const role_data = req.user
+        const staff_data = await staff.findOne({ email: role_data.email });
+        // const paid_true = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "True" });
+        const sales_sa_my_inventory = await sales_sa.aggregate([
+            {
+                $match : {
+                    sales_staff_id : staff_data._id.valueOf(),
+                }
+            },
+            {
+                $unwind : "$sale_product"
+            },
+            {
+                $group: {
+                  _id: null,
+                  sumprice: { $sum: "$sale_product.price" } ,
+                  count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    sumprice: 1,
+                    averageprice: { $round: [{ $divide: ["$sumprice", "$count"] }, 2] } // Calculate the average price
+                }
+            }
+        ])
+        res.json(sales_sa_my_inventory);
+
+    } catch (error) {
+        res.json(error);
+    }
+})
+
+
+
+router.get("/my_inv", auth, async(req, res) => {
+    try {
+        const role_data = req.user
+        const staff_data = await staff.findOne({ email: role_data.email });
+        // const paid_true = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "True" });
+        const sales_sa_data_count = await staff.aggregate([
+            {
+                $match: {
+                    email: role_data.email 
+                }
+            },
+            {
+                $unwind: "$product_list"
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalQTY: { $sum: "$product_list.product_stock" } ,
+                }
+            }
+        ]);
+        res.json(sales_sa_data_count);
+
+    } catch (error) {
+        res.json(error);
+    }
+})
+
+
+
+router.get("/sales_chart", auth, async(req, res) => {
+    try {
+        const role_data = req.user
+        const staff_data = await staff.findOne({ email: role_data.email });
+        const sales_chart = await sales_sa.aggregate([
+            {
+                $match : {
+                    sales_staff_id : staff_data._id.valueOf(),
+                }
+            },
+            {
+                $unwind: "$sale_product" 
+            },
+            {
+                $group: {
+                
+                _id: "$date",
+                totalQuantity: { $sum: "$sale_product.quantity" },
+                date: { $first: "$date" },
+                
+                }
+            },
+            {
+                $sort: { date: 1 } // Sort by date in ascending order
+            }
+        ])
+        res.json(sales_chart);
+
+    } catch (error) {
+        res.json(error);
+    }
+})
+
+
+router.get("/price_chart", auth, async(req, res) => {
+    try {
+        const role_data = req.user
+        const staff_data = await staff.findOne({ email: role_data.email });
+        const sales_chart = await sales_sa.aggregate([
+            {
+                $match : {
+                    sales_staff_id : staff_data._id.valueOf(),
+                }
+            },
+            {
+                $unwind: "$sale_product" 
+            },
+            {
+                $group: {
+                
+                _id: "$date",
+                totalPrice: { $sum: "$sale_product.totalprice" },
+                date: { $first: "$date" },
+                
+                }
+            },
+            {
+                $sort: { date: 1 } // Sort by date in ascending order
+            }
+        ])
+        res.json(sales_chart);
+
+    } catch (error) {
+        res.json(error);
+    }
+})
+
+
+
+
+
+
 
 module.exports = router;

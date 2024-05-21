@@ -72,7 +72,7 @@
     
                                                 <div class="media-body text-center">
                                                     <p class="mb-1">My Inventory</p>
-                                                        <h4 class="mb-0"> <%= my_stock.totalQTY %> Qty </h4>
+                                                        <h4 class="mb-0" id="inv_mine"> <%= my_stock.totalQTY %> Qty </h4>
                                                 </div>
                                                 
                                             </div>
@@ -88,7 +88,7 @@
                                                 </span>
                                                 <div class="media-body text-center">
                                                     <p class="mb-1">Average Price</p>
-                                                        <h4 class="mb-0" style="text-align: center;"> <%= avg_price.averageprice %> </h4>
+                                                        <h4 class="mb-0" style="text-align: center;" id="avg_price"> <%= avg_price.averageprice %> </h4>
                                                 </div>
                                             </div>
                                         </div>
@@ -177,19 +177,35 @@
                                 </div>
                             </div>
 
-
-                            <div class="col-lg-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title">Charts</h4>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Charts</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <canvas id="myLineQTY" width="400" height="400"></canvas>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            
+                                </div>
+    
+    
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Charts</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <canvas id="myLinePrice" width="400" height="400"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            
                             
                         </div>
                     </div>
@@ -221,7 +237,7 @@
     <script>
         function invoice_pending(){
             $.ajax({
-                        url: '/pending_data',
+                        url: '/pending_data_table',
                         method: 'GET',
                         // data: { isbool: "false" },
                         success: function (response) {
@@ -252,7 +268,7 @@
                 // data: { isbool: "false" },
                 success: function (response) {
                     var table = document.getElementById("LatesInvoice");
-
+                    console.log(response)
                     let dataOptions = "";
 
                     for (let index = 0; index < response.length; index++) {
@@ -299,7 +315,7 @@
 
         function count_paid(){
             $.ajax({
-                url: '/paid_data',
+                url: '/paid_data_table',
                 method: 'GET',
                 success: function (response) {
                     document.getElementById("paid_data_invoice").innerHTML = response.length;
@@ -313,8 +329,18 @@
                 url: '/pending_data',
                 method: 'GET',
                 success: function (response) {
-                    console.log(response)
+                    // console.log(response)
                     document.getElementById("unpaid_data_invoice").innerHTML = response.length;
+                }
+            })
+        }
+        function count_inv(){
+            $.ajax({
+                url: '/my_inv',
+                method: 'GET',
+                success: function (response) {
+                    // console.log(response)
+                    document.getElementById("inv_mine").innerHTML = response[0].totalQTY;
                 }
             })
         }
@@ -332,13 +358,173 @@
             setInterval(() => fetchDataAndUpdateChart(invoice_paid), pollingInterval);
             setInterval(() => fetchDataAndUpdateChart(count_paid), pollingInterval);
             setInterval(() => fetchDataAndUpdateChart(count_unpaid), pollingInterval);
+            setInterval(() => fetchDataAndUpdateChart(avg_data), pollingInterval);
+            setInterval(() => fetchDataAndUpdateChart(count_inv), pollingInterval);
+            setInterval(() => fetchDataAndUpdateChart(fetchDataFG), pollingInterval);
+            setInterval(() => fetchDataAndUpdateChart(fetchDataStocks), pollingInterval);
         }
+        
+        function avg_data(){
+            $.ajax({
+                url: '/avg_data',
+                method: 'GET',
+                success: function (response) {
+                    // console.log(response)
+                    
+                   document.getElementById("avg_price").innerHTML = response[0].averageprice
+                }
+            })
+        }
+        var ctx2FG = document.getElementById('myLineQTY').getContext('2d');
+        var ctxPrice = document.getElementById('myLinePrice').getContext('2d');
+        function fetchDataFG() {
+            // Make an AJAX request
+            $.ajax({
+                url: './price_chart', // Replace 'your_data_endpoint_url_here' with your actual data endpoint URL
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    // On success, update chart with fetched data
+                    // console.log(response)
+                    updateChartFG(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+
+        function fetchDataStocks() {
+            // Make an AJAX request
+            $.ajax({
+                url: './sales_chart', // Replace 'your_data_endpoint_url_here' with your actual data endpoint URL
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    // On success, update chart with fetched data
+                    // console.log(response)
+                    updateChartQTY(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+
+        function updateChartFG(data) {
+            var labels = [];
+            var quantities = [];
+
+            // Extract labels and quantities from fetched data
+            data.forEach(function(item) {
+                
+                var dob = new Date(item.date);
+                var dobArr = dob.toDateString().split(' ');
+                var dobFormat = dobArr[2] + ' ' + dobArr[1] + ' ' + dobArr[3];
+                // alert(dobFormat); 
+                labels.push(dobFormat);
+                quantities.push(item.totalPrice);
+            });
+
+            // Update chart data with fetched data
+            myLineCharPrice.data.labels = labels;
+            myLineCharPrice.data.datasets[0].data = quantities;
+
+            // Update the chart
+            myLineCharPrice.update();
+        }
+
+        function updateChartQTY(data) {
+            var labels = [];
+            var quantities = [];
+
+            // Extract labels and quantities from fetched data
+            data.forEach(function(item) {
+                
+                var dob = new Date(item.date);
+                var dobArr = dob.toDateString().split(' ');
+                var dobFormat = dobArr[2] + ' ' + dobArr[1] + ' ' + dobArr[3];
+                // alert(dobFormat); 
+                labels.push(dobFormat);
+                quantities.push(item.totalQuantity);
+            });
+
+            // Update chart data with fetched data
+            myLineChart2FG.data.labels = labels;
+            myLineChart2FG.data.datasets[0].data = quantities;
+
+            // Update the chart
+            myLineChart2FG.update();
+        }
+
+        var options1 = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            title: {
+                display: true,
+                text: 'Chart.js Line Chart'
+            }
+        };
+
+
+        var myLineChart2FG = new Chart(ctx2FG, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Quantity - ',
+                    backgroundColor: 'rgb(144, 238, 144)',
+                    borderColor: 'rgb(144, 238, 144)',
+                    data: [],
+                    fill: false,
+                    pointStyle: 'rectRot',
+                    pointRadius: 5,
+                    pointBorderColor: 'rgb(0, 0, 0)',
+                    borderWidth: 1,
+                }]
+            },
+            options: options1
+        });
+
+
+
+        var myLineCharPrice = new Chart(ctxPrice, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Price - ',
+                    backgroundColor: 'rgb(144, 238, 144)',
+                    borderColor: 'rgb(144, 238, 144)',
+                    data: [],
+                    fill: false,
+                    pointStyle: 'rectRot',
+                    pointRadius: 5,
+                    pointBorderColor: 'rgb(0, 0, 0)',
+                    borderWidth: 1,
+                }]
+            },
+            options: options1
+        });
         
         $(document).ready(function() {
             invoice_pending();
             invoice_paid();
             count_paid();
             count_unpaid();
+            avg_data();
+            count_inv();
+            fetchDataFG();
+            fetchDataStocks();
             startDataRefresh();
         })
     </script>
