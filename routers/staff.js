@@ -79,9 +79,9 @@ router.get("/view", auth, async(req, res) => {
 
 router.post("/view", auth, async(req, res) => {
     try{
-        const {name, email, mobile, password, status, warehouse, position, warehouse_cat, account_cat} = req.body;
+        const {name, email, mobile, password, status, warehouse, position, warehouse_cat, account_cat, sales_cat} = req.body;
         const hash = await bcrypt.hash(password, 10)
-        const data = new staff({name, email, mobile, status, warehouse, position, account_category:account_cat })
+        const data = new staff({name, email, mobile, status, warehouse, position, account_category:account_cat, type_of_acc_cat: sales_cat })
         const staff_name = await staff.findOne({email:email});
         if(staff_name){
             req.flash('errors', `Email ${email} is alredy added. please choose another`)
@@ -154,7 +154,9 @@ router.post("/view/:id", auth, async(req, res) => {
     try{
         const _id = req.params.id;
         const data = await staff.findById(_id);
-        const {name, email, mobile, password, status, warehouse, position, account_edit_cat} = req.body;
+        const {name, email, mobile, password, status, warehouse, position, account_edit_cat, sales_cat2} = req.body;
+
+        // res.json(sales_cat2)
 
         data.name = name
         data.email = email
@@ -164,9 +166,11 @@ router.post("/view/:id", auth, async(req, res) => {
         data.warehouse = warehouse
         data.position = position
         data.account_category = account_edit_cat
+        data.type_of_acc_cat = sales_cat2
 
         const new_data = await data.save();
-
+        // res.json(new_data);
+        // return;
         const profile_data = await profile.findOne({email : email})
 
         profile_data.firstname = name
