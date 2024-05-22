@@ -86,7 +86,7 @@
     function saveAndContinue() {
 
         var strTemp = '';
-        var Invoice = document.getElementById("invoice");
+        // var Invoice = document.getElementById("invoice");
         var SCRN = document.getElementById("SCRN");
         // var suppliers = document.getElementById("suppliers");
         var date = document.getElementById("date");
@@ -94,13 +94,13 @@
         // var Room_name = document.getElementById("Room_name");
         var modal = document.getElementById("myModal");
 
-        if(Invoice.value.length == 0){
-            strTemp += "Document Number is required. <br>" 
-            Invoice.style.borderColor = "red";
-            Invoice.focus()
-        }else{
-            Invoice.style.borderColor = "";
-        }
+        // if(Invoice.value.length == 0){
+        //     strTemp += "Document Number is required. <br>" 
+        //     Invoice.style.borderColor = "red";
+        //     Invoice.focus()
+        // }else{
+        //     Invoice.style.borderColor = "";
+        // }
 
         if(SCRN.value.length == 0){
             strTemp += "Supplier/Client Ref Number is required. <br>"
@@ -403,7 +403,7 @@
         document.getElementById("dateRec").innerHTML =  document.getElementById("date").value;
         document.getElementById("houseware").innerHTML =  document.getElementById("warehouse_name").value;
         // document.getElementById("moor").innerHTML =  document.getElementById("Room_name").value;
-        document.getElementById("Inv").innerHTML = document.getElementById("invoice").value;
+        // document.getElementById("Inv").innerHTML = document.getElementById("invoice").value;
 
 
         modalContent.innerHTML = htmlfinal;
@@ -485,14 +485,14 @@
                                                     <div class="row mb-3">
 
 
-                                                        <div class="col-xl-3 col-sm-6">
+                                                        <!-- <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"> Document Number <span
                                                                         class="text-red"> *</span></label>
                                                                 <input type="text" name="invoice" class="form-control" value="<%= invoice %>"
                                                                     id="invoice" readonly>
                                                             </div>
-                                                        </div>
+                                                        </div> -->
 
 
 
@@ -1451,7 +1451,7 @@
 
             $.each(response, function(index, data) {
                 var rooms_data = document.getElementsByName("room_name");
-                var Invoice_num = document.getElementById("invoice").value;
+                // var Invoice_num = document.getElementById("invoice").value;
                 
 
                 for (let index = 0; index < rooms_data.length; index++) {
@@ -1568,12 +1568,12 @@
                             }).appendTo(row);
 
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_invoice'+lastIncre,
-                                name: 'prod_invoice',
-                                value: Invoice_num
-                            }).appendTo(row);
+                            // $('<input>').attr({
+                            //     type: 'hidden',
+                            //     id: 'prod_invoice'+lastIncre,
+                            //     name: 'prod_invoice',
+                            //     value: Invoice_num
+                            // }).appendTo(row);
 
 
                             $('<input>').attr({
@@ -1691,12 +1691,12 @@
                                 value: ""
                             }).appendTo(row);
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_invoice'+lastIncre,
-                                name: 'prod_invoice',
-                                value: Invoice_num
-                            }).appendTo(row);
+                            // $('<input>').attr({
+                            //     type: 'hidden',
+                            //     id: 'prod_invoice'+lastIncre,
+                            //     name: 'prod_invoice',
+                            //     value: Invoice_num
+                            // }).appendTo(row);
 
                             $('<input>').attr({
                                 type: 'hidden',

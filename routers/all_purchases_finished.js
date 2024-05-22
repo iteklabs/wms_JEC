@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
-const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, purchases_return, suppliers_payment, s_payment_data, email_settings, purchases_finished, purchases_return_finished, supervisor_settings } = require("../models/all_models");
+const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, purchases_return, suppliers_payment, s_payment_data, email_settings, purchases_finished, purchases_return_finished, supervisor_settings, invoice_for_incoming } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const nodemailer = require('nodemailer');
 var ejs = require('ejs');
@@ -400,7 +400,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             var max_product_unit_array = [req.body.max_product_unit]
             var prod_cat_array = [req.body.prod_cat]
             var RoomAssign_array = [req.body.RoomAssign]
-            var prod_invoice_array = [req.body.prod_invoice]
+            // var prod_invoice_array = [req.body.prod_invoice]
             var uuid_array = [req.body.uuid]
             // console.log("if");
         }else{
@@ -419,7 +419,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             var max_product_unit_array = [...req.body.max_product_unit]
             var prod_cat_array = [...req.body.prod_cat]
             var RoomAssign_array = [...req.body.RoomAssign]
-            var prod_invoice_array = [...req.body.prod_invoice]
+            // var prod_invoice_array = [...req.body.prod_invoice]
             var uuid_array = [...req.body.uuid]
         } 
         
@@ -428,9 +428,8 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             return  value  = {
                         product_name : value,
                     }   
-            })
-        
-        
+        })
+
         proudct_code_array.forEach((value,i) => {
             newproduct[i].product_code = value
         });
@@ -438,7 +437,6 @@ router.post("/view/add_purchases", auth, async (req, res) => {
         uuid_array.forEach((value,i) => {
             newproduct[i].uuid = value
         });
-        
         
         quantity_array.forEach((value,i) => {
             newproduct[i].quantity = Math.abs(value)
@@ -467,7 +465,6 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             newproduct[i].secondary_code = value
         })
 
-
         MaxStocks_data_aray.forEach((value, i) => {
             newproduct[i].maxStocks = value
         })
@@ -475,7 +472,6 @@ router.post("/view/add_purchases", auth, async (req, res) => {
         batch_code_array.forEach((value, i) => {
             newproduct[i].batch_code = value
         })
-
 
         expiry_date_array.forEach((value, i) => {
             newproduct[i].expiry_date = value
@@ -493,26 +489,37 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             newproduct[i].product_cat = value
         })
 
-
         RoomAssign_array.forEach((value, i) => {
             newproduct[i].room_name = value
         })
 
-        prod_invoice_array.forEach((value, i) => {
-            newproduct[i].invoice = value
-        })
+        // prod_invoice_array.forEach((value, i) => {
+        //     newproduct[i].invoice = value
+        // })
 
+        const new_Invoice = new invoice_for_incoming();
+        await new_Invoice.save();
 
+        for (let index = 0; index <= RoomAssign_array.length -1; index++) {
+            // const element = array[index];
+            newproduct[index].invoice = "INC-" + new_Invoice.invoice_init.toString().padStart(8, '0');
+            
+        }
+        // console.log(RoomAssign_array.length)
         // res.json(newproduct);
         // return
-
+      
         const Newnewproduct = newproduct.filter(obj => obj.quantity !== "0" && obj.quantity !== "");
        
-        const data = new purchases_finished({ invoice, suppliers:req.body.suppliers, date, warehouse_name, product:Newnewproduct, note, due_amount, room: Room_name, POnumber: PO_number, SCRN, JO_number })
-        const purchases_data = await data.save()
-  
+        const data = new purchases_finished({ invoice : "INC-" + new_Invoice.invoice_init.toString().padStart(8, '0'), suppliers:req.body.suppliers, date, warehouse_name, product:Newnewproduct, note, due_amount, room: Room_name, POnumber: PO_number, SCRN, JO_number })
+        const purchases_data = await data.save();
 
-        const new_purchase = await purchases_finished.findOne({ invoice: invoice });
+      
+
+        const new_purchase = await purchases_finished.findOne({ _id: purchases_data._id.valueOf() });
+
+        // res.json(purchases_data);
+        // return;
 
         // --------- warehouse ------- //
         

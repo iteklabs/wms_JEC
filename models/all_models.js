@@ -815,6 +815,7 @@ const purchases = new mongoose.model("purchases", purchases_data);
 const purchases_data_finished = new mongoose.Schema({
     invoice: {
         type: String,
+        unique: true
     },
     suppliers: {
         type: String,
@@ -845,7 +846,7 @@ const purchases_data_finished = new mongoose.Schema({
             type: String
         },
         bay:{
-           type: Number 
+            type: Number 
         },
         primary_code:{
             type: String
