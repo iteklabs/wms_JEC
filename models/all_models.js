@@ -767,9 +767,6 @@ const purchases_data = new mongoose.Schema({
     note: {
         type: String
     },
-    batch_code: {
-        type: String
-    },
     paid_amount: {
         type: Number,
         default: 0
@@ -912,6 +909,36 @@ const purchases_data_finished = new mongoose.Schema({
         type: String
     },
     JO_number: {
+        type: String
+    },
+    ReqBy:{
+        type: String
+    },
+    dateofreq: {
+        type: String
+    },
+    typeservicesData: {
+        type: String
+    },
+    van:{
+        type: String
+    },
+    typevehicle: {
+        type: String
+    },
+    driver: {
+        type: String
+    },
+    plate: {
+        type: String
+    },
+    DRSI: {
+        type: String
+    },
+    TSU: {
+        type: String
+    },
+    TFU: {
         type: String
     },
     isAllowEdit: {
@@ -1326,10 +1353,43 @@ const sales_data_finished = new mongoose.Schema({
         type: String,
         default: "False"
     },
-    mode_transpo: {
+    ReqBy:{
         type: String
     },
-    name_driver: {
+    dateofreq: {
+        type: String
+    },
+    typeservicesData: {
+        type: String
+    },
+    van:{
+        type: String
+    },
+    typevehicle: {
+        type: String
+    },
+    driver: {
+        type: String
+    },
+    plate: {
+        type: String
+    },
+    DRSI: {
+        type: String
+    },
+    TSU: {
+        type: String
+    },
+    TFU: {
+        type: String
+    },
+    PO_number: {
+        type: String
+    },
+    destination : {
+        type: String
+    },
+    deliverydate: {
         type: String
     }
 })

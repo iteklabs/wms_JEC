@@ -6,7 +6,7 @@
 
 </head>
 
-<body onload="ComputeConversion();">
+<body onload="ComputeConversion(); ">
     <!--*******************
         Preloader start
     ********************-->
@@ -105,29 +105,36 @@
 
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
-                                                                <label class="form-label">FTGS number</label>
+                                                                <label class="form-label">Requested By</label>
+                                                                <input type="text" class="form-control" name="ReqBy" id="ReqBy" value="<%= purchases.ReqBy %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Date of Request</label>
+                                                                <input type="date" class="form-control" name="dateofreq" id="dateofreq" value="<%= purchases.dateofreq %>" readonly>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">PO number</label>
                                                                 <input type="text" class="form-control" name="PO_number" value="<%= purchases.POnumber %>" readonly>
                                                             </div>
                                                         </div>
 
 
-
-                                                        <!-- <div class="col-xl-3 col-sm-6">
-                                                            <div class="form-group">
-                                                                <label class="form-label">Job Order number</label>
-                                                                <input type="text" class="form-control" name="JO_number" value="<%= purchases.JO_number %>">
-                                                            </div>
-                                                        </div> -->
-
-
-                                                        <!-- <div class="col-xl-3 col-sm-6">
+                                                        <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"><%= language.supplier %> </label>
                                                              
                                                                 <input type="text" name="suppliers" class="form-control" value="<%= purchases.suppliers %>"
                                                                     id="suppliers" readonly>
                                                             </div>
-                                                        </div> -->
+                                                        </div>
+
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"><%= language.date %> </label>
@@ -148,6 +155,114 @@
 
                                                         
                                              
+                                                    </div>
+
+                                                    <div class="row mb-3">
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type of Services  <span
+                                                                        class="text-red">*</span></label><br>
+
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Freight" disabled>
+                                                                <label for="Freight"> Freight</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Handling In" disabled>
+                                                                <label for="HandlingIn"> Handling In</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Handling Out" disabled>
+                                                                <label for="HandlingOut"> Handling Out</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Stripping" disabled>
+                                                                <label for="Stripping"> Stripping</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Stuffing" disabled>
+                                                                <label for="Stuffing"> Stuffing</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Barcoding" disabled>
+                                                                <label for="Barcoding"> Barcoding</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Repacking" disabled>
+                                                                <label for="Repacking"> Repacking</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Reprocessing" disabled>
+                                                                <label for="Reprocessing"> Reprocessing</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Stickering" disabled>
+                                                                <label for="Stickering"> Stickering</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Sorting" disabled>
+                                                                <label for="Sorting"> Sorting</label><br>
+
+
+                                                                <input type="hidden" class="form-check-input" id="typeservicesData" name="typeservicesData" value="<%= purchases.typeservicesData %>">
+
+                                                                
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type of Vehicle  <span
+                                                                        class="text-red">*</span></label>
+                                                                <select class="form-control" name="typevehicle"
+                                                                    id="typevehicle" disabled>
+                                                                    <option value="4WH" <%=purchases.typevehicle=="4WH"
+                                                                    ? "selected" : "" %>>4 WHEELER</option>
+                                                                    <option value="6WH" <%=purchases.typevehicle=="6WH"
+                                                                    ? "selected" : "" %>>6 WHEELER</option>
+                                                                    <option value="FWD" <%=purchases.typevehicle=="FWD"
+                                                                    ? "selected" : "" %>>FORWARD</option>
+                                                                    <option value="10WH" <%=purchases.typevehicle=="10WH"
+                                                                    ? "selected" : "" %>>10 WHEELER</option>
+                                                                    <option value="10FT" <%=purchases.typevehicle=="10FT"
+                                                                    ? "selected" : "" %>>10 FOOTER</option>
+                                                                    <option value="20FT" <%=purchases.typevehicle=="20FT"
+                                                                    ? "selected" : "" %>>20 FOOTER</option>
+                                                                    <option value="40FT" <%=purchases.typevehicle=="40FT"
+                                                                    ? "selected" : "" %>>40 FOOTER</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Name of trucker/Driver</label>
+                                                                <input type="text" class="form-control" name="driver" id="driver" value="<%= purchases.driver %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Plate Number</label>
+                                                                <input type="text" class="form-control" name="plate" id="plate" value="<%= purchases.plate %>" readonly>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Van/Seal Number</label>
+                                                                <input type="text" class="form-control" name="van" id="can" value="<%= purchases.van %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">D.R. / S.I Number</label>
+                                                                <input type="text" class="form-control" name="DRSI" id="DRSI" value="<%= purchases.DRSI %>" readonly>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">TIME START UNLOADING</label>
+                                                                <input type="time" class="form-control" name="TSU" id="TSU" value="<%= purchases.TSU %>" readonly>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">TIME FINISH UNLOADING</label>
+                                                                <input type="time" class="form-control" name="TFU" id="TFU" value="<%= purchases.TFU %>" readonly>
+                                                            </div>
+                                                        </div>
+
+
+
+
                                                     </div>
 
 
@@ -377,6 +492,34 @@
                 }
                 
             }
+
+
+            function checkedServices(){
+                var data = document.getElementById("typeservicesData").value
+                var checking = document.getElementsByName("typeservices");
+                var dataSplit = data.split(",");
+
+                console.log(data)
+                for (let i = 0; i < checking.length; i++) {
+                    const dataChecked = checking[i];
+
+                    for(let a = 0; a < dataSplit.length; a++){
+                            var dataVal = dataSplit[a];
+
+                            
+                            if(dataChecked.value == dataVal){
+                                checking[i].checked = true;
+                                console.log("hello")
+                            }
+                    }
+                    
+                }
+            }
+
+            $(document).ready(function() {
+                checkedServices();
+            })
+
         </script>
    
 
