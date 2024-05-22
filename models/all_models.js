@@ -328,6 +328,10 @@ const staff_data = new mongoose.Schema({
     type_of_acc_cat:{
         type: String
     },
+    sales_man_code:{
+        type: String,
+        unique: true
+    },
     product_list: [
         {
             product_name: {
