@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
-const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, purchases_return, sales, sales_return, suppliers_payment, customer_payment, transfers , transfers_finished, email_settings, supervisor_settings } = require("../models/all_models");
+const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, purchases_return, sales, sales_return, suppliers_payment, customer_payment, transfers , transfers_finished, email_settings, supervisor_settings, invoice_for_transfer } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const users = require("../public/language/languages.json");
 const nodemailer = require('nodemailer');
@@ -243,7 +243,7 @@ router.post("/view/add_transfer", auth, async(req, res) => {
             var RoomAssigned_array = [req.body.RoomAssigned]
             var ToRoomAssigned_array = [req.body.ToRoomAssigned]
             var from_invoice_array = [req.body.from_invoice]
-            var to_invoice_array = [req.body.to_invoice]
+            // var to_invoice_array = [req.body.to_invoice]
 
             var id_transaction_array = [req.body.id_transaction]
             
@@ -277,7 +277,7 @@ router.post("/view/add_transfer", auth, async(req, res) => {
             var ToRoomAssigned_array = [...req.body.ToRoomAssigned]
 
             var from_invoice_array = [...req.body.from_invoice]
-            var to_invoice_array = [...req.body.to_invoice]
+            // var to_invoice_array = [...req.body.to_invoice]
             var id_transaction_array = [...req.body.id_transaction]
         } 
         // res.json(req.body);
@@ -307,9 +307,6 @@ router.post("/view/add_transfer", auth, async(req, res) => {
 
         from_invoice_array.forEach((value,i) => {
             newproduct[i].from_invoice = value
-        });
-        to_invoice_array.forEach((value,i) => {
-            newproduct[i].To_invoice = value
         });
         
         
@@ -408,9 +405,14 @@ router.post("/view/add_transfer", auth, async(req, res) => {
         }
 
     
+        const invoice_transfer = new invoice_for_transfer();
+        await invoice_transfer.save();
+
+        for (let index = 0; index <= ToRoomAssigned_array.length -1; index++) {
+            newproduct[index].To_invoice = "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0');
+        }
         
-        
-        const data = new transfers_finished({ date, from_warehouse, to_warehouse, product:Newnewproduct, note, invoice })
+        const data = new transfers_finished({ date, from_warehouse, to_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0') })
         const transfers_data = await data.save()
 
 

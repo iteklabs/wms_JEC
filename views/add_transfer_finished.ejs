@@ -84,7 +84,7 @@
         function saveAndContinue() {
 
             var strTemp = '';
-            var Invoice = document.getElementById("invoice");
+            // var Invoice = document.getElementById("invoice");
             var date = document.getElementById("date");
             var from_warehouse_name = document.getElementById("transfer_from_warehouse");
             // var from_Room_name = document.getElementById("FromRoom_name");
@@ -94,13 +94,13 @@
 
             var modal = document.getElementById("myModal");
 
-            if(Invoice.value.length == 0){
-                strTemp += "Document Number is required. <br>" 
-                Invoice.style.borderColor = "red";
-                Invoice.focus()
-            }else{
-                Invoice.style.borderColor = "";
-            }
+            // if(Invoice.value.length == 0){
+            //     strTemp += "Document Number is required. <br>" 
+            //     Invoice.style.borderColor = "red";
+            //     Invoice.focus()
+            // }else{
+            //     Invoice.style.borderColor = "";
+            // }
 
             if(date.value.length == 0){
                 strTemp += "Date is required. <br>"
@@ -431,14 +431,14 @@
                                                     <div class="row mb-3">
 
 
-                                                        <div class="col-xl-3 col-sm-6">
+                                                        <!-- <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"> Document Number <span
                                                                         class="text-red"> *</span></label>
                                                                 <input type="text" name="invoice" class="form-control" value="<%= invoice %>"
                                                                     id="invoice" readonly>
                                                             </div>
-                                                        </div>
+                                                        </div> -->
 
                                                         
 
@@ -1564,7 +1564,7 @@
                         const levelData = data.level === null ? 0 : data.level;
                         const isleData =  data.isle === null ? 0 : data.isle;
                         const palletData =  data.pallet === null ? 0 : data.pallet;  
-                        var Invoice_num = document.getElementById("invoice").value;
+                        // var Invoice_num = document.getElementById("invoice").value;
                         
                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="product_code3" id="product_code3'+ x +'" value="' + data.product_code + '" readonly>'));
                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 355px;" name="prod_name" id="prod_name'+ x +'" value="' + data.name + '" readonly>'));
@@ -1697,12 +1697,12 @@
                         }).appendTo(row);
 
 
-                        $('<input>').attr({
-                            type: 'hidden',
-                            id: 'to_invoice'+x,
-                            name: 'to_invoice',
-                            value: Invoice_num
-                        }).appendTo(row);
+                        // $('<input>').attr({
+                        //     type: 'hidden',
+                        //     id: 'to_invoice'+x,
+                        //     name: 'to_invoice',
+                        //     value: Invoice_num
+                        // }).appendTo(row);
 
                         $('<input>').attr({
                             type: 'hidden',
