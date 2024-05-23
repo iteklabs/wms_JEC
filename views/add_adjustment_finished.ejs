@@ -85,19 +85,19 @@
     <script>
         function saveAndContinue() {
             var strTemp = '';
-        var Invoice = document.getElementById("invoice");
+        // var Invoice = document.getElementById("invoice");
         var date = document.getElementById("date");
         var warehouse_name = document.getElementById("adjustment_warehouse_name");
         // var Room_name = document.getElementById("Room_name");
         var modal = document.getElementById("myModal");
 
-        if(Invoice.value.length == 0){
-            strTemp += "Document Number is required. <br>" 
-            Invoice.style.borderColor = "red";
-            Invoice.focus()
-        }else{
-            Invoice.style.borderColor = "";
-        }
+        // if(Invoice.value.length == 0){
+        //     strTemp += "Document Number is required. <br>" 
+        //     Invoice.style.borderColor = "red";
+        //     Invoice.focus()
+        // }else{
+        //     Invoice.style.borderColor = "";
+        // }
 
     
 
@@ -410,22 +410,6 @@
                                                     method="post" id="form">
 
                                                     <div class="row">
-                                                        <div class="col-4">
-                                                            <div class="form-group">
-                                                                <label for="invoice_no"> Document Number <span
-                                                                    class="text-red"> *</span></label>
-                                                                <input type="text" name="invoice" class="form-control" value="<%= invoice_no %>"
-                                                                id="invoice" readonly>
-                                                            </div>
-                                                        </div>
-                                                        <!-- <div class="col-4">
-
-
-                                                                <div class="form-group">
-                                                                    <label class="form-label">Job Order number</label>
-                                                                    <input type="text" class="form-control" name="JO_number">
-                                                                </div>
-                                                        </div> -->
                                                         <div class="col-4">
 
                                                             <div class="form-group">

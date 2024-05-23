@@ -2315,6 +2315,40 @@ invoice_outgoing.plugin(autoIncrement.plugin, {
 
 const invoice_for_outgoing = new mongoose.model("invoice_outgoings", invoice_outgoing);
 
+
+const invoice_adjustment = new mongoose.Schema({
+    invoice_init: {
+        type: Number,
+        default : 0
+    },
+})
+
+
+invoice_adjustment.plugin(autoIncrement.plugin, {
+    model: 'invoice_adjustments',  // Name of the model
+    field: 'invoice_init', // Field to increment
+    startAt: 1, // Initial value
+    incrementBy: 1 
+});
+const invoice_for_adjustment = new mongoose.model("invoice_adjustments", invoice_adjustment);
+
+
+const invoice_transfer = new mongoose.Schema({
+    invoice_init: {
+        type: Number,
+        default : 0
+    },
+})
+
+
+invoice_transfer.plugin(autoIncrement.plugin, {
+    model: 'invoice_transfers',  // Name of the model
+    field: 'invoice_init', // Field to increment
+    startAt: 1, // Initial value
+    incrementBy: 1 
+});
+const invoice_for_transfer = new mongoose.model("invoice_transfers", invoice_transfer);
+
 module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa,
-                    suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, invoice_for_incoming, invoice_for_outgoing, 
+                    suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer,
                     customer_payment, c_payment_data, transfers, expenses_type, all_expenses, adjustment, master_shop, email_settings, purchases_finished, sales_finished, adjustment_finished, transfers_finished, purchases_return_finished, sales_return_finished, supervisor_settings };

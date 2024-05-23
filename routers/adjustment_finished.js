@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 const auth = require("../middleware/auth");
-const {profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, suppliers_payment, expenses_type, all_expenses, adjustment, adjustment_finished, email_settings, supervisor_settings} = require("../models/all_models");
+const {profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, suppliers_payment, expenses_type, all_expenses, adjustment, adjustment_finished, email_settings, supervisor_settings, invoice_for_adjustment} = require("../models/all_models");
 const users = require("../public/language/languages.json");
 const nodemailer = require('nodemailer');
 
@@ -226,7 +226,7 @@ router.get("/view/add_adjustment", auth, async (req, res) => {
 
 router.post("/view/add_adjustment", auth, async(req, res) => {
     try{
-        const {warehouse_name, date, prod_name, level, isle, pallet, stock, types, adjust_qty, new_adjust_qty, note, Room_name, invoice, JO_number, expiry_date } = req.body
+        const {warehouse_name, date, prod_name, level, isle, pallet, stock, types, adjust_qty, new_adjust_qty, note, Room_name, JO_number, expiry_date } = req.body
         if(typeof prod_name == "string"){
             var product_name_array = [req.body.prod_name]
             var level_array = [req.body.level]
@@ -363,9 +363,10 @@ router.post("/view/add_adjustment", auth, async(req, res) => {
             return res.redirect("back")
         }
 
-        // res.json(newproduct);
-        // return;
-        const data = new adjustment_finished({ warehouse_name, date, product:newFilter, note, room: Room_name, invoice, JO_number, expiry_date })
+        const Invoice_adjustment = new invoice_for_adjustment();
+        await Invoice_adjustment.save();
+
+        const data = new adjustment_finished({ warehouse_name, date, product:newFilter, note, room: Room_name, invoice : "ADJ-" + Invoice_adjustment.invoice_init.toString().padStart(8, '0'), JO_number, expiry_date })
 
         const adjustment_data = await data.save() 
         
