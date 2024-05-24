@@ -1404,6 +1404,14 @@ $(document).ready(function() {
                 }).appendTo(row);
 
 
+                $('<input>').attr({
+                    type: 'hidden',
+                    id: 'gross_price'+x,
+                    name: 'gross_price',
+                    value: data.gross_price
+                }).appendTo(row);
+
+
                 $('#tblPage_NewOut').append(row);
                 agentlist(x);
                 checkExpiration(data.expiry_date , x);

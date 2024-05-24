@@ -2258,6 +2258,9 @@ const sales_sa_data = new mongoose.Schema({
         },
         totalprice: {
             type: Number
+        },
+        gross_price:{
+            type: Number
         }
     }],
     note: {

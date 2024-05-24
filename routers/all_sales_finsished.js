@@ -385,7 +385,7 @@ router.post("/view/add_sale/product", auth, async (req, res) => {
 router.post("/view/add_sales", auth, async (req, res) => {
     try {
         const { invoice, date, warehouse_name, product_name, note, room, primary_code, secondary_code, prod_code,  SCRN, ReqBy, dateofreq, PO_number, typeservicesData,  typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU, mode_transpo, name_driver } = req.body
-  
+       
         if(typeof product_name == "string"){
             var product_name_array = [req.body.product_name]
             var stock_array = [req.body.stock]
@@ -406,7 +406,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
             var id_transaction_from_array = [req.body.id_transaction_from]
             var agentSelected_array = [req.body.agentSelected]
             var uuid_array = [req.body.uuid]
-            
+            var gross_price_array = [req.body.gross_price]
         }else{
             var product_name_array = [...req.body.product_name]
             var stock_array = [...req.body.stock]
@@ -427,6 +427,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
             var id_transaction_from_array = [...req.body.id_transaction_from]
             var agentSelected_array = [...req.body.agentSelected]
             var uuid_array = [...req.body.uuid]
+            var gross_price_array = [...req.body.gross_price]
         } 
         const newproduct = product_name_array.map((value)=>{
             
@@ -442,6 +443,10 @@ router.post("/view/add_sales", auth, async (req, res) => {
         });
         product_name_array.forEach((value,i) => {
             newproduct[i].agent_id = req.body.sales
+        })
+
+        gross_price_array.forEach((value,i) => {
+            newproduct[i].gross_price = value
         })
 
 
@@ -496,6 +501,9 @@ router.post("/view/add_sales", auth, async (req, res) => {
         prod_invoice_array.forEach((value, i) =>{
             newproduct[i].invoice = value
         })
+
+
+        
 
         var error = 0
         newproduct.forEach(data => {
@@ -791,6 +799,7 @@ router.post("/preview/:id", auth , async (req, res) => {
                     warehouse_id: element.id_transaction_from,
                     id_incoming: element._id,
                     uuid: element.uuid, 
+                    gross_price: element.gross_price
                 })
                 await to_sales_data.save();
             }
@@ -2144,7 +2153,8 @@ router.post("/barcode_scanner", async (req, res) => {
                     computeUsed : { $first: "P" },
                     roomNamed : { $first: "$room" },
                     invoice : { $first: "$product_details.invoice" },
-                    uuid : { $first: "$product_details.uuid" }
+                    uuid : { $first: "$product_details.uuid" },
+                    gross_price: { $first: "$product_details.gross_price" }
                    
                 }
             },
@@ -2185,7 +2195,8 @@ router.post("/barcode_scanner", async (req, res) => {
                     computeUsed : { $first: "S" },
                     roomNamed : { $first: "$room" },
                     invoice : { $first: "$product_details.invoice" },
-                    uuid : { $first: "$product_details.uuid" }
+                    uuid : { $first: "$product_details.uuid" },
+                    gross_price: { $first: "$product_details.gross_price" }
                 }
             },
         ]);

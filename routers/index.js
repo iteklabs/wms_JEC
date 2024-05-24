@@ -658,11 +658,17 @@ router.get("/my_inv", auth, async(req, res) => {
         const sales_sa_data_count = await staff.aggregate([
             {
                 $match: {
-                    email: role_data.email 
+                    email: role_data.email
+                    
                 }
             },
             {
                 $unwind: "$product_list"
+            },
+            {
+                $match:{
+                    "product_list.isConfirm": "true"
+                }
             },
             {
                 $group: {

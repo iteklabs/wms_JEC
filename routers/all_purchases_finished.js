@@ -600,7 +600,8 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                         product_cat: product_details.product_cat,
                         invoice: product_details.invoice,
                         id_incoming: product_details._id,
-                        uuid: product_details.uuid
+                        uuid: product_details.uuid,
+                        gross_price: product_details.gross_price
                     })
                 }
         
@@ -629,7 +630,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                                 $addToSet: {
                                     product_details: { $each: warehouseData.product_details }
                                 }
-                          });
+                        });
                     }
 
                     // res.json(updatedWarehouseDataArray)
