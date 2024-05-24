@@ -417,10 +417,10 @@
                                                 <form class="needs-validation" action="/all_sales_finished/view/add_sales"
                                                     method="post" id="form">
 
-                                                    <div class="row mb-3">
+                                                    <div class="row">
                                                         
 
-                                                        <div class="col-xl-4 col-sm-6">
+                                                        <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"> Supplier / Client Ref Number <span class="text-red">*</span></label>
                                                                 <input type="text" name="SCRN" class="form-control"
@@ -489,12 +489,8 @@
                                                                 </div>
                                                             </div>
                                                     </div>
-                                                    <div class="row mb-3">
-                                                        
-
-
-                                                    </div>
-
+                                                    
+                                                    
                                                     <div class="row mb-3">
 
                                                         <div class="col-xl-3 col-sm-6">
@@ -606,33 +602,51 @@
                                                         </div>
 
                                                     </div>
+
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type Of Sales<span class="text-red">*</span></label>
+                                                                <select class="form-control" id="type_sales">
+                                                                    <option value="">Please Select</option>
+                                                                    <option value="1">Ex-Truck</option>
+                                                                    <option value="2">Bookings</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Sales<span class="text-red">*</span></label>
+                                                                <select class="form-control" id="sales" name="sales">
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                     <div class="row mb-3">
                                                         <div class="col-xl-4 col-sm-6">
                                                             <select class="form-control" id="choice-dropdown" onchange="showTextbox()">
                                                                 <option value="Primary">Please Scan the Barcode...</option>
-                                                                <!-- <option value="">Select an option</option> -->
-                                                                <!-- <option value="Primary">Primary</option> -->
-                                                                <!-- <option value="Secondary">Secondary</option> -->
                                                             </select>
-                                                        </div>    
+                                                        </div>
                                                             
-                                              
-                                                             <div class="col-xl-12" id="primary-textbox" style="display: none;">
+                                                            <div class="col-xl-12" id="primary-textbox" style="display: none;">
                                                                 <div class="form-group">
                                                                     <label for="invoice_no">Barcode<span
                                                                             class="text-red">*</span></label>
                                                                     <input type="text" name="product_code" class="form-control" id="product_code">
                                                                 </div>
-                                                             </div>
-                                                             
-                                                             
-                                                              <div class="col-xl-12" id="secondary-textbox" style="display: none;">
+                                                            </div>
+
+
+                                                            <div class="col-xl-12" id="secondary-textbox" style="display: none;">
                                                                 <div class="form-group">
                                                                     <label for="invoice_no2">Secondary Barcode  <span
                                                                             class="text-red">*</span></label>
                                                                     <input type="text" name="product_code2" class="form-control" id="product_code2">
                                                                 </div>
-                                                              </div>
+                                                            </div>
                                                         
                                                     </div>
 
@@ -659,8 +673,6 @@
                                                         </div>
                                                         <!-- Add more color legend items as needed -->
                                                     </fieldset>
-
-
                                                     <div class="col-xl-12">
                                                         <div class="table-responsive">
                                                             <table class="table primary-table-bordered" id="sales_tbl_new">
@@ -678,7 +690,7 @@
                                                                         <th scope="col"> Conversion</th>
                                                                         <th scope="col"> Room</th>
                                                                         <th scope="col">Bin </th>
-                                                                        <th scope="col">Agent </th>
+                                                                        <!-- <th scope="col">Agent </th> -->
                                                                         <th scope="col">Action</th>
                                                                         
                                                                     </tr>
@@ -708,10 +720,7 @@
                                                     </div> -->
                                                 </form>
                                                 <div class="row">
-                                                    <button class="btn btn-primary" onclick="showConfirmation()" type="submit"
-                                                        id="purchase_submit"  ><%= language.submit %> </button>
-                                                        <!-- <input class="btn btn-primary"  type="submit"
-                                                        id="purchase_submit" onclick="showConfirmation()" ><%= language.submit %> </input> -->
+                                                    <button class="btn btn-primary" onclick="showConfirmation()" type="submit" id="purchase_submit"  ><%= language.submit %> </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1183,6 +1192,26 @@
             document.getElementById("typeservicesData").value = arrayData;
         }
 $(document).ready(function() {
+
+
+    $('#type_sales').on('change', function(e){
+        var typeSales = $(this).val();
+        var dataSelectID = document.getElementById('sales');
+        $.ajax({
+                url: '/warehousemap_Income/staff_sales',
+                method: 'POST',
+                data: { typeofsales: typeSales },
+                success: function (response) {
+                    let dataselect = "";
+                    for(let a = 0; a <=  response.length - 1; a++){
+                        var data = response[a];
+                        dataselect += "<option value='"+data._id+"'> "+data.name+"</option>";
+                    }
+                    dataSelectID.innerHTML = dataselect
+                }
+            });
+    })
+
     $('#product_code').on('keydown', function(e) {
     if (e.which === 13) {
       e.preventDefault();
@@ -1271,7 +1300,7 @@ $(document).ready(function() {
                 row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="RoomAssigned" id="RoomAssigned'+x+'" value="'+data.roomNamed+'" readonly>'));
                 
                 row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="level2" value="' + data.level+data.bay + '" readonly>'));
-                row.append($('<td>').html('<select id="agent'+x+'" class="form-control" style="width: 150px;"" name="agentSelected"></select>'));
+                // row.append($('<td>').html('<select id="agent'+x+'" class="form-control" style="width: 150px;"" name="agentSelected"></select>'));
                 row.append($('<td>').html('<button type="button" class="btn btn-square btn-dark" id="remove">Remove</button>'));
                 
 

@@ -286,6 +286,9 @@ const warehouse_data = new mongoose.Schema({
             },
             uuid: {
                 type: String
+            },
+            gross_price:{
+                type: Number
             }
         }
     ]
@@ -428,6 +431,9 @@ const staff_data = new mongoose.Schema({
             },
             uuid: {
                 type: String
+            },
+            gross_price:{
+                type: Number
             }
         }
     ]
@@ -880,6 +886,9 @@ const purchases_data_finished = new mongoose.Schema({
         },
         uuid: {
             type: String
+        },
+        gross_price: {
+            type: Number
         }
     }],
     note: {
@@ -1264,6 +1273,9 @@ const sales_data_finished = new mongoose.Schema({
     Toroom:{
         type: String
     },
+    sales_data:{
+        type: String
+    },
     sale_product:[{
         product_name: {
             type: String
@@ -1332,6 +1344,9 @@ const sales_data_finished = new mongoose.Schema({
             type: String
         },
         uuid: {
+            type: String
+        },
+        gross_price: {
             type: String
         }
     }],
@@ -2229,11 +2244,11 @@ const sales_sa_data = new mongoose.Schema({
         prod_cat:{
             type: String
         },
-        price:{
-            type: String
+        discount:{
+            type: Number
         },
         total_price:{
-            type: String
+            type: Number
         },
         id_transaction_from : {
             type: String
@@ -2258,6 +2273,10 @@ const sales_sa_data = new mongoose.Schema({
     },
     sales_staff_id: {
         type: String
+    },
+    collection_price:{
+        type: Number,
+        default:0
     }
 })
 const sales_sa = new mongoose.model("sales_sas", sales_sa_data);

@@ -176,6 +176,7 @@ router.post("/add_sales", auth,  async(req, res) => {
             var price_array = [req.body.price];
             var totalPrice_array = [req.body.totalPrice];
             var id_transaction_array = [req.body.id_transaction];
+            var dicount_price_array = [req.body.dicount_price];
         }else{
             var prod_code_array = [...req.body.prod_code];
             var prod_name_array = [...req.body.prod_name];
@@ -189,6 +190,7 @@ router.post("/add_sales", auth,  async(req, res) => {
             var price_array = [...req.body.price];
             var totalPrice_array = [...req.body.totalPrice];
             var id_transaction_array = [...req.body.id_transaction];
+            var dicount_price_array = [...req.body.dicount_price];
         }
         const newproduct = prod_code_array.map((value)=>{
             
@@ -229,6 +231,10 @@ router.post("/add_sales", auth,  async(req, res) => {
         id_transaction_array.forEach((value,i) => {
             newproduct[i].id_transaction_from = value
         });
+        
+        dicount_price_array.forEach((value, i) => {
+            newproduct[i].discount = value
+        })
 
 
     

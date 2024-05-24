@@ -87,7 +87,7 @@
                                                             <span id="loadingIcon" class="btn btn-primary" style="display: none;"> <i class="fas fa-spinner fa-spin"></i>Loading</span>
                                                         </div>
                                                     </div>
-                                                    <div class="row mb-3">
+                                                    <!-- <div class="row mb-3">
                                                         <div class="col-xl-4 col-sm-6">
                                                             <div class="form-group">
                                                                 <label for="invoice_no">Status Paid <span class="text-red">*</span></label>
@@ -97,7 +97,7 @@
                                                                 </select>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    </div> -->
                                                       <fieldset>
                                                         <legend>Expiration Color Legend</legend>
                                                         <div class="color-legend">
@@ -135,6 +135,7 @@
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">Unit of Measure </th>
                                                                         <th scope="col">Price </th>
+                                                                        <th scope="col">Discount Price </th>
                                                                         <th scope="col">Total Price </th>
                                                                         <th scope="col">Action</th>
                                                                     </tr>
@@ -242,8 +243,22 @@
                 var totalAll = 0;
                 totalAll = qty.value*price.value;
                 totalPrice.value = totalAll;
-                console.log(x)
             }
+
+
+
+            function computePerPriceDiscount(x){
+                var qty = document.getElementById("quantity"+x);
+                var price = document.getElementById("price"+x);
+                var totalPrice = document.getElementById("totalPrice"+x);
+                var dicount_price = document.getElementById("dicount_price"+x);
+
+                var totalAll = 0;
+                totalAll = qty.value*price.value;
+                totalAll = totalAll-dicount_price.value;
+                totalPrice.value = totalAll;
+            }
+
             function checkingQuantityStocks(x) {
                 var qty_value = parseInt(document.getElementById("quantity" + x).value, 10);
                 var stock_qty = parseInt(document.getElementById("stock_qty" + x).value, 10);
@@ -425,9 +440,10 @@
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="production_date" value="' + data.product_list.production_date + '" readonly>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="expiry_date" value="' + data.product_list.expiry_date + '" readonly>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="' + data.product_list.product_stock + '" readonly>'));
-                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+')" oninput="checkingQuantityStocks('+x+')" id="quantity'+x+'" value="" required>'));
+                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+')" id="quantity'+x+'" value="" required>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + data.product_list.unit + '" readonly>'));
-                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+')" onclick="computePerPrice('+x+')" value="">'));
+                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="">'));
+                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
                                         row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
 

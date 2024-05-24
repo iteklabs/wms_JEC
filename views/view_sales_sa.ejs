@@ -114,9 +114,11 @@
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">Unit of Measure </th>
                                                                         <th scope="col">Price </th>
+                                                                        <th scope="col">Discount Price </th>
                                                                         <th scope="col">Total Price </th>
                                                                     </tr>
                                                                 </thead>
+                                                                <% var total = 0; %>
                                                                 <tbody id="tblPage_NewOut">
                                                                     <% sales_sa.sale_product.map((data) => { %>
                                                                         <tr>
@@ -130,7 +132,9 @@
                                                                             <td><%= data.quantity %></td>
                                                                             <td><%= data.unit %></td>
                                                                             <td><%= data.price %></td>
+                                                                            <td><%= data.discount %></td>
                                                                             <td><%= data.totalprice %></td>
+                                                                            <% total += data.totalprice  %>
                                                                         </tr>
                                                                     <% }) %>
                                                                     
@@ -138,6 +142,24 @@
                                                             </table>
                                                         </div>
                                                     </div>
+                                                    <div class="row">
+                                                        <div class="col-md-4 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="note">Total Invoice</label>
+                                                                <input type="number" class="form-control text-center"
+                                                                    placeholder="note" id="note" name="note" value="<%= total %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-4 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="note">Total Collection</label>
+                                                                <input type="number" class="form-control text-center"
+                                                                    placeholder="note" id="note" name="note" value="<%= sales_sa.collection_price %>" readonly>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
                                                     <div class="row">
                                                         <div class="col-md-8 col-sm-6">
                                                             <div class="form-group">

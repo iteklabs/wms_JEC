@@ -385,9 +385,7 @@ router.post("/view/add_sale/product", auth, async (req, res) => {
 router.post("/view/add_sales", auth, async (req, res) => {
     try {
         const { invoice, date, warehouse_name, product_name, note, room, primary_code, secondary_code, prod_code,  SCRN, ReqBy, dateofreq, PO_number, typeservicesData,  typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU, mode_transpo, name_driver } = req.body
-    
-        // res.json(req.body)
-        // return
+  
         if(typeof product_name == "string"){
             var product_name_array = [req.body.product_name]
             var stock_array = [req.body.stock]
@@ -442,9 +440,11 @@ router.post("/view/add_sales", auth, async (req, res) => {
         quantity_array.forEach((value,i) => {
             newproduct[i].quantity = Math.abs(value)
         });
-        agentSelected_array.forEach((value,i) => {
-            newproduct[i].agent_id = value
+        product_name_array.forEach((value,i) => {
+            newproduct[i].agent_id = req.body.sales
         })
+
+
         uuid_array.forEach((value,i) => {
             newproduct[i].uuid = value
         })
@@ -496,8 +496,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
         prod_invoice_array.forEach((value, i) =>{
             newproduct[i].invoice = value
         })
-// res.json(newproduct)
-//         return 
+
         var error = 0
         newproduct.forEach(data => {
             // console.log(parseFloat(data.stock) + "<" + parseFloat(data.quantity) + "&&" + parseFloat(data.quantity) + ">" + parseFloat(data.stock));
@@ -514,7 +513,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
         const Newnewproduct = newproduct.filter(obj => obj.quantity !== "0" && obj.quantity !== "");
         const Invoice_out = new invoice_for_outgoing();
         await Invoice_out.save();
-        const data = new sales_finished({ invoice: "OUT-" + Invoice_out.invoice_init.toString().padStart(8, '0'), customer: req.body.customer, date, warehouse_name, sale_product:Newnewproduct, note, room, primary_code, secondary_code, prod_code, SCRN, finalize: "False", mode_transpo,name_driver, ReqBy, dateofreq, PO_number, typeservicesData, typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU })
+        const data = new sales_finished({ invoice: "OUT-" + Invoice_out.invoice_init.toString().padStart(8, '0'), sales_data: req.body.sales, customer: req.body.customer, date, warehouse_name, sale_product:Newnewproduct, note, room, primary_code, secondary_code, prod_code, SCRN, finalize: "False", mode_transpo,name_driver, ReqBy, dateofreq, PO_number, typeservicesData, typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU })
         const purchases_data = await data.save()
         const new_sales = await sales_finished.findOne({ invoice: invoice });
         req.flash("success", "Sales Add successfully")
