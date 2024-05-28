@@ -141,6 +141,7 @@
                                                     <thead class="thead-info">
                                                         <tr>
                                                             <th scope="col">Invoice</th>
+                                                            <th scope="col">Collection</th>
                                                             <th scope="col">Action</th>
                                                         </tr>
                                                     </thead>
@@ -249,6 +250,7 @@
                                 const element = response[index];
                                 dataOptions += "<tr>";
                                 dataOptions += "<td class='text-center'><h3>"+element.invoice+"</h3></td>";
+                                dataOptions += "<td class='text-center'><h3><input type='number' class='form-control text-center' id="+element._id+" value='"+element.collection_price+"'></h3></td>";
                                 dataOptions += "<td class='text-center'><button type='button' onclick=\"updatePaid('" + element._id + "')\" class='btn btn-primary'>Paid</button></td>";
                                 dataOptions += "</tr>";
                             }
@@ -286,10 +288,12 @@
         }
 
         function updatePaid(id){
+            var thevalprice = document.getElementById(id).value;
+
             $.ajax({
                         url: '/update_data',
                         method: 'POST',
-                        data: { id: id },
+                        data: { id: id, price: thevalprice },
                         success: function (response) {
                             if(response.paid == "True"){
                                 Swal.fire(

@@ -585,9 +585,12 @@ router.get("/paid_data", auth, async(req, res) => {
 router.post("/update_data", auth, async(req, res) => {
     try {
 
-        const { id } = req.body
+        const { id, price } = req.body
+        // res.json(req.body);
+        // return;
         const salesData = await  sales_sa.findById(id);
         salesData.paid = "True";
+        salesData.collection_price = parseFloat(price)
         const new_data = await salesData.save()
         res.json(new_data)
 
