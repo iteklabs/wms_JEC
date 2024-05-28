@@ -73,7 +73,18 @@
                 method: 'POST',
                 data: { id_data: id, price: numdata },
                 success: function (response) {
-                    console.log(response)
+                    if (response.isChange == true) {
+                        console.log(response.data.gross_price)
+
+                        document.getElementById("gross_price"+i).value = response.data.gross_price;
+
+                        Swal.fire({
+                            title: "Updated!",
+                            text: "Gross Price: " + response.data.gross_price,
+                            icon: "success"
+                        });
+                    }
+                   
                 }
         })
     }
