@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+
+</head>
+
+<body>
+    <!--*******************
+    Preloader start
+********************-->
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <!--*******************
+    Preloader end
+********************-->
+
+    <!--**********************************
+    Main wrapper start
+***********************************-->
+    <div id="main-wrapper">
+
+        <!--**********************************
+        Nav header start
+    ***********************************-->
+        <%- include('./partials/header_logo'); -%>
+
+            <!--**********************************
+        Nav header end
+    ***********************************-->
+
+            <!--**********************************
+        Header start
+    ***********************************-->
+            <%- include('./partials/header',{titel: "Balanced Reports"}); -%>
+
+                <!--**********************************
+        Header end ti-comment-alt
+    ***********************************-->
+
+                <!--**********************************
+        Sidebar start
+    ***********************************-->
+                <%- include('./partials/sidebar'); -%>
+
+                    <!--**********************************
+        Sidebar end
+    ***********************************-->
+
+                    <div class="content-body">
+                        <div class="container-fluid">
+                            <!-- row -->
+                            
+                            <div >
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title col-6 ">Balanced Reports</h4>
+                                    </div>
+                                    
+                                    <form action="./pdf" method="post">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="mb-3 col-md-6">
+                                                    <label for="warrehouse">From <span class="text-red">*</span> </label>
+                                                    <input type="date" class="form-control" name="from_date" id="from_date">
+                                                </div>
+    
+    
+                                                <div class="mb-3 col-md-6">
+                                                    <label for="warrehouse">To <span class="text-red">*</span> </label>
+                                                    <input type="date" class="form-control" name="to_date" id="to_date">
+                                                </div>
+                                            </div>
+    
+                                            <div class="col-xl-12 mt-3">
+                                                <div class="form-group">
+                                                    <button type="submit" class="btn btn-primary h-45 w-100" id="filter">
+                                                        <i class="la la-filter"></i>View
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <!-- Modal -->
+
+           
+
+                    <!-- modal end -->
+
+                    <!--**********************************
+            Footer start
+        ***********************************-->
+                    <%- include('./partials/footer'); -%>
+
+                        <!--**********************************
+            Footer end
+        ***********************************-->
+
+    </div>
+    <!--**********************************
+        Main wrapper end
+    ***********************************-->
+
+    <!-- start Toastr -->
+    <%- include('./partials/toastr'); -%>
+    <!-- End Toastr -->
+
+    <!--**********************************
+        Scripts
+    ***********************************-->
+   
+    <%- include('./partials/script'); -%>
+
+    <script>
+
+    </script>
+
+        <!--**********************************
+        Scripts end
+    ***********************************-->
+</body>
+
+</html>

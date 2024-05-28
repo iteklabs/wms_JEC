@@ -175,7 +175,8 @@ const my_inventory_sa_router = require("./routers/my_inventory_sa");
 const sales_sa_router = require("./routers/sales_sa");
 const reportts_sa_router = require("./routers/reports_sa");
 const gross_price_router  = require("./routers/gross_price_setup");
-const collection_router = require("./routers/collection")
+const collection_router = require("./routers/collection");
+const Reports_router = require("./routers/otherReports");
 app.use("/customer_sa", customer_sa_router);
 app.use("/my_inventory", my_inventory_sa_router);
 app.use("/main_inventory", main_inventory_sa_router);
@@ -183,7 +184,7 @@ app.use("/sales_sa", sales_sa_router);
 app.use("/reports_sa", reportts_sa_router);
 app.use("/collection", collection_router);
 app.use("/gross_price_setup", gross_price_router);
-
+app.use("/reports", Reports_router);
 
 
 

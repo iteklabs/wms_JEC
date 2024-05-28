@@ -310,36 +310,14 @@ router.post('/MapData2', async (req, res) => {
 router.post("/Rooms_data", async (req, res) => {
 
   try{
-      const { warehouse_name, A, B } = req.body
+      const { warehouse_name } = req.body
 
       // warehouse_data = await warehouse.find({status : 'Enabled', name: warehouse_name });
 
     
 
       var include = '';
-      if(A == "raw"){
-        if(B == "pack"){
-          include = [
-            {
-                $match: { 
-                    "name": warehouse_name,
-                    "status" : 'Enabled',
-                    "room" :  "Rack A"
-                }
-            },
-            {
-                $group: {
-                    _id: "$_id",
-                    room_name: { $first: "$room"}
-                }
-            },
-            {
-              $sort: {
-                  room_name: 1 // 1 for ascending order, -1 for descending order
-              }
-          }
-        ]
-        }else{
+
           include = [
             {
                 $match: { 
@@ -360,31 +338,8 @@ router.post("/Rooms_data", async (req, res) => {
               }
           }
         ]
-        }
-
-      }else{
         
-        include = [
-          {
-              $match: { 
-                  "name": warehouse_name,
-                  "status" : 'Enabled',
-            
-              }
-          },
-          {
-              $group: {
-                  _id: "$_id",
-                  room_name: { $first: "$room"}
-              }
-          },
-          {
-            $sort: {
-                room_name: 1 // 1 for ascending order, -1 for descending order
-            }
-        }
-      ]
-      }
+
       const warehouse_data = await warehouse.aggregate(include)
         
   

@@ -16,7 +16,22 @@ router.get("/view", auth, async (req, res) => {
         const master = await master_shop.find()
         console.log("master" , master);
 
-        const warehouse_data = await warehouse.find({})
+        const  warehouse_data = await warehouse.aggregate([
+            {
+                $match: { 
+                    "status" : 'Enabled', 
+                }
+            },
+            {
+                $group: {
+                    _id: "$name",
+                    name: { $first: "$name"}
+                }
+            },
+        ])
+
+
+        // res.json(warehouse_data); return;
         const product_data = await product.find({})
     
         if (master[0].language == "English (US)") {
@@ -295,45 +310,16 @@ router.get("/view/product/:id", auth, async (req, res) => {
 
 
 router.post("/Reports", async (req, res)=> {
-    const { warehouseNew, rooms, Type, process_cat, room_cat } = req.body
+    const { warehouseNew, rooms } = req.body
     let warehouse_data;
-    console.log(req.body)
-    // return
-    if(process_cat == "raw"){
-        warehouse_data = await warehouse.aggregate([
-            {
-                $match:{
-                    name: warehouseNew,
-                    room: rooms,
-                    warehouse_category: "Raw Materials"
-                }
-            },
-            {
-                $unwind: "$product_details"
-            },
-            {
-                $match:{
-                    "product_details.type": Type,
-                    "product_details.product_stock": { $gt: 0 } 
-                }
-            },
-            {
-                $sort: { 
-                    "warehouse_category": 1,
-                    "product_details.bay": 1 
-                    
-                }
-            }
-        ]);
-    }else if(process_cat == "finish"){
+
+
         if(rooms == "All"){
             
             warehouse_data = await warehouse.aggregate([
                 {
                     $match:{
                         name: warehouseNew,
-                        // room: rooms,
-                        warehouse_category: "Finished Goods"
                     }
                 },
                 {
@@ -364,7 +350,6 @@ router.post("/Reports", async (req, res)=> {
                     $match:{
                         name: warehouseNew,
                         room: rooms,
-                        warehouse_category: "Finished Goods"
                     }
                 },
                 {
@@ -388,37 +373,6 @@ router.post("/Reports", async (req, res)=> {
             // warehouse_data.sort((a, b) => a.product_details.bay - b.product_details.bay);
         }
         
-    }else{
-
-
-
-        console.log("ssd")
-        Include = [
-            {
-                $unwind: "$product_details"
-            },
-            {
-                $match:{
-                    // "product_details.type": Type,
-                    "product_details.product_stock": { $gt: 0 } 
-                }
-            },
-            {
-                $sort: { 
-                    "warehouse_category": 1,
-                    "product_details.bay": 1 
-                    
-                }
-            }
-        ]
-      
-
-        
-        warehouse_data = await warehouse.aggregate(Include);
-        // warehouse_data.sort((a, b) => a.product_details.bay - b.product_details.bay);
-
-    }
-    
     res.json(warehouse_data)
 })
 

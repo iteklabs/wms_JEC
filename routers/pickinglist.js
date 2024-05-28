@@ -194,7 +194,7 @@ router.get("/PDF/:id", auth, async (req, res) => {
               // unitConversion:dataUnit,
               proddate: ProductDetl.production_date,
               batchno: ProductDetl.batch_code,
-              binloc: warecode+ProductDetl.bay,
+              binloc: ProductDetl.level+ProductDetl.bay,
               
             };
             totalQTY += ProductDetl.quantity 

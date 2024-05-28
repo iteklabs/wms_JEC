@@ -24,31 +24,23 @@ function SelectRoom(){
         
     var varibale = document.getElementById("warehouse").value;
     var selectRoom = $('#room');
-    var AVal = document.getElementById("A").value;
-    var BVal = document.getElementById("B").value;
-
+  // alert("asd")
     $.ajax({
         url: '/warehousemap_Income/Rooms_data', 
         method: 'POST',
-        data: { warehouse_name: varibale, A:AVal, B:BVal  }, 
+        data: { warehouse_name: varibale }, 
         success: function(response) {
 
-        
-            selectRoom.empty();
-            if(AVal == "finish"){
-              var defaultOption = $('<option>').text("All").val("All").attr('roomcode', "All");
-              selectRoom.append(defaultOption);
-            }else if(AVal == "All"){
+          selectRoom.empty();
+
                 var defaultOption = $('<option>').text("All").val("All").attr('roomcode', "All");
                 selectRoom.append(defaultOption);
-            }
-            
+
                 $.each(response, function(index, data) {
                     var roomName = data.room_name;
                     var roomCode = data.room_name
                     var option = $('<option>').text(roomName).val(roomName).attr('roomcode', roomCode);;
                     selectRoom.append(option);
-                    // LogicDropdown();
 
                 })
             
@@ -57,77 +49,6 @@ function SelectRoom(){
     
 }
 
-function SelectRoomSelect(){
-
-var selectRoom = $('#warehouse');
-var A = document.getElementById("A");
-var BVal = document.getElementById("B").value;
-
-  var CatVal = '';
-  var IndiVal = '';
-  if(A.value == "raw"){
-    CatVal = "Raw Materials"; 
-  }else if(A.value == "finish"){
-    CatVal = "Finished Goods";
-  }else{
-    CatVal = "All";
-  }
-
-  $.ajax({
-        url: '/warehousemap_Income/Rooms_data2', 
-        method: 'POST',
-        data: { cat: CatVal, valNew: BVal }, 
-        success: function(response) {
-
-        
-            selectRoom.empty();
-            if(CatVal == "All"){
-                var defaultOption = $('<option>').text("All").val("All").attr('roomcode', "All");
-                selectRoom.append(defaultOption);
-            }
-                $.each(response, function(index, data) {
-                    var roomName = data.room_name;
-                    var roomCode = data.room_name
-                    
-                    
-                    var option = $('<option>').text(roomName).val(roomName).attr('roomcode', roomCode);
-                      // alert(option)
-                      console.log(option)
-                    selectRoom.append(option);
-
-
-                })
-                SelectRoom()
-        }
-    })
-
-  
-}
-
-function LogicDropdown(){
-    var A = document.getElementById("A")
-    var B = document.getElementById("B")
-
-    A.addEventListener("change", function() {
-    var selectedOptionText = A.options[A.selectedIndex].textContent;
-    // console.log(selectedOptionText)
-      
-
-    });
-
-
-    if(A.value == "raw"){
-      B.innerHTML = "<option value='ingre'>Ingredients</option><option value='pack'>Packaging</option>"
-      $("#LevelTpes").show();
-    }else if(A.value == "finish"){
-      B.innerHTML = "<option value='All'>All</option>"
-      $("#LevelTpes").hide();
-      
-    }else{
-        B.innerHTML = "<option value='All'>All</option><option value='ingre'>Ingredients</option><option value='pack'>Packaging</option>"
-    }
-    SelectRoomSelect();
-  }
 
 
   function printDiv() {
@@ -189,9 +110,6 @@ function LogicDropdown(){
 
     var warehouse_value = $('#warehouse').val();
     var room_value = $('#room').val();
-    var Type_value = $('#Type').val();
-    var A_value = $('#A').val();
-    var B_value = $('#B').val();
     var stock_report_warehouse = $('#stock_report_warehouse').val();
     var link;
     if(stock_report_warehouse == "warehouse"){
@@ -203,7 +121,7 @@ function LogicDropdown(){
       
         url: link,
         type: 'POST',
-        data: { warehouseNew: warehouse_value, rooms: room_value, Type: Type_value, process_cat: A_value, room_cat: B_value },
+        data: { warehouseNew: warehouse_value, rooms: room_value },
         success: function(response) {
         
 
@@ -219,7 +137,6 @@ function LogicDropdown(){
                 dataItem +='<table id="example" class="table  text-center">';
                 dataItem +='<thead>';
                 dataItem +='<tr class="table-dark">';
-                dataItem +='<th scope="col"><h5>Product Category </h5></th>';
                 dataItem +='<th scope="col"><h5>Name</h5></th>';
                 dataItem +='<th scope="col"><h5>Room</h5></th>';
                 dataItem +='<th scope="col"><h5>Item Code</h5></th>';
@@ -232,9 +149,7 @@ function LogicDropdown(){
                 dataItem +='<th><h5>Production Date</h5></th>';
                 dataItem +='<th><h5>Expiry Date</h5></th>';
                 dataItem +='<th><h5>Stock Quantity</h5></th>';
-                dataItem +='<th><h5>Actual Quantity</h5></th>';
-                dataItem +='<th><h5>Actual UNIT OF MEASURE</h5></th>';
-                dataItem +='<th><h5>Bin Location</h5></th>';
+                dataItem +='<th><h5>Location</h5></th>';
                 dataItem +='</tr>';
                 dataItem +='</thead>';
                 dataItem +='<tbody>';
@@ -253,10 +168,10 @@ function LogicDropdown(){
                         }else{
                             cat = "FG"
                         }
-                        var binlocation = cat+element.product_details.bay;
+                        var binlocation = element.product_details.level+element.product_details.bay;
                     }
 
-                    var warehouse_cat = element.warehouse_category !== undefined ? element.warehouse_category : 0;
+                    // var warehouse_cat = element.warehouse_category !== undefined ? element.warehouse_category : 0;
                     var warehouse_name = element.name !== undefined ? element.name : "";
                     var warehouse_room = element.room !== undefined ? element.room :"";
                     var itemcode = element.product_details.product_code !== undefined ? element.product_details.product_code :"";
@@ -270,12 +185,12 @@ function LogicDropdown(){
                     var SndUOM = element.product_details.secondary_unit !== undefined ? element.product_details.secondary_unit :"";
                     var BatchCodes = element.product_details.batch_code !== undefined ? element.product_details.batch_code :"";
 
-                    var actual_qty = element.product_details.actual_qty !== undefined ? element.product_details.actual_qty :"";
-                    var actual_uom = element.product_details.actual_uom !== undefined ? element.product_details.actual_uom :"";
+                    // var actual_qty = element.product_details.actual_qty !== undefined ? element.product_details.actual_qty :"";
+                    // var actual_uom = element.product_details.actual_uom !== undefined ? element.product_details.actual_uom :"";
 
                 
                     dataItem +='<tr>';
-                    dataItem +='<td class="text-nowrap" ><h5>'+ warehouse_cat+'</h5></td>';
+                    // dataItem +='<td class="text-nowrap" ><h5>'+ warehouse_cat+'</h5></td>';
                     dataItem +='<td class="text-nowrap" ><h5>'+ warehouse_name +'</h5></td>';
                     dataItem +='<td class="text-nowrap" ><h5>'+ warehouse_room +'</h5></td>';
                     dataItem +='<td class="text-nowrap" ><h5>'+ itemcode +'</h5></td>';
@@ -287,9 +202,9 @@ function LogicDropdown(){
                     dataItem +='<td class="text-nowrap"><h5>'+ BatchCodes +'</h5></td>';
                     dataItem +='<td class="text-nowrap"><h5>'+ productiondate +'</h5></td>';
                     dataItem +='<td class="text-nowrap"><h5>'+ expirydate +'</h5></td>';
-                    dataItem +='<td class="text-nowrap"><h5>'+ element.product_details.product_stock.toFixed(3); +'</h5></td>';
-                    dataItem +='<td class="text-nowrap"><h5>'+ actual_qty +'</h5></td>';
-                    dataItem +='<td class="text-nowrap"><h5>'+ actual_uom +'</h5></td>';
+                    dataItem +='<td class="text-nowrap"><h5>'+ element.product_details.product_stock.toFixed(2); +'</h5></td>';
+                    // dataItem +='<td class="text-nowrap"><h5>'+ actual_qty +'</h5></td>';
+                    // dataItem +='<td class="text-nowrap"><h5>'+ actual_uom +'</h5></td>';
                     dataItem +='<td class="text-nowrap"><h5>'+ binlocation +'</h5></td>';
                     dataItem +='</tr>';
                     
