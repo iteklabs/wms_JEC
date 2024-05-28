@@ -5,6 +5,11 @@
     <%- include('./partials/head'); -%>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        th{
+            text-align: center;
+        }
+    </style>
 
 </head>
 
@@ -166,6 +171,7 @@
                                                     <thead class="thead-info">
                                                         <tr>
                                                             <th scope="col">Invoice</th>
+                                                            <th scope="col">Collection</th>
                                                             <th scope="col">Action</th>
                                                         </tr>
                                                     </thead>
@@ -277,6 +283,7 @@
                         const element = response[index];
                         dataOptions += "<tr>";
                         dataOptions += "<td class='text-center'><h3>"+element.invoice+"</h3></td>";
+                        dataOptions += "<td class='text-center'><h3>"+element.collection_price+"</h3></td>";
                         dataOptions += "<td class='text-center'><button type='button' onclick=\"view('" + element._id + "')\" class='btn btn-success'>View</button></td>";
                         dataOptions += "</tr>";
                     }
