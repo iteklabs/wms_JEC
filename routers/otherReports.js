@@ -342,6 +342,9 @@ async function dataCheck(from, to){
             $unwind: "$sales_info"
         },
         {
+            $unwind: "$sale_product"
+        },
+        {
             $match:{
                 "sales_info.account_category" : "sa",
                 "sales_info.type_of_acc_cat" : "2",
@@ -358,6 +361,9 @@ async function dataCheck(from, to){
         }
         
     ])
+
+
+    console.log(salesbkg[0])
     array_data["sales_bkg"] = [];
     for (let p = 0; p <= salesbkg.length - 1; p++) {
         const element = salesbkg[p];
@@ -509,7 +515,7 @@ async function dataCheck(from, to){
         }
 
     }
-    console.log(array_data["sales_ext"])
+    console.log(array_data["sales_bkg"])
     return htmlContent;
 }
 
