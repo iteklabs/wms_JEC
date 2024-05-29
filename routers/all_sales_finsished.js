@@ -404,7 +404,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
             var RoomAssigned_array = [req.body.RoomAssigned]
             var prod_invoice_array = [req.body.prod_invoice]
             var id_transaction_from_array = [req.body.id_transaction_from]
-            var agentSelected_array = [req.body.agentSelected]
+            // var agentSelected_array = [req.body.agentSelected]
             var uuid_array = [req.body.uuid]
             var gross_price_array = [req.body.gross_price]
         }else{
@@ -425,7 +425,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
             var RoomAssigned_array = [...req.body.RoomAssigned]
             var prod_invoice_array = [...req.body.prod_invoice]
             var id_transaction_from_array = [...req.body.id_transaction_from]
-            var agentSelected_array = [...req.body.agentSelected]
+            // var agentSelected_array = [...req.body.agentSelected]
             var uuid_array = [...req.body.uuid]
             var gross_price_array = [...req.body.gross_price]
         } 

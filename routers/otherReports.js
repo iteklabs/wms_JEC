@@ -3,7 +3,7 @@ const res = require("express/lib/response");
 const app = express();
 const router = express.Router();
 const multer = require('multer');
-const { profile, master_shop, categories, brands, units, product, purchases, warehouse, sales_finished, sales, transfers_finished, adjustment_finished, purchases_finished, sales_return_finished, adjustment, transfers } = require("../models/all_models");
+const { profile, master_shop, categories, brands, units, product, purchases, warehouse, sales_finished, sales, transfers_finished, adjustment_finished, purchases_finished, sales_return_finished, adjustment, transfers, sales_sa } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const users = require("../public/language/languages.json");
 const excelJS = require("exceljs");
@@ -223,41 +223,181 @@ router.post("/balance/pdf2", auth, async (req, res) => {
 });
 
 
+async function dataCheck(from, to){
+    const product_data = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    brand: "$brand",
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        name: "$name",
+                        product_code: "$product_code"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+                "_id.brand": 1,  // Sort by brand in ascending order
+            }
+        }
+    ])
+    var array_data = [];
+    array_data["cat_brand"] = [];
+    for (let index = 0; index <= product_data.length -1; index++) {
+        const element = product_data[index]._id;
+        array_data["cat_brand"].push(element)
+        
+        
+    }
+
+    const begBal = await purchases_finished.aggregate([
+        {
+            $match: {
+                date: {
+                    $gte: from,
+                    $lte: to
+                }
+            }
+        },
+        {
+            $unwind: "$product"
+        },
+        {
+            $group: {
+                _id: {
+                    product_name: "$product.product_name",
+                    product_code: "$product.product_code"
+                },
+                totalQTY:{
+                    $sum: "$product.quantity"
+                }
+            }
+        }
+    ]);
+    array_data["beg_bal"] = [];
+    for (let i = 0; i <= begBal.length-1; i++) {
+        const element = begBal[i];
+        array_data["beg_bal"].push(element)
+        
+    }
 
 
-router.post('/balance/pdf', auth, (req, res) => {
+    array_data["sales_bkg"] = [];
+    const salesbkg = await sales_sa.aggregate([
+        {
+            $match:{
+                date: {
+                    $gte: from,
+                    $lte: to
+                }
+            }
+        },
+        {
+            $addFields: {
+                sales_staff_id: { $toObjectId: "$sales_staff_id" }
+            }
+        },
+        {
+            $lookup: {
+                from: "staffs",
+                localField: "sales_staff_id",
+                foreignField: "_id",
+                as: "sales_info"
+            }
+        },
+        {
+            $unwind: "$sales_info"
+        },
+        {
+            $match:{
+                "sales_info.account_category" : "sa",
+                "sales_info.type_of_acc_cat" : "2",
+            }
+        },
+        {
+            $group:{
+                _id:{
+                    product_name: "$sale_product.product_name",
+                    product_code: "$sale_product.product_code",
+                },
+                totalQTY: { $sum: "$sale_product.quantity"}
+            }
+        }
+        
+    ])
+
+   
+
+    const salesext = await sales_sa.aggregate([
+        {
+            $match:{
+                date: {
+                    $gte: from,
+                    $lte: to
+                }
+            }
+        },
+        {
+            $addFields: {
+                sales_staff_id: { $toObjectId: "$sales_staff_id" }
+            }
+        },
+        {
+            $lookup: {
+                from: "staffs",
+                localField: "sales_staff_id",
+                foreignField: "_id",
+                as: "sales_info"
+            }
+        },
+        {
+            $unwind: "$sales_info"
+        },
+        {
+            $unwind: "$sale_product"
+        },
+        {
+            $match:{
+                "sales_info.account_category" : "sa",
+                "sales_info.type_of_acc_cat" : "1",
+            }
+        },
+        {
+            $group:{
+                _id:{
+                    product_name: "$sale_product.product_name",
+                    product_code: "$sale_product.product_code",
+                },
+                totalQTY: { $sum: "$sale_product.quantity"}
+            }
+        }
+        
+    ])
+    array_data["sales_ext"] = [];
+    for (let o = 0; o <= salesext.length - 1; o++) {
+        const element = salesext[o];
+        array_data["sales_ext"].push(element)
+    
+    }
+    // res.json(begBal);
+    console.log(array_data)
+    return salesext;
+}
+
+router.post('/balance/pdf', auth, async (req, res) => {
 
     const {from_date, to_date} = req.body
-    // let htmlContent =`
-    //     <style>
-    //         table {
-    //             border-collapse: collapse;
-    //             width: 100%; /* Adjust width as needed */
-    //         }
-    //     </style>
-    // `;
-    // htmlContent = "<h1>JAKA EQUITIES CORP</h1><p>WEEKLY FINISHED GOODS INVENTORY</p>";
-    // htmlContent += "<p>"+from_date +" - "+ to_date +"</p>";
 
-    // htmlContent += "<table  border='1'>";
-    // htmlContent += "<tr style='background-color: gray; color: white;'>";
-    // htmlContent += "<th rowspan='2'>Beginning Balance<br>"+from_date+"</th>";
-    // htmlContent += "<th rowspan='2'>Production</th>";
-    // htmlContent += "<th rowspan='1' colspan='2'>SOLD</th>";
-    // htmlContent += "<th rowspan='2'>Ending Balance<br>"+to_date+"</th>";
-    // htmlContent += "</tr>";
-
-
-    // htmlContent += "<tr>";
-    // htmlContent += "<td>Booking</td>";
-    // htmlContent += "<td>X-Truck</td>";;
-    // htmlContent += "</tr>";
-
-
-
-
-    // htmlContent += "</table>";
-    // const bootstrapCSSPath = path.resolve(__dirname, '../node_modules/bootstrap/dist/css/bootstrap.min.css');
+    const datatest = await dataCheck(from_date, to_date);
+    res.json(datatest);
+    return;
 {/* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> */}
     let htmlContent = `
     
@@ -292,8 +432,6 @@ router.post('/balance/pdf', auth, (req, res) => {
     htmlContent += `<p>WEEKLY FINISHED GOODS INVENTORY</p>`;
     htmlContent += `<p>${from_date} - ${to_date}</p>`;
     htmlContent += `<div class="row">`;
-    // htmlContent += `<div class="col-sm-2">`;
-    // htmlContent += `</div>`;
     htmlContent += `<div class="col-sm-11">`;
     htmlContent += `<table>`;
     htmlContent += `<tr>`;
@@ -322,31 +460,31 @@ router.post('/balance/pdf', auth, (req, res) => {
     htmlContent += `<tr>`;
     htmlContent += `<td></td>`;
     htmlContent += `<td>Royal Red</td>`;
-    htmlContent += `<td>6,859</td>`;
+    htmlContent += `<td>1,000</td>`;
     htmlContent += `<td>0</td>`;
-    htmlContent += `<td>495</td>`;
-    htmlContent += `<td>97</td>`;
-    htmlContent += `<td>6,267</td>`;
+    htmlContent += `<td>0</td>`;
+    htmlContent += `<td>0</td>`;
+    htmlContent += `<td>1,000</td>`;
     htmlContent += `</tr>`;
 
     htmlContent += `<tr>`;
     htmlContent += `<td></td>`;
     htmlContent += `<td>Guitar</td>`;
-    htmlContent += `<td>11,496</td>`;
+    htmlContent += `<td>1,000</td>`;
     htmlContent += `<td>0</td>`;
-    htmlContent += `<td>466</td>`;
     htmlContent += `<td>0</td>`;
-    htmlContent += `<td>6,267</td>`;
+    htmlContent += `<td>0</td>`;
+    htmlContent += `<td>1,000</td>`;
     htmlContent += `</tr>`;
 
     htmlContent += `<tr>`;
     htmlContent += `<td></td>`;
     htmlContent += `<td>Emi</td>`;
-    htmlContent += `<td>6,859</td>`;
+    htmlContent += `<td>1,000</td>`;
     htmlContent += `<td>0</td>`;
-    htmlContent += `<td>495</td>`;
-    htmlContent += `<td>97</td>`;
-    htmlContent += `<td>6,267</td>`;
+    htmlContent += `<td>0</td>`;
+    htmlContent += `<td>0</td>`;
+    htmlContent += `<td>1,000</td>`;
     htmlContent += `</tr>`;
 
     htmlContent += `<tr>`;
