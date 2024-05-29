@@ -251,11 +251,37 @@ async function dataCheck(from, to){
     var array_data = [];
     array_data["cat_brand"] = [];
     for (let index = 0; index <= product_data.length -1; index++) {
-        const element = product_data[index]._id;
+        const element = product_data[index];
         array_data["cat_brand"].push(element)
+        // array_data["cat_brand"].push(element)
         
         
     }
+
+
+    const product_cat= await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        brand: "$brand",
+                        product_code: "$product_code",
+                        product_name: "$name"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+            }
+        }
+    ])
 
     const begBal = await purchases_finished.aggregate([
         {
@@ -289,7 +315,7 @@ async function dataCheck(from, to){
     }
 
 
-    array_data["sales_bkg"] = [];
+   
     const salesbkg = await sales_sa.aggregate([
         {
             $match:{
@@ -332,8 +358,12 @@ async function dataCheck(from, to){
         }
         
     ])
-
-   
+    array_data["sales_bkg"] = [];
+    for (let p = 0; p <= salesbkg.length - 1; p++) {
+        const element = salesbkg[p];
+        array_data["sales_bkg"].push(element)
+    
+    }
 
     const salesext = await sales_sa.aggregate([
         {
@@ -386,9 +416,101 @@ async function dataCheck(from, to){
         array_data["sales_ext"].push(element)
     
     }
-    // res.json(begBal);
-    console.log(array_data)
-    return salesext;
+
+
+    let htmlContent = "";
+    for(let a = 0; a <= product_cat.length -1; a++){
+        const thdata = product_cat[a];
+        
+
+        htmlContent += `<tr>`;
+        htmlContent += `<td colspan="7" class="cat_data">`+thdata._id.category+`</td>`;
+        htmlContent += `</tr>`;
+
+        for (let b = 0; b < array_data["cat_brand"].length; b++) {
+            const element = array_data["cat_brand"][b];
+
+            if(element._id.category == thdata._id.category){
+                // console.log(element.products.length + " <> " + element._id.category + " <> " + element._id.brand)
+                let sum=[];
+                let xsum=[];
+                let bsum=[];
+                sum[element._id.brand] = [];
+                xsum[element._id.brand] = [];
+                bsum[element._id.brand] = [];
+                var totalqty = 0;
+                var xtotalqty = 0;
+                var btotalqty = 0;
+                for (let c = 0; c < element.products.length; c++) {
+                    const detlt = element.products[c];
+                    
+                    for (let d = 0; d <= array_data["beg_bal"].length -1; d++) {
+                        const beg_data = array_data["beg_bal"][d];
+
+                        if(beg_data._id.product_name == detlt.name && beg_data._id.product_code == detlt.product_code){
+                            // console.log(beg_data._id.product_name)
+
+                            totalqty += parseInt(beg_data.totalQTY,10);
+                            
+                        }
+                         
+                    }
+
+
+                    for (let e = 0; e <= array_data["sales_ext"].length -1; e++) {
+                        const x_data = array_data["sales_ext"][e];
+
+                        if(x_data._id.product_name == detlt.name && x_data._id.product_code == detlt.product_code){
+                            // console.log(beg_data._id.product_name)
+
+                            xtotalqty += parseInt(x_data.totalQTY,10);
+                            
+                        }
+                         
+                    }
+
+
+
+                    for (let f = 0; f <= array_data["sales_bkg"].length -1; f++) {
+                        const b_data = array_data["sales_bkg"][f];
+
+                        if(b_data._id.product_name == detlt.name && b_data._id.product_code == detlt.product_code){
+                            // console.log(beg_data._id.product_name)
+
+                            btotalqty += parseInt(b_data.totalQTY,10);
+                            
+                        }
+                         
+                    }
+                   
+                }
+                const numberFormatter = new Intl.NumberFormat('en-US');
+                var numberdata = numberFormatter.format(totalqty);
+                sum[element._id.brand].push(numberdata);
+                xsum[element._id.brand].push(numberFormatter.format(xtotalqty));
+                bsum[element._id.brand].push(numberFormatter.format(btotalqty));
+                // console.log(xsum[element._id.brand][0])
+
+
+                var EndingBal = numberFormatter.format((totalqty-(btotalqty+xtotalqty)));
+                
+                htmlContent += `<tr>`;
+                htmlContent += `<td class="row_data"></td>`;
+                htmlContent += `<td class="row_data">`+element._id.brand+`</td>`;
+                htmlContent += `<td class="row_data">`+sum[element._id.brand][0]+`</td>`;
+                htmlContent += `<td class="row_data">0</td>`;
+                htmlContent += `<td class="row_data">`+bsum[element._id.brand][0]+`</td>`;
+                htmlContent += `<td class="row_data">`+xsum[element._id.brand][0]+`</td>`;
+                htmlContent += `<td class="row_data">`+EndingBal+`</td>`;
+                htmlContent += `</tr>`;
+            }
+            
+            
+        }
+
+    }
+    console.log(array_data["sales_ext"])
+    return htmlContent;
 }
 
 router.post('/balance/pdf', auth, async (req, res) => {
@@ -396,8 +518,8 @@ router.post('/balance/pdf', auth, async (req, res) => {
     const {from_date, to_date} = req.body
 
     const datatest = await dataCheck(from_date, to_date);
-    res.json(datatest);
-    return;
+    // res.send(datatest);
+    // return;
 {/* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> */}
     let htmlContent = `
     
@@ -415,7 +537,19 @@ router.post('/balance/pdf', auth, async (req, res) => {
                 margin-left: auto; 
                 margin-right: auto;
             }
-            th, td {
+            th {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+            
+
+            .cat_data {
+                border: 1px solid black;
+                padding: 8px;
+            }
+
+            .row_data {
                 border: 1px solid black;
                 padding: 8px;
                 text-align: center;
@@ -427,115 +561,126 @@ router.post('/balance/pdf', auth, async (req, res) => {
             
         </style>
     `;
+    var from_string_date = new Date(from_date);
+    var to_string_date = new Date(to_date);
 
+    const options3 = { 
+        // weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+    const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
+    const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
+      
     htmlContent += `<h1>JAKA EQUITIES CORP</h1>`;
     htmlContent += `<p>WEEKLY FINISHED GOODS INVENTORY</p>`;
-    htmlContent += `<p>${from_date} - ${to_date}</p>`;
+    htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
     htmlContent += `<div class="row">`;
     htmlContent += `<div class="col-sm-11">`;
     htmlContent += `<table>`;
     htmlContent += `<tr>`;
     htmlContent += `<th rowspan='2'>Category</th>`;
     htmlContent += `<th rowspan='2'>Products</th>`;
-    htmlContent += `<th rowspan='2'>Beginning Balance<br>${from_date}</th>`;
+    htmlContent += `<th rowspan='2'>Beginning Balance<br>${from_formattedDate}</th>`;
     htmlContent += `<th rowspan='2'>Production</th>`;
     htmlContent += `<th colspan='2'>SOLD</th>`;
-    htmlContent += `<th rowspan='2'>Ending Balance<br>${to_date}</th>`;
+    htmlContent += `<th rowspan='2'>Ending Balance<br>${to_formattedDate}</th>`;
     htmlContent += `</tr>`;
     htmlContent += `<tr>`;
     htmlContent += `<th>Booking</th>`;
     htmlContent += `<th>X-Truck</th>`;
     htmlContent += `</tr>`;
+    htmlContent += datatest;
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td>Standard</td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `</tr>`;
 
-    htmlContent += `<tr>`;
-    htmlContent += `<td>Standard</td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `</tr>`;
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td>Royal Red</td>`;
+    // htmlContent += `<td>1,000</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>1,000</td>`;
+    // htmlContent += `</tr>`;
 
-    htmlContent += `<tr>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td>Royal Red</td>`;
-    htmlContent += `<td>1,000</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>1,000</td>`;
-    htmlContent += `</tr>`;
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td>Guitar</td>`;
+    // htmlContent += `<td>1,000</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>1,000</td>`;
+    // htmlContent += `</tr>`;
 
-    htmlContent += `<tr>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td>Guitar</td>`;
-    htmlContent += `<td>1,000</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>1,000</td>`;
-    htmlContent += `</tr>`;
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td>Emi</td>`;
+    // htmlContent += `<td>1,000</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>1,000</td>`;
+    // htmlContent += `</tr>`;
 
-    htmlContent += `<tr>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td>Emi</td>`;
-    htmlContent += `<td>1,000</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>1,000</td>`;
-    htmlContent += `</tr>`;
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td>Fuego</td>`;
+    // htmlContent += `<td>6,859</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>495</td>`;
+    // htmlContent += `<td>97</td>`;
+    // htmlContent += `<td>6,267</td>`;
+    // htmlContent += `</tr>`;
 
-    htmlContent += `<tr>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td>Fuego</td>`;
-    htmlContent += `<td>6,859</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>495</td>`;
-    htmlContent += `<td>97</td>`;
-    htmlContent += `<td>6,267</td>`;
-    htmlContent += `</tr>`;
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td>Household</td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `</tr>`;
 
-    htmlContent += `<tr>`;
-    htmlContent += `<td>Household</td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `</tr>`;
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td>Royal Red</td>`;
+    // htmlContent += `<td>6,859</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>495</td>`;
+    // htmlContent += `<td>97</td>`;
+    // htmlContent += `<td>6,267</td>`;
+    // htmlContent += `</tr>`;
 
-    htmlContent += `<tr>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td>Royal Red</td>`;
-    htmlContent += `<td>6,859</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>495</td>`;
-    htmlContent += `<td>97</td>`;
-    htmlContent += `<td>6,267</td>`;
-    htmlContent += `</tr>`;
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td>Guitar</td>`;
+    // htmlContent += `<td>6,859</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>495</td>`;
+    // htmlContent += `<td>97</td>`;
+    // htmlContent += `<td>6,267</td>`;
+    // htmlContent += `</tr>`;
 
-    htmlContent += `<tr>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td>Guitar</td>`;
-    htmlContent += `<td>6,859</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>495</td>`;
-    htmlContent += `<td>97</td>`;
-    htmlContent += `<td>6,267</td>`;
-    htmlContent += `</tr>`;
-
-    htmlContent += `<tr>`;
-    htmlContent += `<td></td>`;
-    htmlContent += `<td>Emi</td>`;
-    htmlContent += `<td>6,859</td>`;
-    htmlContent += `<td>0</td>`;
-    htmlContent += `<td>495</td>`;
-    htmlContent += `<td>97</td>`;
-    htmlContent += `<td>6,267</td>`;
-    htmlContent += `</tr>`;
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td></td>`;
+    // htmlContent += `<td>Emi</td>`;
+    // htmlContent += `<td>6,859</td>`;
+    // htmlContent += `<td>0</td>`;
+    // htmlContent += `<td>495</td>`;
+    // htmlContent += `<td>97</td>`;
+    // htmlContent += `<td>6,267</td>`;
+    // htmlContent += `</tr>`;
     
 
     htmlContent += `</table>`;
