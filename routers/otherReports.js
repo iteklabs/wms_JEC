@@ -935,6 +935,17 @@ async function agentsdataCheck(from, to){
                 const dataelement = thdata.products[index];
                 if(element._id.category == thdata._id.category && dataelement.brand == element._id.brand){
                     console.log(dataelement)
+                    htmlContent += `<tr>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `</tr>`;
                 }
                 
             }
@@ -944,17 +955,7 @@ async function agentsdataCheck(from, to){
 
     
 
-    htmlContent += `<tr>`;
-    htmlContent += `<td class="row_data"></td>`;
-    htmlContent += `<td class="row_data"></td>`;
-    htmlContent += `<td class="row_data"></td>`;
-    htmlContent += `<td class="row_data"></td>`;
-    htmlContent += `<td class="row_data"></td>`;
-    htmlContent += `<td class="row_data"></td>`;
-    htmlContent += `<td class="row_data"></td>`;
-    htmlContent += `<td class="row_data"></td>`;
-    htmlContent += `<td class="row_data"></td>`;
-    htmlContent += `</tr>`;
+    
 
 
     return htmlContent;
