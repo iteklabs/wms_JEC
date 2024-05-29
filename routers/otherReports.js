@@ -116,113 +116,6 @@ router.get("/balance/view", auth, async (req, res) => {
     }
 })
 
-
-router.post("/balance/pdf2", auth, async (req, res) => {
-    try {
-        const {from_date, to_date} = req.body;
-        const doc = new PDFDocument({ margin: 30, size: 'Letter', layout : 'landscape', bufferPages: true });
-        res.setHeader('Content-disposition', 'inline; filename="'+from_date+to_date+'.pdf"');
-        res.setHeader('Content-type', 'application/pdf');
-        var x=20;
-        var y=20;
-        doc.pipe(res);
-        doc
-        .fontSize(20)
-        .text('JAKA EQUITIES CORPORATION', x, y);
-        doc
-        .fontSize(15)
-        .text('WEEKLY FINISHED GOODS INVENTORY', x, y+=20);
-        doc
-        .fontSize(10)
-        .text(from_date + ' - ' + to_date, x, y+=20);
-        const table = {
-            headers: [
-              { label: "Beginning Balance \n" + from_date, property: 'balance', width: 100, renderer: null },
-              { label: "Production", property: 'prod', width: 100, renderer: null },
-              { label: "SOLD", subHeaders: [ // Added subHeaders array for two sub-columns
-                { label: "Sub-Column 1", property: 'sold_sub1', width: 110, renderer: null }, // First sub-column
-                { label: "Sub-Column 2", property: 'sold_sub2', width: 110, renderer: null }, // Second sub-column
-            ], width: 220, renderer: null },
-              { label: "Ending Balance \n" + to_date, property: 'endbal', width: 100, renderer: null },
-            ],
-            datas: [],
-          };
-          var totalQTY = 0; 
-          let warecode = "";
-          var totalPerUnit =0;
-
-          var rowCheck = 0;
-        //   user_id.sale_product.forEach((ProductDetl) => {
-        //     console.log(ProductDetl)
-        //     let dataUnit = '';
-            
-        //     const qtydata = ProductDetl.quantity;
-        //     for (let index = 1; index <= qtydata; index++) {
-              
-        //       if(qtydata == index){
-        //         dataUnit += ProductDetl.maxperunit;
-        //       }else{
-        //         dataUnit += ProductDetl.maxperunit+',';
-        //       }
-              
-              
-        //       totalPerUnit +=ProductDetl.maxperunit;
-        //     }
-        //     dataUnit += ' / ' + ProductDetl.secondary_unit ;
-        //     const rowData = {
-
-              
-        //       itemcode: ProductDetl.product_code,
-        //       itemdescription: ProductDetl.product_name,
-        //       qty: ProductDetl.quantity,
-        //       unit: ProductDetl.unit,
-        //       // unitConversion:dataUnit,
-        //       proddate: ProductDetl.production_date,
-        //       batchno: ProductDetl.batch_code,
-        //       binloc: ProductDetl.level+ProductDetl.bay,
-              
-        //     };
-        //     totalQTY += ProductDetl.quantity 
-        //     rowCheck +=1;
-        //     table.datas.push(rowData);
-        //   });
-
-        doc.table(table, {
-            x: 200,
-            y: y+=50,
-            prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
-            prepareRow: (row, indexColumn, indexRow, rectRow) => doc.font("Helvetica").fontSize(8),
-        });
-        
-
-        let pages = doc.bufferedPageRange();
-
-        for (let i = 0; i < pages.count; i++) {
-        doc.switchToPage(i);
-
-        let oldBottomMargin = doc.page.margins.bottom;
-        doc.page.margins.bottom = 0 
-        doc
-            .text(
-            `Page: ${i + 1} of ${pages.count}`,
-            0,
-            doc.page.height - (oldBottomMargin/2), 
-            { align: 'center' }
-            );
-        doc.page.margins.bottom = oldBottomMargin; 
-        }
-      
-        
-        const lasttextY = doc.y
-        const lasttextX = doc.x
-        doc.end();
-    } catch (error) {
-        console.log(error);
-        res.status(500).send("An error occurred while generating the PDF.");
-    }
-});
-
-
 async function dataCheck(from, to){
     const product_data = await product.aggregate([
         {
@@ -689,6 +582,452 @@ router.post('/balance/pdf', auth, async (req, res) => {
     // htmlContent += `</tr>`;
     
 
+    htmlContent += `</table>`;
+    htmlContent += `</div>`;
+    htmlContent += `</div>`;
+
+    // res.send(htmlContent);
+    // return;
+    const options = {
+        format: 'Letter', // Set size to Letter
+        orientation: 'landscape' // Set orientation to landscape
+    };
+    
+    pdf.create(htmlContent, options).toStream(function(err, stream) {
+        if (err) {
+            res.status(500).send('Error generating PDF');
+            return;
+        }
+        res.setHeader('Content-Type', 'application/pdf');
+        stream.pipe(res);
+    });
+});
+
+
+router.get("/agent/view", auth, async (req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const master = await master_shop.find()
+
+        const find_data = await product.find();
+
+
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $unwind: "$product_details"
+            },
+            {
+                $lookup:
+                {
+                    from: "products",
+                    localField: "product_details.product_name",
+                    foreignField: "name",
+                    as: "product_docs"
+                }
+            },
+            {
+                $unwind: "$product_docs"
+            },
+            {
+                $project: 
+                {
+                    product_name: '$product_details.product_name',
+                    product_stock: '$product_details.product_stock',
+                }
+            },
+            {
+                $group: {
+                    _id: "$product_name",
+                    product_stock: { $sum: "$product_stock" }
+                }
+            },
+        ])
+
+
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+            
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("agent_sales", { 
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            alldata: find_data,
+            profile : profile_data,
+            master_shop : master,
+            role : role_data,
+            product_stock : warehouse_data,
+            language : lan_data
+			
+        })
+    } catch (error) {
+        
+    }
+})
+
+
+
+async function agentsdataCheck(from, to){
+    const product_data = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    brand: "$brand",
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        name: "$name",
+                        product_code: "$product_code"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+                "_id.brand": 1,  // Sort by brand in ascending order
+            }
+        }
+    ])
+    var array_data = [];
+    array_data["cat_brand"] = [];
+    for (let index = 0; index <= product_data.length -1; index++) {
+        const element = product_data[index];
+        array_data["cat_brand"].push(element)
+        // array_data["cat_brand"].push(element)
+        
+        
+    }
+
+
+    const product_cat= await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        brand: "$brand",
+                        product_code: "$product_code",
+                        product_name: "$name"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+            }
+        }
+    ])
+
+
+
+    const sales_data = await sales_sa.aggregate([
+        {
+            $match:{
+                date: {
+                    $gte: from,
+                    $lte: to
+                }
+            }
+        },
+        {
+            $addFields: {
+                sales_staff_id: { $toObjectId: "$sales_staff_id" }
+            }
+        },
+        {
+            $lookup: {
+                from: "staffs",
+                localField: "sales_staff_id",
+                foreignField: "_id",
+                as: "sales_info"
+            }
+        },
+        {
+            $unwind: "$sales_info"
+        },
+        {
+            $unwind: "$sale_product"
+        },
+        {
+            $match:{
+                "sales_info.account_category" : "sa",
+            }
+        },
+        {
+            $group:{
+                _id:{
+                  
+                    sales_id: "$sales_info._id"
+                },
+                salesman_data:{ $first: "$sales_info.name"},
+                totalQTY: { $sum: "$sale_product.quantity"},
+                products:{
+                    $push:{
+                        product_name: "$sale_product.product_name",
+                        product_code: "$sale_product.product_code",
+                        qty: "$sale_product.quantity",
+                    }
+                }
+            }
+        }
+        
+    ])
+
+
+    array_data["sales_data"] = [];
+    for (let p = 0; p <= sales_data.length - 1; p++) {
+        const element = sales_data[p];
+        array_data["sales_data"].push(element)
+    
+    }
+
+    const salesext = await sales_sa.aggregate([
+        {
+            $match:{
+                date: {
+                    $gte: from,
+                    $lte: to
+                }
+            }
+        },
+        {
+            $addFields: {
+                sales_staff_id: { $toObjectId: "$sales_staff_id" }
+            }
+        },
+        {
+            $lookup: {
+                from: "staffs",
+                localField: "sales_staff_id",
+                foreignField: "_id",
+                as: "sales_info"
+            }
+        },
+        {
+            $unwind: "$sales_info"
+        },
+        {
+            $unwind: "$sale_product"
+        },
+        {
+            $match:{
+                "sales_info.account_category" : "sa",
+                "sales_info.type_of_acc_cat" : "1",
+            }
+        },
+        {
+            $group:{
+                _id:{
+                    product_name: "$sale_product.product_name",
+                    product_code: "$sale_product.product_code",
+                },
+                totalQTY: { $sum: "$sale_product.quantity"}
+            }
+        }
+        
+    ])
+    array_data["sales_ext"] = [];
+    for (let o = 0; o <= salesext.length - 1; o++) {
+        const element = salesext[o];
+        array_data["sales_ext"].push(element)
+    
+    }
+
+
+    const product_cnt = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category",
+                    brand: "$brand"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "$_id.category",
+                brandCount: { $sum: 1 }
+            }
+        },
+        {
+            $sort: {
+                _id: -1 // Sort by category in descending order (use 1 for ascending order)
+            }
+        }
+    ]);
+
+
+    let htmlContent = "";
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="15" class="cat_data">QUANTITY SOLD</td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="cat_data"></td>`;
+    for(let a = 0; a <= product_cat.length -1; a++){
+        const thdata = product_cat[a];
+        for (let b = 0; b < product_cnt.length; b++) {
+            const element2 = product_cnt[b];
+            if(element2._id == thdata._id.category){
+                htmlContent += `<td colspan="`+element2.brandCount+`" class="cat_data">`+thdata._id.category+`</td>`;
+            }
+        }
+    }
+    
+    htmlContent += `<td class="cat_data"></td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="1" class="cat_data">Salesman Name</td>`;
+    for(let a = 0; a <= product_cat.length -1; a++){
+        const thdata = product_cat[a];
+
+        for (let b = 0; b < array_data["cat_brand"].length; b++) {
+            const element = array_data["cat_brand"][b];
+
+            if(element._id.category == thdata._id.category){
+                htmlContent += `<td class="cat_data">`+element._id.brand+`</td>`;
+            }
+        }
+        
+       
+    }
+    htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
+    htmlContent += `</tr>`;
+
+    for(let a = 0; a <= product_cat.length -1; a++){
+        const thdata = product_cat[a];
+        for (let b = 0; b < array_data["cat_brand"].length; b++) {
+            const element = array_data["cat_brand"][b];
+            for (let index = 0; index <= thdata.products.length-1; index++) {
+                const dataelement = thdata.products[index];
+                if(element._id.category == thdata._id.category && dataelement.brand == element._id.brand){
+                    console.log(dataelement)
+                }
+                
+            }
+            
+        }
+    }
+
+    
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="row_data"></td>`;
+    htmlContent += `<td class="row_data"></td>`;
+    htmlContent += `<td class="row_data"></td>`;
+    htmlContent += `<td class="row_data"></td>`;
+    htmlContent += `<td class="row_data"></td>`;
+    htmlContent += `<td class="row_data"></td>`;
+    htmlContent += `<td class="row_data"></td>`;
+    htmlContent += `<td class="row_data"></td>`;
+    htmlContent += `<td class="row_data"></td>`;
+    htmlContent += `</tr>`;
+
+
+    return htmlContent;
+}
+
+router.post('/agent/pdf', auth, async (req, res) => {
+
+    const {from_date, to_date} = req.body
+
+    const datatest = await agentsdataCheck(from_date, to_date);
+    // res.send(datatest);
+    // return;
+{/* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> */}
+    let htmlContent = `
+    
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            p {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            table {
+                border-collapse: collapse;
+                width: 80%;
+                margin-left: auto; 
+                margin-right: auto;
+            }
+            th {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+            
+
+            .cat_data {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+
+            .row_data {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+            th {
+                background-color: #d0cece;
+                color: black;
+            }
+            
+        </style>
+    `;
+    var from_string_date = new Date(from_date);
+    var to_string_date = new Date(to_date);
+
+    const options3 = { 
+        // weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+    const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
+    const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
+      
+    htmlContent += `<h1>JAKA EQUITIES CORP</h1>`;
+    htmlContent += `<p>SALES REPORTS</p>`;
+    htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
+    htmlContent += `<div class="row">`;
+    htmlContent += `<div class="col-sm-11">`;
+    htmlContent += `<table>`;
+    htmlContent += datatest;
     htmlContent += `</table>`;
     htmlContent += `</div>`;
     htmlContent += `</div>`;

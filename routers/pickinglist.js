@@ -117,9 +117,9 @@ router.get("/PDF/:id", auth, async (req, res) => {
         .fontSize(9)
         .text(' : '+user_id.warehouse_name, x+63, y);
         
-        doc
-        .fontSize(9)
-        .text('Customer : ' + user_id.customer, x+380, y, { underline: true });
+        // doc
+        // .fontSize(9)
+        // .text('Customer : ' + user_id.customer, x+380, y, { underline: true });
         // doc
         // .fontSize(9)
         // .text('Picked By ', x, y+=11);
@@ -247,13 +247,13 @@ router.get("/PDF/:id", auth, async (req, res) => {
         // .text("ARMAN CRUZ", lastTableX+60, lastTableY,{ underline: true});
 
 
-        doc
-        .fontSize(10)
-        .text("          ARMAN CRUZ                          ", lastTableX+60, lastTableY,{ underline: true});
+        // doc
+        // .fontSize(10)
+        // .text("          ARMAN CRUZ                          ", lastTableX+60, lastTableY,{ underline: true});
         
-        doc
-        .fontSize(10)
-        .text("Finished Good Warehouse Supervisor", lastTableX+60, lastTableY+12);
+        // doc
+        // .fontSize(10)
+        // .text("Finished Good Warehouse Supervisor", lastTableX+60, lastTableY+12);
         // const pageNumber = doc.bufferedPageRange().start + 1; 
         let pages = doc.bufferedPageRange();
 
@@ -489,13 +489,13 @@ router.get("/PDF_transfer/:id", auth, async (req, res) => {
       .fontSize(10)
       .text("Checked By: ", lastTableX, lastTableY+=50);
 
-      doc
-        .fontSize(10)
-        .text("          ARMAN CRUZ                          ", lastTableX+60, lastTableY,{ underline: true});
+      // doc
+      //   .fontSize(10)
+      //   .text("          ARMAN CRUZ                          ", lastTableX+60, lastTableY,{ underline: true});
         
-        doc
-        .fontSize(10)
-        .text("Finished Good Warehouse Supervisor", lastTableX+60, lastTableY+12);
+      //   doc
+      //   .fontSize(10)
+      //   .text("Finished Good Warehouse Supervisor", lastTableX+60, lastTableY+12);
 
       // doc
       // .fontSize(10)
@@ -716,13 +716,13 @@ router.get("/PDF_adjustment/:id", auth, async (req, res) => {
       .fontSize(10)
       .text(" : ", lastTableX + 55, lastTableY);
 
-      doc
-      .fontSize(10)
-      .text("          ARMAN CRUZ                          ", lastTableX+60, lastTableY,{ underline: true});
+      // doc
+      // .fontSize(10)
+      // .text("          ARMAN CRUZ                          ", lastTableX+60, lastTableY,{ underline: true});
         
-        doc
-        .fontSize(10)
-        .text("Finished Good Warehouse Supervisor", lastTableX+60, lastTableY+12);
+      //   doc
+      //   .fontSize(10)
+      //   .text("Finished Good Warehouse Supervisor", lastTableX+60, lastTableY+12);
 
       // doc
       // .fontSize(10)
@@ -925,13 +925,13 @@ router.get("/pdf_puchases_fin/:id", auth, async (req, res) => {
       .fontSize(10)
       .text("Check By    : ", lastTableX, lastTableY+50);
 
-      doc
-      .fontSize(10)
-      .text("          ARMAN CRUZ                          ", lastTableX+50, lastTableY+50,{ underline: true});
+      // doc
+      // .fontSize(10)
+      // .text("          ARMAN CRUZ                          ", lastTableX+50, lastTableY+50,{ underline: true});
       
-      doc
-      .fontSize(10)
-      .text("Finished Good Warehouse Supervisor", lastTableX+50, lastTableY+60);
+      // doc
+      // .fontSize(10)
+      // .text("Finished Good Warehouse Supervisor", lastTableX+50, lastTableY+60);
       // const pageNumber = doc.bufferedPageRange().start + 1; 
       let pages = doc.bufferedPageRange();
 
@@ -1150,9 +1150,9 @@ router.get("/pdf_sales_return_fin/:id", auth, async (req, res) => {
       .fontSize(10)
       .text("Check By: ", lastTableX, lastTableY+30);
 
-      doc
-      .fontSize(10)
-      .text("ARMAN CRUZ", lastTableX+50, lastTableY+30,{ underline: true});
+      // doc
+      // .fontSize(10)
+      // .text("ARMAN CRUZ", lastTableX+50, lastTableY+30,{ underline: true});
 
       
       
