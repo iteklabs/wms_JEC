@@ -4,11 +4,23 @@
 
         <img src="/upload/<%= master_shop[0].image %>" class="mx-2 rounded" width="66.5px" height="66.5px">
 
-        <h2 class="brand-title" width="101.5px" height="29.5px">
-            <span class="svg-logo-text-path" fill-rule="evenodd"  stroke="rgb(0, 0, 0)" stroke-width="1px" stroke-linecap="butt" stroke-linejoin="miter" fill="rgb(64, 24, 157)">
-                <%= master_shop[0].site_title %>
-            </span>
-        </h2>
+        
+
+
+        <% if (role.account_category == "sa") { %>
+            <h2 class="brand-title" width="101.5px" height="29.5px">
+                <span class="svg-logo-text-path" fill-rule="evenodd"  stroke="rgb(0, 0, 0)" stroke-width="1px" stroke-linecap="butt" stroke-linejoin="miter" fill="rgb(64, 24, 157)">
+                    JEC SMS
+                </span>
+            </h2>
+          <% }else { %>
+            <h2 class="brand-title" width="101.5px" height="29.5px">
+                <span class="svg-logo-text-path" fill-rule="evenodd"  stroke="rgb(0, 0, 0)" stroke-width="1px" stroke-linecap="butt" stroke-linejoin="miter" fill="rgb(64, 24, 157)">
+                    JEC WMS
+                </span>
+            </h2>
+        <% } %>
+
     </a>
 
     <div class="nav-control">
