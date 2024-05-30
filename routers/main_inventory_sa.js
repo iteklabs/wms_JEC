@@ -87,7 +87,7 @@ router.post("/table", async(req, res) => {
                 $group: {
                     _id: {
                         "name": "$name",
-                        "room": "$room",
+                        // "room": "$room",
                         "product_code": "$product_details.product_code"
                     },
                     product_name: { $first: "$product_details.product_name"},
@@ -97,7 +97,7 @@ router.post("/table", async(req, res) => {
             {
                 $sort: {
                     "_id.name": 1,
-                    "_id.room": 1,
+                    // "_id.room": 1,
                 }
             }
         ])
