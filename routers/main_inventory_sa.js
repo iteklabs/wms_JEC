@@ -78,7 +78,29 @@ router.post("/table", async(req, res) => {
         //     }
 
         // ]);
-        const warehouse_data = await warehouse.find()
+        // const warehouse_data = await warehouse.find()
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $unwind: "$product_details"
+            },
+            {
+                $group: {
+                    _id: {
+                        "name": "$name",
+                        "room": "$room",
+                        "product_code": "$product_details.product_code"
+                    },
+                    product_name: { $first: "$product_details.product_name"},
+                    product_stock: { $sum: "$product_details.product_stock" }
+                }
+            },
+            {
+                $sort: {
+                    "_id.name": 1,
+                    "_id.room": 1,
+                }
+            }
+        ])
         // console.log(staff_data1)
         res.json(warehouse_data)
         

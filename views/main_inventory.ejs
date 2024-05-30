@@ -13,7 +13,7 @@
     </div>
     <div id="main-wrapper">
         <%- include('./partials/header_logo'); -%>
-            <%- include('./partials/header',{titel: "My Inventory"}); -%>
+            <%- include('./partials/header',{titel: "Main Inventory"}); -%>
                 <%- include('./partials/sidebar_sa'); -%>
                     <div class="content-body">
                         <div class="container-fluid">
@@ -28,17 +28,17 @@
                                             <table id="example1" class="table table-striped  table-responsive-sm">
                                                 <thead>
                                                     <tr>
-                                                        <th scope="col"><h5>Warehouse</h5></th>
-                                                        <th scope="col"><h5>Rack</h5></th>
-                                                        <th scope="col"><h5>Item Code</h5></th>
-                                                        <th scope="col"><h5>Item Description</h5></th>
+                                                        <th scope="col" class="text-center"><h5>Warehouse</h5></th>
+                                                        <th scope="col" class="text-center"><h5>Rack</h5></th>
+                                                        <th scope="col" class="text-center"><h5>Item Code</h5></th>
+                                                        <th scope="col" class="text-center"><h5>Item Description</h5></th>
                                                         <!-- <th scope="col"><h5>Primary Code</h5></th>
                                                         <th scope="col"><h5>Secondary Code</h5></th>
                                                         <th scope="col"><h5>Production Date</h5></th>
                                                         <th scope="col"><h5>Expiry Date</h5></th> -->
                                                         <!-- <th scope="col"><h5>Location</h5></th> -->
                                                         <!-- <th scope="col"><h5>Bin</h5></th> -->
-                                                        <th scope="col"><h5>Qty</h5></th>
+                                                        <th scope="col" class="text-center"><h5>Qty</h5></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="dataInc">
@@ -80,31 +80,41 @@ function dataShowInc(){
                 //        dataTableData += "</tr>";
                 //        // console.log(data)
                 //    }
+                // console.log(response.length)
+                
                 let dataTableData = "";
                 for (let x = 0; x <= response.length - 1; x++) {
                     const data = response[x];
-                   
-                    for (let a = 0; a <= data.product_details.length - 1; a++) {
-                        const dataDetl = data.product_details[a];
-                        if(dataDetl.product_stock > 0){
-                            dataTableData += "<tr>";
-                            dataTableData += "<td>" + data.name+ "</td>";
-                            dataTableData += "<td>" + data.room+ "</td>";
-                            dataTableData += "<td>" + dataDetl.product_code+ "</td>";
-                            dataTableData += "<td>" + dataDetl.product_name+ "</td>";
-                            // dataTableData += "<td>" + dataDetl.primary_code+ "</td>";
-                            // dataTableData += "<td>" + dataDetl.secondary_code+ "</td>";
-                            // dataTableData += "<td>" + dataDetl.production_date+ "</td>";
-                            // dataTableData += "<td>" + dataDetl.expiry_date+ "</td>";
-                            // dataTableData += "<td>" + dataDetl.level+ "</td>";
-                            // dataTableData += "<td>" + dataDetl.level + dataDetl.bay+ "</td>";
-                            dataTableData += "<td>" + dataDetl.product_stock+ "</td>";
-                            dataTableData += "</tr>";
-                        }
-                            
-                        // console.log(dataDetl)
 
-                    }
+                    dataTableData += "<tr>";
+                    dataTableData += "<td class='text-center'>" + data._id.name+ "</td>";
+                    dataTableData += "<td class='text-center'>" + data._id.room+ "</td>";
+                    dataTableData += "<td class='text-center'>" + data._id.product_code+ "</td>";
+                    dataTableData += "<td class='text-center'>" + data.product_name+ "</td>";
+                    dataTableData += "<td class='text-center'>" + data.product_stock+ "</td>";
+                    dataTableData += "</tr>";
+                    // console.log(data)
+                    // for (let a = 0; a <= data.product_details.length - 1; a++) {
+                    //     const dataDetl = data.product_details[a];
+                    //     if(dataDetl.product_stock > 0){
+                    //         dataTableData += "<tr>";
+                    //         dataTableData += "<td>" + data.name+ "</td>";
+                    //         dataTableData += "<td>" + data.room+ "</td>";
+                    //         dataTableData += "<td>" + dataDetl.product_code+ "</td>";
+                    //         dataTableData += "<td>" + dataDetl.product_name+ "</td>";
+                    //         // dataTableData += "<td>" + dataDetl.primary_code+ "</td>";
+                    //         // dataTableData += "<td>" + dataDetl.secondary_code+ "</td>";
+                    //         // dataTableData += "<td>" + dataDetl.production_date+ "</td>";
+                    //         // dataTableData += "<td>" + dataDetl.expiry_date+ "</td>";
+                    //         // dataTableData += "<td>" + dataDetl.level+ "</td>";
+                    //         // dataTableData += "<td>" + dataDetl.level + dataDetl.bay+ "</td>";
+                    //         dataTableData += "<td>" + dataDetl.product_stock+ "</td>";
+                    //         dataTableData += "</tr>";
+                    //     }
+                            
+                    //     // console.log(dataDetl)
+
+                    // }
                     // console.log(data.product_details)
                     
                 }
