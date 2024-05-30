@@ -57,25 +57,28 @@
 
                                                     <div class="row mb-3">
 
-                                                        <div class="col-xl-6 col-sm-6">
+                                                        <div class="col-xl-4 col-sm-4">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"><%= language.customer %>  <span class="text-red">*</span></label>
                                                                 <span><h3><%= sales_sa.customer %></h3></span>
                                                             </div>
                                                         </div>
-                                                        <div class="col-xl-6 col-sm-6">
+                                                        <div class="col-xl-4 col-sm-4">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"><%= language.date %> <span class="text-red">*</span></label>
                                                                 <span><h3><%= sales_sa.date %></h3></span>
                                                             </div>
                                                         </div>
+
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">DSI<span class="text-red">*</span></label>
+                                                                <span><h3><%= sales_sa.dsi %></h3></span>
+                                                            </div>
+                                                        </div>
                                                             
                                                     </div>
-                                                    <div class="row mb-3">
 
-
-
-                                                    </div>
                                                     <!-- <fieldset>
                                                         <legend>Expiration Color Legend</legend>
                                                         <div class="color-legend">
@@ -119,6 +122,12 @@
                                                                     </tr>
                                                                 </thead>
                                                                 <% var total = 0; %>
+                                                                <% var totalqty = 0; %>
+                                                                <% var totalprices = 0; %>
+                                                                <% var totaldiscprice = 0; %>
+                                                                <% 
+                                                                    const nFormat = new Intl.NumberFormat();
+                                                                %>
                                                                 <tbody id="tblPage_NewOut">
                                                                     <% sales_sa.sale_product.map((data) => { %>
                                                                         <tr>
@@ -128,43 +137,49 @@
                                                                             <td><%= data.batch_code %></td>
                                                                             <td><%= data.production_date %></td>
                                                                             <td><%= data.expiry_date %></td>
-                                                                            <td><%= data.stock %></td>
-                                                                            <td><%= data.quantity %></td>
+                                                                            <td><%= nFormat.format(data.stock) %></td>
+                                                                            <td><%= nFormat.format(data.quantity) %></td>
                                                                             <td><%= data.unit %></td>
-                                                                            <td><%= data.price %></td>
-                                                                            <td><%= data.discount %></td>
-                                                                            <td><%= data.totalprice %></td>
-                                                                            <% total += data.totalprice  %>
+                                                                            <td><%= nFormat.format(data.price) %></td>
+                                                                            <td><%= nFormat.format(data.discount) %></td>
+                                                                            <td><%= nFormat.format(data.totalprice)  %></td>
+                                                                            <% total += parseInt(data.totalprice)  %>
+                                                                            <% totalqty += parseInt(data.quantity)  %>
+                                                                            <% totalprices += parseInt(data.price)  %>
+                                                                            <% totaldiscprice += parseInt(data.discount)  %>
+                                                                            
                                                                         </tr>
                                                                     <% }) %>
+
+
+                                                                    <tr>
+                                                                        <td colspan="6"></td>
+                                                                        <td><b>TOTAL: </b></td>
+                                                                        <td><b><%= nFormat.format(totalqty) %></b></td>
+                                                                        <td></td>
+                                                                        <td><b><%= nFormat.format(totalprices) %></b></td>
+                                                                        <td><b><%= (totaldiscprice != null && !isNaN(totaldiscprice)) ? nFormat.format(totaldiscprice) : 0 %></b></td>
+                                                                        <td><b><%= nFormat.format(total) %></b></td>
+                                                                    </tr>
                                                                     
                                                                 </tbody>
                                                             </table>
                                                         </div>
                                                     </div>
-                                                    <div class="row">
+                                                    <!-- <div class="row">
                                                         <div class="col-md-4 col-sm-6">
                                                             <div class="form-group">
                                                                 <label for="note">Total Invoice</label>
-                                                                <input type="number" class="form-control text-center"
-                                                                    placeholder="note" id="note" name="note" value="<%= total %>" readonly>
+                                                                <span class="form-control text-center"><h2><%= nFormat.format(total) %></h2></span>
                                                             </div>
                                                         </div>
-
-                                                        <div class="col-md-4 col-sm-6">
-                                                            <div class="form-group">
-                                                                <label for="note">Total Collection</label>
-                                                                <input type="number" class="form-control text-center"
-                                                                    placeholder="note" id="note" name="note" value="<%= sales_sa.collection_price %>" readonly>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    </div> -->
                                                     
                                                     <div class="row">
                                                         <div class="col-md-8 col-sm-6">
                                                             <div class="form-group">
                                                                 <label for="note"><%= language.note %> </label>
-                                                                <input type="text" class="form-control"
+                                                                <input type="number" class="form-control"
                                                                     placeholder="note" id="note" name="note" value="<%= sales_sa.note %>" readonly>
                                                             </div>
                                                         </div>

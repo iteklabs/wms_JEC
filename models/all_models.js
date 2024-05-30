@@ -2207,6 +2207,9 @@ const sales_sa_data = new mongoose.Schema({
     date: {
         type: String,
     },
+    dsi:{
+        type: String
+    },
     sale_product:[{
         product_name: {
             type: String

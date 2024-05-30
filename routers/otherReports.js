@@ -934,7 +934,7 @@ async function agentsdataCheck(from, to){
             for (let index = 0; index <= thdata.products.length-1; index++) {
                 const dataelement = thdata.products[index];
                 if(element._id.category == thdata._id.category && dataelement.brand == element._id.brand){
-                    console.log(dataelement)
+                    // console.log(dataelement)
                     htmlContent += `<tr>`;
                     htmlContent += `<td class="row_data"></td>`;
                     htmlContent += `<td class="row_data"></td>`;
