@@ -115,12 +115,14 @@ router.post("/view/:id", auth, async(req, res) => {
     try{
         const _id = req.params.id;
 
-       
+        // res.json(req.body);
+        // return;
         const data = await sales_sa.findById(_id);
-        const {collection, invoicemoney} = req.body;
+        const {collection, invoicemoney, collectionnumber} = req.body;
         // res.json(data);
         // return;
         data.collection_price = collection
+        data.collectionnumber = collectionnumber
         data.paid = "True"
 
         const new_data = await data.save();

@@ -109,10 +109,10 @@
                                                                     <tr>
                                                                         <th scope="col">Item Code </th>
                                                                         <th scope="col">Item Description </th>
-                                                                        <th scope="col">Primary Barcode </th>
+                                                                        <!-- <th scope="col">Primary Barcode </th>
                                                                         <th scope="col">Batch Code</th>
                                                                         <th scope="col">Production date </th>
-                                                                        <th scope="col">Expiry date </th>
+                                                                        <th scope="col">Expiry date </th> -->
                                                                         <th scope="col"><%= language.in_stock %> </th>
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">Unit of Measure </th>
@@ -133,10 +133,10 @@
                                                                         <tr>
                                                                             <td><%= data.product_code %></td>
                                                                             <td><%= data.product_name %></td>
-                                                                            <td><%= data.primary_code %></td>
+                                                                            <!-- <td><%= data.primary_code %></td>
                                                                             <td><%= data.batch_code %></td>
                                                                             <td><%= data.production_date %></td>
-                                                                            <td><%= data.expiry_date %></td>
+                                                                            <td><%= data.expiry_date %></td> -->
                                                                             <td><%= nFormat.format(data.stock) %></td>
                                                                             <td><%= nFormat.format(data.quantity) %></td>
                                                                             <td><%= data.unit %></td>
@@ -153,7 +153,7 @@
 
 
                                                                     <tr>
-                                                                        <td colspan="6"></td>
+                                                                        <td colspan="2"></td>
                                                                         <td><b>TOTAL: </b></td>
                                                                         <td><b><%= nFormat.format(totalqty) %></b></td>
                                                                         <td></td>

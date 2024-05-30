@@ -138,10 +138,10 @@
                                                                     <tr>
                                                                         <th scope="col">Item Code </th>
                                                                         <th scope="col">Item Description </th>
-                                                                        <th scope="col">Primary Barcode </th>
+                                                                        <!-- <th scope="col">Primary Barcode </th>
                                                                         <th scope="col">Batch Code</th>
                                                                         <th scope="col">Production date </th>
-                                                                        <th scope="col">Expiry date </th>
+                                                                        <th scope="col">Expiry date </th> -->
                                                                         <th scope="col"><%= language.in_stock %> </th>
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">Unit of Measure </th>
@@ -446,10 +446,10 @@
                                         var row = $('<tr id="trtable'+x+'">');
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_code" value="' + data.product_list.product_code + '" readonly>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_name" value="' + data.product_list.product_name + '" readonly>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="primary_code" value="' + data.product_list.primary_code + '" readonly>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="batch_code" value="' + data.product_list.batch_code + '" readonly>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="production_date" value="' + data.product_list.production_date + '" readonly>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="expiry_date" value="' + data.product_list.expiry_date + '" readonly>'));
+                                        // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="primary_code" value="' + data.product_list.primary_code + '" readonly>'));
+                                        // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="batch_code" value="' + data.product_list.batch_code + '" readonly>'));
+                                        // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="production_date" value="' + data.product_list.production_date + '" readonly>'));
+                                        // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="expiry_date" value="' + data.product_list.expiry_date + '" readonly>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="' + data.product_list.product_stock + '" readonly>'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+')" id="quantity'+x+'" value="" required>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + data.product_list.unit + '" readonly>'));
@@ -457,6 +457,37 @@
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
                                         row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
+
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'expiry_date',
+                                            name: 'expiry_date',
+                                            value: data.product_list.expiry_date
+                                        }).appendTo(row);
+
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'production_date',
+                                            name: 'production_date',
+                                            value: data.product_list.production_date
+                                        }).appendTo(row);
+
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'batch_code',
+                                            name: 'batch_code',
+                                            value: data.product_list.batch_code
+                                        }).appendTo(row);
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'primary_code',
+                                            name: 'primary_code',
+                                            value: data.product_list.primary_code
+                                        }).appendTo(row);
 
                                         $('<input>').attr({
                                             type: 'hidden',

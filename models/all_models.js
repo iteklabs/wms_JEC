@@ -2283,6 +2283,10 @@ const sales_sa_data = new mongoose.Schema({
     collection_price:{
         type: Number,
         default:0
+    },
+    collectionnumber: {
+        type: String,
+        default: ""
     }
 })
 const sales_sa = new mongoose.model("sales_sas", sales_sa_data);
