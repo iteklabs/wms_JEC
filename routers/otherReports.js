@@ -473,7 +473,7 @@ router.post('/balance/pdf', auth, async (req, res) => {
     const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
       
     htmlContent += `<h1>JAKA EQUITIES CORP</h1>`;
-    htmlContent += `<p>WEEKLY FINISHED GOODS INVENTORY</p>`;
+    htmlContent += `<p>FINISHED GOODS INVENTORY</p>`;
     htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
     htmlContent += `<div class="row">`;
     htmlContent += `<div class="col-sm-11">`;
