@@ -63,8 +63,10 @@ router.post("/login", async(req, res) => {
             return res.redirect("/login")
         }
         const staff_data1 = await staff.findOne({email : useremail.email})
-
+        // res.json(staff_data1);
+        // return;
         var user_account_cat = staff_data1.account_category ;
+        var sales_account_cat = staff_data1.type_of_acc_cat ;
         if(useremail.role == "staff"){
             const staff_data = await staff.findOne({email : useremail.email})
             if (staff_data.status == "Disabled") {
@@ -72,6 +74,7 @@ router.post("/login", async(req, res) => {
                 return res.redirect("/login")
             }
             user_account_cat = staff_data.account_category ;
+            sales_account_cat = staff_data.type_of_acc_cat ;
 
         }
        
@@ -84,7 +87,7 @@ router.post("/login", async(req, res) => {
             return res.redirect("/login")
         }
 
-        const token = jwt.sign({username : useremail.username, email : useremail.email, role : useremail.role, account_category: user_account_cat }, process.env.secret_key)
+        const token = jwt.sign({username : useremail.username, email : useremail.email, role : useremail.role, account_category: user_account_cat, sales_category: sales_account_cat}, process.env.secret_key)
 
 
         // res.cookie("jwt", token, {expires : new Date(Date.now() + 60000 * 60)})

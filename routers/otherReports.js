@@ -1049,4 +1049,452 @@ router.post('/agent/pdf', auth, async (req, res) => {
         stream.pipe(res);
     });
 });
+
+
+
+
+
+router.get("/agent_reports/view", auth, async (req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const master = await master_shop.find()
+
+        const find_data = await product.find();
+
+
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $unwind: "$product_details"
+            },
+            {
+                $lookup:
+                {
+                    from: "products",
+                    localField: "product_details.product_name",
+                    foreignField: "name",
+                    as: "product_docs"
+                }
+            },
+            {
+                $unwind: "$product_docs"
+            },
+            {
+                $project: 
+                {
+                    product_name: '$product_details.product_name',
+                    product_stock: '$product_details.product_stock',
+                }
+            },
+            {
+                $group: {
+                    _id: "$product_name",
+                    product_stock: { $sum: "$product_stock" }
+                }
+            },
+        ])
+
+
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+            
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("dsi_sales", { 
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            alldata: find_data,
+            profile : profile_data,
+            master_shop : master,
+            role : role_data,
+            product_stock : warehouse_data,
+            language : lan_data
+			
+        })
+    } catch (error) {
+        
+    }
+})
+
+async function agentsdataDSICheck(from, to){
+    const product_data = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    brand: "$brand",
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        name: "$name",
+                        product_code: "$product_code"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+                "_id.brand": 1,  // Sort by brand in ascending order
+            }
+        }
+    ])
+    var array_data = [];
+    array_data["cat_brand"] = [];
+    for (let index = 0; index <= product_data.length -1; index++) {
+        const element = product_data[index];
+        array_data["cat_brand"].push(element)
+        // array_data["cat_brand"].push(element)
+        
+        
+    }
+
+
+    const product_cat= await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        brand: "$brand",
+                        product_code: "$product_code",
+                        product_name: "$name"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+            }
+        }
+    ])
+
+
+
+    const sales_data = await sales_sa.aggregate([
+        {
+            $match:{
+                date: {
+                    $gte: from,
+                    $lte: to
+                }
+            }
+        },
+        {
+            $addFields: {
+                sales_staff_id: { $toObjectId: "$sales_staff_id" }
+            }
+        },
+        {
+            $lookup: {
+                from: "staffs",
+                localField: "sales_staff_id",
+                foreignField: "_id",
+                as: "sales_info"
+            }
+        },
+        {
+            $unwind: "$sales_info"
+        },
+        {
+            $unwind: "$sale_product"
+        },
+        {
+            $match:{
+                "sales_info.account_category" : "sa",
+            }
+        },
+        {
+            $group:{
+                _id:{
+                  
+                    sales_id: "$sales_info._id"
+                },
+                salesman_data:{ $first: "$sales_info.name"},
+                totalQTY: { $sum: "$sale_product.quantity"},
+                products:{
+                    $push:{
+                        product_name: "$sale_product.product_name",
+                        product_code: "$sale_product.product_code",
+                        qty: "$sale_product.quantity",
+                    }
+                }
+            }
+        }
+        
+    ])
+
+
+    array_data["sales_data"] = [];
+    for (let p = 0; p <= sales_data.length - 1; p++) {
+        const element = sales_data[p];
+        array_data["sales_data"].push(element)
+    
+    }
+
+    const salesext = await sales_sa.aggregate([
+        {
+            $match:{
+                date: {
+                    $gte: from,
+                    $lte: to
+                }
+            }
+        },
+        {
+            $addFields: {
+                sales_staff_id: { $toObjectId: "$sales_staff_id" }
+            }
+        },
+        {
+            $lookup: {
+                from: "staffs",
+                localField: "sales_staff_id",
+                foreignField: "_id",
+                as: "sales_info"
+            }
+        },
+        {
+            $unwind: "$sales_info"
+        },
+        {
+            $unwind: "$sale_product"
+        },
+        {
+            $match:{
+                "sales_info.account_category" : "sa",
+                "sales_info.type_of_acc_cat" : "1",
+            }
+        },
+        {
+            $group:{
+                _id:{
+                    product_name: "$sale_product.product_name",
+                    product_code: "$sale_product.product_code",
+                },
+                totalQTY: { $sum: "$sale_product.quantity"}
+            }
+        }
+        
+    ])
+    array_data["sales_ext"] = [];
+    for (let o = 0; o <= salesext.length - 1; o++) {
+        const element = salesext[o];
+        array_data["sales_ext"].push(element)
+    
+    }
+
+
+    const product_cnt = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category",
+                    brand: "$brand"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "$_id.category",
+                brandCount: { $sum: 1 }
+            }
+        },
+        {
+            $sort: {
+                _id: -1 // Sort by category in descending order (use 1 for ascending order)
+            }
+        }
+    ]);
+
+
+    let htmlContent = "";
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="15" class="cat_data">QUANTITY SOLD</td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="cat_data"></td>`;
+    for(let a = 0; a <= product_cat.length -1; a++){
+        const thdata = product_cat[a];
+        for (let b = 0; b < product_cnt.length; b++) {
+            const element2 = product_cnt[b];
+            if(element2._id == thdata._id.category){
+                htmlContent += `<td colspan="`+element2.brandCount+`" class="cat_data">`+thdata._id.category+`</td>`;
+            }
+        }
+    }
+    
+    htmlContent += `<td class="cat_data"></td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="1" class="cat_data">DSI Number</td>`;
+    for(let a = 0; a <= product_cat.length -1; a++){
+        const thdata = product_cat[a];
+
+        for (let b = 0; b < array_data["cat_brand"].length; b++) {
+            const element = array_data["cat_brand"][b];
+
+            if(element._id.category == thdata._id.category){
+                htmlContent += `<td class="cat_data">`+element._id.brand+`</td>`;
+            }
+        }
+        
+       
+    }
+    htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
+    htmlContent += `</tr>`;
+
+    for(let a = 0; a <= product_cat.length -1; a++){
+        const thdata = product_cat[a];
+        for (let b = 0; b < array_data["cat_brand"].length; b++) {
+            const element = array_data["cat_brand"][b];
+            for (let index = 0; index <= thdata.products.length-1; index++) {
+                const dataelement = thdata.products[index];
+                if(element._id.category == thdata._id.category && dataelement.brand == element._id.brand){
+                    // console.log(dataelement)
+                    htmlContent += `<tr>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `<td class="row_data"></td>`;
+                    htmlContent += `</tr>`;
+                }
+                
+            }
+            
+        }
+    }
+
+    
+
+    
+
+
+    return htmlContent;
+}
+
+router.post('/agent_reports/pdf', auth, async (req, res) => {
+
+    const {from_date, to_date} = req.body
+
+    const datatest = await agentsdataDSICheck(from_date, to_date);
+    // res.send(datatest);
+    // return;
+{/* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> */}
+    let htmlContent = `
+    
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            p {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            table {
+                border-collapse: collapse;
+                width: 80%;
+                margin-left: auto; 
+                margin-right: auto;
+            }
+            th {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+            
+
+            .cat_data {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+
+            .row_data {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+            th {
+                background-color: #d0cece;
+                color: black;
+            }
+            
+        </style>
+    `;
+    var from_string_date = new Date(from_date);
+    var to_string_date = new Date(to_date);
+
+    const options3 = { 
+        // weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+    const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
+    const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
+      
+    htmlContent += `<h1>JAKA EQUITIES CORP</h1>`;
+    htmlContent += `<p>SALES REPORTS</p>`;
+    htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
+    htmlContent += `<div class="row">`;
+    htmlContent += `<div class="col-sm-11">`;
+    htmlContent += `<table>`;
+    htmlContent += datatest;
+    htmlContent += `</table>`;
+    htmlContent += `</div>`;
+    htmlContent += `</div>`;
+
+    // res.send(htmlContent);
+    // return;
+    const options = {
+        format: 'Letter', // Set size to Letter
+        orientation: 'landscape' // Set orientation to landscape
+    };
+    
+    pdf.create(htmlContent, options).toStream(function(err, stream) {
+        if (err) {
+            res.status(500).send('Error generating PDF');
+            return;
+        }
+        res.setHeader('Content-Type', 'application/pdf');
+        stream.pipe(res);
+    });
+});
 module.exports = router;

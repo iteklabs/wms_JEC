@@ -89,6 +89,16 @@
                   </a>
               </li>
 
+              <% if (role.sales_category == "1" && role.account_category == "sa") { %>
+                <% console.log(role) %>
+
+                <li class="text-nowrap">
+                  <a href="/reports/agent_reports/view" class="ai-icon" aria-expanded="false">
+                      <i class="far fa-arrow-alt-circle-right"></i>Ex Truck Reports
+                  </a>
+              </li>
+              <% } %>
+              
 
                 <!-- <li>
                     <a href="/warehousemap_Income/view" class="has-arrow ai-icon" aria-expanded="false">
