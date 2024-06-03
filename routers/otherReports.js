@@ -3,7 +3,7 @@ const res = require("express/lib/response");
 const app = express();
 const router = express.Router();
 const multer = require('multer');
-const { profile, master_shop, categories, brands, units, product, purchases, warehouse, sales_finished, sales, transfers_finished, adjustment_finished, purchases_finished, sales_return_finished, adjustment, transfers, sales_sa } = require("../models/all_models");
+const { profile, master_shop, categories, brands, units, product, purchases, warehouse, sales_finished, sales, transfers_finished, adjustment_finished, purchases_finished, sales_return_finished, adjustment, transfers, sales_sa, staff } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const users = require("../public/language/languages.json");
 const excelJS = require("exceljs");
@@ -1062,7 +1062,7 @@ router.get("/agent_reports/view", auth, async (req, res) => {
     }
 })
 
-async function agentsdataDSICheck(from, to){
+async function agentsdataDSICheck(from, to, staff_id){
     const product_data = await product.aggregate([
         {
             $group: {
@@ -1196,7 +1196,8 @@ async function agentsdataDSICheck(from, to){
                 date: {
                     $gte: from,
                     $lte: to
-                }
+                },
+                sales_staff_id: staff_id
             }
         },
         {
@@ -1266,6 +1267,13 @@ async function agentsdataDSICheck(from, to){
                         product_details: "$product_details"
                     }
                 }
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.dsi": -1, // Sort by category in ascending order
+                "_id.date": 1,  // Sort by brand in ascending order
             }
         }
     ]);
@@ -1450,8 +1458,10 @@ console.log(arrdata["dataqty"])
 router.post('/agent_reports/pdf', auth, async (req, res) => {
 
     const {from_date, to_date} = req.body
-
-    const datatest = await agentsdataDSICheck(from_date, to_date);
+    const role_data = req.user
+    const stff_data = await staff.findOne({ email: role_data.email })
+    // console.log(stff_data._id.valueOf());
+    const datatest = await agentsdataDSICheck(from_date, to_date, stff_data._id.valueOf());
     // res.send(datatest);
     // return;
 {/* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> */}
@@ -1535,4 +1545,276 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
         stream.pipe(res);
     });
 });
+
+
+
+router.get("/total_sales_reports/view", auth, async(req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const master = await master_shop.find()
+
+        const find_data = await product.find();
+
+
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $unwind: "$product_details"
+            },
+            {
+                $lookup:
+                {
+                    from: "products",
+                    localField: "product_details.product_name",
+                    foreignField: "name",
+                    as: "product_docs"
+                }
+            },
+            {
+                $unwind: "$product_docs"
+            },
+            {
+                $project: 
+                {
+                    product_name: '$product_details.product_name',
+                    product_stock: '$product_details.product_stock',
+                }
+            },
+            {
+                $group: {
+                    _id: "$product_name",
+                    product_stock: { $sum: "$product_stock" }
+                }
+            },
+        ])
+
+
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+            
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("sales_reports", { 
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            alldata: find_data,
+            profile : profile_data,
+            master_shop : master,
+            role : role_data,
+            product_stock : warehouse_data,
+            language : lan_data
+			
+        })
+    } catch (error) {
+        
+    }
+})
+
+async function dataSalesReports(from, to, staff_id){
+    let htmlContent = ``;
+
+    const total_sales_data = await sales_sa.aggregate([
+        {
+            $match: {
+                date: {
+                    $gte: from,
+                    $lte: to
+                },
+                sales_staff_id: staff_id
+            }
+        },
+        {
+            $unwind: "$sale_product"
+        },
+        {
+            $group:{
+                _id:{
+                    product_name: "$sale_product.product_name",
+                    product_code: "$sale_product.product_code",
+                },
+                sumqty: { $sum:"$sale_product.quantity" },
+                totalPrice: { $sum:"$sale_product.totalprice" }
+            }
+        },
+        {
+            $sort :{
+                "_id.product_name": 1,
+            }
+        }
+    ])
+    var qtytotal = 0;
+    var pricetotal = 0;
+    for (let index = 0; index <= total_sales_data.length-1; index++) {
+        const element = total_sales_data[index];
+
+        var totalPriceFixed = (element.totalPrice).toLocaleString(
+            undefined, // leave undefined to use the visitor's browser 
+                       // locale or a string like 'en-US' to override it.
+            // { minimumFractionDigits: 2 }
+          );
+
+          var sumqtyfixed = (element.sumqty).toLocaleString(
+            undefined, // leave undefined to use the visitor's browser 
+                       // locale or a string like 'en-US' to override it.
+            // { minimumFractionDigits: 2 }
+          );
+
+        
+        htmlContent += `<tr>`;
+        htmlContent += `<td class="row_data">${element._id.product_code}</td>`;
+        htmlContent += `<td class="row_data">${element._id.product_name}</td>`;
+        htmlContent += `<td class="row_data">${sumqtyfixed}</td>`;
+        htmlContent += `<td class="row_data">${totalPriceFixed}</td>`;
+        htmlContent += `</tr>`;
+
+        qtytotal += parseInt(element.sumqty);
+        pricetotal += parseInt(element.totalPrice);
+        console.log(element)
+        
+    }
+
+
+    var totalPriceFixedAll = (pricetotal).toLocaleString(
+        undefined, // leave undefined to use the visitor's browser 
+                   // locale or a string like 'en-US' to override it.
+        // { minimumFractionDigits: 2 }
+    );
+
+
+    var sumqtyfixedAll = (qtytotal).toLocaleString(
+        undefined, // leave undefined to use the visitor's browser 
+                   // locale or a string like 'en-US' to override it.
+        // { minimumFractionDigits: 2 }
+    );
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="row_data" colspan="2"><b>Total: </b></td>`;
+    htmlContent += `<td class="row_data">${sumqtyfixedAll}</td>`;
+    htmlContent += `<td class="row_data">${totalPriceFixedAll}</td>`;
+    htmlContent += `</tr>`;
+    
+    return htmlContent;
+}
+router.post("/total_sales_reports/pdf", auth, async(req, res) => {
+    try {
+
+        const {from_date, to_date} = req.body
+        const role_data = req.user
+        const stff_data = await staff.findOne({ email: role_data.email })
+
+        let htmlContent = `
+    
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            p {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            table {
+                border-collapse: collapse;
+                width: 80%;
+                margin-left: auto; 
+                margin-right: auto;
+            }
+            th {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+            
+
+            .cat_data {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+
+            .row_data {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+            th {
+                color: black;
+            }
+            
+        </style>
+    `;
+    var from_string_date = new Date(from_date);
+    var to_string_date = new Date(to_date);
+
+    const options3 = { 
+        // weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+    const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
+    const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
+    var fataset = await dataSalesReports(from_date, to_date, stff_data._id.valueOf());
+    htmlContent += `<h1>JAKA EQUITIES CORP</h1>`;
+    htmlContent += `<p>TOTAL SALES REPORTS - EXTRUCK</p>`;
+    htmlContent += `<p><b>${stff_data.name}</b></p>`;
+    htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
+    htmlContent += `<div class="row">`;
+    htmlContent += `<div class="col-sm-11">`;
+    htmlContent += `<table>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<th> ITEM CODE </th>`;
+    htmlContent += `<th> ITEM DESCRIPTION </th>`;
+    htmlContent += `<th> QTY SOLD </th>`;
+    htmlContent += `<th> INVOICE AMOUNT </th>`;
+    htmlContent += `<tr>`;
+    htmlContent += fataset;
+    htmlContent += `</tr>`;
+    htmlContent += `</div>`;
+    htmlContent += `</div>`;
+
+    // res.send(htmlContent);
+    // return;
+    const options = {
+        format: 'Letter', // Set size to Letter
+        orientation: 'landscape' // Set orientation to landscape
+    };
+    
+    pdf.create(htmlContent, options).toStream(function(err, stream) {
+        if (err) {
+            res.status(500).send('Error generating PDF');
+            return;
+        }
+        res.setHeader('Content-Type', 'application/pdf');
+        stream.pipe(res);
+    });
+        
+    } catch (error) {
+        
+    }
+})
+
 module.exports = router;
