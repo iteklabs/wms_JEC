@@ -1297,37 +1297,26 @@ for (let a = 0; a < array_data["cat_brand"].length; a++) {
         for(let l = 0; l <= thedata.products.length - 1; l++ ){
             const data_detl = thedata.products[l];
             
-
+            // console.log(data_detl.qty)
             if (brand == data_detl.brand && category == data_detl.category) {
                 // console.log(data_detl.qty)
-                if (!arrdata["dataqty"][brand][category][thedata.dsi]) {
-                    arrdata["dataqty"][brand][category][thedata.dsi] = [];
+                if (!arrdata["dataqty"][brand][category][thedata._id.dsi]) {
+                    arrdata["dataqty"][brand][category][thedata._id.dsi] = [];
                 }
 
-                if (!arrdata["dataqty"][brand][category][thedata.dsi][thedata.date]) {
-                    arrdata["dataqty"][brand][category][thedata.dsi][thedata.date] = [];
+                if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date]) {
+                    arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date] = [];
                 }
 
-                if (!arrdata["dataqty"][brand][category][thedata.dsi][thedata.date][thedata.customer]) {
-                    arrdata["dataqty"][brand][category][thedata.dsi][thedata.date][thedata.customer] = [];
+                if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer]) {
+                    arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer] = [];
                 }
 
-                arrdata["dataqty"][brand][category][thedata.dsi][thedata.date][thedata.customer].push(thedata.qty);
+                arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer].push(data_detl.qty);
             }
         }
         
         
-    //         const dataname = thedata.salesman_data;
-    //         if (!arrdata["dataqty"][brand][category][dataname]) {
-    //             arrdata["dataqty"][brand][category][dataname] = [];
-    //         }
-    //         // console.log(thedata.totalQTY);
-    //         arrdata["dataqty"][brand][category][dataname].push(thedata.totalQTY);
-            
-    //         if (!arrdata["name"].includes(dataname)) {
-    //             arrdata["name"].push(dataname);
-    //         }
-    //     }
     }
 }
 
@@ -1372,37 +1361,6 @@ for (let a = 0; a < array_data["cat_brand"].length; a++) {
     htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
     htmlContent += `</tr>`;
 
-    for(let a = 0; a <= product_cat.length -1; a++){
-        const thdata = product_cat[a];
-        for (let b = 0; b < array_data["cat_brand"].length; b++) {
-            const element = array_data["cat_brand"][b];
-            for (let index = 0; index <= thdata.products.length-1; index++) {
-                const dataelement = thdata.products[index];
-                if(element._id.category == thdata._id.category && dataelement.brand == element._id.brand){
-                    // console.log(dataelement)
-                    // htmlContent += `<tr>`;
-                    // htmlContent += `<td class="row_data"></td>`;
-                    // htmlContent += `<td class="row_data"></td>`;
-                    // htmlContent += `<td class="row_data"></td>`;
-                    // htmlContent += `<td class="row_data"></td>`;
-                    // htmlContent += `<td class="row_data"></td>`;
-                    // htmlContent += `<td class="row_data"></td>`;
-                    // htmlContent += `<td class="row_data"></td>`;
-                    // htmlContent += `<td class="row_data"></td>`;
-                    // htmlContent += `<td class="row_data"></td>`;
-                    // htmlContent += `<td class="row_data"></td>`;
-                    // htmlContent += `<td class="row_data"></td>`;
-                    // htmlContent += `</tr>`;
-                }
-                
-            }
-            
-        }
-    }
-
-
-
-
 
 // console.log(sales_sa_data);
 
@@ -1436,14 +1394,28 @@ for (let a = 0; a < array_data["cat_brand"].length; a++) {
     // }
 
 
-
+console.log(arrdata["dataqty"])
     for (let z = 0; z < sales_sa_data.length; z++) {
         const sales_data_element = sales_sa_data[z];
+        
         htmlContent += `<tr>`;
         htmlContent += `<td class="row_data">${sales_data_element._id.dsi}</td>`;
         htmlContent += `<td class="row_data">${sales_data_element._id.date}</td>`;
         htmlContent += `<td class="row_data">${sales_data_element._id.customer}</td>`;
-    
+        // for (let p = 0; p < sales_data_element.products.length; p++) {
+        //     const data_final = sales_data_element.products[p];
+        //     // console.log(data_final.category)
+        //     var totalqty = 0;
+        //     if(arrdata["dataqty"][data_final.brand][data_final.category][sales_data_element._id.dsi][sales_data_element._id.date][sales_data_element._id.customer][0] > 0){
+        //         totalqty = arrdata["dataqty"][data_final.brand][data_final.category][sales_data_element._id.dsi][sales_data_element._id.date][sales_data_element._id.customer][0];
+        //         htmlContent += `<td class="row_data">${totalqty}</td>`;
+        //     }else{
+        //         htmlContent += `<td class="row_data">${totalqty}</td>`;
+        //         console.log(totalqty)
+        //     }
+             
+            
+        // }
         // Initialize an object to keep track of quantities for each brand-category pair
         let quantities = {};
     
@@ -1463,6 +1435,9 @@ for (let a = 0; a < array_data["cat_brand"].length; a++) {
                 htmlContent += `<td class="row_data">0</td>`;
             }
         }
+        // console.log(arrdata["dataqty"][])
+
+
         htmlContent += `<td class="row_data">${sales_data_element.totalQty}</td>`;
         htmlContent += `</tr>`;
     }
