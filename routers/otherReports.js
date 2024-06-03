@@ -479,6 +479,7 @@ router.post('/balance/pdf', auth, async (req, res) => {
     htmlContent += `<div class="col-sm-11">`;
     htmlContent += `<table>`;
     htmlContent += `<tr>`;
+
     htmlContent += `<th rowspan='2'>Category</th>`;
     htmlContent += `<th rowspan='2'>Products</th>`;
     htmlContent += `<th rowspan='2'>Beginning Balance<br>${from_formattedDate}</th>`;
@@ -491,95 +492,6 @@ router.post('/balance/pdf', auth, async (req, res) => {
     htmlContent += `<th>X-Truck</th>`;
     htmlContent += `</tr>`;
     htmlContent += datatest;
-    // htmlContent += `<tr>`;
-    // htmlContent += `<td>Standard</td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `</tr>`;
-
-    // htmlContent += `<tr>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td>Royal Red</td>`;
-    // htmlContent += `<td>1,000</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>1,000</td>`;
-    // htmlContent += `</tr>`;
-
-    // htmlContent += `<tr>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td>Guitar</td>`;
-    // htmlContent += `<td>1,000</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>1,000</td>`;
-    // htmlContent += `</tr>`;
-
-    // htmlContent += `<tr>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td>Emi</td>`;
-    // htmlContent += `<td>1,000</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>1,000</td>`;
-    // htmlContent += `</tr>`;
-
-    // htmlContent += `<tr>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td>Fuego</td>`;
-    // htmlContent += `<td>6,859</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>495</td>`;
-    // htmlContent += `<td>97</td>`;
-    // htmlContent += `<td>6,267</td>`;
-    // htmlContent += `</tr>`;
-
-    // htmlContent += `<tr>`;
-    // htmlContent += `<td>Household</td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `</tr>`;
-
-    // htmlContent += `<tr>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td>Royal Red</td>`;
-    // htmlContent += `<td>6,859</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>495</td>`;
-    // htmlContent += `<td>97</td>`;
-    // htmlContent += `<td>6,267</td>`;
-    // htmlContent += `</tr>`;
-
-    // htmlContent += `<tr>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td>Guitar</td>`;
-    // htmlContent += `<td>6,859</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>495</td>`;
-    // htmlContent += `<td>97</td>`;
-    // htmlContent += `<td>6,267</td>`;
-    // htmlContent += `</tr>`;
-
-    // htmlContent += `<tr>`;
-    // htmlContent += `<td></td>`;
-    // htmlContent += `<td>Emi</td>`;
-    // htmlContent += `<td>6,859</td>`;
-    // htmlContent += `<td>0</td>`;
-    // htmlContent += `<td>495</td>`;
-    // htmlContent += `<td>97</td>`;
-    // htmlContent += `<td>6,267</td>`;
-    // htmlContent += `</tr>`;
     
 
     htmlContent += `</table>`;
@@ -754,6 +666,35 @@ async function agentsdataCheck(from, to){
 
 
 
+  
+
+
+
+    
+
+
+    const product_cnt = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category",
+                    brand: "$brand"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "$_id.category",
+                brandCount: { $sum: 1 }
+            }
+        },
+        {
+            $sort: {
+                _id: -1 // Sort by category in descending order (use 1 for ascending order)
+            }
+        }
+    ]);
+
     const sales_data = await sales_sa.aggregate([
         {
             $match:{
@@ -788,18 +729,36 @@ async function agentsdataCheck(from, to){
             }
         },
         {
+            $lookup: {
+                from: "products",
+                localField: "sale_product.product_code",
+                foreignField: "product_code",
+                as: "product_info"
+            }
+        },
+        {
+            $unwind: "$product_info"
+        },
+        {
             $group:{
                 _id:{
                   
-                    sales_id: "$sales_info._id"
+                    sales_id: "$sales_info._id",
+                    category: "$product_info.category",
+                    brand: "$product_info.brand",
+                    // product_code: "$product_info.product_code",
                 },
                 salesman_data:{ $first: "$sales_info.name"},
                 totalQTY: { $sum: "$sale_product.quantity"},
                 products:{
                     $push:{
-                        product_name: "$sale_product.product_name",
-                        product_code: "$sale_product.product_code",
                         qty: "$sale_product.quantity",
+                        product_details: {
+                            prod_name: "$product_info.name",
+                            product_code: "$product_info.product_code",
+                            category: "$product_info.category",
+                            brand: "$product_info.brand",
+                        }
                     }
                 }
             }
@@ -807,88 +766,7 @@ async function agentsdataCheck(from, to){
         
     ])
 
-
-    array_data["sales_data"] = [];
-    for (let p = 0; p <= sales_data.length - 1; p++) {
-        const element = sales_data[p];
-        array_data["sales_data"].push(element)
     
-    }
-
-    const salesext = await sales_sa.aggregate([
-        {
-            $match:{
-                date: {
-                    $gte: from,
-                    $lte: to
-                }
-            }
-        },
-        {
-            $addFields: {
-                sales_staff_id: { $toObjectId: "$sales_staff_id" }
-            }
-        },
-        {
-            $lookup: {
-                from: "staffs",
-                localField: "sales_staff_id",
-                foreignField: "_id",
-                as: "sales_info"
-            }
-        },
-        {
-            $unwind: "$sales_info"
-        },
-        {
-            $unwind: "$sale_product"
-        },
-        {
-            $match:{
-                "sales_info.account_category" : "sa",
-                "sales_info.type_of_acc_cat" : "1",
-            }
-        },
-        {
-            $group:{
-                _id:{
-                    product_name: "$sale_product.product_name",
-                    product_code: "$sale_product.product_code",
-                },
-                totalQTY: { $sum: "$sale_product.quantity"}
-            }
-        }
-        
-    ])
-    array_data["sales_ext"] = [];
-    for (let o = 0; o <= salesext.length - 1; o++) {
-        const element = salesext[o];
-        array_data["sales_ext"].push(element)
-    
-    }
-
-
-    const product_cnt = await product.aggregate([
-        {
-            $group: {
-                _id: {
-                    category: "$category",
-                    brand: "$brand"
-                }
-            }
-        },
-        {
-            $group: {
-                _id: "$_id.category",
-                brandCount: { $sum: 1 }
-            }
-        },
-        {
-            $sort: {
-                _id: -1 // Sort by category in descending order (use 1 for ascending order)
-            }
-        }
-    ]);
 
 
     let htmlContent = "";
@@ -926,38 +804,114 @@ async function agentsdataCheck(from, to){
     }
     htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
     htmlContent += `</tr>`;
-
-    for(let a = 0; a <= product_cat.length -1; a++){
-        const thdata = product_cat[a];
-        for (let b = 0; b < array_data["cat_brand"].length; b++) {
-            const element = array_data["cat_brand"][b];
-            for (let index = 0; index <= thdata.products.length-1; index++) {
-                const dataelement = thdata.products[index];
-                if(element._id.category == thdata._id.category && dataelement.brand == element._id.brand){
-                    // console.log(dataelement)
-                    htmlContent += `<tr>`;
-                    htmlContent += `<td class="row_data"></td>`;
-                    htmlContent += `<td class="row_data"></td>`;
-                    htmlContent += `<td class="row_data"></td>`;
-                    htmlContent += `<td class="row_data"></td>`;
-                    htmlContent += `<td class="row_data"></td>`;
-                    htmlContent += `<td class="row_data"></td>`;
-                    htmlContent += `<td class="row_data"></td>`;
-                    htmlContent += `<td class="row_data"></td>`;
-                    htmlContent += `<td class="row_data"></td>`;
-                    htmlContent += `</tr>`;
-                }
+    // let arrdata = [];
+    // arrdata["name"] = [];
+    // arrdata["dataqty"] = [];
+    // for (let a = 0; a <= array_data["cat_brand"].length -1; a++) {
+    //     const element = array_data["cat_brand"][a];
+    //     arrdata["dataqty"][element._id.brand]= [];
+    //     arrdata["dataqty"][element._id.brand][element._id.category] = [];
+    //     for(let b = 0; b <= sales_data.length -1; b++){
+    //         const thedata = sales_data[b];
+    //         if (element._id.brand == thedata._id.brand && element._id.category == thedata._id.category) {
                 
-            }
+
+    //             var dataname = thedata.salesman_data;
+    //             console.log(thedata.totalQTY);
+
+    //             if (!arrdata["dataqty"][thedata._id.brand][element._id.category][dataname]) {
+    //                 arrdata["dataqty"][thedata._id.brand][element._id.category][dataname] = [];
+    //             }
+                
+    //             if(dataname != dataname2){
+    //                 arrdata["name"].push(dataname);
+    //             }
+    //             arrdata["dataqty"][element._id.brand][element._id.category][dataname].push(thedata.totalQTY);
+    //             var dataname2 = thedata.salesman_data;
+                
+                
+    //         }
             
+            
+    //     }
+        
+    // }
+    // console.log(arrdata["dataqty"])
+    let arrdata = {
+        name: [],
+        dataqty: {}
+    };
+    
+    for (let a = 0; a < array_data["cat_brand"].length; a++) {
+        const element = array_data["cat_brand"][a];
+        const brand = element._id.brand;
+        const category = element._id.category;
+    
+        if (!arrdata["dataqty"][brand]) {
+            arrdata["dataqty"][brand] = {};
+        }
+        
+        if (!arrdata["dataqty"][brand][category]) {
+            arrdata["dataqty"][brand][category] = [];
+        }
+    
+        for (let b = 0; b < sales_data.length; b++) {
+            const thedata = sales_data[b];
+            
+            if (brand === thedata._id.brand && category === thedata._id.category) {
+                const dataname = thedata.salesman_data;
+                if (!arrdata["dataqty"][brand][category][dataname]) {
+                    arrdata["dataqty"][brand][category][dataname] = [];
+                }
+                // console.log(thedata.totalQTY);
+                arrdata["dataqty"][brand][category][dataname].push(thedata.totalQTY);
+                
+                if (!arrdata["name"].includes(dataname)) {
+                    arrdata["name"].push(dataname);
+                }
+            }
         }
     }
+    // console.log(arrdata["dataqty"])
+    htmlContent += `<tr>`;
+    for (let index = 0; index <= arrdata["name"].length-1; index++) {
+        const element = arrdata["name"][index];
+        // console.log(element)
+        htmlContent += `<td class="row_data">${element}</td>`;
+        var totalQTY = 0
+        var totalQTYperBrand = 0;
+        for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
+            const element1 = array_data["cat_brand"][a];
+            // console.log(element1._id.brand)
 
-    
+            // console.log(arrdata["dataqty"][element1._id.brand][element1._id.category][element])
+            var totalData = 0;
+            if(arrdata["dataqty"][element1._id.brand][element1._id.category][element]){
+                // console.log(element1._id.brand + " <> " + element1._id.category)
+                totalData = arrdata["dataqty"][element1._id.brand][element1._id.category][element][0];
+                htmlContent += `<td class="row_data">${totalData}</td>`;
+            }else{
+                totalData = 0;
+                htmlContent += `<td class="row_data">${totalData}</td>`;
+            }
+            totalQTY += totalData;
+        }
 
-    
+        htmlContent += `<td class="row_data">${totalQTY}</td>`;
+    }
+    htmlContent += `</tr>`;
 
-
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td class="row_data">TOTAL: </td>`;
+    // htmlContent += `<td class="row_data">${totalQTYperBrand}</td>`;
+    // htmlContent += `<td class="row_data">${totalQTYperBrand}</td>`;
+    // htmlContent += `<td class="row_data">${totalQTYperBrand}</td>`;
+    // htmlContent += `<td class="row_data">${totalQTYperBrand}</td>`;
+    // htmlContent += `<td class="row_data">${totalQTYperBrand}</td>`;
+    // htmlContent += `<td class="row_data">${totalQTYperBrand}</td>`;
+    // htmlContent += `<td class="row_data">${totalQTYperBrand}</td>`;
+    // htmlContent += `<td class="row_data">${totalQTYperBrand}</td>`;
+    // htmlContent += `</tr>`;
     return htmlContent;
 }
 
