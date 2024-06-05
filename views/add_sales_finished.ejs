@@ -1257,11 +1257,13 @@ $(document).ready(function() {
 
         var output = RoomAssign.join(',');
 
+        var sales_cat = $("#type_sales").val();
+
 
       $.ajax({
         url: '/all_sales_finished/barcode_scanner', // Replace with your backend endpoint URL
         method: 'POST',
-        data: { product_code: productCode, warehouse_name: warehouseName, rooms_data: rooms, Roomslist:output }, // Pass the product code as a parameter
+        data: { product_code: productCode, warehouse_name: warehouseName, rooms_data: rooms, Roomslist:output, sales_category: sales_cat }, // Pass the product code as a parameter
         success: function(response) {
           // Populate the table with the received data
           $.each(response, function(index, data1) {
@@ -1303,6 +1305,15 @@ $(document).ready(function() {
                 // row.append($('<td>').html('<select id="agent'+x+'" class="form-control" style="width: 150px;"" name="agentSelected"></select>'));
                 row.append($('<td>').html('<button type="button" class="btn btn-square btn-dark" id="remove">Remove</button>'));
                 
+
+                $('<input>').attr({
+                    type: 'hidden',
+                    id: 'sales_category',
+                    name: 'sales_category',
+                    value: data.sales_category
+                }).appendTo(row);
+
+
 
                 $('<input>').attr({
                     type: 'hidden',

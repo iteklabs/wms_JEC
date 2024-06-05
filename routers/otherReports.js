@@ -1817,4 +1817,266 @@ router.post("/total_sales_reports/pdf", auth, async(req, res) => {
     }
 })
 
+
+router.get("/inventory_sum/view", auth, async(req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const master = await master_shop.find()
+
+        const find_data = await product.find();
+
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $unwind: "$product_details"
+            },
+            {
+                $lookup:
+                {
+                    from: "products",
+                    localField: "product_details.product_name",
+                    foreignField: "name",
+                    as: "product_docs"
+                }
+            },
+            {
+                $unwind: "$product_docs"
+            },
+            {
+                $project: 
+                {
+                    product_name: '$product_details.product_name',
+                    product_stock: '$product_details.product_stock',
+                }
+            },
+            {
+                $group: {
+                    _id: "$product_name",
+                    product_stock: { $sum: "$product_stock" }
+                }
+            },
+        ])
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("inventory_sum", { 
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            alldata: find_data,
+            profile : profile_data,
+            master_shop : master,
+            role : role_data,
+            product_stock : warehouse_data,
+            language : lan_data
+			
+        })
+    } catch (error) {
+        
+    }
+})
+
+
+async function dataInventoryReports(from, to, staff_id){
+    let htmlContent = ``;
+
+    const total_sales_data = await sales_sa.aggregate([
+        {
+            $match: {
+                date: {
+                    $gte: from,
+                    $lte: to
+                },
+                sales_staff_id: staff_id
+            }
+        },
+        {
+            $unwind: "$sale_product"
+        },
+        {
+            $group:{
+                _id:{
+                    product_name: "$sale_product.product_name",
+                    product_code: "$sale_product.product_code",
+                },
+                sumqty: { $sum:"$sale_product.quantity" },
+                totalPrice: { $sum:"$sale_product.totalprice" }
+            }
+        },
+        {
+            $sort :{
+                "_id.product_name": 1,
+            }
+        }
+    ])
+    // var qtytotal = 0;
+    // var pricetotal = 0;
+    // for (let index = 0; index <= total_sales_data.length-1; index++) {
+    //     const element = total_sales_data[index];
+
+    //     var totalPriceFixed = (element.totalPrice).toLocaleString(
+    //         undefined, // leave undefined to use the visitor's browser 
+    //                    // locale or a string like 'en-US' to override it.
+    //         // { minimumFractionDigits: 2 }
+    //       );
+
+    //       var sumqtyfixed = (element.sumqty).toLocaleString(
+    //         undefined, // leave undefined to use the visitor's browser 
+    //                    // locale or a string like 'en-US' to override it.
+    //         // { minimumFractionDigits: 2 }
+    //       );
+
+        
+    //     htmlContent += `<tr>`;
+    //     htmlContent += `<td class="row_data">${element._id.product_code}</td>`;
+    //     htmlContent += `<td class="row_data">${element._id.product_name}</td>`;
+    //     htmlContent += `<td class="row_data">${sumqtyfixed}</td>`;
+    //     htmlContent += `<td class="row_data">${totalPriceFixed}</td>`;
+    //     htmlContent += `</tr>`;
+
+    //     qtytotal += parseInt(element.sumqty);
+    //     pricetotal += parseInt(element.totalPrice);
+    //     console.log(element)
+        
+    // }
+
+
+    // var totalPriceFixedAll = (pricetotal).toLocaleString(
+    //     undefined, // leave undefined to use the visitor's browser 
+    //                // locale or a string like 'en-US' to override it.
+    //     // { minimumFractionDigits: 2 }
+    // );
+
+
+    // var sumqtyfixedAll = (qtytotal).toLocaleString(
+    //     undefined, // leave undefined to use the visitor's browser 
+    //                // locale or a string like 'en-US' to override it.
+    //     // { minimumFractionDigits: 2 }
+    // );
+
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td class="row_data" colspan="2"><b>Total: </b></td>`;
+    // htmlContent += `<td class="row_data">${sumqtyfixedAll}</td>`;
+    // htmlContent += `<td class="row_data">${totalPriceFixedAll}</td>`;
+    // htmlContent += `</tr>`;
+    
+    return htmlContent;
+}
+router.post("/inventory_sum/pdf", auth, async(req, res) => {
+    try {
+
+        const {from_date, to_date} = req.body
+        const role_data = req.user
+        const stff_data = await staff.findOne({ email: role_data.email })
+
+        let htmlContent = `
+    
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            p {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            table {
+                border-collapse: collapse;
+                width: 80%;
+                margin-left: auto; 
+                margin-right: auto;
+            }
+            th {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+            
+
+            .cat_data {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+
+            .row_data {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+            th {
+                color: black;
+            }
+            
+        </style>
+    `;
+    var from_string_date = new Date(from_date);
+    var to_string_date = new Date(to_date);
+
+    const options3 = { 
+        // weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+    const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
+    const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
+    var fataset = await dataInventoryReports(from_date, to_date, stff_data._id.valueOf());
+    htmlContent += `<h1>JAKA EQUITIES CORP</h1>`;
+    htmlContent += `<p>INVENTORY SUMMARY</p>`;
+    htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
+    htmlContent += `<div class="row">`;
+    htmlContent += `<div class="col-sm-11">`;
+    htmlContent += `<table>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<th> ITEM CODE </th>`;
+    htmlContent += `<th> ITEM DESCRIPTION </th>`;
+    htmlContent += `<th> BEG BALANCE </th>`;
+    htmlContent += `<th> INCOMING </th>`;
+    htmlContent += `<th> SALES </th>`;
+    htmlContent += `<th> ENDING BALANCE </th>`;
+    htmlContent += `<tr>`;
+    htmlContent += fataset;
+    htmlContent += `</tr>`;
+    htmlContent += `</div>`;
+    htmlContent += `</div>`;
+
+    // res.send(htmlContent);
+    // return;
+    const options = {
+        format: 'Letter', // Set size to Letter
+        orientation: 'landscape' // Set orientation to landscape
+    };
+    
+    pdf.create(htmlContent, options).toStream(function(err, stream) {
+        if (err) {
+            res.status(500).send('Error generating PDF');
+            return;
+        }
+        res.setHeader('Content-Type', 'application/pdf');
+        stream.pipe(res);
+    });
+        
+    } catch (error) {
+        
+    }
+})
+
 module.exports = router;

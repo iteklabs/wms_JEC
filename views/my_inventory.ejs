@@ -52,6 +52,17 @@
                         <div class="container-fluid">
 
                             <div class="row">
+                                <div class="card-header">
+                                    <h4 class="card-title col-6"></h4>
+                                    <div class="card-title col-6 text-end">
+                                        <a href="/my_inventory/add_transaction" class="btn btn-rounded btn-info text-white"> 
+                                            Add 
+                                            <span class="btn-icon-start text-info">
+                                                <i class="fa fa-plus color-info"></i>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
                                 <div class="col-lg-6">
                                     <div class="card">
                                         <div class="card-header">
@@ -62,14 +73,14 @@
                                             <table id="example1" class="table table-striped  table-responsive-sm">
                                                 <thead>
                                                     <tr>
-                                                        <th scope="col"><h5>Item Code</h5></th>
-                                                        <th scope="col"><h5>Item Description</h5></th>
+                                                        <th scope="col" class='text-center'><h5>Item Code</h5></th>
+                                                        <th scope="col" class='text-center'><h5>Item Description</h5></th>
                                                         <!-- <th scope="col"><h5>Primary Code</h5></th>
                                                         <th scope="col"><h5>Secondary Code</h5></th>
                                                         <th scope="col"><h5>Production Date</h5></th>
                                                         <th scope="col"><h5>Expiry Date</h5></th> -->
-                                                        <th scope="col"><h5>Qty</h5></th>
-                                                        <th scope="col"><h5>Action</h5></th>
+                                                        <th scope="col" class='text-center'><h5>Qty</h5></th>
+                                                        <!-- <th scope="col"><h5>Action</h5></th> -->
                                                    
                                                     </tr>
                                                 </thead>
@@ -90,16 +101,16 @@
 
                           
                                             <div class="table-responsive">
-                                                <table class="table table-responsive-sm">
+                                                <table class="table table-striped table-responsive-sm ">
                                                     <thead>
                                                         <tr>
-                                                            <th><h5>Item Code</h5></th>
-                                                            <th><h5>Item Description</h5></th>
+                                                            <th class='text-center'><h5>Item Code</h5></th>
+                                                            <th class='text-center'><h5>Item Description</h5></th>
                                                             <!-- <th><h5>Primary Code</h5></th>
                                                             <th><h5>Secondary Code</h5></th>
                                                             <th><h5>Production Date</h5></th>
                                                             <th><h5>Expiry Date</h5></th> -->
-                                                            <th><h5>Qty</h5></th>
+                                                            <th class='text-center'><h5>Qty</h5></th>
                                                        
                                                         </tr>
                                                     </thead>
@@ -161,14 +172,14 @@
                         const data = response[x].product_list;
                         if(data.product_stock > 0){
                             dataTableData += "<tr>";
-                            dataTableData += "<td>" + data.product_code+ "</td>";
-                            dataTableData += "<td>" + data.product_name+ "</td>";
+                            dataTableData += "<td class='text-center'>" + data.product_code+ "</td>";
+                            dataTableData += "<td class='text-center'>" + data.product_name+ "</td>";
                             // dataTableData += "<td>" + data.primary_code+ "</td>";
                             // dataTableData += "<td>" + data.secondary_code+ "</td>";
                             // dataTableData += "<td>" + data.production_date+ "</td>";
                             // dataTableData += "<td>" + data.expiry_date+ "</td>";
-                            dataTableData += "<td>" + data.product_stock+ "</td>";
-                            dataTableData += "<td><button type='button' class='btn btn-primary btn-sm' onclick=\"isConfirmTrue('" + data._id + "')\">Confirm</button></td>";
+                            dataTableData += "<td class='text-center'>" + data.product_stock+ "</td>";
+                            // dataTableData += "<td><button type='button' class='btn btn-primary btn-sm' onclick=\"isConfirmTrue('" + data._id + "')\">Confirm</button></td>";
                             dataTableData += "</tr>";
                         }
                         
@@ -197,13 +208,13 @@
                        const data = response[x].product_list;
                        if(data.product_stock > 0){
                         dataTableData += "<tr>";
-                        dataTableData += "<td>" + data.product_code+ "</td>";
-                        dataTableData += "<td>" + data.product_name+ "</td>";
+                        dataTableData += "<td class='text-center'>" + data.product_code+ "</td>";
+                        dataTableData += "<td class='text-center'>" + data.product_name+ "</td>";
                         // dataTableData += "<td>" + data.primary_code+ "</td>";
                         // dataTableData += "<td>" + data.secondary_code+ "</td>";
                         // dataTableData += "<td>" + data.production_date+ "</td>";
                         // dataTableData += "<td>" + data.expiry_date+ "</td>";
-                        dataTableData += "<td>" + data.product_stock+ "</td>";
+                        dataTableData += "<td class='text-center'>" + data.product_stock+ "</td>";
                         //    dataTableData += "<td><button type='button' class='btn btn-primary btn-sm' onclick=\"isConfirmTrue('" + data._id + "')\">Confirm</button></td>";
                         dataTableData += "</tr>";
                        }

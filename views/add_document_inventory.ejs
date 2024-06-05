@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+    <style>
+        .color-legend {
+            display: flex;
+            align-items: center;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        .buttonload {
+            border: solid; 
+            border-width: 1px;
+            padding: 12px 24px; /* Some padding */
+            font-size: 16px; /* Set a font-size */
+            width: 150px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <div id="main-wrapper">
+        <%- include('./partials/header_logo'); -%>
+            <%- include('./partials/header',{titel: "Sales"}); -%>
+                <%- include('./partials/sidebar_sa'); -%>
+                    <div class="content-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title"></h4>
+                                            <button type="button" class="btn btn-rounded btn-outline-info"
+                                                onclick="history.back()"><i class="la la-undo"></i> <%= language.go_back %> </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="form-validation">
+                                                <form class="needs-validation" action="./add_transaction"
+                                                    method="post" id="form">
+                                                    <div class="row mb-3">
+
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no"><%= language.date %> <span class="text-red">*</span></label>
+                                                                <input type="date" name="date" class="form-control"
+                                                                    id="date" required>
+                                                            </div>
+                                                        </div>
+                                                            
+                                                    </div>
+
+                                                    <div class="row mb-3">
+                                                        <div class="col-xl-4 col-sm-6">
+                                                            <select class="form-control" id="product_down">
+                                                                <option value="">Select Product</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-xl-2 col-sm-6">
+                                                            <input type="button" class="btn btn-primary" id="rfrshData" value="Refresh Product List">
+                                                            <span id="loadingIcon" class="btn btn-primary" style="display: none;"> <i class="fas fa-spinner fa-spin"></i>Loading</span>
+                                                        </div>
+
+                                                        
+                                                    </div>
+                                                    <div class="col-xl-12">
+                                                        <div class="table-responsive">
+                                                            <table class="table primary-table-bordered" id="sales_tbl_new">
+                                                                <thead class="thead-primary">
+                                                                    <tr>
+                                                                        <th scope="col">Item Code </th>
+                                                                        <th scope="col">Item Description </th>
+                                                                        <th scope="col"><%= language.in_stock %> </th>
+                                                                        <!-- <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>  -->
+                                                                        <th scope="col">Unit of Measure</th> 
+                                                                        <th scope="col">Price</th> 
+                                                                        <!-- <th scope="col">Action</th> -->
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="tblPage_NewOut">
+                                                                </tbody>
+                                                            </table >
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-8 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="note"><%= language.note %> </label>
+                                                                <input type="text" class="form-control"
+                                                                    placeholder="note" id="note" name="note">
+                                                            </div>
+                                                        </div>
+                                                           
+                                                    </div>
+                                                </form>
+                                                <div class="row">
+                                                    <button class="btn btn-primary" type="submit" id="purchase_submit"  >Submit </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        <%- include('./partials/footer'); -%>
+    </div>
+        <%- include('./partials/toastr'); -%>
+        <%- include('./partials/script'); -%>
+        <script>
+            function product_load(){
+                document.getElementById('rfrshData').style.display = 'none';
+                document.getElementById('loadingIcon').style.display = 'inline-block';
+            }
+            function Limit_Date_Today(){
+                var dtToday = new Date();
+                var month = dtToday.getMonth() + 1;
+                var day = dtToday.getDate();
+                var year = dtToday.getFullYear();
+                if(month < 10)
+                    month = '0' + month.toString();
+                if(day < 10)
+                    day = '0' + day.toString();
+                var maxDate = year + '-' + month + '-' + day;
+                $('#date').attr('max', maxDate);
+            }
+            function ShowData(){
+                $.ajax({
+                url: './product_list',
+                method: 'POST',
+                // data: { isbool: "false" },
+                success: function (response) {
+                    let dataProduct = "";
+                    var datashowProduct = document.getElementById("product_down");
+                    dataProduct += "<option value=''>Select Product</option>";
+
+                   
+                    for (let index = 0; index <= response.length - 1; index++) {
+                        const element = response[index];
+                        console.log(element.invoice)
+                        // if(element.product_stock > 0){
+                            dataProduct += "<option value="+element.invoice+">"+ element.invoice + "</option>";
+                        // }
+                        
+                    }
+                 
+                    datashowProduct.innerHTML = dataProduct;
+                }
+            })
+                
+            }
+            function checkExpiration(expirationDate, x) {
+                const currentDate = new Date();
+                const expirationDate1 = new Date(expirationDate); 
+                const timeDifference = expirationDate1 - currentDate;
+                const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+
+                if(daysDifference <= 0){
+                    const element = document.getElementById("trtable" + x);
+                    element.style.backgroundColor = "red";
+                }else if (daysDifference <= 30) {
+                    const element = document.getElementById("trtable" + x);
+                    element.style.backgroundColor = "grey";
+                } else if (daysDifference <= 60 || daysDifference <= 120) {
+                    const element = document.getElementById("trtable" + x);
+                    element.style.backgroundColor = "yellow";
+                } else {
+                    const element = document.getElementById("trtable" + x);
+                    element.style.backgroundColor = "green";
+                }
+                return
+            }
+            function removeSelfRow(event) {
+                var row = $(event.target).closest('tr');
+                row.remove();
+            }
+            function computePerPrice(x) {
+                var qty = document.getElementById("quantity"+x);
+                var price = document.getElementById("price"+x);
+                var totalPrice = document.getElementById("totalPrice"+x);
+
+                var totalAll = 0;
+                totalAll = qty.value*price.value;
+                totalPrice.value = totalAll;
+            }
+
+
+
+            function computePerPriceDiscount(x){
+                var qty = document.getElementById("quantity"+x);
+                var price = document.getElementById("price"+x);
+                var totalPrice = document.getElementById("totalPrice"+x);
+                var dicount_price = document.getElementById("dicount_price"+x);
+
+                var totalAll = 0;
+                totalAll = qty.value*price.value;
+                totalAll = totalAll-dicount_price.value;
+                totalPrice.value = totalAll;
+            }
+
+            function checkingQuantityStocks(x) {
+                var qty_value = parseInt(document.getElementById("quantity" + x).value, 10);
+                var stock_qty = parseInt(document.getElementById("stock_qty" + x).value, 10);
+
+                if (stock_qty < qty_value) {
+                    Swal.fire({
+                        title: "Warning!",
+                        text: "The requested quantity exceeds the available stock.",
+                        icon: "warning"
+                    });
+                    computePerPrice(x)
+                    document.getElementById("quantity" + x).value = "";
+                    document.getElementById("price"+x).value = "";
+                }
+                if(qty_value <= 0){
+                    Swal.fire({
+                        title: "Warning!",
+                        text: "The requested quantity exceeds the available stock.",
+                        icon: "warning"
+                    });
+                    computePerPrice(x)
+                    document.getElementById("quantity" + x).value = "";
+                    document.getElementById("price"+x).value = "";
+                }
+                computePerPrice(x)
+                // if(){
+                    
+                // }
+            }
+
+            
+            function confirm_saved() {
+                Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Confirm"
+                })
+                .then((result) => {
+                if (result.isConfirmed) {
+                    var strTemp = '';
+
+                    var Date = document.getElementById("date");
+
+
+
+
+
+                    Date.style.borderColor = "";
+                    if(Date.value.length == 0){
+                        strTemp += "Date is required. <br>" 
+                        Date.style.borderColor = "red";
+                        Date.focus()
+                    }
+
+
+
+                    var table = document.getElementById("sales_tbl_new");
+                    var noofrow = table.rows.length -1;
+                    table.style.borderColor = "";
+                    if(noofrow == 0){
+                        strTemp += "Product list is empty. <br>"
+                        table.style.borderColor = "red";
+                    }
+
+
+
+
+
+
+
+                    var price_qty = document.getElementsByName("price");
+                    var x = 1;
+                    for (let index = 0; index < price_qty.length; index++) {
+                        const inputElement  = price_qty[index];
+                        inputElement.style.borderColor = "";
+                        if(inputElement.value.length == 0){
+                            strTemp += x + ". Price  is required. <br>"
+                            inputElement.style.borderColor = "red";
+                            inputElement.focus()
+                        }
+                        x++;
+                    }
+
+
+                    if(strTemp.length > 0){
+                        // modal.style.display = "none";
+                        Swal.fire(
+                        'Required ',
+                        "<h5>" + strTemp + "</h5>",
+                        'warning'
+                        )
+                        return;
+                    }
+                    document.getElementById("form").submit();
+                }
+                })
+            }
+            $(document).on('click', 'button#remove', function(event) {
+                    removeSelfRow(event);
+            });
+            $(document).ready(function() {
+                Limit_Date_Today();
+                ShowData();
+                
+
+                $('#rfrshData').on('click', function() {
+                    document.getElementById('rfrshData').style.display = 'none';
+                    document.getElementById('loadingIcon').style.display = 'inline-block';
+                    // $.ajax({
+                    //     url: './product_list',
+                    //     method: 'POST',
+                    //     // data: { isbool: "false" },
+                    //     success: function (response) {
+                    //         let dataProduct = "";
+                    //         var datashowProduct = document.getElementById("product_down");
+                    //         dataProduct += "<option value=''>Select Product</option>";
+                    //         for (let index = 0; index <= response.product_list.length - 1; index++) {
+                    //             const element = response.product_list[index];
+                    //             if(element.product_stock > 0){
+                    //                 dataProduct += "<option value="+element._id+">"+ element.product_name +  "</option>";
+                    //             }
+                                
+                    //         }
+                        
+                    //         datashowProduct.innerHTML = dataProduct;
+                    //         document.getElementById('rfrshData').style.display = 'inline-block';
+                    //         document.getElementById('loadingIcon').style.display = 'none';
+                    //     }
+                    // }
+                
+                
+                    $.ajax({
+                        url: './product_list',
+                        method: 'POST',
+                        // data: { isbool: "false" },
+                        success: function (response) {
+                            let dataProduct = "";
+                            var datashowProduct = document.getElementById("product_down");
+                            dataProduct += "<option value=''>Select Product</option>";
+
+                        
+                            for (let index = 0; index <= response.length - 1; index++) {
+                                const element = response[index];
+                                console.log(element.invoice)
+                                // if(element.product_stock > 0){
+                                    dataProduct += "<option value="+element._id+">"+ element.invoice + "</option>";
+                                // }
+                                
+                            }
+                        
+                            datashowProduct.innerHTML = dataProduct;
+                            document.getElementById('rfrshData').style.display = 'inline-block';
+                            document.getElementById('loadingIcon').style.display = 'none';
+                        }
+                    })
+                })
+
+                
+                var x = 0;
+                $('#product_down').on('change', function(data) {
+                    var selectedValue = $(this).val();
+                    $.ajax({
+                        url: './product_data',
+                        method: 'POST',
+                        data: { id_data : selectedValue },
+                        success: function (response) {
+                            // console.log(response.sale_product)
+                            // if(response.length > 0){
+                                $('#tblPage_NewOut').empty();
+                                var existingIds = [];
+
+                                // Iterate through existing rows to collect id_transaction values
+                                $('#tblPage_NewOut tr').each(function() {
+                                    var existingId = $(this).find('input[name="id_transaction"]').val();
+                                    existingIds.push(existingId);
+                                });
+
+                                $.each(response, function(index, data) {
+                                    // console.log(data)
+                                    if (existingIds.indexOf(data._id) === -1) {
+                                        var row = $('<tr id="trtable'+x+'">');
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 200px;"  name="prod_code" value="' + data.product_list.product_code + '" readonly>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 300px;"  name="prod_name" value="' + data.product_list.product_name + '" readonly>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 200px;"  name="stock_qty" id="stock_qty'+x+'" value="' + data.product_list.product_stock + '" readonly>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 200px;"  name="UOM" value="' + data.product_list.unit + '" readonly>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 200px;"  name="gross_price" value="' + data.product_list.gross_price + '" readonly>'));
+                                        // row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'price',
+                                            name: 'price',
+                                            value: data.product_list.gross_price
+                                        }).appendTo(row);
+
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'expiry_date',
+                                            name: 'expiry_date',
+                                            value: data.product_list.expiry_date
+                                        }).appendTo(row);
+
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'production_date',
+                                            name: 'production_date',
+                                            value: data.product_list.production_date
+                                        }).appendTo(row);
+
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'batch_code',
+                                            name: 'batch_code',
+                                            value: data.product_list.batch_code
+                                        }).appendTo(row);
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'primary_code',
+                                            name: 'primary_code',
+                                            value: data.product_list.primary_code
+                                        }).appendTo(row);
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'id_transaction',
+                                            name: 'id_transaction',
+                                            value: data.product_list._id
+                                        }).appendTo(row);
+
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'outgoing_invoice',
+                                            name: 'outgoing_invoice',
+                                            value: data.product_list.outgoing_invoice
+                                        }).appendTo(row);
+
+                                        
+                                        
+                                        $('#tblPage_NewOut').append(row);
+                                        // checkExpiration(data.product_list.expiry_date, x);
+                                        x++;
+                                    }else{
+                                        Swal.fire(
+                                        '',
+                                        data.product_list.product_name + ' is already exist!',
+                                        'info'
+                                        )
+                                    }
+                                })
+                            // }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire(
+                            '',
+                            'We were unable to locate the barcode you entered. Please try scanning another barcode.',
+                            'warning'
+                            )
+                        }
+                    })
+                })
+            
+                $('#purchase_submit').on('click', function(data) {
+                    confirm_saved();
+                })
+            })
+        
+        
+        </script>
+</body>
+
+</html>

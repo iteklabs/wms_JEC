@@ -500,8 +500,20 @@ router.post("/view/add_sales", auth, async (req, res) => {
         })
         prod_invoice_array.forEach((value, i) =>{
             newproduct[i].invoice = value
+            newproduct[i].date_data = date
         })
 
+        const Invoice_out = new invoice_for_outgoing();
+        await Invoice_out.save();
+
+
+        prod_invoice_array.forEach((value, i) =>{
+            newproduct[i].outgoing_invoice = "OUT-" + Invoice_out.invoice_init.toString().padStart(8, '0')
+        })
+
+
+
+        
 
         
 
@@ -519,8 +531,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
             return res.redirect("back")
         }
         const Newnewproduct = newproduct.filter(obj => obj.quantity !== "0" && obj.quantity !== "");
-        const Invoice_out = new invoice_for_outgoing();
-        await Invoice_out.save();
+        
         const data = new sales_finished({ invoice: "OUT-" + Invoice_out.invoice_init.toString().padStart(8, '0'), sales_data: req.body.sales, customer: req.body.customer, date, warehouse_name, sale_product:Newnewproduct, note, room, primary_code, secondary_code, prod_code, SCRN, finalize: "False", mode_transpo,name_driver, ReqBy, dateofreq, PO_number, typeservicesData, typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU })
         const purchases_data = await data.save()
         const new_sales = await sales_finished.findOne({ invoice: invoice });
@@ -799,7 +810,9 @@ router.post("/preview/:id", auth , async (req, res) => {
                     warehouse_id: element.id_transaction_from,
                     id_incoming: element._id,
                     uuid: element.uuid, 
-                    gross_price: element.gross_price
+                    gross_price: element.gross_price,
+                    date_incoming: element.date_data,
+                    outgoing_invoice: element.outgoing_invoice
                 })
                 await to_sales_data.save();
             }
@@ -2112,7 +2125,7 @@ router.get("/barcode/:id", auth, async (req, res) => {
 
 
 router.post("/barcode_scanner", async (req, res) => {
-    const { product_code, warehouse_name, rooms_data, Roomslist } = req.body;
+    const { product_code, warehouse_name, rooms_data, Roomslist, sales_category } = req.body;
     const RoomAll = Roomslist.split(",");
     const results = [];
     
@@ -2127,7 +2140,10 @@ router.post("/barcode_scanner", async (req, res) => {
                 $unwind: "$product_details"
             },
             {
-                $match: { "product_details.primary_code": product_code }
+                $match: { 
+                    "product_details.primary_code": product_code,
+                    "product_details.sales_category": sales_category,
+                }
             },
             {
                 $group: {
@@ -2154,7 +2170,8 @@ router.post("/barcode_scanner", async (req, res) => {
                     roomNamed : { $first: "$room" },
                     invoice : { $first: "$product_details.invoice" },
                     uuid : { $first: "$product_details.uuid" },
-                    gross_price: { $first: "$product_details.gross_price" }
+                    gross_price: { $first: "$product_details.gross_price" },
+                    sales_category: { $first: "$product_details.sales_category" }
                    
                 }
             },
@@ -2169,7 +2186,10 @@ router.post("/barcode_scanner", async (req, res) => {
                 $unwind: "$product_details"
             },
             {
-                $match: { "product_details.secondary_code": product_code }
+                $match: { 
+                    "product_details.secondary_code": product_code,
+                    "product_details.sales_category": sales_category,
+                }
             },
             {
                 $group: {
@@ -2196,7 +2216,8 @@ router.post("/barcode_scanner", async (req, res) => {
                     roomNamed : { $first: "$room" },
                     invoice : { $first: "$product_details.invoice" },
                     uuid : { $first: "$product_details.uuid" },
-                    gross_price: { $first: "$product_details.gross_price" }
+                    gross_price: { $first: "$product_details.gross_price" },
+                    sales_category: { $first: "$product_details.sales_category" }
                 }
             },
         ]);

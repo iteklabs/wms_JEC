@@ -1565,7 +1565,14 @@
                             row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
                             
 
-                            
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'sales_data_cateory',
+                                name: 'sales_data_cateory',
+                                value: data.sales_category
+                            }).appendTo(row);
+
+
                             $('<input>').attr({
                                 type: 'hidden',
                                 id: 'prod_secondunit',
@@ -1703,7 +1710,12 @@
                             row.append($('<td>').html('<select class="form-control" name="prod_level" level="levelOslie'+lastIncre+'" id="prod_level' + lastIncre + '" style="width: 150px;" onchange="checkingWarehouse('+lastIncre+','+ data.product_code +')"></select>'));
                             row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
                             
-
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'sales_data_cateory',
+                                name: 'sales_data_cateory',
+                                value: data.sales_category
+                            }).appendTo(row);
                             
                             $('<input>').attr({
                                 type: 'hidden',

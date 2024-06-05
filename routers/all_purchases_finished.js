@@ -403,6 +403,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             var RoomAssign_array = [req.body.RoomAssign]
             var gross_price_array = [req.body.gross_price]
             var uuid_array = [req.body.uuid]
+            var sales_data_cateory_array = [req.body.sales_data_cateory]
         }else{
             var product_name_array = [...req.body.prod_name]
             var proudct_code_array = [...req.body.prod_code]
@@ -421,6 +422,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             var RoomAssign_array = [...req.body.RoomAssign]
             var gross_price_array = [...req.body.gross_price]
             var uuid_array = [...req.body.uuid]
+            var sales_data_cateory_array = [...req.body.sales_data_cateory]
         } 
         
         const newproduct = product_name_array.map((value)=>{
@@ -429,6 +431,11 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                         product_name : value,
                     }   
         })
+
+
+        sales_data_cateory_array.forEach((value,i) => {
+            newproduct[i].sales_category = value
+        });
 
         proudct_code_array.forEach((value,i) => {
             newproduct[i].product_code = value
@@ -601,7 +608,8 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                         invoice: product_details.invoice,
                         id_incoming: product_details._id,
                         uuid: product_details.uuid,
-                        gross_price: product_details.gross_price
+                        gross_price: product_details.gross_price,
+                        sales_category: product_details.sales_category
                     })
                 }
         
@@ -1721,7 +1729,8 @@ router.post("/barcode_scanner", async (req, res) => {
                 maxProdPerUnit:  { $first: "$maxProdPerUnit" },
                 product_cat: { $first : "P" },
                 secondary_unit: { $first: "$secondary_unit" },
-                gross_price: { $first: "$gross_price"}
+                gross_price: { $first: "$gross_price"},
+                sales_category: { $first: "$sales_category" }
             }
         },
         {
@@ -1739,7 +1748,8 @@ router.post("/barcode_scanner", async (req, res) => {
                 maxProdPerUnit: 1,
                 product_cat: 1,
                 secondary_unit: 1,
-                gross_price: 1
+                gross_price: 1,
+                sales_category: 1
             }
         }
     ])
@@ -1766,7 +1776,8 @@ router.post("/barcode_scanner", async (req, res) => {
                 maxProdPerUnit:  { $first: "$maxProdPerUnit" },
                 product_cat: { $first : "S" },
                 secondary_unit: { $first: "$secondary_unit" },
-                gross_price: { $first: "$gross_price"}
+                gross_price: { $first: "$gross_price"},
+                sales_category: { $first: "$sales_category" }
             }
         },
         {
@@ -1784,7 +1795,8 @@ router.post("/barcode_scanner", async (req, res) => {
                 maxProdPerUnit: 1,
                 product_cat: 1,
                 secondary_unit: 1,
-                gross_price: 1
+                gross_price: 1,
+                sales_category: 1
             }
         }
     ])

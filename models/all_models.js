@@ -289,6 +289,9 @@ const warehouse_data = new mongoose.Schema({
             },
             gross_price:{
                 type: Number
+            },
+            sales_category:{
+                type: String
             }
         }
     ]
@@ -434,6 +437,15 @@ const staff_data = new mongoose.Schema({
             },
             gross_price:{
                 type: Number
+            },
+            date_incoming:{
+                type: String
+            },
+            date_confirm: {
+                type: String
+            },
+            outgoing_invoice: {
+                type: String
             }
         }
     ]
@@ -889,6 +901,9 @@ const purchases_data_finished = new mongoose.Schema({
         },
         gross_price: {
             type: Number
+        },
+        sales_category: {
+            type: String
         }
     }],
     note: {
@@ -1299,7 +1314,7 @@ const sales_data_finished = new mongoose.Schema({
             type: String
         },
         bay:{
-           type: Number 
+            type: Number 
         },
         type:{
             type: String
@@ -1347,6 +1362,15 @@ const sales_data_finished = new mongoose.Schema({
             type: String
         },
         gross_price: {
+            type: String
+        },
+        date_data:{
+            type:String
+        },
+        sales_category:{
+            type: String
+        },
+        outgoing_invoice: {
             type: String
         }
     }],
@@ -1405,6 +1429,13 @@ const sales_data_finished = new mongoose.Schema({
         type: String
     },
     deliverydate: {
+        type: String
+    },
+    isRecieved: {
+        type: String,
+        default: "false"
+    },
+    RecievedDate: {
         type: String
     }
 })
@@ -2378,6 +2409,103 @@ invoice_transfer.plugin(autoIncrement.plugin, {
 });
 const invoice_for_transfer = new mongoose.model("invoice_transfers", invoice_transfer);
 
+
+const inventory_transfer = new mongoose.Schema({
+    invoice_init: {
+        type: Number,
+        default : 0
+    },
+})
+
+
+inventory_transfer.plugin(autoIncrement.plugin, {
+    model: 'inventory_transfers',  // Name of the model
+    field: 'invoice_init', // Field to increment
+    startAt: 1, // Initial value
+    incrementBy: 1 
+});
+
+
+const invoice_for_inventory = new mongoose.model("inventory_transfers", inventory_transfer);
+
+
+
+const sales_inv = new mongoose.Schema({
+    invoice: {
+        type: String
+    },
+    date: {
+        type: String
+    },
+    sales_staff_id: {
+        type: String
+    },
+    sale_product:[{
+        product_name: {
+            type: String
+        },
+        quantity: {
+            type: Number
+        },
+        stock: {
+            type: Number
+        },
+        primary_code: {
+            type: String
+        },
+        secondary_code: {
+            type: String
+        },
+        product_code: {
+            type: String
+        },
+        unit: {
+            type : String
+        },
+        secondary_unit:{
+            type: String
+        },
+        batch_code:{
+            type: String
+        }, 
+        expiry_date: {
+            type: String
+        },
+        production_date:{
+            type: String
+        },
+        prod_cat:{
+            type: String
+        },
+        discount:{
+            type: Number
+        },
+        total_price:{
+            type: Number
+        },
+        id_transaction : {
+            type: String
+        },
+        price: {
+            type: Number
+        },
+        totalprice: {
+            type: Number
+        },
+        gross_price:{
+            type: Number
+        },
+        outgoing_invoice: {
+            type: String
+        }
+    }],
+    note: {
+        type: String
+    }
+})
+const sales_inv_data = new mongoose.model("sales_invs", sales_inv);
+
+
 module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa,
-                    suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer,
+                    suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer, invoice_for_inventory, sales_inv_data,
                     customer_payment, c_payment_data, transfers, expenses_type, all_expenses, adjustment, master_shop, email_settings, purchases_finished, sales_finished, adjustment_finished, transfers_finished, purchases_return_finished, sales_return_finished, supervisor_settings };
