@@ -99,10 +99,24 @@ router.post("/table", auth, async(req, res) => {
                 $match: {
                     "product_list.isConfirm" : isbool
                 }
+            },
+            {
+                $group: {
+                    _id: {
+                        product_name: "$product_list.product_name",
+                        product_code: "$product_list.product_code",
+                    },
+                    sumqty: { $sum: "$product_list.product_stock" }
+                }
+            },
+            {
+                $sort: {
+                    "_id.product_name" : 1
+                }
             }
 
         ]);
-        // console.log(staff_data1)
+        console.log(staff_data1)
         res.json(staff_data1)
         
     } catch (error) {

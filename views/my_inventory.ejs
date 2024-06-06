@@ -170,6 +170,7 @@
                     let dataTableData = "";
                     for (let x = 0; x < response.length; x++) {
                         const data = response[x].product_list;
+                        
                         if(data.product_stock > 0){
                             dataTableData += "<tr>";
                             dataTableData += "<td class='text-center'>" + data.product_code+ "</td>";
@@ -204,21 +205,24 @@
                success: function (response) {
                    var dataBody = document.getElementById("dataBody");
                    let dataTableData = "";
+                  
                    for (let x = 0; x < response.length; x++) {
-                       const data = response[x].product_list;
-                       if(data.product_stock > 0){
+                   
+                       const data = response[x];
+                    //    console.log(data)
+                       if(data.sumqty > 0){
                         dataTableData += "<tr>";
-                        dataTableData += "<td class='text-center'>" + data.product_code+ "</td>";
-                        dataTableData += "<td class='text-center'>" + data.product_name+ "</td>";
+                        dataTableData += "<td class='text-center'>" + data._id.product_code+ "</td>";
+                        dataTableData += "<td class='text-center'>" + data._id.product_name+ "</td>";
                         // dataTableData += "<td>" + data.primary_code+ "</td>";
                         // dataTableData += "<td>" + data.secondary_code+ "</td>";
                         // dataTableData += "<td>" + data.production_date+ "</td>";
                         // dataTableData += "<td>" + data.expiry_date+ "</td>";
-                        dataTableData += "<td class='text-center'>" + data.product_stock+ "</td>";
+                        dataTableData += "<td class='text-center'>" + data.sumqty + "</td>";
                         //    dataTableData += "<td><button type='button' class='btn btn-primary btn-sm' onclick=\"isConfirmTrue('" + data._id + "')\">Confirm</button></td>";
                         dataTableData += "</tr>";
                        }
-                       
+
 
                     //    console.log(data)
                        

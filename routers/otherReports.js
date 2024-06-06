@@ -3,7 +3,7 @@ const res = require("express/lib/response");
 const app = express();
 const router = express.Router();
 const multer = require('multer');
-const { profile, master_shop, categories, brands, units, product, purchases, warehouse, sales_finished, sales, transfers_finished, adjustment_finished, purchases_finished, sales_return_finished, adjustment, transfers, sales_sa, staff } = require("../models/all_models");
+const { profile, master_shop, categories, brands, units, product, purchases, warehouse, sales_finished, sales, transfers_finished, adjustment_finished, purchases_finished, sales_return_finished, adjustment, transfers, sales_sa, staff, sales_inv_data } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const users = require("../public/language/languages.json");
 const excelJS = require("exceljs");
@@ -15,6 +15,9 @@ const JsBarcode = require('jsbarcode');
 const { Canvas } = require("canvas");
 const pdf = require('html-pdf');
 const path = require('path');
+const mongoose = require("mongoose");
+
+
 router.get("/balance/view", auth, async (req, res) => {
     try {
         const {username, email, role} = req.user
@@ -1189,7 +1192,7 @@ async function agentsdataDSICheck(from, to, staff_id){
     //         }
     //     }
     // ])
-
+   
     const sales_sa_data = await sales_sa.aggregate([
         {
             $match: {
@@ -1896,7 +1899,7 @@ router.get("/inventory_sum/view", auth, async(req, res) => {
 
 
 async function dataInventoryReports(from, to, staff_id){
-    let htmlContent = ``;
+    
 
     const total_sales_data = await sales_sa.aggregate([
         {
@@ -1918,7 +1921,6 @@ async function dataInventoryReports(from, to, staff_id){
                     product_code: "$sale_product.product_code",
                 },
                 sumqty: { $sum:"$sale_product.quantity" },
-                totalPrice: { $sum:"$sale_product.totalprice" }
             }
         },
         {
@@ -1927,6 +1929,95 @@ async function dataInventoryReports(from, to, staff_id){
             }
         }
     ])
+
+    // console.log(total_sales_data.length)
+    const ObjectId = mongoose.Types.ObjectId;
+
+    const staff_data1 = await staff.aggregate([
+        {
+            $match: {
+                "_id" : ObjectId(staff_id)
+            }
+        },
+        {
+            $unwind: "$product_list"
+        },
+        {
+            $match: {
+                "product_list.isConfirm" : "true"
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    product_name: "$product_list.product_name",
+                    product_code: "$product_list.product_code",
+                },
+                sumqty: { $sum: "$product_list.product_stock" }
+            }
+        },
+        {
+            $sort: {
+                "_id.product_name" : 1
+            }
+        }
+
+    ]);
+
+
+    const inv_data = await sales_inv_data.aggregate([
+        {
+            $match: {
+                date: {
+                    $gte: from,
+                    $lte: to
+                },
+                sales_staff_id: staff_id
+            }
+        },
+        {
+            $unwind: "$sale_product"
+        },
+        {
+            $group: {
+                _id: {
+                    product_name: "$sale_product.product_name",
+                    product_code: "$sale_product.product_code",
+                },
+                totalQTYsum : { $sum: "$sale_product.stock" }
+            }
+        }
+    ])
+    console.log(inv_data)
+    let htmlContent = ``;
+    // for(let p=0; p <= staff_data1.length-1; p++){
+    //     const data_detl = staff_data1[p];
+    //     htmlContent += `<tr>`;
+    //     htmlContent += `<td class="row_data" style="width: 200px">${data_detl._id.product_code}</td>`;
+    //     htmlContent += `<td class="row_data" style="width: 400px">${data_detl._id.product_name}</td>`;
+    //     var totalData = 0;
+    //     htmlContent += `<td class="row_data">1</td>`;
+    //     for (let c = 0; c <= inv_data.length -1; c++) {
+    //         const data_incoming = inv_data[c];
+    //         // console.log(data_incoming)
+            
+    //         if (data_detl._id.product_code == data_incoming._id.product_code && data_detl._id.product_name == data_incoming._id.product_name) {
+    //             htmlContent += `<td class="row_data">${data_incoming.totalQTYsum}</td>`;
+    //         }
+    //     }
+
+    //     for (let index = 0; index <= total_sales_data.length-1; index++) {
+    //         const element = total_sales_data[index];
+    //         if (data_detl._id.product_code == element._id.product_code && data_detl._id.product_name == element._id.product_name) {
+    //             htmlContent += `<td class="row_data">${element.sumqty}</td>`;
+    //         }
+    //     }
+        
+    //     htmlContent += `<td class="row_data">${data_detl.sumqty}</td>`;
+    //     htmlContent += `</td>`;
+    // }
+    
+
     // var qtytotal = 0;
     // var pricetotal = 0;
     // for (let index = 0; index <= total_sales_data.length-1; index++) {
@@ -1977,6 +2068,71 @@ async function dataInventoryReports(from, to, staff_id){
     // htmlContent += `<td class="row_data">${sumqtyfixedAll}</td>`;
     // htmlContent += `<td class="row_data">${totalPriceFixedAll}</td>`;
     // htmlContent += `</tr>`;
+    
+
+var totalQTYALL = 0;
+    for (let p = 0; p <= staff_data1.length - 1; p++) {
+        const data_detl = staff_data1[p];
+        htmlContent += `<tr>`;
+        htmlContent += `<td class="row_data" style="width: 200px">${data_detl._id.product_code}</td>`;
+        htmlContent += `<td class="row_data" style="width: 400px">${data_detl._id.product_name}</td>`;
+        
+        var endbal = data_detl.sumqty;
+        var incomingqty = 0;
+        for (let a = 0; a <= total_sales_data.length - 1; a++) {
+            const element1 = total_sales_data[a];
+            if (data_detl._id.product_code == element1._id.product_code && data_detl._id.product_name == element1._id.product_name) {
+                incomingqty = element1.sumqty;
+            }
+        }
+
+        var invqty = 0;
+        for (let b = 0; b <= inv_data.length - 1; b++) {
+            const data_incomingb = inv_data[b];
+            if (data_detl._id.product_code == data_incomingb._id.product_code && data_detl._id.product_name == data_incomingb._id.product_name) {
+                invqty = data_incomingb.totalQTYsum;
+            }
+        }
+        totalQTYALL = (endbal-invqty) + incomingqty;
+        htmlContent += `<td class="row_data">${totalQTYALL}</td>`;
+    // console.log(totalQTYALL)
+        // Flag to track if a match is found in inv_data
+        let invMatchFound = false;
+    
+        for (let c = 0; c <= inv_data.length - 1; c++) {
+            const data_incoming = inv_data[c];
+            if (data_detl._id.product_code == data_incoming._id.product_code && data_detl._id.product_name == data_incoming._id.product_name) {
+                htmlContent += `<td class="row_data">${data_incoming.totalQTYsum}</td>`;
+                invMatchFound = true;
+                break;
+            }
+        }
+    
+        // If no match was found in inv_data, add 0
+        if (!invMatchFound) {
+            htmlContent += `<td class="row_data">0</td>`;
+        }
+    
+        // Flag to track if a match is found in total_sales_data
+        let salesMatchFound = false;
+    
+        for (let index = 0; index <= total_sales_data.length - 1; index++) {
+            const element = total_sales_data[index];
+            if (data_detl._id.product_code == element._id.product_code && data_detl._id.product_name == element._id.product_name) {
+                htmlContent += `<td class="row_data">${element.sumqty}</td>`;
+                salesMatchFound = true;
+                break;
+            }
+        }
+    
+        // If no match was found in total_sales_data, add 0
+        if (!salesMatchFound) {
+            htmlContent += `<td class="row_data">0</td>`;
+        }
+        
+        htmlContent += `<td class="row_data">${data_detl.sumqty}</td>`;
+        htmlContent += `</tr>`;
+    }
     
     return htmlContent;
 }
