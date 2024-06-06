@@ -2095,10 +2095,8 @@ var totalQTYALL = 0;
         }
         totalQTYALL = (endbal-invqty) + incomingqty;
         htmlContent += `<td class="row_data">${totalQTYALL}</td>`;
-    // console.log(totalQTYALL)
-        // Flag to track if a match is found in inv_data
+
         let invMatchFound = false;
-    
         for (let c = 0; c <= inv_data.length - 1; c++) {
             const data_incoming = inv_data[c];
             if (data_detl._id.product_code == data_incoming._id.product_code && data_detl._id.product_name == data_incoming._id.product_name) {
@@ -2107,15 +2105,10 @@ var totalQTYALL = 0;
                 break;
             }
         }
-    
-        // If no match was found in inv_data, add 0
         if (!invMatchFound) {
             htmlContent += `<td class="row_data">0</td>`;
         }
-    
-        // Flag to track if a match is found in total_sales_data
         let salesMatchFound = false;
-    
         for (let index = 0; index <= total_sales_data.length - 1; index++) {
             const element = total_sales_data[index];
             if (data_detl._id.product_code == element._id.product_code && data_detl._id.product_name == element._id.product_name) {

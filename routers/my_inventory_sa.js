@@ -278,8 +278,6 @@ router.post("/add_transaction", auth, async(req, res) => {
         const profile_data = await profile.findOne({email : role_data.email});
         const staff_data = await staff.findOne({email: role_data.email});
 
-        // res.json(req.body);
-        // return;
         if(typeof prod_name == "string"){
             var prod_code_array = [req.body.prod_code];
             var prod_name_array = [req.body.prod_name];
@@ -356,8 +354,7 @@ router.post("/add_transaction", auth, async(req, res) => {
         const invoice = new invoice_for_inventory();
         await invoice.save();
 
-// invoice number task auto increment
-        const data_sales =  new sales_inv_data({ invoice: "INV-" + invoice.invoice_init.toString().padStart(8, '0'), date: date, sales_staff_id : staff_data._id,  sale_product:newproduct, note: note });
+        const data_sales =  new sales_inv_data({ invoice: "INC-" + invoice.invoice_init.toString().padStart(8, '0'), date: date, sales_staff_id : staff_data._id,  sale_product:newproduct, note: note });
         const sales_data = await data_sales.save();
        
         const ObjectId = mongoose.Types.ObjectId;
