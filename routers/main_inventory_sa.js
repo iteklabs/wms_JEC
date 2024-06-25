@@ -16,9 +16,10 @@ router.get("/view", auth,  async(req, res) => {
         const role_data = req.user
         const profile_data = await profile.findOne({email : role_data.email});
         const staff_data = await staff.findOne({email: role_data.email});
+        
         if (master[0].language == "English (US)") {
             var lan_data = users.English
-            console.log(lan_data);
+            // console.log(lan_data);
         } else if(master[0].language == "Hindi") {
             var lan_data = users.Hindi
 
@@ -79,6 +80,8 @@ router.post("/table", async(req, res) => {
 
         // ]);
         // const warehouse_data = await warehouse.find()
+        // console.log(req.user)
+        
         const warehouse_data = await warehouse.aggregate([
             {
                 $unwind: "$product_details"

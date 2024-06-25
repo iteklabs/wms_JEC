@@ -34,7 +34,7 @@
     </div>
     <div id="main-wrapper">
         <%- include('./partials/header_logo'); -%>
-            <%- include('./partials/header',{titel: "Sales"}); -%>
+            <%- include('./partials/header',{titel: "Sales Order"}); -%>
                 <%- include('./partials/sidebar_sa'); -%>
                     <div class="content-body">
                         <div class="container-fluid">
@@ -48,7 +48,7 @@
                                         </div>
                                         <div class="card-body">
                                             <div class="form-validation">
-                                                <form class="needs-validation" action="/sales_sa/add_sales"
+                                                <form class="needs-validation" action="/sales_order/add_sales"
                                                     method="post" id="form">
                                                     <div class="row mb-3">
                                                         <div class="col-xl-4 col-sm-4">
@@ -76,9 +76,9 @@
 
                                                         <div class="col-xl-4 col-sm-4">
                                                             <div class="form-group">
-                                                                <label for="invoice_no">DSI<span class="text-red">*</span></label>
-                                                                <input type="text" name="DSI" class="form-control"
-                                                                    id="DSI" required>
+                                                                <label for="invoice_no">JD<span class="text-red">*</span></label>
+                                                                <input type="text" name="JD" class="form-control"
+                                                                    id="JD" required>
                                                             </div>
                                                         </div>
                                                             
@@ -98,57 +98,23 @@
 
                                                         
                                                     </div>
-                                                    <!-- <div class="row mb-3">
-                                                        <div class="col-xl-4 col-sm-6">
-                                                            <div class="form-group">
-                                                                <label for="invoice_no">Status Paid <span class="text-red">*</span></label>
-                                                                <select class="form-control" name="paid_status">
-                                                                    <option value="False">Pending</option>
-                                                                    <option value="True">Paid</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div> -->
-                                                      <!-- <fieldset>
-                                                        <legend>Expiration Color Legend</legend>
-                                                        <div class="color-legend">
-                                                            <div class="color-box" style="background-color: red;"></div>
-
-                                                            <span>The product has expired.</span>
-
-                                                        </div>
-                                                        <div class="color-legend">
-                                                            <div class="color-box" style="background-color: grey;"></div>
-                                                            <span>1 month before expiration</span>
-                                                        </div>
-                                                        <div class="color-legend">
-                                                            <div class="color-box" style="background-color: yellow;"></div>
-                                                            <span>2 to 4 months before expiration</span>
-                                                        </div>
-                                                        <div class="color-legend">
-                                                            <div class="color-box" style="background-color: green;"></div>
-                                                            <span>4 months and beyond expiration</span>
-                                                        </div>
-                                                    
-                                                    </fieldset> -->
                                                     <div class="col-xl-12">
                                                         <div class="table-responsive">
                                                             <table class="table primary-table-bordered" id="sales_tbl_new">
                                                                 <thead class="thead-primary">
                                                                     <tr>
-                                                                        <th scope="col">is Free Goods</th>
                                                                         <th scope="col">Item Code </th>
                                                                         <th scope="col">Item Description </th>
                                                                         <!-- <th scope="col">Primary Barcode </th>
                                                                         <th scope="col">Batch Code</th>
                                                                         <th scope="col">Production date </th>
                                                                         <th scope="col">Expiry date </th> -->
-                                                                        <th scope="col"><%= language.in_stock %> </th>
-                                                                        <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
+                                                                        <!-- <th scope="col"><%= language.in_stock %> </th> -->
                                                                         <th scope="col">Unit of Measure </th>
+                                                                        <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
+                                                                        
                                                                         <th scope="col">Price </th>
                                                                         <th scope="col">Discount Price </th>
-                                                                        <th scope="col">Discount Adjustment </th>
                                                                         <th scope="col">Total Price </th>
                                                                         <th scope="col">Action</th>
                                                                     </tr>
@@ -166,7 +132,7 @@
                                                                     placeholder="note" id="note" name="note">
                                                             </div>
                                                         </div>
-                                                        
+                                                           
                                                     </div>
                                                 </form>
                                                 <div class="row">
@@ -202,19 +168,21 @@
             }
             function ShowData(){
                 $.ajax({
-                url: '/sales_sa/product_list',
+                url: '/sales_order/product_list',
                 method: 'POST',
                 // data: { isbool: "false" },
                 success: function (response) {
                     let dataProduct = "";
                     var datashowProduct = document.getElementById("product_down");
                     dataProduct += "<option value=''>Select Product</option>";
-                    for (let index = 0; index <= response.product_list.length - 1; index++) {
-                        const element = response.product_list[index];
 
-                        if(element.product_stock > 0){
-                            dataProduct += "<option value="+element._id+">"+ element.product_name + "</option>";
-                        }
+                    // console.log(response)
+                    for (let index = 0; index <= response.length - 1; index++) {
+                        const element = response[index];
+
+                        // if(element.product_stock > 0){
+                            dataProduct += "<option value="+element._id+">"+ element.name + "</option>";
+                        // }
                         
                     }
                  
@@ -265,76 +233,44 @@
                 var price = document.getElementById("price"+x);
                 var totalPrice = document.getElementById("totalPrice"+x);
                 var dicount_price = document.getElementById("dicount_price"+x);
-                var adj_dicount_price = document.getElementById("adj_dicount_price"+x);
 
                 var totalAll = 0;
                 totalAll = qty.value*price.value;
-                totalAll = totalAll- dicount_price.value ;
-                totalAll = totalAll- adj_dicount_price.value;
-
-
-                // console.log(totalAll + " - " + " ( " + dicount_price.value + " + " + adj_dicount_price.value + " ) ")
+                totalAll = totalAll-dicount_price.value;
                 totalPrice.value = totalAll;
             }
 
             function checkingQuantityStocks(x) {
-                var qty_value = parseInt(document.getElementById("quantity" + x).value, 10);
-                var stock_qty = parseInt(document.getElementById("stock_qty" + x).value, 10);
+                // var qty_value = parseInt(document.getElementById("quantity" + x).value, 10);
+                // var stock_qty = parseInt(document.getElementById("stock_qty" + x).value, 10);
 
-                if (stock_qty < qty_value) {
-                    Swal.fire({
-                        title: "Warning!",
-                        text: "The requested quantity exceeds the available stock.",
-                        icon: "warning"
-                    });
-                    computePerPrice(x)
-                    document.getElementById("quantity" + x).value = "";
-                    document.getElementById("price"+x).value = "";
-                }
-                if(qty_value <= 0){
-                    Swal.fire({
-                        title: "Warning!",
-                        text: "The requested quantity exceeds the available stock.",
-                        icon: "warning"
-                    });
-                    computePerPrice(x)
-                    document.getElementById("quantity" + x).value = "";
-                    document.getElementById("price"+x).value = "";
-                }
+                // if (stock_qty < qty_value) {
+                //     Swal.fire({
+                //         title: "Warning!",
+                //         text: "The requested quantity exceeds the available stock.",
+                //         icon: "warning"
+                //     });
+                    // computePerPrice(x)
+                    // document.getElementById("quantity" + x).value = "";
+                    // document.getElementById("price"+x).value = "";
+                // }
+                // if(qty_value <= 0){
+                //     Swal.fire({
+                //         title: "Warning!",
+                //         text: "The requested quantity exceeds the available stock.",
+                //         icon: "warning"
+                //     });
+                    // computePerPrice(x)
+                    // document.getElementById("quantity" + x).value = "";
+                    // document.getElementById("price"+x).value = "";
+                // }
                 computePerPrice(x)
                 // if(){
                     
                 // }
             }
 
-            function checkFG(x){
-                var is_fg = document.getElementById("is_fg"+x);
-                var price = document.getElementById("price"+x).value;
-                var dicount_price = document.getElementById("dicount_price"+x);
-                var adj_dicount_price = document.getElementById("adj_dicount_price"+x);
-                var totalPrice = document.getElementById("totalPrice"+x);
-                var tmpPrice = price;
-                if(is_fg.checked == true){
-                    document.getElementById("price"+x).value = 0;
-                    document.getElementById("dicount_price"+x).value = 0;
-                    document.getElementById("adj_dicount_price"+x).value = 0;
-                    document.getElementById("totalPrice"+x).value = 0;
-                    document.getElementById("tmpisFG"+x).value = "true";
-
-                    document.getElementById("dicount_price"+x).readOnly = true;
-                    document.getElementById("adj_dicount_price"+x).readOnly = true;
-                    document.getElementById("totalPrice"+x).readOnly = true;
-                }else{
-                    document.getElementById("price"+x).value = document.getElementById("tmpPrice"+x).value;
-                    document.getElementById("dicount_price"+x).readOnly = false;
-                    document.getElementById("adj_dicount_price"+x).readOnly = false;
-                    document.getElementById("totalPrice"+x).readOnly = false;
-                    document.getElementById("tmpisFG"+x).value = "false";
-                }
-                
-                // console.log(is_fg.checked + " <> " + price + " <> " + tmpPrice )
-            }
-
+            
             function confirm_saved() {
                 Swal.fire({
                 title: "Are you sure?",
@@ -433,18 +369,18 @@
                     document.getElementById('rfrshData').style.display = 'none';
                     document.getElementById('loadingIcon').style.display = 'inline-block';
                     $.ajax({
-                        url: '/sales_sa/product_list',
+                        url: '/sales_order/product_list',
                         method: 'POST',
                         // data: { isbool: "false" },
                         success: function (response) {
                             let dataProduct = "";
                             var datashowProduct = document.getElementById("product_down");
                             dataProduct += "<option value=''>Select Product</option>";
-                            for (let index = 0; index <= response.product_list.length - 1; index++) {
-                                const element = response.product_list[index];
-                                if(element.product_stock > 0){
-                                    dataProduct += "<option value="+element._id+">"+ element.product_name +  "</option>";
-                                }
+                            for (let index = 0; index <= response.length - 1; index++) {
+                                const element = response[index];
+                                // if(element.product_stock > 0){
+                                    dataProduct += "<option value="+element._id+">"+ element.name +  "</option>";
+                                // }
                                 
                             }
                         
@@ -460,7 +396,7 @@
                 $('#product_down').on('change', function(data) {
                     var selectedValue = $(this).val();
                     $.ajax({
-                        url: '/sales_sa/product_data',
+                        url: '/sales_order/product_data',
                         method: 'POST',
                         data: { id_data : selectedValue },
                         success: function (response) {
@@ -470,78 +406,64 @@
 
                                 // Iterate through existing rows to collect id_transaction values
                                 $('#tblPage_NewOut tr').each(function() {
-                                    var existingId = $(this).find('input[name="id_transaction"]').val();
+                                    var existingId = $(this).find('input[name="product_id"]').val();
                                     existingIds.push(existingId);
                                 });
 
                                 $.each(response, function(index, data) {
-                                
-                                    if (existingIds.indexOf(data.product_list._id) === -1) {
+                                    // console.log(data)
+                                    if (existingIds.indexOf(data._id) === -1) {
                                         var row = $('<tr id="trtable'+x+'">');
-                                        row.append($('<td>').html('<input type="checkbox" class="form-check-input" name="is_fg" id="is_fg'+x+'" onclick="checkFG('+x+')">'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_code" value="' + data.product_list.product_code + '" readonly>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_name" value="' + data.product_list.product_name + '" readonly>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 250px;" style="width: 150px;" name="prod_code" value="' + data.product_code + '" readonly>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 250px;" style="width: 150px;" name="prod_name" value="' + data.name + '" readonly>'));
                                         // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="primary_code" value="' + data.product_list.primary_code + '" readonly>'));
                                         // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="batch_code" value="' + data.product_list.batch_code + '" readonly>'));
                                         // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="production_date" value="' + data.product_list.production_date + '" readonly>'));
                                         // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="expiry_date" value="' + data.product_list.expiry_date + '" readonly>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="' + data.product_list.product_stock + '" readonly>'));
+                                        // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="' + data.product_list.product_stock + '" readonly>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + data.unit + '" readonly>'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+')" id="quantity'+x+'" value="" required>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + data.product_list.unit + '" readonly>'));
-                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="'+data.product_list.gross_price+'" readonly>'));
+                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="'+data.gross_price+'" readonly>'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
-                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="adj_dicount_price" id="adj_dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
                                         row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
-                                        $('<input>').attr({
-                                            type: 'hidden',
-                                            id: 'tmpisFG'+x,
-                                            name: 'tmpisFG',
-                                            value: "false"
-                                        }).appendTo(row);
-
-                                        $('<input>').attr({
-                                            type: 'hidden',
-                                            id: 'tmpPrice'+x,
-                                            name: 'tmpPrice',
-                                            value: data.product_list.gross_price
-                                        }).appendTo(row);
-
-                                        $('<input>').attr({
-                                            type: 'hidden',
-                                            id: 'expiry_date',
-                                            name: 'expiry_date',
-                                            value: data.product_list.expiry_date
-                                        }).appendTo(row);
 
 
-                                        $('<input>').attr({
-                                            type: 'hidden',
-                                            id: 'production_date',
-                                            name: 'production_date',
-                                            value: data.product_list.production_date
-                                        }).appendTo(row);
+                                        // $('<input>').attr({
+                                        //     type: 'hidden',
+                                        //     id: 'expiry_date',
+                                        //     name: 'expiry_date',
+                                        //     value: data.product_list.expiry_date
+                                        // }).appendTo(row);
 
 
-                                        $('<input>').attr({
-                                            type: 'hidden',
-                                            id: 'batch_code',
-                                            name: 'batch_code',
-                                            value: data.product_list.batch_code
-                                        }).appendTo(row);
+                                        // $('<input>').attr({
+                                        //     type: 'hidden',
+                                        //     id: 'production_date',
+                                        //     name: 'production_date',
+                                        //     value: data.product_list.production_date
+                                        // }).appendTo(row);
+
+
+                                        // $('<input>').attr({
+                                        //     type: 'hidden',
+                                        //     id: 'batch_code',
+                                        //     name: 'batch_code',
+                                        //     value: data.product_list.batch_code
+                                        // }).appendTo(row);
 
                                         $('<input>').attr({
                                             type: 'hidden',
                                             id: 'primary_code',
                                             name: 'primary_code',
-                                            value: data.product_list.primary_code
+                                            value: data.primary_code
                                         }).appendTo(row);
 
                                         $('<input>').attr({
                                             type: 'hidden',
-                                            id: 'id_transaction',
-                                            name: 'id_transaction',
-                                            value: data.product_list._id
+                                            id: 'product_id',
+                                            name: 'product_id',
+                                            value: data._id
                                         }).appendTo(row);
 
                                         
@@ -552,7 +474,7 @@
                                     }else{
                                         Swal.fire(
                                         '',
-                                        data.product_list.product_name + ' is already exist!',
+                                        data.name + ' is already exist!',
                                         'info'
                                         )
                                     }

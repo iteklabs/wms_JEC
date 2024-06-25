@@ -2281,6 +2281,9 @@ const sales_sa_data = new mongoose.Schema({
         discount:{
             type: Number
         },
+        adj_discount: {
+            type: Number
+        },
         total_price:{
             type: Number
         },
@@ -2295,7 +2298,11 @@ const sales_sa_data = new mongoose.Schema({
         },
         gross_price:{
             type: Number
+        },
+        isFG:{
+            type: String
         }
+
     }],
     note: {
         type: String
@@ -2506,6 +2513,169 @@ const sales_inv = new mongoose.Schema({
 const sales_inv_data = new mongoose.model("sales_invs", sales_inv);
 
 
-module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa,
-                    suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer, invoice_for_inventory, sales_inv_data,
-                    customer_payment, c_payment_data, transfers, expenses_type, all_expenses, adjustment, master_shop, email_settings, purchases_finished, sales_finished, adjustment_finished, transfers_finished, purchases_return_finished, sales_return_finished, supervisor_settings };
+const sales_order_data = new mongoose.Schema({
+    invoice: {
+        type: String,
+    },
+    customer: {
+        type: String,
+    },
+    date: {
+        type: String,
+    },
+    JD:{
+        type: String
+    },
+    sale_product:[{
+        product_name: {
+            type: String
+        },
+        quantity: {
+            type: Number
+        },
+        stock: {
+            type: Number
+        },
+        primary_code: {
+            type: String
+        },
+        secondary_code: {
+            type: String
+        },
+        product_code: {
+            type: String
+        },
+        unit: {
+            type : String
+        },
+        secondary_unit:{
+            type: String
+        },
+        batch_code:{
+            type: String
+        }, 
+        expiry_date: {
+            type: String
+        },
+        production_date:{
+            type: String
+        },
+        prod_cat:{
+            type: String
+        },
+        discount:{
+            type: Number
+        },
+        accounting_discount:{
+            type: Number,
+            default: 0
+        },
+        total_price:{
+            type: Number
+        },
+        product_id : {
+            type: String
+        },
+        price: {
+            type: Number
+        },
+        totalprice: {
+            type: Number
+        },
+        gross_price:{
+            type: Number
+        }
+    }],
+    note: {
+        type: String
+    },
+    return_data: {
+        type: String,
+        default: "False"
+    },
+    paid: {
+        type: String,
+        default: "False"
+    },
+    sales_staff_id: {
+        type: String
+    },
+    collection_price:{
+        type: Number,
+        default:0
+    },
+    collectionnumber: {
+        type: String,
+        default: ""
+    },
+    wms_account_confirm:{
+        type: String,
+        default: "false"
+    },
+    wms_account_id:{
+        type: String
+    },
+    wms_account_date:{
+        type: String
+    },
+    accounting_account_confirm:{
+        type: String,
+        default: "false"
+    },
+    accounting_account_id:{
+        type: String
+    },
+    accounting_account_date:{
+        type: String
+    },
+    document_number_out: {
+        type: String
+    },
+    outgoing_id: {
+        type: String
+    }
+})
+const sales_order = new mongoose.model("sales_orders", sales_order_data);
+
+
+const sales_order_inv = new mongoose.Schema({
+    invoice_init: {
+        type: Number,
+        default : 0
+    },
+})
+
+sales_order_inv.plugin(autoIncrement.plugin, {
+    model: 'sales_order_invs',  // Name of the model
+    field: 'invoice_init', // Field to increment
+    startAt: 1, // Initial value
+    incrementBy: 1 
+});
+
+
+const invoice_for_sales_order = new mongoose.model("sales_order_invs", sales_order_inv);
+
+const approving_body_accounting = new mongoose.Schema({
+    head_id_staff: {
+        type: String
+    },
+    warehouse_staff_id:{
+        type: String
+    },
+    members:[{
+        id_member: {
+            type: String
+        },
+        name:{
+            type: String
+        }
+    }]
+
+});
+const approver_acct = new mongoose.model("approvers_accountings", approving_body_accounting);
+module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa, invoice_for_sales_order, approver_acct,
+                    suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, 
+                    invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer, invoice_for_inventory, sales_inv_data, sales_order, 
+                    customer_payment, c_payment_data, transfers, expenses_type, all_expenses, adjustment, master_shop, email_settings, 
+                    purchases_finished, sales_finished, adjustment_finished, transfers_finished, purchases_return_finished, sales_return_finished, 
+                    supervisor_settings };

@@ -776,46 +776,53 @@ router.post("/preview/:id", auth , async (req, res) => {
                 
             }
             // add in sales
-            var to_sales_data = await staff.findById(element.agent_id);
-            var c = 0;
-            for (let b = 0; b <= to_sales_data.product_list.length-1; b++) {
-                const staff_data = to_sales_data.product_list[b];
-                console.log(element.id_transaction_from + " == " + staff_data.warehouse_id + " && " + element._id + " == " + element._id)
-                if(element.id_transaction_from == staff_data.warehouse_id && element._id == 1){
-                    staff_data.product_stock = Math.abs(staff_data.product_stock) + Math.abs(element.quantity)
-                    c++;
+           
+            
+            console.log(typeof element.agent_id)
+            if(typeof element.agent_id !== "undefined"){
+                var to_sales_data = await staff.findById(element.agent_id);
+                console.log("here")
+                var c = 0;
+                for (let b = 0; b <= to_sales_data.product_list.length-1; b++) {
+                    const staff_data = to_sales_data.product_list[b];
+                    console.log(element.id_transaction_from + " == " + staff_data.warehouse_id + " && " + element._id + " == " + element._id)
+                    if(element.id_transaction_from == staff_data.warehouse_id && element._id == 1){
+                        staff_data.product_stock = Math.abs(staff_data.product_stock) + Math.abs(element.quantity)
+                        c++;
+                    }
+                    
                 }
-                
-            }
 
-            console.log("int",c)
-            if (c == "0") {
-                to_sales_data.product_list = to_sales_data.product_list.concat({ 
-                    product_name: element.product_name, 
-                    product_stock: element.quantity, 
-                    bay: element.bay, 
-                    level: element.level, 
-                    product_code: element.product_code, 
-                    primary_code: element.primary_code, 
-                    secondary_code: element.secondary_code, 
-                    expiry_date: element.expiry_date,
-                    production_date: element.production_date,
-                    maxProducts: element.maxProducts,
-                    batch_code: element.batch_code,
-                    secondary_unit: element.secondary_unit,
-                    unit: element.unit,
-                    maxProducts: element.maxProducts,
-                    maxPerUnit: element.maxperunit,
-                    invoice: element.invoice,
-                    warehouse_id: element.id_transaction_from,
-                    id_incoming: element._id,
-                    uuid: element.uuid, 
-                    gross_price: element.gross_price,
-                    date_incoming: element.date_data,
-                    outgoing_invoice: element.outgoing_invoice
-                })
-                await to_sales_data.save();
+                console.log("int",c)
+                if (c == "0") {
+                    to_sales_data.product_list = to_sales_data.product_list.concat({ 
+                        product_name: element.product_name, 
+                        product_stock: element.quantity, 
+                        bay: element.bay, 
+                        level: element.level, 
+                        product_code: element.product_code, 
+                        primary_code: element.primary_code, 
+                        secondary_code: element.secondary_code, 
+                        expiry_date: element.expiry_date,
+                        production_date: element.production_date,
+                        maxProducts: element.maxProducts,
+                        batch_code: element.batch_code,
+                        secondary_unit: element.secondary_unit,
+                        unit: element.unit,
+                        maxProducts: element.maxProducts,
+                        maxPerUnit: element.maxperunit,
+                        invoice: element.invoice,
+                        warehouse_id: element.id_transaction_from,
+                        id_incoming: element._id,
+                        uuid: element.uuid, 
+                        gross_price: element.gross_price,
+                        date_incoming: element.date_data,
+                        outgoing_invoice: element.outgoing_invoice
+                    })
+                    await to_sales_data.save();
+                }
             }
+            
         }
                 new_sales.finalize = "True"
                 const sales_data = await new_sales.save()

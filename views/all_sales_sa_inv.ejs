@@ -14,7 +14,7 @@
     </div>
     <div id="main-wrapper">
         <%- include('./partials/header_logo'); -%>
-            <%- include('./partials/header',{titel: "Inventory Confirmation"}); -%>
+            <%- include('./partials/header',{titel: "Incoming Transaction"}); -%>
                 <%- include('./partials/sidebar_sa'); -%>
                     <div class="content-body">
                         <div class="container-fluid">
@@ -43,6 +43,7 @@
                                                     <tr>
                                                         <th>Document Number </th>
                                                         <th><%= language.date %> </th>
+                                                        <th>QTY </th>
                                                         <!-- <th><%= language.customer %> </th> -->
                                                         <th></th>
                                                     </tr>
@@ -52,6 +53,7 @@
                                                         <tr>
                                                             <td><%= data.invoice %></td>
                                                             <td><%= data.date %></td>
+                                                            <td><%= 0 %></td>
                                                             <!-- <td><%= data.customer %></td> -->
                                                             <td>
                                                                 <a href="./view_inv/<%= data._id %>">

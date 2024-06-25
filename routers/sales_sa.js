@@ -178,6 +178,8 @@ router.post("/add_sales", auth,  async(req, res) => {
             var totalPrice_array = [req.body.totalPrice];
             var id_transaction_array = [req.body.id_transaction];
             var dicount_price_array = [req.body.dicount_price];
+            var adj_dicount_price_array = [req.body.adj_dicount_price];
+            var tmpisFG_array = [req.body.tmpisFG];
         }else{
             var prod_code_array = [...req.body.prod_code];
             var prod_name_array = [...req.body.prod_name];
@@ -192,6 +194,8 @@ router.post("/add_sales", auth,  async(req, res) => {
             var totalPrice_array = [...req.body.totalPrice];
             var id_transaction_array = [...req.body.id_transaction];
             var dicount_price_array = [...req.body.dicount_price];
+            var adj_dicount_price_array = [...req.body.adj_dicount_price];
+            var tmpisFG_array = [...req.body.tmpisFG];
         }
         const newproduct = prod_code_array.map((value)=>{
             
@@ -235,10 +239,19 @@ router.post("/add_sales", auth,  async(req, res) => {
         
         dicount_price_array.forEach((value, i) => {
             newproduct[i].discount = value
-        })
+        });
+
+        adj_dicount_price_array.forEach((value, i) => {
+            newproduct[i].adj_discount = value
+        });
+
+        tmpisFG_array.forEach((value, i) => {
+            newproduct[i].isFG = value
+        });
 
 
-    
+        // res.json(newproduct);
+        // return;
         const invoice = new invoice_sa();
         await invoice.save();
         // res.json(invoice);

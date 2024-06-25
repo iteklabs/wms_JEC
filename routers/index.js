@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 const auth = require("../middleware/auth");
-const { profile, sales, sales_return, purchases, purchases_return, categories, product, suppliers, customer, master_shop, transfers, adjustment, purchases_finished, sales_finished, adjustment_finished, transfers_finished, staff, sales_sa } = require("../models/all_models");
+const { profile, sales, sales_return, purchases, purchases_return, categories, product, suppliers, customer, master_shop, transfers, adjustment, purchases_finished, sales_finished, adjustment_finished, transfers_finished, staff, sales_sa, sales_order } = require("../models/all_models");
 const users = require("../public/language/languages.json");
 
 
@@ -38,7 +38,7 @@ router.get("/index", auth, async(req, res) => {
         }else if(master[0].language == "Arabic (ae)") {
             var lan_data = users.Arabic
         }
-        // res.json(profile_data)
+        // res.json(role_data)
         // return
         if(role_data.account_category == "wm"){
 
@@ -246,7 +246,7 @@ router.get("/index", auth, async(req, res) => {
 
             const paid_true = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "True" });
             const paid_false = await sales_sa.find({ sales_staff_id : staff_data._id, paid: "False" });
-            // console.log(staff_data._id)
+            // console.log(staff_data)
             const sales_sa_my_inventory = await sales_sa.aggregate([
                 {
                     $match : {
@@ -301,6 +301,20 @@ router.get("/index", auth, async(req, res) => {
                 avg_price: sales_sa_my_inventory[0],
                 my_stock: sales_sa_data_count[0]
             })
+        }else if(role_data.account_category == "acc"){
+            const staff_data = await staff.findOne({ email: role_data.email });
+
+
+            res.render("index_acc", {
+                success: req.flash('success'),
+                errors: req.flash('errors'),
+                role : role_data,
+                profile : profile_data,
+                master_shop : master,
+                language : lan_data,
+            })
+
+            res.json(staff_data)
         }else{
             var cnt;
             if(role_data.warehouse_category == "Raw Materials"){
@@ -536,6 +550,26 @@ router.get("/pending_data", auth, async(req, res) => {
         res.json(error);
     }
 })
+
+
+router.post("/get_count", auth, async(req, res) => {
+    try {
+        const { sttaff_id, warehouse, account_category } = req.user;
+
+        const data_user = await sales_order.aggregate([
+            {
+                $match: {
+                    accounting_account_id : sttaff_id,
+                    accounting_account_confirm : "false",
+                }
+            }
+        ])
+        res.json(data_user)
+    } catch (error) {
+        
+    }
+})
+
 
 
 router.get("/paid_data_table", auth, async(req, res) => {

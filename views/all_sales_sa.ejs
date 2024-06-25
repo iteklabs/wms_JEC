@@ -44,6 +44,7 @@
                                                         <th>Invoice Number </th>
                                                         <th><%= language.date %> </th>
                                                         <th><%= language.customer %> </th>
+                                                        <th>DSI </th>
                                                         <th></th>
                                                     </tr>
                                                 </thead>
@@ -53,6 +54,7 @@
                                                             <td><%= data.invoice %></td>
                                                             <td><%= data.date %></td>
                                                             <td><%= data.customer %></td>
+                                                            <td><%= data.dsi %></td>
                                                             <td>
                                                                 <a href="/sales_sa/view_sales/<%= data._id %>">
                                                                     <button type="button" class="btn btn-success m-1">view </button>

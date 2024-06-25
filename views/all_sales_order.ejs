@@ -14,23 +14,23 @@
     </div>
     <div id="main-wrapper">
         <%- include('./partials/header_logo'); -%>
-            <%- include('./partials/header',{titel: "Collection"}); -%>
+            <%- include('./partials/header',{titel: "Sales Order"}); -%>
                 <%- include('./partials/sidebar_sa'); -%>
                     <div class="content-body">
                         <div class="container-fluid">
                             <div class="col-lg-12">
                                 <div class="card">
-                                    <!-- <div class="card-header">
+                                    <div class="card-header">
                                         <h4 class="card-title col-6"></h4>
                                         <div class="card-title col-6 text-end">
-                                            <a href="/collection/add_sales" class="btn btn-rounded btn-info text-white"> 
+                                            <a href="/sales_order/add_sales" class="btn btn-rounded btn-info text-white"> 
                                                 Add 
                                                 <span class="btn-icon-start text-info">
                                                     <i class="fa fa-plus color-info"></i>
                                                 </span>
                                             </a>
                                         </div>
-                                    </div> -->
+                                    </div>
                                     <div class="card-body">
                                         <div class="d-none">
                                             <input type="hidden" value="<%= master_shop[0].currency %>" id="hidden_currency">
@@ -41,7 +41,7 @@
                                                 class="table table-responsive-sm text-center">
                                                 <thead>
                                                     <tr>
-                                                        <th>Document Number </th>
+                                                        <th>Invoice Number </th>
                                                         <th><%= language.date %> </th>
                                                         <th><%= language.customer %> </th>
                                                         <th></th>
@@ -54,7 +54,7 @@
                                                             <td><%= data.date %></td>
                                                             <td><%= data.customer %></td>
                                                             <td>
-                                                                <a href="/collection/view/<%= data._id %>">
+                                                                <a href="/sales_order/view_sales/<%= data._id %>">
                                                                     <button type="button" class="btn btn-success m-1">view </button>
                                                                 </a>
                                                             </td>

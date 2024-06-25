@@ -23,7 +23,8 @@ if(process.env.NODE_ENV == "production"){
    sessionString = process.env.SESSION_STRING_TEST
    sessionCollection = process.env.SESSION_COLLECTION_TEST
 }
-
+// mongoose.set('strictQuery', true);
+// mongoose.set('debug', true)
 mongoose.connect(databaseString,
   {
     useNewUrlParser: true,
@@ -177,6 +178,8 @@ const reportts_sa_router = require("./routers/reports_sa");
 const gross_price_router  = require("./routers/gross_price_setup");
 const collection_router = require("./routers/collection");
 const Reports_router = require("./routers/otherReports");
+const sales_order_router = require("./routers/sales_order");
+
 app.use("/customer_sa", customer_sa_router);
 app.use("/my_inventory", my_inventory_sa_router);
 app.use("/main_inventory", main_inventory_sa_router);
@@ -185,9 +188,16 @@ app.use("/reports_sa", reportts_sa_router);
 app.use("/collection", collection_router);
 app.use("/gross_price_setup", gross_price_router);
 app.use("/reports", Reports_router);
+app.use("/sales_order", sales_order_router);
+
+//Accounting
+const approval_acct_router = require("./routers/accounting");
+app.use("/accounting_approval", approval_acct_router);
 
 
-
+//warehouse
+const approval_wm_router = require("./routers/warehouse_approval");
+app.use("/warehouse_approval", approval_wm_router);
 
 
 app.listen(port, () => {

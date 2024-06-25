@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+    <style>
+        .color-legend {
+            display: flex;
+            align-items: center;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        .buttonload {
+            border: solid; 
+            border-width: 1px;
+            padding: 12px 24px; /* Some padding */
+            font-size: 16px; /* Set a font-size */
+            width: 150px;
+            height: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <div id="main-wrapper">
+        <%- include('./partials/header_logo'); -%>
+            <%- include('./partials/header',{titel: "Sales Order Approval"}); -%>
+                <%- include('./partials/sidebar'); -%>
+                    <div class="content-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title"></h4>
+                                            <button type="button" class="btn btn-rounded btn-outline-info" onclick="window.location.href='/sales_sa/'">
+                                                <i class="la la-undo"></i> <%= language.go_back %>
+                                            </button>
+                                            
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="form-validation">
+
+                                                <form class="needs-validation" action="./<%= the_id %>"
+                                                    method="post" id="form">
+                                                    
+                                                    <div class="row">
+                                                        
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no"> Supplier / Client Ref Number <span class="text-red">*</span></label>
+                                                                <input type="text" name="SCRN" class="form-control"
+                                                                    id="SCRN" value="">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Requested By</label>
+                                                                <input type="text" class="form-control" name="ReqBy" id="ReqBy">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Date of Request</label>
+                                                                <input type="date" class="form-control" name="dateofreq" id="dateofreq">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">PO number</label>
+                                                                <input type="text" class="form-control" name="PO_number" id="PO_number">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-4 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no"><%= language.date %> <span class="text-red">*</span></label>
+                                                                <input type="date" name="date" class="form-control"
+                                                                    id="date" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no"> Request Document Number<span class="text-red">*</span></label>
+                                                                <span><h3>SO-<%= sales_sa.invoice %></h3></span>
+                                                                <input type="hidden" name="invoice_data" value="<%= sales_sa.invoice %>">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no"><%= language.customer %>  <span class="text-red">*</span></label>
+                                                                <span><h3><%= sales_sa.customer %></h3></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no"><%= language.date %> <span class="text-red">*</span></label>
+                                                                <span><h3><%= sales_sa.date %></h3></span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">JD<span class="text-red">*</span></label>
+                                                                <span><h3><%= sales_sa.JD %></h3></span>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Warehouse<span class="text-red">*</span></label>
+                                                                <span><h3><%= role.warehouse %></h3></span>
+                                                                <input type="hidden" name="warehouse_name" id="warehouse_name" value="<%= role.warehouse %>">
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+
+                                                    <div class="row mb-3">
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type of Services  </label>
+
+
+                                                                <br><input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Freight">
+                                                                <label for="Freight"> Freight</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Handling In">
+                                                                <label for="HandlingIn"> Handling In</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Handling Out">
+                                                                <label for="HandlingOut"> Handling Out</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stripping">
+                                                                <label for="Stripping"> Stripping</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stuffing">
+                                                                <label for="Stuffing"> Stuffing</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Barcoding">
+                                                                <label for="Barcoding"> Barcoding</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Repacking">
+                                                                <label for="Repacking"> Repacking</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Reprocessing">
+                                                                <label for="Reprocessing"> Reprocessing</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stickering">
+                                                                <label for="Stickering"> Stickering</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Sorting">
+                                                                <label for="Sorting"> Sorting</label><br>
+
+                                                                <input type="hidden" class="form-check-input" id="typeservicesData" name="typeservicesData">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type of Vehicle  <span
+                                                                        class="text-red">*</span></label>
+                                                                <select class="form-control" name="typevehicle"
+                                                                    id="typevehicle" required>
+                                                                    <option value="4WH">4 WHEELER</option>
+                                                                    <option value="6WH">6 WHEELER</option>
+                                                                    <option value="FWD">FORWARD</option>
+                                                                    <option value="10WH">10 WHEELER</option>
+                                                                    <option value="10FT">10 FOOTER</option>
+                                                                    <option value="20FT">20 FOOTER</option>
+                                                                    <option value="40FT">40 FOOTER</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Destination</label>
+                                                                <input type="text" class="form-control" name="destination" id="destination">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Pick Up/Delivery Date</label>
+                                                                <input type="date" class="form-control" name="deliverydate" id="deliverydate">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Name of trucker/Driver</label>
+                                                                <input type="text" class="form-control" name="driver" id="driver">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Plate Number</label>
+                                                                <input type="text" class="form-control" name="plate" id="plate">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Van/Seal Number</label>
+                                                                <input type="text" class="form-control" name="van" id="can">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">D.R. / S.I Number</label>
+                                                                <input type="text" class="form-control" name="DRSI" id="DRSI">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">TIME START LOADING</label>
+                                                                <input type="time" class="form-control" name="TSU" id="TSU">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">TIME FINISH LOADING</label>
+                                                                <input type="time" class="form-control" name="TFU" id="TFU">
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-xl-12">
+                                                        <div class="table-responsive">
+                                                            <table class="table primary-table-bordered text-center" id="sales_tbl_new">
+                                                                <thead class="thead-primary">
+                                                                    <tr>
+                                                                        <th scope="col" colspan="4"></th>
+                                                                        <th scope="col" colspan="2"> Warehouse Information</th>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="col">Item Code </th>
+                                                                        <th scope="col">Item Description </th>
+                                                                        <th scope="col"><%= language.quantity %> </th>
+                                                                        <th scope="col">Unit of Measure </th>
+                                                                        <th scope="col">Rack Location available </th>
+                                                                        <th scope="col">Bin Location available </th>
+                                                                        <!-- <th scope="col">Stocks available </th> -->
+                                                                    </tr>
+                                                                </thead>
+                                                                <% var total = 0; %>
+                                                                <% var totalqty = 0; %>
+                                                                <% var totalprices = 0; %>
+                                                                <% var totaldiscprice = 0; %>
+                                                                <% var totalacctdisc = 0; %>
+                                                                <%
+                                                                    var x = 0;
+                                                                    const nFormat = new Intl.NumberFormat();
+                                                                %>
+                                                                <tbody id="tblPage_NewOut">
+                                                                    <% sales_sa.sale_product.map((data) => { %>
+                                                                        <tr>
+                                                                            <td>
+                                                                                <%= data.product_code %>
+                                                                                <input type="hidden" name="product_code" id="product_code<%= x; %>" value="<%= data.product_code %>" >
+                                                                            </td>
+                                                                            <td><%= data.product_name %></td>
+                                                                            <td>
+                                                                                <%= nFormat.format(data.quantity) %>
+                                                                                <input type="hidden" name="qty" id="qty" value="<%= data.quantity %>">
+                                                                            </td>
+                                                                            <td><%= data.unit %></td>
+                                                                            <td>
+                                                                                <select class="form-control" id="select_Bin<%= x; %>" name="data_bin">
+                                                                                    <option disabled selected>no available</option>
+                                                                                </select>
+                                                                            </td>
+                                                                            <td>
+                                                                                <select class="form-control" id="select_data<%= x; %>" name="data_loc">
+                                                                                    <option disabled selected>no available</option>
+                                                                                </select>
+                                                                            </td>
+                                                                            <!-- <td>
+                                                                                <input type="number" class="form-control" name="stocks" id="stocks<%= x; %>" disabled>
+                                                                            </td> -->
+                                                                            <!-- <td><%= nFormat.format(data.discount) %></td>
+                                                                            <td><input type="number" name="accounting_discount" style="width: 200px;" id="accounting_discount" class="form-control" value="<%= data.accounting_discount %>"></td>
+                                                                            <td><%= nFormat.format(data.totalprice)  %></td> -->
+                                                                            <% total += parseInt(data.totalprice)  %>
+                                                                            <% totalqty += parseInt(data.quantity)  %>
+                                                                            <% totalprices += parseInt(data.price)  %>
+                                                                            <% totaldiscprice += parseInt(data.discount)  %>
+                                                                            <% totalacctdisc += parseInt(data.accounting_discount) %>
+                                                                            <% x++; %>
+                                                                            <input type="hidden" name="prod_id" value="<%= data._id %>">
+                                                                        </tr>
+
+                                                                        
+                                                                    <% }) %>
+
+
+                                                                    <tr>
+                                                                        <td colspan="1"></td>
+                                                                        <td class="text-center"><b>TOTAL: </b></td>
+                                                                        <td><b><%= nFormat.format(totalqty) %></b></td>
+                                                                        <td></td>
+                                                                        <!-- <td><b><%= nFormat.format(totalprices) %></b></td>
+                                                                        <td><b><%= (totaldiscprice != null && !isNaN(totaldiscprice)) ? nFormat.format(totaldiscprice) : 0 %></b></td>
+                                                                        <td><b><%= totalacctdisc %></b></td>
+                                                                        <td><b><%= nFormat.format(total) %></b></td> -->
+                                                                    </tr>
+                                                                    
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-3 col-sm-3">
+                                                            <table class="table primary-table-bordered">
+                                                                <thead class="thead-primary text-center">
+                                                                    <tr>
+                                                                        <td></td>
+                                                                        <td>Name</td>
+                                                                        <td>Status</td>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td style="width: 200px;">Accountant Assign: </td>
+                                                                        <td><b><%= approvers.account_data.name%></b></td>
+                                                                        <td>
+                                                                            <% if(approvers.accounting_account_confirm == "false"){ %>
+                                                                                <select name="accounting_confirm" id="accounting_confirm" style="width: 200px;" class="text-center form-control">
+                                                                                    <option value="false">Please Select</option>
+                                                                                    <option value="true">Approved</option>
+                                                                                    <option value="reject">Reject</option>
+                                                                                </select>
+                                                                            <% }else if(approvers.accounting_account_confirm == "true"){ %>
+                                                                                <div class="alert alert-success" role="alert">
+                                                                                    Approved
+                                                                                </div>
+                                                                            <% } else if(approvers.accounting_account_confirm == "reject") { %>
+                                                                                <div class="alert alert-danger" role="alert">
+                                                                                    Reject
+                                                                                </div>
+                                                                            <% } %>
+                                                                            
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <% console.log(approvers.wms_data) %>
+                                                                        <td>Warehouse Supervisor: </td>
+                                                                        <td><%= approvers.wms_data.name %></td>
+                                                                        <td class="text-center">
+                                                                            
+                                                                            <!-- <select name="wms_confirm" id="wms_confirm" class="text-center form-control">
+                                                                                <option value="false">Please Select</option>
+                                                                                <option value="true">Approved</option>
+                                                                                <option value="reject">Reject</option>
+                                                                            </select> -->
+
+                                                                            <% if(approvers.wms_account_confirm == "false" || approvers.wms_account_confirm == "" || isNaN(approvers.wms_account_confirm)){ %>
+                                                                                <select name="wms_confirm" id="wms_confirm" class="text-center form-control">
+                                                                                    <option value="false">Please Select</option>
+                                                                                    <option value="true">Approved</option>
+                                                                                    <option value="reject">Reject</option>
+                                                                                </select>
+                                                                            <% }else if(approvers.wms_account_confirm == "true"){ %>
+                                                                                <div class="alert alert-success" role="alert">
+                                                                                    Approved
+                                                                                </div>
+                                                                            <% } else if(approvers.wms_account_confirm == "reject") { %>
+                                                                                <div class="alert alert-danger" role="alert">
+                                                                                    Reject
+                                                                                </div>
+                                                                            <% } %>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                    
+                                                    <div class="row">
+                                                        <div class="col-md-8 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="note"><%= language.note %> </label>
+                                                                <input type="number" class="form-control"
+                                                                    placeholder="note" id="note" name="note" value="<%= sales_sa.note %>" readonly>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <input type="hidden" name="the_id_val" value="<%= the_id %>">
+                                                        <button class="btn btn-primary" type="submit" id="purchase_submit">Submit </button>
+                                                    </div>
+                                                </form>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                    <%- include('./partials/footer'); -%>
+    </div>
+                    <%- include('./partials/toastr'); -%>
+                    <%- include('./partials/script'); -%>
+<script>
+
+    function datahceck(){
+        var checkBox = document.getElementsByName("typeservices");
+        var arrayData = [];
+        for (let index = 0; index < checkBox.length; index++) {
+            const element = checkBox[index];
+
+            if(element.checked == true){
+                arrayData += element.value + ',';
+            }
+            
+        }
+        if (arrayData.endsWith(',')) {
+            arrayData = arrayData.substring(0, arrayData.length - 1);
+        }
+        document.getElementById("typeservicesData").value = arrayData;
+    }
+
+
+    function define_location(id, room, warehouse, product_code, i){
+        // console.log(id + " <> " + room + " <> " + warehouse + " <> " + product_code + " <> " + i)
+
+       
+        $.ajax({
+            url: './data/data_loc',
+            method: 'POST',
+            data: { warehouse_name: warehouse, room_name: room, product_code: product_code },
+            success: function (response) {
+                var bin_location = document.getElementById("select_data"+i);
+                // var stocks =  document.getElementById("stocks"+i);
+                let dataselect = "";
+                    for(let a = 0; a <=  response.length - 1; a++){
+                        var data = response[a];
+                        console.log(data._id)
+                        dataselect += "<option value='"+data._id.main_id+"~"+data._id.detl_id+"'> Location: "+data._id.level+data._id.bay+ "<br> Stocks: "+ data._id.stocks+"</option>";
+                        // stocks.value = data._id.stocks;
+                    }
+                    bin_location.innerHTML = dataselect
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                
+            }
+        })
+
+    }
+
+    $(document).ready(function() {
+        var data_product_code = document.getElementsByName("product_code");
+        var warehouse_data = $("#warehouse_name").val();
+        for (let index = 0; index <= data_product_code.length - 1; index++) {
+            const element = data_product_code[index];
+
+            
+            $.ajax({
+                url: './data/data_rack',
+                method: 'POST',
+                data: { warehouse_name: warehouse_data, product_code: element.value },
+                success: function (response) {
+
+                    var dataSelectID = document.getElementById("select_Bin"+index);
+                    
+                    let dataselect = "";
+                    for(let a = 0; a <=  response.length - 1; a++){
+                        var data = response[a];
+                        dataselect += "<option value='"+data._id._id+"'> "+data._id.room+"</option>";
+
+                        define_location(data._id._id, data._id.room, warehouse_data, element.value , index);
+                    }
+                    dataSelectID.innerHTML = dataselect
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    
+                }
+            });
+            // console.log(element.value + " <> " + warehouse_data + " <> " + index )
+        }
+        // console.log(data_product_code.length)
+    })
+</script>
+</body>
+
+</html>

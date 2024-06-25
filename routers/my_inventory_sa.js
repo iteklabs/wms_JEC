@@ -178,7 +178,7 @@ router.post("/product_data", auth, async(req, res) => {
         // const outgoing_data = await sales_finished.findById(id_data);
 
         // console.log(outgoing_data)
-        console.log(staff_data)
+        // console.log(staff_data)
         res.json(staff_data)
 
 

@@ -1,0 +1,86 @@
+<div class="deznav">
+    <div class="deznav-scroll">
+        <ul class="metismenu" id="menu">
+
+                <li>
+                    <a class="has-arrow ai-icon" href="/index" href="javascript:void()" aria-expanded="false">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g>
+                            <g> 
+                                <path d="M9.07861 16.1355H14.8936" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M2.3999 13.713C2.3999 8.082 3.0139 8.475 6.3189 5.41C7.7649 4.246 10.0149 2 11.9579 2C13.8999 2 16.1949 4.235 17.6539 5.41C20.9589 8.475 21.5719 8.082 21.5719 13.713C21.5719 22 19.6129 22 11.9859 22C4.3589 22 2.3999 22 2.3999 13.713Z" stroke="#130F26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </g>
+                            </g>
+                        </svg>
+                        <span class="nav-text "><%= language.dashboard %></span>
+                    </a>
+                </li>
+
+                <li>
+                    <a class="has-arrow ai-icon" href="/accounting_approval/data/All" href="javascript:void()" aria-expanded="false">
+                        <svg fill="#000000" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M7 5c0 .991-.48 1.87-1.221 2.416A4 4 0 018 11v3H0v-3a4 4 0 012.221-3.584A3 3 0 117 5zm8.707-.293a1 1 0 00-1.414-1.414L12 5.586l-.793-.793a1 1 0 00-1.414 1.414l1.5 1.5a1 1 0 001.414 0l3-3z"></path></g></svg>
+                        <span class="nav-text ">Sales Order Approval
+                            <!-- <span class="position-absolute top-0 start-90 translate-middle badge rounded-pill bg-danger">
+                                0
+                            </span> -->
+
+                            <div id="cnt_notif">
+
+                            </div>
+                        </span>
+                    </a>
+                </li>
+                
+
+                <!-- <li>
+                  <a href="/gross_price_setup/" class="has-arrow ai-icon" aria-expanded="false">
+                    <svg fill="#000000" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 50.189 50.189" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M38.799,23.748c-0.93-1.371-1.624-3.553-1.199-5.154l2.02-7.601c0.425-1.602-0.003-3.253-0.956-3.689 c-0.954-0.436-1.727-0.789-1.727-0.789c-0.635-0.289-1.403-0.614-2.325-0.92c-1.312-0.436-2.415-1.756-2.415-3.122 c0-1.365-1.343-2.473-3-2.473H21.25c-1.657,0-3,1.334-3,2.978s-1.265,3.469-2.644,4.388c-3.702,2.467-5.887,6.349-5.887,10.913 c0,2.063,0.439,3.822,1.157,5.322c0.715,1.494,1.293,3.811,0.881,5.417L9.438,38.07c-0.412,1.605-0.062,3.283,0.778,3.748 c0.842,0.465,1.524,0.843,1.524,0.843c0.977,0.54,2.119,1.02,3.356,1.422c1.576,0.513,2.9,1.959,2.9,3.435 c0,1.475,1.343,2.672,3,2.672h7.997c1.657,0,3-1.344,3-3v-0.305c0-1.656,1.271-3.475,2.664-4.371 c3.905-2.511,6.27-6.578,6.27-11.312C40.927,28.082,40.093,25.656,38.799,23.748z M30.306,39.699 c-1.537,0.615-2.889,1.955-2.889,3.391s-1.118,2.6-2.499,2.6c-1.379,0-2.498-1.072-2.498-2.396c0-1.325-1.347-2.441-2.979-2.732 c-1.005-0.18-1.963-0.416-2.835-0.69c-1.581-0.497-2.435-2.445-2.022-4.052l0.024-0.094c0.412-1.604,1.92-2.236,3.482-1.687 c1.675,0.591,3.6,1.002,5.643,1.002c2.927,0,4.896-1.161,4.896-3.13c0-1.918-1.615-3.129-5.399-4.393 c-5.401-1.815-9.086-4.341-9.086-9.237c0-3.624,2.037-6.591,5.66-8.133c1.524-0.649,2.87-1.925,2.87-3.249 c0-1.324,1.107-2.398,2.474-2.398c1.365,0,2.474,0.994,2.474,2.221c0,1.227,1.35,2.231,2.982,2.516 c0.56,0.098,1.082,0.215,1.57,0.347c1.602,0.431,2.478,2.302,2.059,3.876c-0.418,1.575-1.95,2.209-3.537,1.731 c-1.198-0.361-2.689-0.646-4.488-0.646c-3.28,0-4.341,1.464-4.341,2.877c0,1.615,1.767,2.726,6.106,4.29 c6.008,2.12,8.38,4.896,8.38,9.489C36.352,34.882,34.254,38.12,30.306,39.699z"></path> </g> </g></svg>
+                    <span class="nav-text ">Gross</span>
+                  </a>
+              </li> -->
+        </ul>
+    </div>
+</div>
+
+
+<script>
+
+    function getCount(){
+        $.ajax({
+            url: '/get_count',
+            method: 'POST',
+            // data: { isbool: "false" },
+            success: function (response) {
+                let valDatatext = "";
+                if(response.length > 0){
+                    valDatatext += '<span class="position-absolute top-0 start-90 translate-middle badge rounded-pill bg-danger">';
+                        valDatatext += response.length;
+                    valDatatext += '</span>';
+                    
+                    document.getElementById("cnt_notif").innerHTML = valDatatext;
+                }
+                console.log(response.length)
+            }
+        })
+    }
+
+
+    async function fetchDataAndUpdateChart(fetchFunction) {
+            const newData = await fetchFunction(); // Fetch data using the provided fetchFunction
+            await fetchFunction(); 
+        }
+
+    function startDataRefresh() {
+            const pollingInterval = 5000;
+            // Call fetchDataAndUpdateChart for each data source and its corresponding chart
+            setInterval(() => fetchDataAndUpdateChart(getCount), pollingInterval);
+        }
+
+
+
+    $(document).ready(function() {
+        getCount();
+        startDataRefresh();
+    })
+
+</script>
