@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 const multer  = require('multer');
-const { profile, master_shop, email_settings, supervisor_settings } = require("../models/all_models");
+const { profile, master_shop, email_settings, supervisor_settings, discount_volume_db } = require("../models/all_models");
 const auth = require("../middleware/auth");
 var timezones = require('timezones-list');
 const users = require("../public/language/languages.json");
@@ -283,7 +283,7 @@ router.get("/view/supervisors", auth, async(req, res) => {
             supervisor_data: supervisor_data[0],
             timezones,
             language : lan_data
-        }) 
+        })
     } catch (error) {
         console.log(error);
     }
@@ -319,5 +319,105 @@ router.post("/view/supervisors", auth,  async(req, res) => {
     }
 })
 
+
+router.get("/view_data/volume_set", auth, async (req, res) => {
+    try {
+
+        const role_data = req.user
+        const supervisor_data = await supervisor_settings.find()
+        const profile_data = await profile.findOne({email : role_data.email})
+        const master = await master_shop.find();
+        const data_volume = await discount_volume_db.findOne();
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+            console.log(lan_data);
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("setup_volume_discount", {
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            role : role_data,
+            profile : profile_data,
+            master_shop : master,
+            supervisor_data: supervisor_data[0],
+            language : lan_data,
+            data: data_volume
+        })
+
+    } catch (error) {
+        
+    }
+});
+
+
+
+router.post("/view_data/edit_volume_set", auth, async (req, res) => {
+    try {
+
+        const { min_car_edit } = req.body
+        
+        const data_volume = await discount_volume_db.findOne();
+
+        if(typeof min_car_edit == "string"){
+            var min_car_array = [req.body.min_car_edit];
+            var max_car_array = [req.body.max_car_edit];
+            var discount_price_array = [req.body.discount_price_edit]
+        }else{
+            var min_car_array = [...req.body.min_car_edit];
+            var max_car_array = [...req.body.max_car_edit];
+            var discount_price_array = [...req.body.discount_price_edit]
+        }
+
+        const newproduct = min_car_array.map((value)=>{
+            
+            return  value  = {
+                        min_car : value,
+                    }
+        });
+
+        max_car_array.forEach((value,i) => {
+            newproduct[i].max_car = value
+        });
+
+        discount_price_array.forEach((value,i) => {
+            newproduct[i].discount_price = value
+        });
+
+
+        if(data_volume == null){
+            const data = new discount_volume_db({volume_discount : newproduct})
+            await data.save()
+        } else {
+            data_volume.volume_discount = newproduct
+
+            await data_volume.save();
+        }
+
+        req.flash('success', `Volume Discount modified successfully`)
+        res.redirect("/master_shop/view_data/volume_set")
+    } catch (error) {
+        
+    }
+})
 
 module.exports = router

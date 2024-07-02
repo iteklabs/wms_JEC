@@ -339,13 +339,11 @@
 
     function startDataRefresh() {
         const pollingInterval = 5000;
-        
-
         setInterval(() => fetchDataAndUpdateChart1(fetchDataFG, ctxFG), pollingInterval);
         setInterval(() => fetchDataAndUpdateChart1(fetchDataOutFG, ctx1FG), pollingInterval);
         setInterval(() => fetchDataAndUpdateChart1(fetchDataADJFG, ctx2FG), pollingInterval);
         setInterval(() => fetchDataAndUpdateChart1(fetchDataTFGJFG, ctx3FG), pollingInterval);
     }
 
-    startDataRefresh();
+    // startDataRefresh();
 </script>

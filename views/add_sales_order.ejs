@@ -103,6 +103,7 @@
                                                             <table class="table primary-table-bordered" id="sales_tbl_new">
                                                                 <thead class="thead-primary">
                                                                     <tr>
+                                                                        <th scope="col">is Free Goods</th>
                                                                         <th scope="col">Item Code </th>
                                                                         <th scope="col">Item Description </th>
                                                                         <!-- <th scope="col">Primary Barcode </th>
@@ -270,7 +271,34 @@
                 // }
             }
 
-            
+            function checkFG(x){
+                var is_fg = document.getElementById("is_fg"+x);
+                var price = document.getElementById("price"+x).value;
+                var dicount_price = document.getElementById("dicount_price"+x);
+                // var adj_dicount_price = document.getElementById("adj_dicount_price"+x);
+                var totalPrice = document.getElementById("totalPrice"+x);
+                var tmpPrice = price;
+                if(is_fg.checked == true){
+                    document.getElementById("price"+x).value = 0;
+                    document.getElementById("dicount_price"+x).value = 0;
+                    // document.getElementById("adj_dicount_price"+x).value = 0;
+                    document.getElementById("totalPrice"+x).value = 0;
+                    document.getElementById("tmpisFG"+x).value = "true";
+
+                    document.getElementById("dicount_price"+x).readOnly = true;
+                    // document.getElementById("adj_dicount_price"+x).readOnly = true;
+                    document.getElementById("totalPrice"+x).readOnly = true;
+                }else{
+                    document.getElementById("price"+x).value = document.getElementById("tmpPrice"+x).value;
+                    document.getElementById("dicount_price"+x).readOnly = false;
+                    // document.getElementById("adj_dicount_price"+x).readOnly = false;
+                    document.getElementById("totalPrice"+x).readOnly = false;
+                    document.getElementById("tmpisFG"+x).value = "false";
+                }
+                
+                // console.log(is_fg.checked + " <> " + price + " <> " + tmpPrice )
+            }
+
             function confirm_saved() {
                 Swal.fire({
                 title: "Are you sure?",
@@ -414,6 +442,7 @@
                                     // console.log(data)
                                     if (existingIds.indexOf(data._id) === -1) {
                                         var row = $('<tr id="trtable'+x+'">');
+                                        row.append($('<td>').html('<input type="checkbox" class="form-check-input" name="is_fg" id="is_fg'+x+'" onclick="checkFG('+x+')">'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 250px;" style="width: 150px;" name="prod_code" value="' + data.product_code + '" readonly>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 250px;" style="width: 150px;" name="prod_name" value="' + data.name + '" readonly>'));
                                         // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="primary_code" value="' + data.product_list.primary_code + '" readonly>'));
@@ -428,7 +457,12 @@
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
                                         row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
 
-
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'tmpisFG'+x,
+                                            name: 'tmpisFG',
+                                            value: "false"
+                                        }).appendTo(row);
                                         // $('<input>').attr({
                                         //     type: 'hidden',
                                         //     id: 'expiry_date',

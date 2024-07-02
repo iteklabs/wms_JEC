@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+
+</head>
+
+<body>
+    <!--*******************
+    Preloader start
+********************-->
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <!--*******************
+    Preloader end
+********************-->
+
+    <!--**********************************
+    Main wrapper start
+***********************************-->
+    <div id="main-wrapper">
+
+        <!--**********************************
+        Nav header start
+    ***********************************-->
+        <%- include('./partials/header_logo'); -%>
+
+            <!--**********************************
+        Nav header end
+    ***********************************-->
+
+            <!--**********************************
+        Header start
+    ***********************************-->
+            <%- include('./partials/header',{titel: "Volume Discount"}); -%>
+
+                <!--**********************************
+        Header end ti-comment-alt
+    ***********************************-->
+
+                <!--**********************************
+        Sidebar start
+    ***********************************-->
+                <%- include('./partials/sidebar'); -%>
+
+                    <!--**********************************
+        Sidebar end
+    ***********************************-->
+
+                    <div class="content-body">
+                        <div class="container-fluid">
+                            <!-- row -->
+
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <form id="edit_form" action="./edit_volume_set" method="post">
+                                            <table id="example" class="table table-responsive-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="customer_thead_name">Min of Cartons</th>
+                                                        <th class="customer_thead_address">Min of Max</th>
+                                                        <th class="customer_thead_mobile">Discount Price </th>
+                                                        <th class="customer_thead_email">Action </th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody id="discount_table_edit">
+                                                    <tr>
+                                                        <td colspan="4" class="text-center"> <button type="button" class="btn btn-primary w-10" id="btnEdit">Add</button> </td>
+                                                    </tr>
+
+                                                    <% data.volume_discount.forEach(element => { %>
+                                                        <% console.log(element) %>
+                                                        <tr>
+                                                            <td><input type="number" name="min_car_edit" id="min_car_edit" class="form-control" value="<%= element.min_car %>"></td>
+                                                            <td><input type="number" name="max_car_edit" id="max_car_edit" class="form-control" value="<%= element.max_car %>"></td>
+                                                            <td><input type="number" name="discount_price_edit" id="discount_price_edit" class="form-control" value="<%= element.discount_price %>"></td>
+                                                            <td><button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button></td>
+                                                        </tr>
+                                                    <% }) %>
+                                                </tbody>
+                                            </table>
+
+                                            <button type="submit" class="btn btn-primary w-100"><%= language.submit %></button>
+                                            
+                                            
+                                        </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                    <!--**********************************
+            Footer start
+        ***********************************-->
+                    <%- include('./partials/footer'); -%>
+
+                        <!--**********************************
+            Footer end
+        ***********************************-->
+
+    </div>
+    <!--**********************************
+        Main wrapper end
+    ***********************************-->
+
+    <!-- start Toastr -->
+        <%- include('./partials/toastr'); -%>
+    <!-- End Toastr --> 
+
+    <!--**********************************
+        Scripts
+    ***********************************-->
+
+    <%- include('./partials/script'); -%>
+
+        <!--**********************************
+        Scripts end
+    ***********************************-->
+
+    <script>
+
+        function removeSelfRow(event) {
+            
+            var row = $(event.target).closest('tr');
+            
+            row.remove();
+        }
+
+        $(document).on('click', 'button#remove', function(event) {
+            removeSelfRow(event);
+        });
+
+        $(document).on("click", "#btnAdd", function () {
+            var row = $('<tr>');
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'min_car',
+                        name: 'min_car',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'max_car',
+                        name: 'max_car',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'discount_price',
+                        name: 'discount_price',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+            
+                $('#discount_table').append(row);
+        });
+
+
+        $(document).on("click", "#btnEdit", function () {
+            var row = $('<tr>');
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'min_car_edit',
+                        name: 'min_car_edit',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'max_car_edit',
+                        name: 'max_car_edit',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'discount_price_edit',
+                        name: 'discount_price_edit',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+            
+                $('#discount_table_edit').append(row);
+        });
+
+
+
+        $(document).on("click", "#customer_id", function () {
+        let dataId = $(this).attr("data-id");
+        let dataName = $(this).attr("data-name");
+        let dataaddress = $(this).attr("data-address");
+        let dataEmail = $(this).attr("data-email");
+        let dataMobile = $(this).attr("data-mobile");
+        let dataContactperson = $(this).attr("data-contactperson");
+        let datalandline = $(this).attr("data-landline")
+        let datavolume = JSON.parse($(this).attr("data-volume"));
+        // console.log(datavolume);
+
+        $("#edit_form").attr('action', '/customer_sa/view/' + dataId);
+        $('#edit-name').attr('value', dataName);
+        $('#edit-address').attr('value', dataaddress);
+        $('#edit-email').attr('value', dataEmail);
+        $('#edit-mobile').attr('value', dataMobile);
+        $('#edit-contactperson').attr('value', dataContactperson);
+        $('#edit-landline').attr('value', datalandline);
+        document.getElementById("discount_table_edit").innerHTML = "";
+
+        for (let index = 0; index <= datavolume.length - 1; index++) {
+            const element = datavolume[index];
+            console.log(element)
+            var row = $('<tr>');
+            $('<td>').append(
+                $('<input>').attr({
+                    type: 'number',
+                    id: 'min_car_edit',
+                    name: 'min_car_edit',
+                    value: element.min_car
+                }).addClass('form-control')
+            ).appendTo(row);
+
+            $('<td>').append(
+                $('<input>').attr({
+                    type: 'number',
+                    id: 'max_car_edit',
+                    name: 'max_car_edit',
+                    value: element.max_car
+                }).addClass('form-control')
+            ).appendTo(row);
+
+            $('<td>').append(
+                $('<input>').attr({
+                    type: 'number',
+                    id: 'discount_price_edit',
+                    name: 'discount_price_edit',
+                    value: element.discount_price
+                }).addClass('form-control')
+            ).appendTo(row);
+
+            row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+            
+            $('#discount_table_edit').append(row);
+            
+        }
+            
+
+            
+
+            
+
+            
+
+    });
+    </script>
+</body>
+
+</html>

@@ -99,9 +99,36 @@ router.get("/view", auth,  async(req, res) => {
 
 router.post("/view", auth, async(req, res) => {
     try{
-        const {name, address, mobile, email, receivable, payable, contactperson, landline, agent_id} = req.body;
+        const {name, address, mobile, email, receivable, payable, contactperson, landline, agent_id, min_car} = req.body;
+        
+        if(typeof min_car == "string"){
+            var min_car_array = [req.body.min_car];
+            var max_car_array = [req.body.max_car];
+            var discount_price_array = [req.body.discount_price]
+        }else{
+            var min_car_array = [...req.body.min_car];
+            var max_car_array = [...req.body.max_car];
+            var discount_price_array = [...req.body.discount_price]
+        }
 
-        const data = new customer({name, address, mobile, email, receivable, payable, contactperson, landline, agent_id})
+        const newproduct = min_car_array.map((value)=>{
+            
+            return  value  = {
+                        min_car : value,
+                    }
+        });
+
+        max_car_array.forEach((value,i) => {
+            newproduct[i].max_car = value
+        });
+
+        discount_price_array.forEach((value,i) => {
+            newproduct[i].discount_price = value
+        });
+
+        
+
+        const data = new customer({name, address, mobile, email, receivable, payable, volume_discount: newproduct, contactperson, landline, agent_id})
 
         const userdata = await data.save();
         // console.log(userdata);
@@ -126,7 +153,7 @@ router.get("/view/:id", auth, async(req, res) => {
         const _id = req.params.id;
         // console.log(_id);
         const user_id = await customer.findById(_id)
-
+        console.log(user_id);
         if (master[0].language == "English (US)") {
             var lan_data = users.English
             console.log(lan_data);
@@ -170,8 +197,37 @@ router.post("/view/:id", auth, async(req, res) => {
     try{
         const _id = req.params.id;
         const data = await customer.findById(_id);
-        const {name, address, mobile, email, receivable, payable, contactperson, landline} = req.body;
+        const {name, address, mobile, email, receivable, payable, contactperson, landline, min_car_edit} = req.body;
 
+
+        if(typeof min_car_edit == "string"){
+            var min_car_array = [req.body.min_car_edit];
+            var max_car_array = [req.body.max_car_edit];
+            var discount_price_array = [req.body.discount_price_edit]
+        }else{
+            var min_car_array = [...req.body.min_car_edit];
+            var max_car_array = [...req.body.max_car_edit];
+            var discount_price_array = [...req.body.discount_price_edit]
+        }
+
+        const newproduct = min_car_array.map((value)=>{
+            
+            return  value  = {
+                        min_car : value,
+                    }
+        });
+
+        max_car_array.forEach((value,i) => {
+            newproduct[i].max_car = value
+        });
+
+        discount_price_array.forEach((value,i) => {
+            newproduct[i].discount_price = value
+        });
+
+
+        // res.json(newproduct);
+        // return
         data.name = name
         data.address = address
         data.mobile = mobile
@@ -180,6 +236,7 @@ router.post("/view/:id", auth, async(req, res) => {
         data.payable = payable
         data.contactperson = contactperson
         data.landline = landline
+        data.volume_discount = newproduct
 
         const new_data = await data.save();
         req.flash('success', `customer update successfully`)

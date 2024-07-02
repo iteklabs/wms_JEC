@@ -495,7 +495,23 @@ const customer_data = new mongoose.Schema({
     },
     agent_id:{
         type: String
-    }
+    },
+    volume_discount: [
+        {
+            min_car: {
+                type: Number,
+                default: 0
+            },
+            max_car: {
+                type: Number,
+                default: 0
+            },
+            discount_price: {
+                type: Number,
+                default: 0
+            },
+        }
+    ]
 })
 
 const customer = new mongoose.model("customer", customer_data);
@@ -537,7 +553,23 @@ const customer_data_sa = new mongoose.Schema({
     },
     landline:{
         type: String
-    }
+    },
+    volume_discount: [
+        {
+            min_car: {
+                type: Number,
+                default: 0
+            },
+            max_car: {
+                type: Number,
+                default: 0
+            },
+            discount_price: {
+                type: Number,
+                default: 0
+            },
+        }
+    ]
 })
 
 const customer_sa = new mongoose.model("customer_sa", customer_data_sa);
@@ -2584,6 +2616,9 @@ const sales_order_data = new mongoose.Schema({
         },
         gross_price:{
             type: Number
+        },
+        isFG:{
+            type: String
         }
     }],
     note: {
@@ -2662,6 +2697,9 @@ const approving_body_accounting = new mongoose.Schema({
     warehouse_staff_id:{
         type: String
     },
+    warehouse_name:{
+        type: String
+    },
     members:[{
         id_member: {
             type: String
@@ -2673,7 +2711,31 @@ const approving_body_accounting = new mongoose.Schema({
 
 });
 const approver_acct = new mongoose.model("approvers_accountings", approving_body_accounting);
-module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa, invoice_for_sales_order, approver_acct,
+
+
+const discount_volume = new mongoose.Schema({
+    volume_discount: [
+        {
+            min_car: {
+                type: Number,
+                default: 0
+            },
+            max_car: {
+                type: Number,
+                default: 0
+            },
+            discount_price: {
+                type: Number,
+                default: 0
+            },
+        }
+    ]
+
+});
+
+const discount_volume_db = new mongoose.model("discount_volumes", discount_volume);
+
+module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa, invoice_for_sales_order, approver_acct, discount_volume_db, 
                     suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, 
                     invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer, invoice_for_inventory, sales_inv_data, sales_order, 
                     customer_payment, c_payment_data, transfers, expenses_type, all_expenses, adjustment, master_shop, email_settings, 

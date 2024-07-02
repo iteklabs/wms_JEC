@@ -202,6 +202,7 @@
                                                                                 data-email="<%= user.email %>"
                                                                                 data-contactperson="<%= user.contactperson %>"
                                                                                 data-landline="<%= user.landline %>"
+                                                                                data-volume="<%= JSON.stringify(user.volume_discount) %>"
                                                                                 data-id="<%= user._id %>"><i class="la la-pencil"></i>
                                                                                 <%= language.edit %> </a>
                                                                         </button>
@@ -305,6 +306,27 @@
                                             </div>
                                         </div>
 
+                                        <div class="row">
+                                            <div class="mb-3 col-md-12">
+                                                <table class="table primary-table-bordered" id="discount_table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Min Cartons</th>
+                                                            <th>Max Cartons</th>
+                                                            <th>Discount Price</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    <tbody id="discount_table">
+                                                        <tr>
+                                                            <td colspan="4" class="text-center"> <button type="button" class="btn btn-primary w-10" id="btnAdd">Add</button> </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    
+                                                </table>
+                                            </div>
+                                        </div>
 
                                         <input type="hidden"  id="agent_id" name="agent_id" value="<%= agent_id %>" name="landline">
 
@@ -386,6 +408,34 @@
                                                 </label>
                                                 <input type="text" class="form-control" id="edit-landline"
                                                     value="<%= user.landline %>" name="landline">
+                                            </div>
+                                        </div>
+
+
+                                        <div class="row">
+                                            <div class="mb-3 col-md-12">
+                                                <span class="text-info">Volume Discount</span>
+                                                <table class="table primary-table-bordered" id="discount_table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Min Cartons</th>
+                                                            <th>Max Cartons</th>
+                                                            <th>Discount Price</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    <tbody id="discount_table_edit">
+                                                        <tr>
+                                                            <td colspan="4" class="text-center"> <button type="button" class="btn btn-primary w-10" id="btnEdit">Add</button> </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <%  %>
+                                                        </tr>
+                                                    </tbody>
+                                                    
+                                                </table>
                                             </div>
                                         </div>
 
@@ -491,6 +541,89 @@
     ***********************************-->
 
     <script>
+
+        function removeSelfRow(event) {
+            
+            var row = $(event.target).closest('tr');
+            
+            row.remove();
+        }
+
+        $(document).on('click', 'button#remove', function(event) {
+            removeSelfRow(event);
+        });
+
+        $(document).on("click", "#btnAdd", function () {
+            var row = $('<tr>');
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'min_car',
+                        name: 'min_car',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'max_car',
+                        name: 'max_car',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'discount_price',
+                        name: 'discount_price',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+            
+                $('#discount_table').append(row);
+        });
+
+
+        $(document).on("click", "#btnEdit", function () {
+            var row = $('<tr>');
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'min_car_edit',
+                        name: 'min_car_edit',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'max_car_edit',
+                        name: 'max_car_edit',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                $('<td>').append(
+                    $('<input>').attr({
+                        type: 'number',
+                        id: 'discount_price_edit',
+                        name: 'discount_price_edit',
+                        value: "0"
+                    }).addClass('form-control')
+                ).appendTo(row);
+
+                row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+            
+                $('#discount_table_edit').append(row);
+        });
+
+
+
         $(document).on("click", "#customer_id", function () {
         let dataId = $(this).attr("data-id");
         let dataName = $(this).attr("data-name");
@@ -499,7 +632,8 @@
         let dataMobile = $(this).attr("data-mobile");
         let dataContactperson = $(this).attr("data-contactperson");
         let datalandline = $(this).attr("data-landline")
-      
+        let datavolume = JSON.parse($(this).attr("data-volume"));
+        // console.log(datavolume);
 
         $("#edit_form").attr('action', '/customer_sa/view/' + dataId);
         $('#edit-name').attr('value', dataName);
@@ -508,6 +642,51 @@
         $('#edit-mobile').attr('value', dataMobile);
         $('#edit-contactperson').attr('value', dataContactperson);
         $('#edit-landline').attr('value', datalandline);
+        document.getElementById("discount_table_edit").innerHTML = "";
+
+        for (let index = 0; index <= datavolume.length - 1; index++) {
+            const element = datavolume[index];
+            console.log(element)
+            var row = $('<tr>');
+            $('<td>').append(
+                $('<input>').attr({
+                    type: 'number',
+                    id: 'min_car_edit',
+                    name: 'min_car_edit',
+                    value: element.min_car
+                }).addClass('form-control')
+            ).appendTo(row);
+
+            $('<td>').append(
+                $('<input>').attr({
+                    type: 'number',
+                    id: 'max_car_edit',
+                    name: 'max_car_edit',
+                    value: element.max_car
+                }).addClass('form-control')
+            ).appendTo(row);
+
+            $('<td>').append(
+                $('<input>').attr({
+                    type: 'number',
+                    id: 'discount_price_edit',
+                    name: 'discount_price_edit',
+                    value: element.discount_price
+                }).addClass('form-control')
+            ).appendTo(row);
+
+            row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+            
+            $('#discount_table_edit').append(row);
+            
+        }
+            
+
+            
+
+            
+
+            
 
     });
     </script>

@@ -200,6 +200,10 @@ const approval_wm_router = require("./routers/warehouse_approval");
 app.use("/warehouse_approval", approval_wm_router);
 
 
+//sales order approval
+const approval_so_setup = require("./routers/so_approver");
+app.use("/so_approvers", approval_so_setup)
+
 app.listen(port, () => {
   console.log(`server running on port ${port}`);
 });

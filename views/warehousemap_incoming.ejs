@@ -658,6 +658,73 @@
                             }
                         ];
                         break;
+
+
+                        case "AISLE":
+                        levels = [
+                            {
+                                "start": 1,
+                                "end": 16,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 17,
+                                "end": 32,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 39,
+                                "end": 60,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 61,
+                                "end": 76,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 77,
+                                "end": 92,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 93,
+                                "end": 108,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 109,
+                                "end": 124,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 135,
+                                "end": 150,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 151,
+                                "end": 176,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 177,
+                                "end": 202,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                      
+                        ];
+                        break;
                     }
                     
                   return levels
@@ -738,28 +805,6 @@
 
                     var datahoverItem = [];
                   for(let a = data.start; a <= data.end; a++){
-                    // for(let b = 0; b <= datareponse.length - 1; b++){
-                    //   const data_resoonse = datareponse[b];
-                      
-                    //   if(data_resoonse.level == data.letter && data_resoonse.bay == a){
-                    //     // console.log(data_resoonse.level +" == " + data.letter + " && " + data_resoonse.bay + " == " + a)
-                        
-                       
-                        
-                    //     // console.log(datahoverItem)
-                    //     dataItems += '<td class="data_color" id="data_qty" data-has-data="' + (datahoverItem[data_resoonse.bay][a]  ? true : false) + '">'+data_resoonse.totalQuantity+'<div class="emailcontainer"><table style="width: 100%;"><thead><tr><td>Product Code</td><td>Product Name</td><td>Qty</td></tr></thead><tbody>'+datahoverItem[data_resoonse.bay][a] +'</tbody></table></div></td>';
-                    //   }else{
-       
-                    //     dataItems += '<td>&nbsp;'+a+'</td>';
-                    //   }
-                    // }
-                      // console.log(json2array[data.letter][a])
-
-                    // if(datareponse.level == data.letter && data_resoonse.bay == a){
-
-                    // }else{
-                    //   dataItems += '<td>&nbsp;'+a+'</td>';
-                    // }
                     if(json2array && json2array[data.letter] && json2array[data.letter][a]){
                       // dataItems += '<td class="data_color" id="data_qty" data-has-data="' + (datahoverItem[data_resoonse.bay][a]  ? true : false) + '">'+data_resoonse.totalQuantity+'<div class="emailcontainer"><table style="width: 100%;"><thead><tr><td>Product Code</td><td>Product Name</td><td>Qty</td></tr></thead><tbody>'+datahoverItem[data_resoonse.bay][a] +'</tbody></table></div></td>';
                       if (!datahoverItem[data.letter]) {

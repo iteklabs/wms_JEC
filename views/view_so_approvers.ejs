@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+
+</head>
+
+<body>
+    <!--*******************
+    Preloader start
+********************-->
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <!--*******************
+    Preloader end
+********************-->
+
+    <!--**********************************
+    Main wrapper start
+***********************************-->
+    <div id="main-wrapper">
+
+        <!--**********************************
+        Nav header start
+    ***********************************-->
+        <%- include('./partials/header_logo'); -%>
+
+            <!--**********************************
+        Nav header end
+    ***********************************-->
+
+            <!--**********************************
+        Header start
+    ***********************************-->
+            <%- include('./partials/header',{titel: "Add Sales Order"}); -%>
+
+                <!--**********************************
+        Header end ti-comment-alt
+    ***********************************-->
+
+                <!--**********************************
+        Sidebar start
+    ***********************************-->
+                <%- include('./partials/sidebar'); -%>
+
+                    <!--**********************************
+        Sidebar end
+    ***********************************-->
+
+                    <div class="content-body">
+                        <div class="container-fluid">
+                            <!-- row -->
+
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <form action="/so_approvers/add/" method="post">
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <div class="row">
+                                                    <div class="col-xl-4 col-sm-4">
+                                                        <h4 class="card-title col-6">Accounting Account: 
+                                                            <select class="form-control" name="accounting_account_id">
+                                                                <option value="">Select</option>
+                                                                <% accounting.forEach(element => { %>
+                                                                    <option value="<%= element._id %>"  <%=element._id==data.head_id_staff
+                                                                        ? "selected" : "" %> > <%= element.name  %> </option>
+                                                                <% }) %>
+                                                            </select>
+                                                        </h4>
+                                                        
+                                                    </div>
+            
+            
+                                                    <div class="col-xl-4 col-sm-4">
+                                                        <h4 class="card-title col-6">Warehouse Account: 
+                                                            <select class="form-control" name="warehouse_account_id">
+                                                                <option value="">Select</option>
+                                                                <% warehouse_acct.forEach(element => { %>
+                                                                    <option value="<%= element._id %>" <%=element._id==data.warehouse_staff_id
+                                                                        ? "selected" : "" %>> <%= element.name  %> </option>
+                                                                <% }) %>
+                                                            </select>
+                                                        </h4>
+                                                        
+                                                    </div>
+            
+            
+                                                    <div class="col-xl-4 col-sm-4">
+                                                        <h4 class="card-title col-6">Warehouse Location: 
+                                                            <select class="form-control" name="warehouse_loc">
+                                                                <option value="">Select</option>
+                                                                <% warehouse_loc.forEach(element => { %>
+                                                                    <option value="<%= element._id %>" <%=element._id==data.warehouse_name
+                                                                        ? "selected" : "" %>> <%= element._id  %> </option>
+                                                                <% }) %>
+                                                            </select>
+                                                        </h4>
+                                                        
+                                                    </div>
+                                                </div>
+                                                
+                                                
+                                                <div class="col-xl-4 col-sm-4">
+                                                    <span>Sales Account: </span>
+                                                        <select class="form-control" name="sales_account" id="sales_account">
+                                                            <option value="">Select</option>
+                                                            <% sales_acct.forEach(element => { %>
+                                                                <option value="<%= element._id %>"> <%= element.name  %> </option>
+                                                            <% }) %>
+                                                        </select>
+                                                    
+                                                    
+                                                </div>
+                                                <div class="card-header">
+                                                    <h4 class="card-title col-6">Members</h4>
+                                                    <div class="card-title col-6 text-end">
+                                                    </div>
+                                                </div>
+                                                <table id="example" class="table table-responsive-sm ">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbody">
+                                                        <% data.members.forEach(element => { %>
+                                                            <tr>
+                                                                <td><%= element.name  %></td>
+                                                                <td><button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button></td>
+                                                            </tr>
+                                                        <% }); %>
+                                                    </tbody>
+                                                    
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button class="btn btn-primary">Save and Continue</button>
+                                          </div>
+                                    </form>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--**********************************
+            Footer start
+        ***********************************-->
+                    <%- include('./partials/footer'); -%>
+
+                        <!--**********************************
+            Footer end
+        ***********************************-->
+
+    </div>
+    <!--**********************************
+        Main wrapper end
+    ***********************************-->
+
+    <!-- start Toastr -->
+    <%- include('./partials/toastr'); -%>
+        <!-- End Toastr -->
+
+        <!--**********************************
+        Scripts
+    ***********************************-->
+       
+
+        <%- include('./partials/script'); -%>
+
+            <!--**********************************
+        Scripts end
+    ***********************************-->
+</body>
+
+
+<script>
+
+
+    function removeSelfRow(event) {
+        
+        var row = $(event.target).closest('tr');
+        
+        row.remove();
+    }
+
+
+    $(document).on('click', 'button#remove', function(event) {
+        removeSelfRow(event);
+    });
+
+
+    $(document).ready(function() {
+        $('#sales_account').on('change', function() {
+            var the_val = $(this).val();
+            $.ajax({
+                url: '/so_approvers/get_sales_data', 
+                method: 'POST',
+                data: { id_staff: the_val }, 
+                success: function(response) {
+                    // var data_table = document.getElementById("tbody");
+
+                    var row = $('<tr>');
+                    row.append($('<td>').html('<input type="text" class="form-control" name="name_accounting" value="' + response.name + '" readonly>'));
+                    row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: 'staff_id',
+                        name: 'staff_id',
+                        value: response._id
+                    }).appendTo(row);
+
+
+                    $('#tbody').append(row);
+                    // console.log(response)
+                }
+            })
+            // alert($(this).val())
+        })
+    })
+</script>
+
+</html>

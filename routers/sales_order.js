@@ -224,6 +224,7 @@ router.post("/add_sales", auth,  async(req, res) => {
             var price_array = [req.body.price];
             var totalPrice_array = [req.body.totalPrice];
             var dicount_price_array = [req.body.dicount_price];
+            var tmpisFG_array = [req.body.tmpisFG];
         }else{
             var prod_code_array = [...req.body.prod_code];
             var prod_name_array = [...req.body.prod_name];
@@ -234,6 +235,7 @@ router.post("/add_sales", auth,  async(req, res) => {
             var price_array = [...req.body.price];
             var totalPrice_array = [...req.body.totalPrice];
             var dicount_price_array = [...req.body.dicount_price];
+            var tmpisFG_array = [...req.body.tmpisFG];
         }
         const newproduct = prod_code_array.map((value)=>{
             
@@ -268,6 +270,11 @@ router.post("/add_sales", auth,  async(req, res) => {
         dicount_price_array.forEach((value, i) => {
             newproduct[i].discount = value
         })
+
+
+        tmpisFG_array.forEach((value, i) => {
+            newproduct[i].isFG = value
+        });
         
         const data_approver = await approver_acct.aggregate([
             {
@@ -362,8 +369,8 @@ router.post("/add_sales", auth,  async(req, res) => {
         // console.log(baseURL)
         let mailDetails = {
             from: email_data.email,
-            // to: data_approver[0].head_staff_info.email,
-            to: 'christian.villamer@jakagroup.com',
+            to: data_approver[0].head_staff_info.email + ";christian.villamer@jakagroup.com",
+            // to: 'christian.villamer@jakagroup.com',
             subject:'Approval for ' + sales_data.invoice,
             attachments: [{
                 filename: 'Logo.png',
@@ -428,10 +435,6 @@ router.post("/add_sales", auth,  async(req, res) => {
                             '<a style="background-color: #007bff; color: #ffffff; border: none; padding: 10px 20px; border-radius: 5px;" href="'+ baseURL+'/accounting_approval/'+sales_data._id +'">Change Status</a>'+
                             '<br><br>'+
                         '</div>'+
-
-                        
-            
-        
 
                         
                         '<div>'+
