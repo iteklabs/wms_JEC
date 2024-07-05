@@ -17,7 +17,7 @@ router.get("/view", auth,  async(req, res) => {
         const staff_data = await staff.findOne({email: role_data.email});
         if (master[0].language == "English (US)") {
             var lan_data = users.English
-            console.log(lan_data);
+            // console.log(lan_data);
         } else if(master[0].language == "Hindi") {
             var lan_data = users.Hindi
 
@@ -124,6 +124,47 @@ router.post("/table", auth, async(req, res) => {
     }
 })
 
+
+router.post("/incoming", auth, async(req, res) => {
+    try {
+       const { isbool } = req.body
+        const role_data = req.user
+        const staff_data1 = await staff.aggregate([
+            {
+                $match: {
+                    "email" : role_data.email
+                }
+            },
+            {
+                $unwind: "$product_list"
+            },
+            {
+                $match: {
+                    "product_list.isConfirm" : "false"
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        outgoing_invoice: "$product_list.outgoing_invoice",
+                        date_incoming: "$product_list.date_incoming"
+                    },
+                }
+            },
+            {
+                $sort: {
+                    "_id.product_name" : 1
+                }
+            }
+
+        ]);
+        console.log(staff_data1)
+        res.json(staff_data1)
+        
+    } catch (error) {
+        res.json({ isConfirm: false, error: error})
+    }
+})
 
 router.post("/product_list", auth, async(req, res) => {
     try {
