@@ -2612,7 +2612,7 @@ router.post("/barcode_scanner", async (req, res) => {
             {
                 $match: { 
                     "product_details.primary_code": product_code,
-                    "product_details.sales_category": sales_category,
+                    // "product_details.sales_category": sales_category,
                 }
             },
             {
@@ -2658,7 +2658,7 @@ router.post("/barcode_scanner", async (req, res) => {
             {
                 $match: { 
                     "product_details.secondary_code": product_code,
-                    "product_details.sales_category": sales_category,
+                    // "product_details.sales_category": sales_category,
                 }
             },
             {
