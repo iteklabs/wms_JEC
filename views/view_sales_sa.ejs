@@ -56,6 +56,12 @@
                                                     method="post" id="form">
 
                                                     <div class="row mb-3">
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Document Number <span class="text-red">*</span></label>
+                                                                <span><h3><%= sales_sa.invoice %></h3></span>
+                                                            </div>
+                                                        </div>
 
                                                         <div class="col-xl-4 col-sm-4">
                                                             <div class="form-group">
@@ -151,7 +157,7 @@
                                                                             <td><%= data.unit %></td>
                                                                             <td><%= nFormat.format(data.price) %></td>
                                                                             <td><%= nFormat.format(data.discount) %></td>
-                                                                            <td><%= nFormat.format(data.adj_discount) %></td>
+                                                                            <td><%= (nFormat.format(data.adj_discount) != null && !isNaN(nFormat.format(data.adj_discount))) ? nFormat.format(data.adj_discount) : 0 %></td>
                                                                             <td><%= nFormat.format(data.totalprice)  %></td>
                                                                             <% total += parseInt(data.totalprice)  %>
                                                                             <% totalqty += parseInt(data.quantity)  %>
