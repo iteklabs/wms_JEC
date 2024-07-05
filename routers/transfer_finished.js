@@ -189,7 +189,129 @@ router.get("/view/add_transfer", auth, async(req, res) => {
 
         randominv.then(invoicedata => {
 
+            // res.render("add_transfer_finished", {
+            //     success: req.flash('success'),
+            //     errors: req.flash('errors'),
+            //     role : role_data,
+            //     profile : profile_data,
+            //     master_shop : master,
+            //     warehouse: warehouse_data,
+            //     language : lan_data,
+            //     invoice: invoicedata
+            // })
+
             res.render("add_transfer_finished", {
+                success: req.flash('success'),
+                errors: req.flash('errors'),
+                role : role_data,
+                profile : profile_data,
+                master_shop : master,
+                warehouse: warehouse_data,
+                language : lan_data,
+                invoice: invoicedata
+            })
+        }).catch(error => {
+            req.flash('errors', `There's a error in this transaction`)
+            res.redirect("/transfer/view");
+        })
+        
+    }catch(error){
+        console.log(error);
+    }
+})
+
+
+router.get("/view/choose", auth, async(req, res) => {
+    try{
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+
+        const master = await master_shop.find()
+
+        let warehouse_data
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
+            // warehouse_data = await warehouse.find({status : 'Enabled', name: staff_data.warehouse });
+            warehouse_data = await warehouse.aggregate([
+                {
+                    $match: { 
+                        "status" : 'Enabled', 
+                        name: staff_data.warehouse,
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$name",
+                        name: { $first: "$name"}
+                    }
+                },
+            ])
+        }else{
+            // warehouse_data = await warehouse.find({status : 'Enabled'});
+            warehouse_data = await warehouse.aggregate([
+                {
+                    $match: { 
+                        "status" : 'Enabled',
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$name",
+                        name: { $first: "$name"}
+                    }
+                },
+            ])
+        }
+
+
+        const transfer_data = await transfers_finished.find({})
+        const invoice_noint = transfer_data.length + 1
+        const invoice_no = "TRFF-" + invoice_noint.toString().padStart(5, "0")
+
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+
+        const randominv = getRandom8DigitNumber();
+
+        randominv.then(invoicedata => {
+
+            // res.render("add_transfer_finished", {
+            //     success: req.flash('success'),
+            //     errors: req.flash('errors'),
+            //     role : role_data,
+            //     profile : profile_data,
+            //     master_shop : master,
+            //     warehouse: warehouse_data,
+            //     language : lan_data,
+            //     invoice: invoicedata
+            // })
+
+            res.render("choos_transfer", {
                 success: req.flash('success'),
                 errors: req.flash('errors'),
                 role : role_data,
@@ -412,7 +534,7 @@ router.post("/view/add_transfer", auth, async(req, res) => {
             newproduct[index].To_invoice = "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0');
         }
         
-        const data = new transfers_finished({ date, from_warehouse, to_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0') })
+        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: from_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0') })
         const transfers_data = await data.save()
 
 

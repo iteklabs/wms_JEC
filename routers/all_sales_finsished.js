@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
-const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, purchases_return, sales, sales_return, suppliers_payment, customer_payment, c_payment_data, email_settings, sales_finished, sales_return_finished, supervisor_settings, invoice_for_outgoing } = require("../models/all_models");
+const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, purchases_return, sales, sales_return, suppliers_payment, customer_payment, c_payment_data, email_settings, sales_finished, sales_return_finished, supervisor_settings, invoice_for_outgoing, sales_logs } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const nodemailer = require('nodemailer');
 const users = require("../public/language/languages.json");
@@ -33,6 +33,11 @@ router.get("/view", auth, async (req, res) => {
                 // {
                 //   $unwind: "$customers_docs"
                 // },
+                {
+                    $match: {
+                        typeOfProducts: "own"
+                    }
+                },
                 {
                   $unwind: "$sale_product"
                 },
@@ -93,6 +98,11 @@ router.get("/view", auth, async (req, res) => {
                 // {
                 //   $unwind: "$customers_docs"
                 // },
+                {
+                    $match: {
+                        typeOfProducts: "own"
+                    }
+                },
                 {
                   $unwind: "$sale_product"
                 },
@@ -166,6 +176,188 @@ router.get("/view", auth, async (req, res) => {
         }
 
         res.render("all_sales_finished", {
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            sales: all_data,
+            profile : profile_data,
+            role : role_data,
+            master_shop : master,
+            language : lan_data
+        })
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+router.get("/view_log", auth, async (req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+
+        const profile_data = await profile.findOne({email : role_data.email})
+
+        const master = await master_shop.find()
+        let all_data
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
+            // all_data = await sales.find({ warehouse_name : staff_data.warehouse});
+
+            all_data = await sales_finished.aggregate([
+                // {
+                //   $lookup: {
+                //     from: "customers",
+                //     localField: "customer",
+                //     foreignField: "name",
+                //     as: "customers_docs"
+                //   }
+                // },
+                // {
+                //   $unwind: "$customers_docs"
+                // },
+                {
+                    $match: {
+                        typeOfProducts: "logs"
+                    }
+                },
+                {
+                  $unwind: "$sale_product"
+                },
+                {
+                  $group: {
+                    _id: "$_id",
+                    invoice: { $first: "$invoice" },
+                    customers: { $first: "$customer" },
+                    date: { $first: "$date" },
+                    warehouse_name: { $first: "$warehouse_name" },
+                    sale_product: { $push: "$sale_product" },
+                    note: { $first: "$note" },
+                    return_data: { $first: "$return_data" },
+                    customers_docs: { $first: "$customers_docs" },
+                    total_saleproduct_quantity: { $sum: "$sale_product.quantity" },
+                    level: { $addToSet: "$sale_product.bay" },
+                    isle: { $addToSet: "$sale_product.bin" },
+                    type: { $addToSet: "$sale_product.type" },
+                    pallet: { $addToSet: "$sale_product.floorlevel" },
+                    finalize: { $first: "$finalize" }
+                  }
+                  
+                },
+                {
+                  $project: {
+                    _id: 1,
+                    invoice: 1,
+                    customers: 1,
+                    date: 1,
+                    warehouse_name: 1,
+                    sale_product: 1,
+                    note: 1,
+                    return_data: 1,
+                    customers_docs: 1,
+                    total_saleproduct_quantity: 1,
+                    level: 1,
+                    isle: 1,
+                    type:1,
+                    pallet: 1,
+                    finalize: 1
+                    
+                  }
+               }
+            ]);
+
+        }else{
+            // all_data = await sales.find();
+
+            all_data = await sales_finished.aggregate([
+                // {
+                //   $lookup: {
+                //     from: "customers",
+                //     localField: "customer",
+                //     foreignField: "name",
+                //     as: "customers_docs"
+                //   }
+                // },
+                // {
+                //   $unwind: "$customers_docs"
+                // },
+                {
+                    $match: {
+                        typeOfProducts: "logs"
+                    }
+                },
+                {
+                  $unwind: "$sale_product"
+                },
+                {
+                  $group: {
+                    _id: "$_id",
+                    invoice: { $first: "$invoice" },
+                    customers: { $first: "$customer" },
+                    date: { $first: "$date" },
+                    warehouse_name: { $first: "$warehouse_name" },
+                    sale_product: { $push: "$sale_product" },
+                    note: { $first: "$note" },
+                    return_data: { $first: "$return_data" },
+                    customers_docs: { $first: "$customers_docs" },
+                    total_saleproduct_quantity: { $sum: "$sale_product.quantity" },
+                    level: { $addToSet: "$sale_product.bay" },
+                    isle: { $addToSet: "$sale_product.bin" },
+                    type: { $addToSet: "$sale_product.type" },
+                    pallet: { $addToSet: "$sale_product.floorlevel" },
+                    finalize: { $first: "$finalize" }
+                  }
+                  
+                },
+                {
+                  $project: {
+                    _id: 1,
+                    invoice: 1,
+                    customers: 1,
+                    date: 1,
+                    warehouse_name: 1,
+                    sale_product: 1,
+                    note: 1,
+                    return_data: 1,
+                    customers_docs: 1,
+                    total_saleproduct_quantity: 1,
+                    level: 1,
+                    isle: 1,
+                    type:1,
+                    pallet: 1,
+                    finalize: 1
+                    
+                  }
+               }
+            ]);     
+        }
+    
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+            console.log(lan_data);
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("all_sales_finished_logs", {
             success: req.flash('success'),
             errors: req.flash('errors'),
             sales: all_data,
@@ -307,6 +499,277 @@ router.get("/view/add_sales", auth, async (req, res) => {
             req.flash('errors', `There's a error in this transaction`)
             res.redirect("/all_sales_finished/view");
         })
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+
+router.get("/view/add_sales_logs", auth, async (req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+
+        const profile_data = await profile.findOne({email : role_data.email})
+
+        const master = await master_shop.find()
+        const customer_data = await customer.find({})
+        let warehouse_data
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
+            // warehouse_data = await warehouse.find({status : 'Enabled', name: staff_data.warehouse });
+            warehouse_data = await warehouse.aggregate([
+                {
+                    $match: { 
+                        "status" : 'Enabled',
+                        "name" : staff_data.warehouse,
+                        // "warehouse_category" : "Finished Goods",
+                        // "name": { $ne: "QA Warehouse" }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$name",
+                        name: { $first: "$name"}
+                    }
+                },
+                {
+                    $sort: {
+                        name: 1 // 1 for ascending order, -1 for descending order
+                    }
+                }
+            ])
+        }else{
+            // warehouse_data = await warehouse.find({status : 'Enabled'});
+            warehouse_data = await warehouse.aggregate([
+                {
+                    $match: { 
+                        "status": 'Enabled',
+                        // "warehouse_category" : "Finished Goods",
+                        // "name": { $ne: "QA Warehouse" }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$name",
+                        name: { $first: "$name" }
+                    }
+                },
+                {
+                    $sort: {
+                        name: 1 // 1 for ascending order, -1 for descending order
+                    }
+                }
+            ]);
+            
+        }
+        
+        const product_data = await product.find({})
+        var rooms = ["Ambient","Enclosed"]
+
+        const sales_data = await sales_finished.find({})
+        const invoice_noint = sales_data.length + 1
+        const invoice_no = "OUTF-" + invoice_noint.toString().padStart(5, "0")
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+            console.log(lan_data);
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+        const randominv = getRandom8DigitNumber();
+
+        randominv.then(invoicedata => {
+            res.render("add_sales_finished_logs", {
+                success: req.flash('success'),
+                errors: req.flash('errors'),
+                role : role_data,
+                profile : profile_data,
+                customer: customer_data,
+                warehouse: warehouse_data,
+                product: product_data,
+                invoice: invoicedata,
+                master_shop : master,
+                language : lan_data,
+                rooms_data : rooms 
+            })
+        }).catch(error => {
+            req.flash('errors', `There's a error in this transaction`)
+            res.redirect("/all_sales_finished/view");
+        })
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+router.post("/view/add_sales_logs", auth, async (req, res) => {
+    try {
+        const { invoice, date, warehouse_name, product_name, note, room, primary_code, secondary_code, prod_code,  SCRN, ReqBy, dateofreq, PO_number, typeservicesData,  typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU, mode_transpo, name_driver, type_of_products } = req.body
+       
+        if(typeof product_name == "string"){
+            var product_name_array = [req.body.product_name]
+            var stock_array = [req.body.stock]
+            var quantity_array = [req.body.carton]
+            var primary_code_array = [req.body.primary_code]
+            var secondary_code_array = [req.body.secondary_code]
+            var prod_code_array = [req.body.prod_code]
+            var level_array = [req.body.level2]
+            var unit_array = [req.body.primary_unit]
+            var secondaryUnit_array = [req.body.secondary_unit]
+            var batchcode_array = [req.body.batch_code]
+            var expiry_date_array = [req.body.expiry_date]
+            var product_date_array = [req.body.product_date]
+            var max_per_unit_array = [req.body.max_per_unit]
+            var prod_cat_array = [req.body.prod_cat]
+            var RoomAssigned_array = [req.body.RoomAssigned]
+            var prod_invoice_array = [req.body.prod_invoice]
+            var id_transaction_from_array = [req.body.id_transaction_from]
+            // var agentSelected_array = [req.body.agentSelected]
+            var uuid_array = [req.body.uuid]
+            var gross_price_array = [req.body.gross_price]
+        }else{
+            var product_name_array = [...req.body.product_name]
+            var stock_array = [...req.body.stock]
+            var quantity_array = [...req.body.carton]
+            var primary_code_array = [...req.body.primary_code]
+            var secondary_code_array = [...req.body.secondary_code]
+            var prod_code_array = [...req.body.prod_code]
+            var level_array = [...req.body.level2]
+            var unit_array = [...req.body.primary_unit]
+            var secondaryUnit_array = [...req.body.secondary_unit]
+            var batchcode_array = [...req.body.batch_code]
+            var expiry_date_array = [...req.body.expiry_date]
+            var product_date_array = [...req.body.product_date]
+            var max_per_unit_array = [...req.body.max_per_unit]
+            var prod_cat_array = [...req.body.prod_cat]
+            var RoomAssigned_array = [...req.body.RoomAssigned]
+            var prod_invoice_array = [...req.body.prod_invoice]
+            var id_transaction_from_array = [...req.body.id_transaction_from]
+            // var agentSelected_array = [...req.body.agentSelected]
+            var uuid_array = [...req.body.uuid]
+            var gross_price_array = [...req.body.gross_price]
+        } 
+        const newproduct = product_name_array.map((value)=>{
+            
+            return  value  = {
+                        product_name : value,
+                    }   
+            })
+        stock_array.forEach((value,i) => {
+            newproduct[i].stock = value
+        });
+        quantity_array.forEach((value,i) => {
+            newproduct[i].quantity = Math.abs(value)
+        });
+        product_name_array.forEach((value,i) => {
+            newproduct[i].agent_id = req.body.sales
+        })
+
+        gross_price_array.forEach((value,i) => {
+            newproduct[i].gross_price = value
+        })
+
+
+        uuid_array.forEach((value,i) => {
+            newproduct[i].uuid = value
+        })
+        id_transaction_from_array.forEach((value,i) => {
+            newproduct[i].id_transaction_from = value
+        });
+        primary_code_array.forEach((value,i) => {
+            newproduct[i].primary_code = value
+        });
+        secondary_code_array.forEach((value,i) => {
+            newproduct[i].secondary_code = value
+        });
+        prod_code_array.forEach((value,i) => {
+            newproduct[i].product_code = value
+        });
+        level_array.forEach((value,i) => {
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+
+
+            // console.log(value)
+            newproduct[i].bay = number
+            newproduct[i].level = letter
+        });
+        unit_array.forEach((value,i) => {
+            newproduct[i].unit = value
+        });
+        secondaryUnit_array.forEach((value,i) => {
+            newproduct[i].secondary_unit = value
+        });
+        batchcode_array.forEach((value,i) => {
+            newproduct[i].batch_code = value
+        });
+        expiry_date_array.forEach((value, i) => {
+            newproduct[i].expiry_date = value
+        })
+        product_date_array.forEach((value, i) => {
+            newproduct[i].production_date = value
+        })
+        max_per_unit_array.forEach((value, i) => {
+            newproduct[i].maxperunit = value
+        })
+        prod_cat_array.forEach((value, i) =>{
+            newproduct[i].prod_cat = value
+        })
+        RoomAssigned_array.forEach((value, i) =>{
+            newproduct[i].room_name = value
+        })
+        prod_invoice_array.forEach((value, i) =>{
+            newproduct[i].invoice = value
+            newproduct[i].date_data = date
+        })
+
+        const Invoice_out = new sales_logs();
+        await Invoice_out.save();
+
+
+        prod_invoice_array.forEach((value, i) =>{
+            newproduct[i].outgoing_invoice = "LOG-OUT-" + Invoice_out.invoice_init.toString().padStart(8, '0')
+        })
+
+        var error = 0
+        newproduct.forEach(data => {
+            // console.log(parseFloat(data.stock) + "<" + parseFloat(data.quantity) + "&&" + parseFloat(data.quantity) + ">" + parseFloat(data.stock));
+            if (parseFloat(data.stock) < parseFloat(data.quantity) && parseFloat(data.quantity) > parseFloat(data.stock)) {
+                console.log(data.stock + " <> " + data.quantity)
+                error++
+            }
+        })
+        if (error != 0) {
+            
+            req.flash("errors", `Must not be greater or less than stock Qty`)
+            return res.redirect("back")
+        }
+        const Newnewproduct = newproduct.filter(obj => obj.quantity !== "0" && obj.quantity !== "");
+        
+        const data = new sales_finished({ invoice: "LOG-OUT-" + Invoice_out.invoice_init.toString().padStart(8, '0'), sales_data: req.body.sales, customer: req.body.customer, date, warehouse_name, sale_product:Newnewproduct, note, room, primary_code, secondary_code, prod_code, SCRN, finalize: "False", mode_transpo,name_driver, ReqBy, dateofreq, PO_number, typeservicesData, typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU, typeOfProducts: type_of_products })
+        const purchases_data = await data.save()
+        const new_sales = await sales_finished.findOne({ invoice: invoice });
+        req.flash("success", "Sales Add successfully")
+        res.redirect("/all_sales_finished/preview/"+purchases_data._id)
     } catch (error) {
         console.log(error);
     }
@@ -2245,5 +2708,123 @@ router.post("/barcode_scanner", async (req, res) => {
     res.json(results);
 });
 
+
+router.post("/barcode_scanner_logs", async (req, res) => {
+    const { product_code, warehouse_name, rooms_data, Roomslist, sales_category } = req.body;
+    const RoomAll = Roomslist.split(",");
+    const results = [];
+    
+    
+    // Define a function to fetch stock data asynchronously
+    async function fetchStockData(value) {
+        const stock_data = await warehouse.aggregate([
+            {
+                $match: { "name": warehouse_name, "room" : value }
+            },
+            {
+                $unwind: "$product_details"
+            },
+            {
+                $match: { 
+                    "product_details.primary_code": product_code,
+                    "product_details.sales_category": sales_category,
+                    "product_details.type_products": "logs",
+                }
+            },
+            {
+                $group: {
+                    _id: "$product_details._id",
+                    name: { $first: "$product_details.product_name" },
+                    product_stock: { $first: "$product_details.product_stock" },
+                    primary_code: { $first: "$product_details.primary_code" },
+                    secondary_code: {$first: "$product_details.secondary_code" },
+                    product_code: { $first: "$product_details.product_code" },
+                    level: { $first: "$product_details.level" },
+                    bay: { $first: "$product_details.bay" },
+                    type: { $first: "$product_details.type" },
+                    pallet: { $first: "$product_details.floorlevel" },
+                    unit: { $first: "$product_details.unit" },
+                    secondary_unit: { $first: "$product_details.secondary_unit" },
+                    storage: { $first: "$product_details.storage" },
+                    rack: { $first: "$product_details.rack" },
+                    expiry_date: { $first: "$product_details.expiry_date" },
+                    production_date: { $first: "$product_details.production_date" },
+                    maxPerUnit: { $first: "$product_details.maxPerUnit" },
+                    batch_code: { $first: "$product_details.batch_code" },
+                    product_cat:{ $first: "$product_details.product_cat" },
+                    computeUsed : { $first: "P" },
+                    roomNamed : { $first: "$room" },
+                    invoice : { $first: "$product_details.invoice" },
+                    uuid : { $first: "$product_details.uuid" },
+                    gross_price: { $first: "$product_details.gross_price" },
+                    sales_category: { $first: "$product_details.sales_category" },
+                    type_products: { $first: "$product_details.type_products" }
+                   
+                }
+            },
+        ]);
+console.log( "logs" + " <> " + product_code + " <> " + sales_category )
+        const stock_data2 = await warehouse.aggregate([
+            
+            {
+                $match: { "name": warehouse_name, "room" : value }
+            },
+            {
+                $unwind: "$product_details"
+            },
+            {
+                $match: { 
+                    "product_details.secondary_code": product_code,
+                    "product_details.sales_category": sales_category,
+                    "product_details.type_products": "logs",
+                }
+            },
+            {
+                $group: {
+                    _id: "$product_details._id",
+                    name: { $first: "$product_details.product_name" },
+                    product_stock: { $first: "$product_details.product_stock" },
+                    primary_code: { $first: "$product_details.primary_code" },
+                    secondary_code: {$first: "$product_details.secondary_code" },
+                    product_code: { $first: "$product_details.product_code" },
+                    level: { $first: "$product_details.bay" },
+                    isle: { $first: "$product_details.bin" },
+                    type: { $first: "$product_details.type" },
+                    pallet: { $first: "$product_details.floorlevel" },
+                    unit: { $first: "$product_details.unit" },
+                    secondary_unit: { $first: "$product_details.secondary_unit" },
+                    storage: { $first: "$product_details.storage" },
+                    rack: { $first: "$product_details.rack" },
+                    expiry_date: { $first: "$product_details.expiry_date" },
+                    production_date: { $first: "$product_details.production_date" },
+                    maxPerUnit: { $first: "$product_details.maxPerUnit" },
+                    batch_code: { $first: "$product_details.batch_code" },
+                    product_cat:{ $first: "$product_details.product_cat" },
+                    computeUsed : { $first: "S" },
+                    roomNamed : { $first: "$room" },
+                    invoice : { $first: "$product_details.invoice" },
+                    uuid : { $first: "$product_details.uuid" },
+                    gross_price: { $first: "$product_details.gross_price" },
+                    sales_category: { $first: "$product_details.sales_category" },
+                    type_products: { $first: "$product_details.type_products" }
+                }
+            },
+        ]);
+
+        if (stock_data.length > 0) {
+            results.push(stock_data);
+        } else if (stock_data2.length > 0) {
+            results.push(stock_data2);
+        }
+    }
+
+    // Create an array of promises for each value
+    const promises = RoomAll.map((value) => fetchStockData(value));
+
+    // Wait for all promises to resolve before sending the response
+    await Promise.all(promises);
+
+    res.json(results);
+});
 
 module.exports = router;

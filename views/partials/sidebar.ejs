@@ -264,7 +264,7 @@
                 </li> -->
 
                 <li>
-                    <a href="/all_purchases_finished/view" >
+                    <a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g> 
                               <g> 
@@ -275,10 +275,26 @@
                         </svg>
                         <span class="nav-text ">Incoming</span>
                     </a>
+
+                    <ul aria-expanded="false" class="mm-collapse">
+                        <li>
+                            <a href="/all_purchases_finished/view"  href="javascript:void()" aria-expanded="false">
+                                <i class="far fa-arrow-alt-circle-right"></i>Own Stocks
+                            </a>
+                        </li>
+                    </ul>
+
+                    <ul aria-expanded="false" class="mm-collapse">
+                      <li>
+                          <a href="/all_purchases_finished/view_log"  href="javascript:void()" aria-expanded="false">
+                              <i class="far fa-arrow-alt-circle-right"></i>Logistics
+                          </a>
+                      </li>
+                  </ul>
                 </li>
 
                 <li>
-                    <a href="/all_sales_finished/view" >
+                    <a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g>
                               <g>
@@ -291,6 +307,23 @@
                         </svg>
                         <span class="nav-text ">Outgoing</span>
                     </a>
+
+
+                    <ul aria-expanded="false" class="mm-collapse">
+                          <li>
+                              <a href="/all_sales_finished/view" href="javascript:void()" aria-expanded="false">
+                                  <i class="far fa-arrow-alt-circle-right"></i>Own Stocks
+                              </a>
+                          </li>
+                      </ul>
+
+                      <ul aria-expanded="false" class="mm-collapse">
+                        <li>
+                            <a href="/all_sales_finished/view_log" href="javascript:void()" aria-expanded="false">
+                                <i class="far fa-arrow-alt-circle-right"></i>Logistics
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
                 <li>
@@ -310,10 +343,13 @@
                           </svg>
                         <span class="nav-text ">Returns</span>
                     </a>
+
+
+                    
                 </li>
 
                 <li>
-                    <a href="/adjustment_finished/view"  aria-expanded="false">
+                    <a  class="has-arrow ai-icon" href="javascript:void()"  aria-expanded="false">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g> 
                               <g> 
@@ -326,10 +362,27 @@
                           </svg>
                         <span class="nav-text "><%= language.adjustment %></span>
                     </a>
+
+
+                    <ul aria-expanded="false" class="mm-collapse">
+                        <li>
+                            <a href="/adjustment_finished/view" href="javascript:void()" aria-expanded="false">
+                                <i class="far fa-arrow-alt-circle-right"></i>Own Stocks
+                            </a>
+                        </li>
+                    </ul>
+
+                    <ul aria-expanded="false" class="mm-collapse">
+                      <li>
+                          <a href="/adjustment_finished/view_logs" href="javascript:void()" aria-expanded="false">
+                              <i class="far fa-arrow-alt-circle-right"></i>Logistics
+                          </a>
+                      </li>
+                  </ul>
                 </li>
 
                 <li>
-                    <a href="/transfer_finished/view"  aria-expanded="false">
+                    <a  aria-expanded="false">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g> 
                               <g> 
@@ -343,6 +396,23 @@
                           </svg>
                         <span class="nav-text "><%= language.transfer %></span>
                     </a>
+
+
+                    <ul aria-expanded="false" class="mm-collapse">
+                        <li>
+                            <a href="/transfer_finished/view" href="javascript:void()" aria-expanded="false">
+                                <i class="far fa-arrow-alt-circle-right"></i>Own Stocks
+                            </a>
+                        </li>
+                    </ul>
+
+                    <ul aria-expanded="false" class="mm-collapse">
+                      <li>
+                          <a href="/transfer_finished/view_logs" href="javascript:void()" aria-expanded="false">
+                              <i class="far fa-arrow-alt-circle-right"></i>Logistics
+                          </a>
+                      </li>
+                  </ul>
 
                 </li>
 

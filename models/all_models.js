@@ -175,6 +175,9 @@ const product_data = new mongoose.Schema({
     gross_price:{
         type: Number,
         default: 0
+    },
+    type_products: {
+        type: String
     }
     
 })
@@ -496,17 +499,9 @@ const customer_data = new mongoose.Schema({
     agent_id:{
         type: String
     },
-    volume_discount: [
+    customer_discount: [
         {
-            min_car: {
-                type: Number,
-                default: 0
-            },
-            max_car: {
-                type: Number,
-                default: 0
-            },
-            discount_price: {
+            less: {
                 type: Number,
                 default: 0
             },
@@ -554,17 +549,9 @@ const customer_data_sa = new mongoose.Schema({
     landline:{
         type: String
     },
-    volume_discount: [
+    customer_discount: [
         {
-            min_car: {
-                type: Number,
-                default: 0
-            },
-            max_car: {
-                type: Number,
-                default: 0
-            },
-            discount_price: {
+            less: {
                 type: Number,
                 default: 0
             },
@@ -873,6 +860,10 @@ const purchases_data_finished = new mongoose.Schema({
     warehouse_name: {
         type: String,
     },
+    typeOfProducts: {
+        type: String,
+        default : "own"
+    },
     product:[{
         product_name: {
             type: String
@@ -935,6 +926,9 @@ const purchases_data_finished = new mongoose.Schema({
             type: Number
         },
         sales_category: {
+            type: String
+        },
+        type_of_products: {
             type: String
         }
     }],
@@ -1468,6 +1462,9 @@ const sales_data_finished = new mongoose.Schema({
         default: "false"
     },
     RecievedDate: {
+        type: String
+    },
+    typeOfProducts: {
         type: String
     }
 })
@@ -2168,6 +2165,10 @@ const adjustment_data_finished = new mongoose.Schema({
         type: String,
         default: "False"
     },
+    type_of_transaction : {
+        type: String,
+        default: "own"
+    }
 })
 
 const adjustment_finished = new mongoose.model("adjustment_finished", adjustment_data_finished);
@@ -2690,6 +2691,10 @@ sales_order_inv.plugin(autoIncrement.plugin, {
 
 const invoice_for_sales_order = new mongoose.model("sales_order_invs", sales_order_inv);
 
+
+
+
+
 const approving_body_accounting = new mongoose.Schema({
     head_id_staff: {
         type: String
@@ -2735,7 +2740,59 @@ const discount_volume = new mongoose.Schema({
 
 const discount_volume_db = new mongoose.model("discount_volumes", discount_volume);
 
-module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa, invoice_for_sales_order, approver_acct, discount_volume_db, 
+
+
+const logs_purchases = new mongoose.Schema({
+    invoice_init: {
+        type: Number,
+        default : 0
+    },
+})
+
+logs_purchases.plugin(autoIncrement.plugin, {
+    model: 'purchases_logs',  // Name of the model
+    field: 'invoice_init', // Field to increment
+    startAt: 1, // Initial value
+    incrementBy: 1 
+});
+
+const purchases_logs = new mongoose.model("purchases_logs", logs_purchases);
+
+const log_sales = new mongoose.Schema({
+    invoice_init: {
+        type: Number,
+        default : 0
+    },
+})
+
+log_sales.plugin(autoIncrement.plugin, {
+    model: 'sales_logs',  // Name of the model
+    field: 'invoice_init', // Field to increment
+    startAt: 1, // Initial value
+    incrementBy: 1 
+});
+
+const sales_logs = new mongoose.model("sales_logs", log_sales);
+
+
+
+const log_adjustments = new mongoose.Schema({
+    invoice_init: {
+        type: Number,
+        default : 0
+    },
+})
+
+log_adjustments.plugin(autoIncrement.plugin, {
+    model: 'adjustment_logs',  // Name of the model
+    field: 'invoice_init', // Field to increment
+    startAt: 1, // Initial value
+    incrementBy: 1 
+});
+
+const adjustment_logs = new mongoose.model("adjustment_logs", log_adjustments);
+
+module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa, invoice_for_sales_order, approver_acct, discount_volume_db,  purchases_logs, sales_logs, adjustment_logs,
                     suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, 
                     invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer, invoice_for_inventory, sales_inv_data, sales_order, 
                     customer_payment, c_payment_data, transfers, expenses_type, all_expenses, adjustment, master_shop, email_settings, 

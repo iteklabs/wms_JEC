@@ -655,11 +655,11 @@ router.get("/view/add_products", auth, async (req, res) => {
 
 router.post("/view/add_products", auth, upload.single("image"), async (req, res) => {
     try {
-        const { name, category, brand, unit, alertquantity, stock, product_code,  warehouse, primary_ItemCode, second_ItemCode, second_unit, maxPerUnit, MaxPerProduct, sales_cat } = req.body
+        const { name, category, brand, unit, alertquantity, stock, product_code,  warehouse, primary_ItemCode, second_ItemCode, second_unit, maxPerUnit, MaxPerProduct, sales_cat, type_prod } = req.body
         // const image = req.file.filename ?? 'defaultProduct.avif';
         const image = req.file?.filename || 'defaultProduct.avif';
         
-        const data = new product({ image, name, category, brand, unit, alertquantity, stock, product_code, warehouse, primary_code: primary_ItemCode, secondary_code: second_ItemCode, second_unit: second_unit, maxStocks: MaxPerProduct, maxProdPerUnit:maxPerUnit, sales_category:sales_cat });
+        const data = new product({ image, name, category, brand, unit, alertquantity, stock, product_code, warehouse, primary_code: primary_ItemCode, secondary_code: second_ItemCode, second_unit: second_unit, maxStocks: MaxPerProduct, maxProdPerUnit:maxPerUnit, sales_category:sales_cat, type_products: type_prod });
         const products_data = await data.save()
 
         const categories_data = await categories.findOne({name : category});
@@ -768,7 +768,7 @@ router.post("/view/:id", auth, upload.single("image"), async (req, res) => {
         const _id = req.params.id;
         const data = await product.findById(_id)
 
-        const { image, name, category, brand, sku, unit, alertquantity, product_code,  warehouse, primary_ItemCode, second_ItemCode, second_unit, maxPerUnit, MaxPerProduct, prod_catdata } = req.body
+        const { image, name, category, brand, sku, unit, alertquantity, product_code,  warehouse, primary_ItemCode, second_ItemCode, second_unit, maxPerUnit, MaxPerProduct, prod_catdata, type_prod } = req.body
 
         if (req.file) {
             data.image = req.file.filename
@@ -787,7 +787,7 @@ router.post("/view/:id", auth, upload.single("image"), async (req, res) => {
         data.maxStocks = MaxPerProduct
         data.maxProdPerUnit = maxPerUnit
         data.product_category = prod_catdata
-       
+        data.type_products = type_prod
 
         const new_data = await data.save();
         console.log("product edit", data);

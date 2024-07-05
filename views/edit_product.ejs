@@ -218,6 +218,16 @@
                                                                         <option <%= alldata.sales_category == "2" ? "selected" : "" %>>booking</option>
                                                                     </select>
                                                                 </div>
+
+
+                                                                <div class="mb-3 col-md-3">
+                                                                    <label class="form-label">Type of Product</label>
+                                                                    <select class="form-control" name="type_prod" id="type_prod" required>
+                                                                        <option>Select</option>
+                                                                        <option value="own" <%= alldata.type_products == "own" ? "selected" : "" %>>Own Stock</option>
+                                                                        <option value="log" <%= alldata.type_products == "log" ? "selected" : "" %>>Logistics</option>
+                                                                    </select>
+                                                                </div>
                                                                 
                                                                 
                                                             </div>

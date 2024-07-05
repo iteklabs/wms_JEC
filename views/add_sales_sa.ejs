@@ -65,6 +65,41 @@
                                                                 </select>
                                                             </div>
                                                         </div>
+
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type Of Discount  <span class="text-red">*</span></label>
+                                                                <select class="form-control" name="type_discount" id="type_discount" onchange="toggleVolumeDeals()" required>
+                                                                    <option value selected disabled>Select One</option>
+                                                                    <option value="cust_spec">Customer Specific</option>
+                                                                    <option value="vol_deals">Volume Deals</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-4 col-sm-4" id="volume_deals" style="display: none;">
+                                                            <div class="form-group">
+                                                                <!-- <label for="invoice_no">Type Of Discount  <span class="text-red">*</span></label> -->
+                                                                <input type="radio" id="volume_deals_type" name="volume_deals_type" class="form-check-input" onclick="volume_general()" value="appl">
+                                                                <label for="volume_deals_type">Applied</label><br>
+
+                                                                <input type="radio" id="volume_deals_type" name="volume_deals_type" class="form-check-input" onclick="volume_general()" value="uappl">
+                                                                <label for="volume_deals_type">Unapplied</label><br>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-4 col-sm-4" id="custom_specific" style="display: none;">
+                                                            <div class="form-group" id="customer_view">
+                                                                <!-- <input type="checkbox" id="age1" name="age" class="form-check-input" value="uappl">
+                                                                <label for="age1">3%</label><br>
+                                                                <input type="checkbox" id="age1" name="age" class="form-check-input" value="uappl">
+                                                                <label for="age1">3%</label><br> -->
+                                                            </div>
+                                                        </div>
+
+
                                                         <div class="col-xl-4 col-sm-4">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"><%= language.date %> <span class="text-red">*</span></label>
@@ -147,7 +182,7 @@
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">Unit of Measure </th>
                                                                         <th scope="col">Price </th>
-                                                                        <th scope="col">Discount Price </th>
+                                                                        <th scope="col">Allowable Discount Price </th>
                                                                         <th scope="col">Discount Adjustment </th>
                                                                         <th scope="col">Total Price </th>
                                                                         <th scope="col">Action</th>
@@ -209,11 +244,13 @@
                     let dataProduct = "";
                     var datashowProduct = document.getElementById("product_down");
                     dataProduct += "<option value=''>Select Product</option>";
-                    for (let index = 0; index <= response.product_list.length - 1; index++) {
-                        const element = response.product_list[index];
-
-                        if(element.product_stock > 0){
-                            dataProduct += "<option value="+element._id+">"+ element.product_name + "</option>";
+                    // console.log(response)
+                    for (let index = 0; index <= response.length - 1; index++) {
+                        const element = response[index];
+                        // console.log(element)
+                        // console.log(element.product_list.product_stock)
+                        if(element.product_list.product_stock > 0){
+                            dataProduct += "<option value="+element.product_list._id+">"+ element.product_list.product_name + "</option>";
                         }
                         
                     }
@@ -251,14 +288,131 @@
             function computePerPrice(x) {
                 var qty = document.getElementById("quantity"+x);
                 var price = document.getElementById("price"+x);
+                var discount_price = document.getElementById("dicount_price"+x);
                 var totalPrice = document.getElementById("totalPrice"+x);
 
                 var totalAll = 0;
-                totalAll = qty.value*price.value;
+                console.log(qty.value+ " <> " +price.value + " <> " + discount_price.value)
+                totalAll = qty.value*(price.value-discount_price.value);
                 totalPrice.value = totalAll;
             }
 
+            function toggleVolumeDeals() {
+                var typeDiscount = document.getElementById("type_discount").value;
+                var volumeDeals = document.getElementById("volume_deals");
+                var custom_specific_data = document.getElementById("custom_specific");
+                if (typeDiscount === "vol_deals") {
+                    volumeDeals.style.display = "block";
+                    custom_specific_data.style.display = "none";
+                } else if(typeDiscount === "cust_spec"){
+                    view_customer();
+                    volumeDeals.style.display = "none";
+                    custom_specific_data.style.display = "block";
+                } else {
+                    custom_specific_data.style.display = "none";
+                    volumeDeals.style.display = "none";
+                }
+            }
+            function view_customer(){
+                var data_discount = document.getElementById("customer_view");
+                var customer_value = document.getElementById("customer");
 
+                $.ajax({
+                        url: '/sales_sa/customer_data',
+                        method: 'POST',
+                        data: { customer_name : customer_value.value },
+                        success: function (response) {
+                            let data_view = "";
+
+                            for (let index = 0; index <= response.customer_discount.length - 1; index++) {
+
+                                const element = response.customer_discount[index];
+                                data_view += '<input type="checkbox" id="age1" name="age" class="form-check-input" onclick="data_grossprice()" value="'+element.less+'">   ';
+                                data_view += '<label for="age1">    Less '+element.less+'%</label><br>';
+
+                            }
+                            
+                            data_discount.innerHTML = data_view;
+                        }
+                })
+            }
+            function volume_general(){
+
+                $.ajax({
+                        url: '/sales_sa/volume_setup',
+                        method: 'POST',
+                        // data: { customer_name : customer_value.value },
+                        success: function (response) {
+
+                            // console.log(response.volume_discount)
+                            var theradio = document.getElementsByName("volume_deals_type");
+                            var type_discount = document.getElementById("type_discount");
+                            if(type_discount.value == "vol_deals"){
+                                for (let a = 0; a <= theradio.length -1; a++) {
+                                const choose_data = theradio[a];
+                                console.log(choose_data.value + " <> " + choose_data.checked)
+                                if(choose_data.value == "appl" && choose_data.checked == true){
+                                    var price = document.getElementsByName("price");
+                                    for (let i = 0; i <= price.length - 1; i++) {
+                                        const element_detl = price[i];
+                                        var theQTY = document.getElementById("quantity"+i).value;
+                                        for (let index = 0; index <= response.volume_discount.length - 1; index++) {
+                                            const element = response.volume_discount[index];
+                                            
+
+                                            if(element.min_car <= theQTY && element.max_car >= theQTY){
+                                                // console.log(element.min_car + " <> " + element.max_car + " <> " + element.discount_price)
+                                                document.getElementById("dicount_price"+i).value = element.discount_price;
+                                                document.getElementById("dicount_price"+i).disabled = true;
+                                                computePerPrice(i)
+                                            }
+                                        }
+
+                                    }
+                                }else if(choose_data.value == "uappl" && choose_data.checked == true){
+                                    var price = document.getElementsByName("price");
+                                    for (let i = 0; i <= price.length - 1; i++) {
+                                        const element_detl = price[i];
+                                        var theQTY = document.getElementById("quantity"+i).value;
+                                        document.getElementById("dicount_price"+i).value = 0;
+                                    }
+                                }
+                                // console.log()
+                            }
+                            
+                            }
+                            
+                            
+                        }
+                    })
+                
+            }
+            function data_grossprice(){
+                    var price = document.getElementsByName("price");
+                    for (let i = 0; i <= price.length - 1; i++) {
+                        const element_detl = price[i];
+                        var data_check = document.getElementsByName("age");
+                        var gross_price = element_detl.value;
+                        var thePriceDiscount = 0;
+                        var deeductPrice =0;
+                        var total_discount = 0;
+                        for (let index = 0; index <= data_check.length - 1; index++) {
+                            const element = data_check[index];
+                            if (element.checked == true) {
+                                var discount_percentage = parseFloat(element.value) / 100;
+                                var discount_amount = gross_price * discount_percentage;
+                                gross_price -= discount_amount;
+                                total_discount += discount_amount;
+                        }
+                        document.getElementById("dicount_price"+i).value = total_discount.toFixed(2);
+                        // document.getElementById("totalPrice"+i).value = gross_price.toFixed(2);
+                        computePerPrice(i);
+                        document.getElementById("dicount_price"+i).disabled = true;
+                        
+                    }
+
+                }
+            }
 
             function computePerPriceDiscount(x){
                 var qty = document.getElementById("quantity"+x);
@@ -421,6 +575,9 @@
                 }
                 })
             }
+            
+            
+
             $(document).on('click', 'button#remove', function(event) {
                     removeSelfRow(event);
             });
@@ -486,10 +643,10 @@
                                         // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="production_date" value="' + data.product_list.production_date + '" readonly>'));
                                         // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="expiry_date" value="' + data.product_list.expiry_date + '" readonly>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="' + data.product_list.product_stock + '" readonly>'));
-                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+')" id="quantity'+x+'" value="" required>'));
+                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+'); computePerPrice('+x+'); volume_general(); " id="quantity'+x+'" value="" required>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + data.product_list.unit + '" readonly>'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="'+data.product_list.gross_price+'" readonly>'));
-                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
+                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="0">'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="adj_dicount_price" id="adj_dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
                                         row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
@@ -545,8 +702,10 @@
                                         }).appendTo(row);
 
                                         
-
+                                        
                                         $('#tblPage_NewOut').append(row);
+                                        data_grossprice();
+                                        volume_general();
                                         // checkExpiration(data.product_list.expiry_date, x);
                                         x++;
                                     }else{

@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
-const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, customer_payment, c_payment_data, sing_up, invoice_sa, sales_sa} = require("../models/all_models");
+const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, customer_payment, c_payment_data, sing_up, invoice_sa, sales_sa, discount_volume_db} = require("../models/all_models");
 const auth = require("../middleware/auth");
 const users = require("../public/language/languages.json");
 const excelJS = require("exceljs");
@@ -302,8 +302,22 @@ router.post("/product_list", auth, async(req, res) => {
         const role_data = req.user
         
         const profile_data = await profile.findOne({email : role_data.email});
-        const staff_data = await staff.findOne({email: role_data.email});
-
+        // const staff_data = await staff.findOne({email: role_data.email});
+        const staff_data = await staff.aggregate([
+            {
+                $match: {
+                    email: role_data.email
+                }
+            },
+            {
+                $unwind: "$product_list"
+            },
+            {
+                $match: {
+                    "product_list.isConfirm": "true",
+                }
+            }
+        ]);
         // console.log(staff_data)
 
         res.json(staff_data)
@@ -315,6 +329,17 @@ router.post("/product_list", auth, async(req, res) => {
 })
 
 
+router.post("/customer_data", auth, async(req, res) => {
+    try {
+        const { customer_name } = req.body
+        const sutomer_data = await customer.findOne({ name: customer_name})
+        res.json(sutomer_data);
+        // console.log(sutomer_data)
+    } catch (error) {
+        
+    }
+})
+
 router.post("/product_data", auth, async(req, res) => {
     try {
         const role_data = req.user
@@ -322,7 +347,7 @@ router.post("/product_data", auth, async(req, res) => {
         const profile_data = await profile.findOne({email : role_data.email});
         // const staff_data = await staff.findOne({email: role_data.email});
         const ObjectId = mongoose.Types.ObjectId;
-        // console.log(ObjectId(id_data))
+        console.log(ObjectId(id_data))
         var obj_ids = ObjectId(id_data);
         const staff_data = await staff.aggregate([
             {
@@ -346,6 +371,16 @@ router.post("/product_data", auth, async(req, res) => {
         res.json(staff_data)
 
 
+    } catch (error) {
+        
+    }
+})
+
+
+router.post("/volume_setup", auth, async(req, res) => {
+    try {
+        const the_volume = await discount_volume_db.findOne();
+        res.json(the_volume);
     } catch (error) {
         
     }

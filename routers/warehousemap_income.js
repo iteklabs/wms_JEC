@@ -7,10 +7,6 @@ const auth = require("../middleware/auth");
 var timezones = require('timezones-list');
 const users = require("../public/language/languages.json");
 
-
-
-
-
 router.get("/view", auth, async (req, res) => {
     try {
         const {username, email, role} = req.user
@@ -40,6 +36,11 @@ router.get("/view", auth, async (req, res) => {
                       name: { $first: "$name"}
                   }
               },
+              {
+                $sort: {
+                  name: -1
+                }
+              }
           ])
         }else{
             // warehouse_data = await warehouse.find({status : 'Enabled'});
@@ -55,6 +56,11 @@ router.get("/view", auth, async (req, res) => {
                       name: { $first: "$name"}
                   }
               },
+              {
+                $sort: {
+                  name: -1
+                }
+              }
           ])
         }
 
@@ -102,7 +108,6 @@ router.get("/view", auth, async (req, res) => {
         res.status(200).json( { message: error.message } )
     }
 })
-
 
 router.post('/MapData', async (req, res) => {
   const { warehouseNew, rooms, Type } = req.body 
@@ -170,7 +175,6 @@ router.post('/MapData', async (req, res) => {
 
 res.json(warehouse_data);
 })
-
 
 router.post('/MapData2', async (req, res) => {
     const { warehouseNew, rooms, room_cat } = req.body 
@@ -352,7 +356,6 @@ router.post("/Rooms_data", async (req, res) => {
 
 })
 
-
 router.post("/Rooms_data2", async (req, res) => {
 
     try{
@@ -491,7 +494,6 @@ router.post("/Rooms_data2", async (req, res) => {
   
   })
 
-
   router.post("/Rooms_data3", async (req, res) => {
 
     try{
@@ -531,8 +533,6 @@ router.post("/Rooms_data2", async (req, res) => {
   
   })
 
-
-
   router.post("/staff_sales", async (req, res) => {
 
     try{
@@ -547,7 +547,6 @@ router.post("/Rooms_data2", async (req, res) => {
   
   })
 
-
   router.post("/staff_sales_id", async (req, res) => {
 
     try{
@@ -561,7 +560,6 @@ router.post("/Rooms_data2", async (req, res) => {
     
   
   })
-
 
   router.post("/map_value", async (req, res) => {
 
@@ -689,4 +687,6 @@ router.post("/Rooms_data2", async (req, res) => {
     
   
   })
+
+
 module.exports = router

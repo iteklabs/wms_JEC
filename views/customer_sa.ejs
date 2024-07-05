@@ -202,7 +202,7 @@
                                                                                 data-email="<%= user.email %>"
                                                                                 data-contactperson="<%= user.contactperson %>"
                                                                                 data-landline="<%= user.landline %>"
-                                                                                data-volume="<%= JSON.stringify(user.volume_discount) %>"
+                                                                                data-volume="<%= JSON.stringify(user.customer_discount) %>"
                                                                                 data-id="<%= user._id %>"><i class="la la-pencil"></i>
                                                                                 <%= language.edit %> </a>
                                                                         </button>
@@ -308,19 +308,18 @@
 
                                         <div class="row">
                                             <div class="mb-3 col-md-12">
+                                                <span class="text-info">Customer Discount</span>
                                                 <table class="table primary-table-bordered" id="discount_table">
                                                     <thead>
                                                         <tr>
-                                                            <th>Min Cartons</th>
-                                                            <th>Max Cartons</th>
-                                                            <th>Discount Price</th>
+                                                            <th>Less (Number of Percent)</th>
                                                             <th>Action</th>
                                                         </tr>
                                                     </thead>
 
                                                     <tbody id="discount_table">
                                                         <tr>
-                                                            <td colspan="4" class="text-center"> <button type="button" class="btn btn-primary w-10" id="btnAdd">Add</button> </td>
+                                                            <td colspan="2" class="text-center"> <button type="button" class="btn btn-primary w-10" id="btnAdd">Add</button> </td>
                                                         </tr>
                                                     </tbody>
                                                     
@@ -418,16 +417,14 @@
                                                 <table class="table primary-table-bordered" id="discount_table">
                                                     <thead>
                                                         <tr>
-                                                            <th>Min Cartons</th>
-                                                            <th>Max Cartons</th>
-                                                            <th>Discount Price</th>
+                                                            <th>Less Discount (Number of Percent)</th>
                                                             <th>Action</th>
                                                         </tr>
                                                     </thead>
 
                                                     <tbody id="discount_table_edit">
                                                         <tr>
-                                                            <td colspan="4" class="text-center"> <button type="button" class="btn btn-primary w-10" id="btnEdit">Add</button> </td>
+                                                            <td colspan="2" class="text-center"> <button type="button" class="btn btn-primary w-10" id="btnEdit">Add</button> </td>
                                                         </tr>
 
                                                         <tr>
@@ -488,14 +485,7 @@
                                                 <label class="btn btn-rounded btn-info text-white" id="customer_product_fule" for="file-1">Upload Migration File</label>
                                             </div>
       
-                                       </div>   
-                                       
-                                       
-                                                                
-
-                                                             
-
-                                                        
+                                       </div>
 
                                         <button type="submit" class="btn btn-primary w-100"><%= language.submit %></button>
 
@@ -558,26 +548,8 @@
                 $('<td>').append(
                     $('<input>').attr({
                         type: 'number',
-                        id: 'min_car',
-                        name: 'min_car',
-                        value: "0"
-                    }).addClass('form-control')
-                ).appendTo(row);
-
-                $('<td>').append(
-                    $('<input>').attr({
-                        type: 'number',
-                        id: 'max_car',
-                        name: 'max_car',
-                        value: "0"
-                    }).addClass('form-control')
-                ).appendTo(row);
-
-                $('<td>').append(
-                    $('<input>').attr({
-                        type: 'number',
-                        id: 'discount_price',
-                        name: 'discount_price',
+                        id: 'less_percent',
+                        name: 'less_percent',
                         value: "0"
                     }).addClass('form-control')
                 ).appendTo(row);
@@ -593,26 +565,8 @@
                 $('<td>').append(
                     $('<input>').attr({
                         type: 'number',
-                        id: 'min_car_edit',
-                        name: 'min_car_edit',
-                        value: "0"
-                    }).addClass('form-control')
-                ).appendTo(row);
-
-                $('<td>').append(
-                    $('<input>').attr({
-                        type: 'number',
-                        id: 'max_car_edit',
-                        name: 'max_car_edit',
-                        value: "0"
-                    }).addClass('form-control')
-                ).appendTo(row);
-
-                $('<td>').append(
-                    $('<input>').attr({
-                        type: 'number',
-                        id: 'discount_price_edit',
-                        name: 'discount_price_edit',
+                        id: 'less_percent_edit',
+                        name: 'less_percent_edit',
                         value: "0"
                     }).addClass('form-control')
                 ).appendTo(row);
@@ -651,29 +605,15 @@
             $('<td>').append(
                 $('<input>').attr({
                     type: 'number',
-                    id: 'min_car_edit',
-                    name: 'min_car_edit',
-                    value: element.min_car
+                    id: 'less_percent_edit',
+                    name: 'less_percent_edit',
+                    value: element.less
                 }).addClass('form-control')
             ).appendTo(row);
 
-            $('<td>').append(
-                $('<input>').attr({
-                    type: 'number',
-                    id: 'max_car_edit',
-                    name: 'max_car_edit',
-                    value: element.max_car
-                }).addClass('form-control')
-            ).appendTo(row);
+            
 
-            $('<td>').append(
-                $('<input>').attr({
-                    type: 'number',
-                    id: 'discount_price_edit',
-                    name: 'discount_price_edit',
-                    value: element.discount_price
-                }).addClass('form-control')
-            ).appendTo(row);
+        
 
             row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
             

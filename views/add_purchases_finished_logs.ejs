@@ -446,7 +446,7 @@
             <!--**********************************
             Header start
         ***********************************-->
-            <%- include('./partials/header',{titel: language.purchase + " (Own Stocks)"}); -%>
+            <%- include('./partials/header',{titel: language.purchase + " (Logistics)"}); -%>
 
                 <!--**********************************
             Header end ti-comment-alt
@@ -479,7 +479,7 @@
                                         <div class="card-body">
                                             <div class="form-validation">
 
-                                                <form class="needs-validation" action="/all_purchases_finished/view/add_purchases" method="post" id="form">
+                                                <form class="needs-validation" action="/all_purchases_finished/view/add_purchases_logs" method="post" id="form">
 
                                                     <div class="row mb-3">
                                                         <div class="col-xl-3 col-sm-6">
@@ -488,7 +488,7 @@
                                                                         class="text-red"> *</span></label>
                                                                 <input type="text" name="SCRN" class="form-control" value=""
                                                                     id="SCRN" required>
-                                                                    <input type="hidden" name="type_of_products" id="type_of_products" value="own">
+                                                                    <input type="hidden" name="type_of_products" id="type_of_products" value="logs">
                                                             </div>
                                                         </div>
 
@@ -1600,7 +1600,7 @@
         if (!isProductExists) {
 
         $.ajax({
-            url: '/all_purchases_finished/barcode_scanner', 
+            url: '/all_purchases_finished/barcode_scanner_logs', 
             method: 'POST',
             data: { product_code: productCode }, 
             success: function(response) {
@@ -1631,6 +1631,12 @@
                             row.append($('<td>').html('<select class="form-control" name="prod_level" level="levelOslie'+lastIncre+'" id="prod_level' + lastIncre + '" style="width: 150px;"></select>'));
                             row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
                             
+                                $('<input>').attr({
+                                type: 'hidden',
+                                id: 'type_of_products_type',
+                                name: 'type_of_products_type',
+                                value: data.logs
+                            }).appendTo(row);
 
                             $('<input>').attr({
                                 type: 'hidden',

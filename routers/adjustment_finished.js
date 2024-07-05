@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 const auth = require("../middleware/auth");
-const {profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, suppliers_payment, expenses_type, all_expenses, adjustment, adjustment_finished, email_settings, supervisor_settings, invoice_for_adjustment} = require("../models/all_models");
+const {profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, suppliers_payment, expenses_type, all_expenses, adjustment, adjustment_logs, adjustment_finished, email_settings, supervisor_settings, invoice_for_adjustment} = require("../models/all_models");
 const users = require("../public/language/languages.json");
 const nodemailer = require('nodemailer');
 
@@ -37,6 +37,11 @@ router.get("/view", auth, async(req, res) => {
             // adjustment_data = await adjustment_finished.find()
 
             adjustment_data = await adjustment_finished.aggregate([
+                {
+                    $match: {
+                        type_of_transaction: "own"
+                    }
+                },
                 {
                     $unwind: "$product"
                 },
@@ -108,6 +113,117 @@ router.get("/view", auth, async(req, res) => {
     }
     
 })
+
+
+router.get("/view_logs", auth, async(req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+
+        const master = await master_shop.find()
+
+        let warehouse_data
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
+            warehouse_data = await warehouse.find({status : 'Enabled', name: staff_data.warehouse });
+        }else{
+            warehouse_data = await warehouse.find({status : 'Enabled'});
+        }
+
+
+        const product_data = await product.find()
+
+
+        // const adjustment_data = await adjustment.find()
+        let adjustment_data
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
+            adjustment_data = await adjustment_finished.find({ warehouse_name : staff_data.warehouse })
+        }else{
+            // adjustment_data = await adjustment_finished.find()
+
+            adjustment_data = await adjustment_finished.aggregate([
+                {
+                    $match: {
+                        type_of_transaction: "logs"
+                    }
+                },
+                {
+                    $unwind: "$product"
+                },
+                {
+                  $group: {
+                    _id: "$_id",
+                    invoice: { $first: "$invoice" },
+                    date: { $first: "$date" },
+                    warehouse_name: { $first: "$warehouse_name" },
+                    room: { $addToSet: "$product.room_names" },
+                    finalize: { $first: "$finalize" }
+                  }
+                  
+                },
+                {
+                  $project: {
+                    _id: 1,
+                    invoice: 1,
+                    suppliers: 1,
+                    date: 1,
+                    warehouse_name: 1,
+                    room: 1,
+                    finalize: 1
+                    
+                  }
+               }
+          ]);
+        }
+
+        
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+            // console.log(lan_data);
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+        res.render("adjustment_finished_logs", {
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            role : role_data,
+            profile : profile_data,
+            warehouse : warehouse_data,
+            product : product_data,
+            adjustment : adjustment_data,
+            master_shop : master,
+            language : lan_data
+        })
+    } catch (error) {
+        console.log(error);
+    }
+    
+})
+
+
+
 async function getRandom8DigitNumber() {
     const min = 10000000;
     const max = 99999999; 
@@ -167,7 +283,7 @@ router.get("/view/add_adjustment", auth, async (req, res) => {
         }
         const product_data = await product.find({});
 
-        const adjustment_data = await adjustment_finished.find({})
+        const adjustment_data = await adjustment_finished.find()
         const invoice_noint = adjustment_data.length + 1
         const invoice_no = "ADJF-" + invoice_noint.toString().padStart(5, "0")
         var rooms_data = ["Ambient", "Enclosed", "Return Rooms"];
@@ -367,6 +483,259 @@ router.post("/view/add_adjustment", auth, async(req, res) => {
         await Invoice_adjustment.save();
 
         const data = new adjustment_finished({ warehouse_name, date, product:newFilter, note, room: Room_name, invoice : "ADJ-" + Invoice_adjustment.invoice_init.toString().padStart(8, '0'), JO_number, expiry_date })
+
+        const adjustment_data = await data.save() 
+        
+        req.flash('success', `adjustment add successfull`)
+        res.redirect("/adjustment_finished/preview/" + adjustment_data._id)
+    }catch(error){
+        console.log(error);
+        res.status(200).json({ message: error.message })
+    }
+})
+
+
+router.get("/view/add_adjustment_logs", auth, async (req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+        const profile_data = await profile.findOne({email : role_data.email})
+        const master = await master_shop.find()
+        let warehouse_data
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
+            // warehouse_data = await warehouse.find({status : 'Enabled', name: staff_data.warehouse });
+            warehouse_data = await warehouse.aggregate([
+                {
+                    $match: { 
+                        "status" : 'Enabled', 
+                        name: staff_data.warehouse,
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$name",
+                        name: { $first: "$name"}
+                    }
+                },
+            ])
+        }else{
+            // warehouse_data = await warehouse.find({status : 'Enabled'});
+            warehouse_data = await warehouse.aggregate([
+                {
+                    $match: { 
+                        "status" : 'Enabled',
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$name",
+                        name: { $first: "$name"}
+                    }
+                },
+            ])
+        }
+        const product_data = await product.find();
+
+        const adjustment_data = await adjustment_finished.find()
+        const invoice_noint = adjustment_data.length + 1
+        const invoice_no = "ADJF-" + invoice_noint.toString().padStart(5, "0")
+        var rooms_data = ["Ambient", "Enclosed", "Return Rooms"];
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+        // res.json(warehouse_data);
+        // return
+        const randominv = getRandom8DigitNumber();
+
+        randominv.then(invoicedata => {
+        
+            res.render("add_adjustment_finished_logs", {
+                success: req.flash('success'),
+                errors: req.flash('errors'),
+                role : role_data,
+                profile : profile_data,
+                warehouse: warehouse_data,
+                product: product_data,
+                master_shop : master,
+                language : lan_data,
+                rooms_data,
+                invoice_no : invoicedata
+            })
+
+        }).catch(error => {
+            req.flash('errors', `There's a error in this transaction`)
+            res.redirect("/adjustment/view");
+        })
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+router.post("/view/add_adjustment_logs", auth, async(req, res) => {
+    try{
+        const {warehouse_name, date, prod_name, level, isle, pallet, stock, types, adjust_qty, new_adjust_qty, note, Room_name, JO_number, expiry_date, type_of_transaction } = req.body
+        if(typeof prod_name == "string"){
+            var product_name_array = [req.body.prod_name]
+            var level_array = [req.body.level]
+            var stock_array = [req.body.stock]
+            var types_array = [req.body.types]
+            var adjust_qty_array = [req.body.New_Qty_Converted_adj]
+            var new_adjust_qty_array = [req.body.New_Qty_Converted]
+            var unit_units_array = [req.body.Primary_Units]
+            var Secondary_units_array = [req.body.Secondary_units]
+            var product_code_array = [req.body.prod_code]
+            var batch_code_array = [req.body.batch_code]
+            var expiry_date_array = [req.body.expiry_date]
+            var production_date_array = [req.body.product_date]
+            var prod_cat_array = [req.body.prod_cat]
+            var Rooms_array = [req.body.Rooms]
+            var maxPerUnit_array = [req.body.maxPerUnit]
+            var prod_invoice_array = [req.body.prod_invoice]
+            var id_transaction_array = [req.body.id_transaction_from]
+        
+        }else{
+            var product_name_array = [...req.body.prod_name]
+            var level_array = [...req.body.level]
+            var stock_array = [...req.body.stock]
+            var types_array = [...req.body.types]
+            var adjust_qty_array = [...req.body.New_Qty_Converted_adj]
+            var new_adjust_qty_array = [...req.body.New_Qty_Converted]
+            var unit_units_array = [...req.body.Primary_Units]
+            var Secondary_units_array = [...req.body.Secondary_units]
+            var product_code_array = [...req.body.prod_code]
+            var batch_code_array = [...req.body.batch_code]
+            var expiry_date_array = [...req.body.expiry_date]
+            var production_date_array = [...req.body.product_date]
+            var prod_cat_array = [...req.body.prod_cat]
+            var Rooms_array = [...req.body.Rooms]
+            var maxPerUnit_array = [...req.body.maxPerUnit]
+            var prod_invoice_array = [...req.body.prod_invoice]
+            var id_transaction_array = [...req.body.id_transaction_from]
+        } 
+        // res.json(req.body);
+        // return;
+        const newproduct = product_name_array.map((value)=>{
+            
+            return  value  = {
+                        product_name : value,
+                    } 
+        })
+
+        
+        
+        level_array.forEach((value,i) => {
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].level = letter
+            newproduct[i].bay = number
+        });
+
+        id_transaction_array.forEach((value, i) => {
+            newproduct[i].id_transaction = value
+        })
+
+
+        stock_array.forEach((value,i) => {
+            newproduct[i].stockBefore = value
+        });
+
+        types_array.forEach((value, i) => {
+            newproduct[i].types = value
+        })
+
+        adjust_qty_array.forEach((value,i) => {
+            newproduct[i].adjust_qty = value
+        });
+
+        new_adjust_qty_array.forEach((value,i) => {
+            newproduct[i].new_adjust_qty = value
+        });
+
+        unit_units_array.forEach((value,i) => {
+            newproduct[i].unit = value
+        });
+
+        Secondary_units_array.forEach((value,i) => {
+            newproduct[i].secondary_unit = value
+        });
+
+        product_code_array.forEach((value,i) => {
+            newproduct[i].product_code = value
+        });
+
+        batch_code_array.forEach((value,i) => {
+            newproduct[i].batch_code = value
+        });
+
+        expiry_date_array.forEach((value, i) => {
+            newproduct[i].expiry_date = value
+        })
+
+
+        production_date_array.forEach((value, i) => {
+            newproduct[i].production_date = value
+        })
+
+
+        prod_cat_array.forEach((value, i) => {
+            newproduct[i].prod_cat = value
+        })
+
+        Rooms_array.forEach((value, i) => {
+            newproduct[i].room_names = value
+        })
+
+        maxPerUnit_array.forEach((value, i) => {
+            newproduct[i].maxPerUnit = value
+        })
+
+        prod_invoice_array.forEach((value, i) =>{
+            newproduct[i].invoice = value
+        })
+
+
+
+        const newFilter = newproduct.filter(obj => obj.adjust_qty !== "0" && obj.adjust_qty !== "");
+        var error = 0
+        newFilter.forEach(data => {
+            console.log("foreach newproduct", data);
+            if (parseInt(data.adjust_qty) <= 0 ) {
+                
+                error++
+            }
+        })
+        if (error != 0) {
+            
+            req.flash("errors", `You can't subtract, the current stock is 0`)
+            return res.redirect("back")
+        }
+
+        const Invoice_adjustment = new adjustment_logs();
+        await Invoice_adjustment.save();
+
+        const data = new adjustment_finished({ warehouse_name, date, product:newFilter, note, room: Room_name, invoice : "LOG-ADJ-" + Invoice_adjustment.invoice_init.toString().padStart(8, '0'), JO_number, expiry_date, type_of_transaction: type_of_transaction })
 
         const adjustment_data = await data.save() 
         

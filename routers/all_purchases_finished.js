@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
-const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, purchases_return, suppliers_payment, s_payment_data, email_settings, purchases_finished, purchases_return_finished, supervisor_settings, invoice_for_incoming } = require("../models/all_models");
+const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, purchases_return, suppliers_payment, s_payment_data, email_settings, purchases_finished, purchases_return_finished, supervisor_settings, invoice_for_incoming, purchases_logs } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const nodemailer = require('nodemailer');
 var ejs = require('ejs');
@@ -23,142 +23,137 @@ router.get("/view", auth, async (req, res) => {
         const master = await master_shop.find()
       
         let purchases_data
-    if(role_data.role == "staff"){
-        const staff_data = await staff.findOne({ email: role_data.email })
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
 
-         purchases_data = await purchases_finished.aggregate([
-            {
-              $match: {
-                "warehouse_name": staff_data.warehouse
-              }
-            },
-            {
-              $lookup: {
-                from: "suppliers",
-                localField: "suppliers",
-                foreignField: "name",
-                as: "suppliers_docs"
-              }
-            },
-            {
-              $unwind: "$suppliers_docs"
-            },
-            {
-              $unwind: "$product"
-            },
-            {
-              $group: {
-                _id: "$_id",
-                invoice: { $first: "$invoice" },
-                suppliers: { $first: "$suppliers" },
-                date: { $first: "$date" },
-                warehouse_name: { $first: "$warehouse_name" },
-                room: { $first: "$room" },
-                product: { $push: "$product" },
-                note: { $first: "$note" },
-                paid_amount: { $first: "$paid_amount" },
-                due_amount: { $first: "$due_amount" },
-                return_data: { $first: "$return_data" },
-                batch_code: { $first: "$batch_code" },
-                expiry_date: { $first: "$expiry_date" },
-                suppliers_docs: { $first: "$suppliers_docs" },
-                total_product_quantity: { $sum: "$product.quantity" },
-                level: { $addToSet: "$product.bay" },
-                isle: { $addToSet: "$product.bin" },
-                type: { $addToSet: "$product.type" },
-                floorlevel: { $addToSet: "$product.floorlevel" },
-              }
-            },
-            {
-              $project: {
-                _id: 1,
-                invoice: 1,
-                suppliers: 1,
-                date: 1,
-                warehouse_name: 1,
-                room: 1,
-                product: 1,
-                note: 1,
-                paid_amount: 1,
-                due_amount: 1,
-                return_data: 1,
-                batch_code: 1,
-                expiry_date: 1,
-                suppliers_docs: 1,
-                total_product_quantity: 1,
-                level: 1,
-                isle: 1,
-                type: 1,
-                floorlevel:1
-              }
-            }
-          ]);
+            purchases_data = await purchases_finished.aggregate([
+                {
+                    $match: {
+                        "warehouse_name": staff_data.warehouse,
+                        "typeOfProducts": "own"
+                    }
+                },
+                {
+                $lookup: {
+                    from: "suppliers",
+                    localField: "suppliers",
+                    foreignField: "name",
+                    as: "suppliers_docs"
+                }
+                },
+                {
+                $unwind: "$suppliers_docs"
+                },
+                {
+                $unwind: "$product"
+                },
+                {
+                $group: {
+                    _id: "$_id",
+                    invoice: { $first: "$invoice" },
+                    suppliers: { $first: "$suppliers" },
+                    date: { $first: "$date" },
+                    warehouse_name: { $first: "$warehouse_name" },
+                    room: { $first: "$room" },
+                    product: { $push: "$product" },
+                    note: { $first: "$note" },
+                    paid_amount: { $first: "$paid_amount" },
+                    due_amount: { $first: "$due_amount" },
+                    return_data: { $first: "$return_data" },
+                    batch_code: { $first: "$batch_code" },
+                    expiry_date: { $first: "$expiry_date" },
+                    suppliers_docs: { $first: "$suppliers_docs" },
+                    total_product_quantity: { $sum: "$product.quantity" },
+                    level: { $addToSet: "$product.bay" },
+                    isle: { $addToSet: "$product.bin" },
+                    type: { $addToSet: "$product.type" },
+                    floorlevel: { $addToSet: "$product.floorlevel" },
+                }
+                },
+                {
+                $project: {
+                    _id: 1,
+                    invoice: 1,
+                    suppliers: 1,
+                    date: 1,
+                    warehouse_name: 1,
+                    room: 1,
+                    product: 1,
+                    note: 1,
+                    paid_amount: 1,
+                    due_amount: 1,
+                    return_data: 1,
+                    batch_code: 1,
+                    expiry_date: 1,
+                    suppliers_docs: 1,
+                    total_product_quantity: 1,
+                    level: 1,
+                    isle: 1,
+                    type: 1,
+                    floorlevel:1
+                }
+                }
+            ]);
 
-    }else{
-        purchases_data = await purchases_finished.aggregate([
-            // {
-            //   $lookup: {
-            //     from: "suppliers",
-            //     localField: "suppliers",
-            //     foreignField: "name",
-            //     as: "suppliers_docs"
-            //   }
-            // },
-            // {
-            //   $unwind: "$suppliers_docs"
-            // },
-            {
-              $unwind: "$product"
-            },
-            {
-              $group: {
-                _id: "$_id",
-                invoice: { $first: "$invoice" },
-                suppliers: { $first: "$suppliers" },
-                date: { $first: "$date" },
-                warehouse_name: { $first: "$warehouse_name" },
-                room: { $addToSet: "$product.room_name" },
-                product: { $push: "$product" },
-                note: { $first: "$note" },
-                paid_amount: { $first: "$paid_amount" },
-                due_amount: { $first: "$due_amount" },
-                return_data: { $first: "$return_data" },
-                batch_code: { $first: "$batch_code" },
-                expiry_date: { $first: "$expiry_date" },
-                suppliers_docs: { $first: "$suppliers_docs" },
-                total_product_quantity: { $sum: "$product.quantity" },
-                level: { $addToSet: "$product.bay" },
-                isle: { $addToSet: "$product.bin" },
-                type: { $addToSet: "$product.type" },
-                floorlevel: { $addToSet: "$product.floorlevel" },
-              }
-              
-            },
-            {
-              $project: {
-                _id: 1,
-                invoice: 1,
-                suppliers: 1,
-                date: 1,
-                warehouse_name: 1,
-                room: 1,
-                product: 1,
-                note: 1,
-                paid_amount: 1,
-                due_amount: 1,
-                return_data: 1,
-                batch_code: 1,
-                expiry_date: 1,
-                suppliers_docs: 1,
-                total_product_quantity: 1,
-                level: 1,
-                isle: 1,
-                type: 1,
-                floorlevel:1
+        }else{
+            purchases_data = await purchases_finished.aggregate([
+                {
+                    $match: {
+                        typeOfProducts: "own"
+                    }
+                },
+                {
+                    $unwind: "$product"
+                },
+                {
+                $group: {
+                    _id: "$_id",
+                    invoice: { $first: "$invoice" },
+                    suppliers: { $first: "$suppliers" },
+                    date: { $first: "$date" },
+                    warehouse_name: { $first: "$warehouse_name" },
+                    room: { $addToSet: "$product.room_name" },
+                    product: { $push: "$product" },
+                    note: { $first: "$note" },
+                    paid_amount: { $first: "$paid_amount" },
+                    due_amount: { $first: "$due_amount" },
+                    return_data: { $first: "$return_data" },
+                    batch_code: { $first: "$batch_code" },
+                    expiry_date: { $first: "$expiry_date" },
+                    suppliers_docs: { $first: "$suppliers_docs" },
+                    total_product_quantity: { $sum: "$product.quantity" },
+                    level: { $addToSet: "$product.bay" },
+                    isle: { $addToSet: "$product.bin" },
+                    type: { $addToSet: "$product.type" },
+                    floorlevel: { $addToSet: "$product.floorlevel" },
+                }
                 
-              }
-           }
-      ]);
+                },
+                {
+                $project: {
+                    _id: 1,
+                    invoice: 1,
+                    suppliers: 1,
+                    date: 1,
+                    warehouse_name: 1,
+                    room: 1,
+                    product: 1,
+                    note: 1,
+                    paid_amount: 1,
+                    due_amount: 1,
+                    return_data: 1,
+                    batch_code: 1,
+                    expiry_date: 1,
+                    suppliers_docs: 1,
+                    total_product_quantity: 1,
+                    level: 1,
+                    isle: 1,
+                    type: 1,
+                    floorlevel:1
+                    
+                }
+            }
+        ]);
 // res.json(purchases_data)
 
     }
@@ -190,6 +185,197 @@ router.get("/view", auth, async (req, res) => {
         }
         
         res.render("all_purchases_finished", {
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            purchases: purchases_data,
+            role : role_data,
+            profile : profile_data,
+            master_shop : master,
+            language : lan_data
+        })
+    } catch (error) {
+        console.log("table page", error);
+        res.status(200).json({ message: error.message })
+    }
+})
+
+
+router.get("/view_log", auth, async (req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+        const staff_data = await staff.findOne({ email: role_data.email })
+        // res.status(200).json(role_data)
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
+        }
+        
+        const master = await master_shop.find()
+      
+        let purchases_data
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
+
+            purchases_data = await purchases_finished.aggregate([
+                {
+                $match: {
+                    "warehouse_name": staff_data.warehouse,
+                }
+                },
+                {
+                $lookup: {
+                    from: "suppliers",
+                    localField: "suppliers",
+                    foreignField: "name",
+                    as: "suppliers_docs"
+                }
+                },
+                {
+                $unwind: "$suppliers_docs"
+                },
+                {
+                $unwind: "$product"
+                },
+                {
+                $group: {
+                    _id: "$_id",
+                    invoice: { $first: "$invoice" },
+                    suppliers: { $first: "$suppliers" },
+                    date: { $first: "$date" },
+                    warehouse_name: { $first: "$warehouse_name" },
+                    room: { $first: "$room" },
+                    product: { $push: "$product" },
+                    note: { $first: "$note" },
+                    paid_amount: { $first: "$paid_amount" },
+                    due_amount: { $first: "$due_amount" },
+                    return_data: { $first: "$return_data" },
+                    batch_code: { $first: "$batch_code" },
+                    expiry_date: { $first: "$expiry_date" },
+                    suppliers_docs: { $first: "$suppliers_docs" },
+                    total_product_quantity: { $sum: "$product.quantity" },
+                    level: { $addToSet: "$product.bay" },
+                    isle: { $addToSet: "$product.bin" },
+                    type: { $addToSet: "$product.type" },
+                    floorlevel: { $addToSet: "$product.floorlevel" },
+                }
+                },
+                {
+                $project: {
+                    _id: 1,
+                    invoice: 1,
+                    suppliers: 1,
+                    date: 1,
+                    warehouse_name: 1,
+                    room: 1,
+                    product: 1,
+                    note: 1,
+                    paid_amount: 1,
+                    due_amount: 1,
+                    return_data: 1,
+                    batch_code: 1,
+                    expiry_date: 1,
+                    suppliers_docs: 1,
+                    total_product_quantity: 1,
+                    level: 1,
+                    isle: 1,
+                    type: 1,
+                    floorlevel:1
+                }
+                }
+            ]);
+
+        }else{
+            purchases_data = await purchases_finished.aggregate([
+                {
+                    $match: {
+                        typeOfProducts: "logs"
+                    }
+                },
+                {
+                $unwind: "$product"
+                },
+                {
+                $group: {
+                    _id: "$_id",
+                    invoice: { $first: "$invoice" },
+                    suppliers: { $first: "$suppliers" },
+                    date: { $first: "$date" },
+                    warehouse_name: { $first: "$warehouse_name" },
+                    room: { $addToSet: "$product.room_name" },
+                    product: { $push: "$product" },
+                    note: { $first: "$note" },
+                    paid_amount: { $first: "$paid_amount" },
+                    due_amount: { $first: "$due_amount" },
+                    return_data: { $first: "$return_data" },
+                    batch_code: { $first: "$batch_code" },
+                    expiry_date: { $first: "$expiry_date" },
+                    suppliers_docs: { $first: "$suppliers_docs" },
+                    total_product_quantity: { $sum: "$product.quantity" },
+                    level: { $addToSet: "$product.bay" },
+                    isle: { $addToSet: "$product.bin" },
+                    type: { $addToSet: "$product.type" },
+                    floorlevel: { $addToSet: "$product.floorlevel" },
+                }
+                
+                },
+                {
+                $project: {
+                    _id: 1,
+                    invoice: 1,
+                    suppliers: 1,
+                    date: 1,
+                    warehouse_name: 1,
+                    room: 1,
+                    product: 1,
+                    note: 1,
+                    paid_amount: 1,
+                    due_amount: 1,
+                    return_data: 1,
+                    batch_code: 1,
+                    expiry_date: 1,
+                    suppliers_docs: 1,
+                    total_product_quantity: 1,
+                    level: 1,
+                    isle: 1,
+                    type: 1,
+                    floorlevel:1
+                    
+                }
+            }
+        ]);
+    // res.json(purchases_data)
+
+        }
+
+    // res.status(200).json(purchases_data)
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+            // console.log(lan_data);
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+        
+        res.render("all_purchases_finished_logs", {
             success: req.flash('success'),
             errors: req.flash('errors'),
             purchases: purchases_data,
@@ -359,6 +545,114 @@ router.get("/view/add_purchases", auth, async (req, res) => {
 })
 
 
+router.get("/view/add_purchases_logs", auth, async (req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+
+        const profile_data = await profile.findOne({email : role_data.email})
+
+        const master = await master_shop.find()
+        // console.log("master" , master);
+        const staff_data = await staff.findOne({ email: role_data.email })
+        const suppliers_data = await suppliers.find({});
+
+        
+        let warehouse_data
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
+            // warehouse_data = await warehouse.find({status : 'Enabled', name: staff_data.warehouse });
+            warehouse_data = await warehouse.aggregate([
+                {
+                    $match: { 
+                        "status" : 'Enabled', 
+                        "name": staff_data.warehouse,
+                        // "warehouse_category" : "Finished Goods"
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$name",
+                        name: { $first: "$name"}
+                    }
+                },
+            ])
+        }else{
+            // warehouse_data = await warehouse.find({status : 'Enabled'});
+            warehouse_data = await warehouse.aggregate([
+                {
+                    $match: { 
+                        "status" : 'Enabled',
+                        // "warehouse_category" : "Finished Goods",
+                        // "name": { $ne: "QA Warehouse" }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$name",
+                        name: { $first: "$name"}
+                    }
+                },
+            ])
+        }
+        
+        
+        const product_data = await product.find({});
+        const find_data = await warehouse.find({status : 'Enabled'});
+        const purchases_data = await purchases_finished.find({})
+        const invoice_noint = purchases_data.length + 1
+        const invoice_no = "INCF-" + invoice_noint.toString().padStart(5, "0")
+        var rooms_data = ["Ambient", "Enclosed"];
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+        const randominv = getRandom8DigitNumber();
+
+        randominv.then(invoicedata => {
+            res.render("add_purchases_finished_logs", {
+                success: req.flash('success'),
+                errors: req.flash('errors'),
+                role : role_data,
+                profile : profile_data,
+                suppliers: suppliers_data,
+                warehouse: warehouse_data,
+                product: product_data,
+                invoice: invoicedata,
+                master_shop : master,
+                language : lan_data,
+                find_data,
+                rooms_data
+            })
+        }).catch(error => {
+            req.flash('errors', `There's a error in this transaction`)
+            res.redirect("/all_purchases_finished/view");
+        })
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
 router.get("/view/add_purchases/:id", auth, async (req, res) => {
     try {
         const product_name = req.params.id
@@ -380,7 +674,7 @@ router.get("/view/add_purchases/:id", auth, async (req, res) => {
 router.post("/view/add_purchases", auth, async (req, res) => {
     try {
         // console.log(req.body, "done");
-        const { invoice, date, warehouse_name, prod_name, note, due_amount, Room_name, PO_number, SCRN, ReqBy, dateofreq, suppliers, typeservicesData, van, typevehicle, driver, plate, DRSI, TSU, TFU, JO_number } = req.body
+        const { invoice, date, warehouse_name, prod_name, note, due_amount, Room_name, PO_number, SCRN, ReqBy, dateofreq, suppliers, typeservicesData, van, typevehicle, driver, plate, DRSI, TSU, TFU, JO_number, type_of_products } = req.body
         
         // res.json(req.body);
         // return;
@@ -523,7 +817,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
       
         const Newnewproduct = newproduct.filter(obj => obj.quantity !== "0" && obj.quantity !== "");
        
-        const data = new purchases_finished({ invoice : "INC-" + new_Invoice.invoice_init.toString().padStart(8, '0'), suppliers:suppliers, date, warehouse_name, product:Newnewproduct, note, due_amount, room: Room_name, POnumber: PO_number, SCRN, JO_number, ReqBy, dateofreq, typeservicesData, van, typevehicle, driver, plate, DRSI, TSU, TFU })
+        const data = new purchases_finished({ invoice : "INC-" + new_Invoice.invoice_init.toString().padStart(8, '0'), suppliers:suppliers, date, warehouse_name, product:Newnewproduct, note, due_amount, room: Room_name, POnumber: PO_number, SCRN, JO_number, ReqBy, dateofreq, typeservicesData, van, typevehicle, driver, plate, DRSI, TSU, TFU, typeOfProducts: type_of_products })
         const purchases_data = await data.save();
 
       
@@ -610,6 +904,405 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                         uuid: product_details.uuid,
                         gross_price: product_details.gross_price,
                         sales_category: product_details.sales_category
+                    })
+                }
+        
+                // warehouse_data.save();
+                return warehouse_data;
+            } catch (error) {
+                console.error("Error occurred while processing product:", error);
+                // Handle the error appropriately, e.g., by returning a failure indication.
+                return null;
+            }
+        });
+        
+
+        
+        
+
+
+
+
+        Promise.all(promises)
+            .then(async (updatedWarehouseDataArray) => {
+                try {
+
+                    for (const warehouseData of updatedWarehouseDataArray) {
+                        await warehouse.updateOne({ _id: warehouseData._id }, {
+                                $addToSet: {
+                                    product_details: { $each: warehouseData.product_details }
+                                }
+                        });
+                    }
+
+                    // res.json(updatedWarehouseDataArray)
+
+                    const master = await master_shop.find()
+                        const email_data = await email_settings.findOne()
+                        const supervisor_data = await supervisor_settings.find();
+
+                        var product_list = new_purchase.product
+
+                        var arrayItems = "";
+                        var n;
+
+                        for (n in product_list) {
+                            var dataVal = "FG"
+                            if(new_purchase.warehouse_name == "DRY GOODS"){
+                                dataVal = "DG"
+                            }
+                            arrayItems +=  '<tr>'+
+                                                '<td style="border: 1px solid black;">' + product_list[n].product_name + '</td>' +
+                                                '<td style="border: 1px solid black;">' + product_list[n].product_code + '</td>' +  
+                                                '<td style="border: 1px solid black;">' + product_list[n].quantity + '</td>' +
+                                                '<td style="border: 1px solid black;">' + product_list[n].standard_unit + '</td>' +
+                                                '<td style="border: 1px solid black;">' + product_list[n].secondary_unit + '</td>' +
+                                                '<td style="border: 1px solid black;">' + new_purchase.warehouse_name + '</td>' +
+                                                '<td style="border: 1px solid black;">' + product_list[n].room_name + '</td>' +
+                                                '<td style="border: 1px solid black;">' + dataVal+product_list[n].bay+ '</td>' 
+                                            '</tr>'
+                        }
+
+
+                        let mailTransporter = nodemailer.createTransport({
+                            host: email_data.host,
+                            port: Number(email_data.port),
+                            secure: false,
+                            auth: {
+                                user: email_data.email,
+                                pass: email_data.password
+                            }
+                        });
+
+                        let mailDetails = {
+                            from: email_data.email,
+                            to: supervisor_data[0].FGSEmail,
+                            subject:'Purchase Mail',
+                            attachments: [{
+                                filename: 'Logo.png',
+                                path: __dirname + '/../public' +'/upload/'+master[0].image,
+                                cid: 'logo'
+                           }],
+                            html:'<!DOCTYPE html>'+
+                                '<html><head><title></title>'+
+                                '</head><body>'+
+                                    '<div>'+
+                                        '<div style="display: flex; align-items: center; justify-content: center;">'+
+                                            '<div>'+
+                                                '<img src="cid:logo" class="rounded" width="66.5px" height="66.5px"></img>'+
+                                            '</div>'+
+                                        
+                                            '<div>'+
+                                                '<h2> '+ master[0].site_title +' </h2>'+
+                                            '</div>'+
+                                        '</div>'+
+                                        '<hr class="my-3">'+
+                                        '<div>'+
+                                            '<h5 style="text-align: left;">'+
+                                                ' Order Number : '+ new_purchase.invoice +' '+
+                                                '<span style="float: right;">'+
+                                                    ' Order Date : '+ new_purchase.date +' '+
+                                                '</span>'+
+                                                
+                                            '</h5>'+
+                                        '</div>'+
+                                        '<table style="width: 100% !important;">'+
+                                            '<thead style="width: 100% !important;">'+
+                                                '<tr>'+
+                                                    '<th style="border: 1px solid black;"> Product Name </th>'+
+                                                    '<th style="border: 1px solid black;"> Product Code </th>'+
+                                                    '<th style="border: 1px solid black;"> Product Quantity </th>'+
+                                                    '<th style="border: 1px solid black;"> Unit </th>'+
+                                                    '<th style="border: 1px solid black;"> Secondary Unit </th>'+
+                                                    '<th style="border: 1px solid black;"> Warehouse</th>'+
+                                                    '<th style="border: 1px solid black;"> Room</th>'+
+                                                    '<th style="border: 1px solid black;"> Location </th>'+
+                                                '</tr>'+
+                                            '</thead>'+
+                                            '<tbody style="text-align: center;">'+
+                                                ' '+ arrayItems +' '+
+                                            '</tbody>'+
+                                        '</table>'+
+                                    
+                                        '<div>'+
+                                            '<strong> Regards </strong>'+
+                                            '<h5>'+ master[0].site_title +'</h5>'+
+                                        '</div>'+
+                                    '</div>'+
+                                '</body></html>'
+                        };
+                        
+                        mailTransporter.sendMail(mailDetails, function(err, data) {
+                            if(err) {
+                                console.log(err);
+                                console.log('Error Occurs');
+                            } else {
+                                console.log('Email sent successfully');
+                            }
+                        });
+
+                    
+
+                    
+                } catch (error) {
+                    console.error(error);
+                    res.status(500).json({ error: 'An error occurred while saving data.', message: error.message });
+                }
+            })
+            .catch((error) => {
+                // Handle any errors that might have occurred during the process.
+                console.error(error);
+                // res.status(500).json({ error: 'An error occurred.' });
+            });
+
+    
+        req.flash('success', `purchase data add successfully`)
+        res.redirect("/all_purchases_finished/preview/"+new_purchase._id.valueOf());
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+router.post("/view/add_purchases_logs", auth, async (req, res) => {
+    try {
+        // console.log(req.body, "done");
+        const { invoice, date, warehouse_name, prod_name, note, due_amount, Room_name, PO_number, SCRN, ReqBy, dateofreq, suppliers, typeservicesData, van, typevehicle, driver, plate, DRSI, TSU, TFU, JO_number, type_of_products } = req.body
+        
+        // res.json(req.body);
+        // return;
+        
+        if(typeof prod_name == "string"){
+            var product_name_array = [req.body.prod_name]
+            var proudct_code_array = [req.body.prod_code]
+            var quantity_array = [req.body.prod_Qty]
+            var prod_unit_array =  [req.body.prod_primunit]
+            var prod_secondunit_array = [req.body.prod_secondunit]
+            var prod_level_array = [req.body.prod_level]
+            var prod_primaryCode_array = [req.body.primary_code]
+            var prod_SecondaryyCode_array = [req.body.secondary_code]
+            var MaxStocks_data_aray = [req.body.MaxStocks_data]
+            var batch_code_array = [req.body.batch_code]
+            var expiry_date_array = [req.body.expiry_date]
+            var product_date_array = [req.body.product_date]
+            var max_product_unit_array = [req.body.max_product_unit]
+            var prod_cat_array = [req.body.prod_cat]
+            var RoomAssign_array = [req.body.RoomAssign]
+            var gross_price_array = [req.body.gross_price]
+            var uuid_array = [req.body.uuid]
+            var sales_data_cateory_array = [req.body.sales_data_cateory]
+            var type_of_products_array = [req.body.type_of_products_type]
+        }else{
+            var product_name_array = [...req.body.prod_name]
+            var proudct_code_array = [...req.body.prod_code]
+            var quantity_array = [...req.body.prod_Qty]
+            var prod_unit_array =  [...req.body.prod_primunit]
+            var prod_secondunit_array = [...req.body.prod_secondunit]
+            var prod_level_array = [...req.body.prod_level]
+            var prod_primaryCode_array = [...req.body.primary_code]
+            var prod_SecondaryyCode_array = [...req.body.secondary_code]
+            var MaxStocks_data_aray = [...req.body.MaxStocks_data]
+            var batch_code_array = [...req.body.batch_code]
+            var expiry_date_array = [...req.body.expiry_date]
+            var product_date_array = [...req.body.product_date]
+            var max_product_unit_array = [...req.body.max_product_unit]
+            var prod_cat_array = [...req.body.prod_cat]
+            var RoomAssign_array = [...req.body.RoomAssign]
+            var gross_price_array = [...req.body.gross_price]
+            var uuid_array = [...req.body.uuid]
+            var sales_data_cateory_array = [...req.body.sales_data_cateory]
+            var type_of_products_array = [...req.body.type_of_products_type]
+        } 
+        
+        const newproduct = product_name_array.map((value)=>{
+            
+            return  value  = {
+                        product_name : value,
+                    }   
+        })
+
+        type_of_products_array.forEach((value,i) => {
+            newproduct[i].type_of_products = value
+        });
+
+        sales_data_cateory_array.forEach((value,i) => {
+            newproduct[i].sales_category = value
+        });
+
+        proudct_code_array.forEach((value,i) => {
+            newproduct[i].product_code = value
+        });
+
+        uuid_array.forEach((value,i) => {
+            newproduct[i].uuid = value
+        });
+        
+        quantity_array.forEach((value,i) => {
+            newproduct[i].quantity = Math.abs(value)
+        });
+        
+        prod_unit_array.forEach((value, i) => {
+            newproduct[i].standard_unit = value
+        })
+        
+        prod_secondunit_array.forEach((value, i) => {
+            newproduct[i].secondary_unit = value
+        })
+        
+         prod_level_array.forEach((value, i) => {
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].level = letter;
+            newproduct[i].bay = number
+        })
+        
+         prod_primaryCode_array.forEach((value, i) => {
+            newproduct[i].primary_code = value
+        })
+        
+         prod_SecondaryyCode_array.forEach((value, i) => {
+            newproduct[i].secondary_code = value
+        })
+
+        MaxStocks_data_aray.forEach((value, i) => {
+            newproduct[i].maxStocks = value
+        })
+
+        batch_code_array.forEach((value, i) => {
+            newproduct[i].batch_code = value
+        })
+
+        expiry_date_array.forEach((value, i) => {
+            newproduct[i].expiry_date = value
+        })
+
+        product_date_array.forEach((value, i) => {
+            newproduct[i].production_date = value
+        })
+
+        max_product_unit_array.forEach((value, i) => {
+            newproduct[i].maxperunit = value
+        })
+
+        prod_cat_array.forEach((value, i) => {
+            newproduct[i].product_cat = value
+        })
+
+        RoomAssign_array.forEach((value, i) => {
+            newproduct[i].room_name = value
+        })
+
+
+        gross_price_array.forEach((value, i) => {
+            newproduct[i].gross_price = value
+        });
+
+        // prod_invoice_array.forEach((value, i) => {
+        //     newproduct[i].invoice = value
+        // })
+
+        const new_Invoice = new purchases_logs();
+        await new_Invoice.save();
+
+        for (let index = 0; index <= RoomAssign_array.length -1; index++) {
+            // const element = array[index];
+            newproduct[index].invoice = "LOG-INC-" + new_Invoice.invoice_init.toString().padStart(8, '0');
+            
+        }
+        // console.log(RoomAssign_array.length)
+        // res.json(newproduct);
+        // return
+      
+        const Newnewproduct = newproduct.filter(obj => obj.quantity !== "0" && obj.quantity !== "");
+       
+        const data = new purchases_finished({ invoice : "LOG-INC-" + new_Invoice.invoice_init.toString().padStart(8, '0'), suppliers:suppliers, date, warehouse_name, product:Newnewproduct, note, due_amount, room: Room_name, POnumber: PO_number, SCRN, JO_number, ReqBy, dateofreq, typeservicesData, van, typevehicle, driver, plate, DRSI, TSU, TFU, typeOfProducts: type_of_products })
+        const purchases_data = await data.save();
+
+      
+
+        const new_purchase = await purchases_finished.findOne({ _id: purchases_data._id.valueOf() });
+
+        // res.json(purchases_data);
+        // return;
+
+        // --------- warehouse ------- //
+        
+        
+   
+        // const promises = new_purchase.product.map( async (product_details) => {
+        //     var warehouse_data = await warehouse.findOne({ name: warehouse_name, room: product_details.room_name });
+        //     var x = 0;
+        //     const match_data = warehouse_data.product_details.map((data) => {
+        //         console.log(data.product_name +"=="+ product_details.product_name  +"&&"+ data.bay +"=="+ product_details.bay +"&&"+ data.expiry_date +"=="+ product_details.expiry_date +"&&"+ data.production_date +"=="+ product_details.production_date +"&&"+ data.batch_code +"=="+ product_details.batch_code + "&&" + data.invoice + "==" + new_purchase.invoice)
+        //         if (data.product_name == product_details.product_name  && data.bay == product_details.bay && data.expiry_date == product_details.expiry_date && data.production_date == product_details.production_date && data.batch_code == product_details.batch_code && data.invoice == new_purchase.invoice) {
+        //             data.product_stock = Math.abs(data.product_stock) + Math.abs(product_details.quantity)
+        //             x++
+        //         }
+
+        //     })
+
+        //     if (x == "0") {
+        //         warehouse_data.product_details = warehouse_data.product_details.concat({ 
+        //             product_name: product_details.product_name, 
+        //             product_stock: Math.abs(product_details.quantity), 
+        //             primary_code: product_details.primary_code, 
+        //             secondary_code: product_details.secondary_code, 
+        //             product_code: product_details.product_code,
+        //             bay: product_details.bay,  
+        //             maxProducts: product_details.maxStocks, 
+        //             unit: product_details.standard_unit, 
+        //             secondary_unit: product_details.secondary_unit, 
+        //             expiry_date: product_details.expiry_date,
+        //             production_date: product_details.production_date ,
+        //             maxProducts: product_details.maxStocks,
+        //             maxPerUnit: product_details.maxperunit,
+        //             batch_code: product_details.batch_code,
+        //             product_cat: product_details.product_cat,
+        //             invoice: product_details.invoice
+        //         })
+        //     }
+        
+           
+        //     await warehouse_data.save();
+        //     return warehouse_data;
+        // })
+
+        const promises = new_purchase.product.map(async (product_details) => {
+            try {
+                var warehouse_data = await warehouse.findOne({ name: warehouse_name, room: product_details.room_name });
+                var x = 0;
+                const match_data = warehouse_data.product_details.map((data) => {
+                    console.log(data.product_name + "==" + product_details.product_name + "&&" + data.bay + "==" + product_details.bay + "&&" + data.expiry_date + "==" + product_details.expiry_date + "&&" + data.production_date + "==" + product_details.production_date + "&&" + data.batch_code + "==" + product_details.batch_code + "&&" + data.invoice + "==" + new_purchase.invoice)
+                    if (data.product_name == product_details.product_name && data.bay == product_details.bay && data.level == product_details.level && data.expiry_date == product_details.expiry_date && data.production_date == product_details.production_date && data.batch_code == product_details.batch_code && data.invoice == new_purchase.invoice) {
+                        data.product_stock = Math.abs(data.product_stock) + Math.abs(product_details.quantity)
+                        x++
+                    }
+                })
+
+                if (x == 0) {
+                    warehouse_data.product_details = warehouse_data.product_details.concat({
+                        product_name: product_details.product_name,
+                        product_stock: Math.abs(product_details.quantity),
+                        primary_code: product_details.primary_code,
+                        secondary_code: product_details.secondary_code,
+                        product_code: product_details.product_code,
+                        bay: product_details.bay,
+                        level: product_details.level,
+                        maxProducts: product_details.maxStocks,
+                        unit: product_details.standard_unit,
+                        secondary_unit: product_details.secondary_unit,
+                        expiry_date: product_details.expiry_date,
+                        production_date: product_details.production_date,
+                        maxProducts: product_details.maxStocks,
+                        maxPerUnit: product_details.maxperunit,
+                        batch_code: product_details.batch_code,
+                        product_cat: product_details.product_cat,
+                        invoice: product_details.invoice,
+                        id_incoming: product_details._id,
+                        uuid: product_details.uuid,
+                        gross_price: product_details.gross_price,
+                        sales_category: product_details.sales_category,
+                        type_products: product_details.typeOfProducts
                     })
                 }
         
@@ -1855,5 +2548,125 @@ router.post("/CheckingWarehouse", async (req, res) => {
         res.status(404).json({ message: error.message })
     }
 
+})
+
+
+router.post("/barcode_scanner_logs", async (req, res) => {
+    const { product_code } = req.body
+    
+
+ var checkData;
+    const product_data1 = await product.aggregate([
+        {
+            $match:{
+                "primary_code": product_code,
+                "type_products": "log"
+            }
+        },
+        {
+            $group:{
+                _id: "$_id",
+                name: { $first: "$name" },
+                category:  { $first:  "$category" },
+                brand:  { $first: "$brand" },
+                unit:  { $first: "$unit" },
+                alertquantity:  { $first: "$alertquantity" },
+                product_code:  { $first: "$product_code" },
+                primary_code:  { $first: "$primary_code" },
+                secondary_code:  { $first: "$secondary_code" },
+                maxStocks:  { $first: "$maxStocks" },
+                maxProdPerUnit:  { $first: "$maxProdPerUnit" },
+                product_cat: { $first : "P" },
+                secondary_unit: { $first: "$secondary_unit" },
+                gross_price: { $first: "$gross_price"},
+                sales_category: { $first: "$sales_category" },
+                type_products : { $first: "$type_products" }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                category: 1,
+                brand: 1,
+                unit: 1,
+                alertquantity: 1,
+                product_code: 1,
+                primary_code: 1,
+                secondary_code: 1,
+                maxStocks: 1,
+                maxProdPerUnit: 1,
+                product_cat: 1,
+                secondary_unit: 1,
+                gross_price: 1,
+                sales_category: 1,
+                type_products: 1
+            }
+        }
+    ])
+
+console.log(product_data1)
+    const product_data2 = await product.aggregate([
+        {
+            $match:{
+                "secondary_code": product_code,
+                "type_products": "log"
+            }
+        },
+        {
+            $group:{
+                _id: "$_id",
+                name: { $first: "$name" },
+                category:  { $first:  "$category" },
+                brand:  { $first: "$brand" },
+                unit:  { $first: "$unit" },
+                alertquantity:  { $first: "$alertquantity" },
+                product_code:  { $first: "$product_code" },
+                primary_code:  { $first: "$primary_code" },
+                secondary_code:  { $first: "$secondary_code" },
+                maxStocks:  { $first: "$maxStocks" },
+                maxProdPerUnit:  { $first: "$maxProdPerUnit" },
+                product_cat: { $first : "S" },
+                secondary_unit: { $first: "$secondary_unit" },
+                gross_price: { $first: "$gross_price"},
+                sales_category: { $first: "$sales_category" },
+                type_products : { $first: "$type_products" }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                category: 1,
+                brand: 1,
+                unit: 1,
+                alertquantity: 1,
+                product_code: 1,
+                primary_code: 1,
+                secondary_code: 1,
+                maxStocks: 1,
+                maxProdPerUnit: 1,
+                product_cat: 1,
+                secondary_unit: 1,
+                gross_price: 1,
+                sales_category: 1,
+                type_products: 1
+            }
+        }
+    ])
+
+
+    
+
+
+    if(product_data1.length > 0){
+        checkData = product_data1;
+    }else if(product_data2.length > 0){
+        checkData = product_data2;
+     
+    }
+    
+    res.json( checkData )
+    
 })
 module.exports = router;
