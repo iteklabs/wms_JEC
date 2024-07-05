@@ -213,7 +213,8 @@ router.get("/view_sales/:id", auth,  async(req, res) => {
 router.post("/add_sales", auth,  async(req, res) => {
     try {
         const {customer, date, prod_code, note, paid_status,JD} = req.body
-        
+        // res.json(req.body.dicount_price)
+        // return;
         if(typeof prod_code == "string"){
             var prod_code_array = [req.body.prod_code];
             var prod_name_array = [req.body.prod_name];
@@ -237,12 +238,15 @@ router.post("/add_sales", auth,  async(req, res) => {
             var dicount_price_array = [...req.body.dicount_price];
             var tmpisFG_array = [...req.body.tmpisFG];
         }
+        
         const newproduct = prod_code_array.map((value)=>{
             
             return  value  = {
                         product_code : value,
                     }
         })
+        
+        
         prod_name_array.forEach((value,i) => {
             newproduct[i].product_name = value
         });
@@ -275,7 +279,7 @@ router.post("/add_sales", auth,  async(req, res) => {
         tmpisFG_array.forEach((value, i) => {
             newproduct[i].isFG = value
         });
-        
+       
         const data_approver = await approver_acct.aggregate([
             {
                 $unwind: "$member"
@@ -319,18 +323,18 @@ router.post("/add_sales", auth,  async(req, res) => {
             req.flash("errors", `No Approvers Set Please contact admin to setup`)
             return res.redirect("back")
         }
-    
+        
         const invoice = new invoice_for_sales_order();
         await invoice.save();
         // res.json(data_approver[0].head_staff_info);
         // return
         const role_data = req.user
         const staff_data = await staff.findOne({email: role_data.email});
-        
+       
 
         const data = new sales_order({ invoice: invoice.invoice_init.toString().padStart(8, '0'), customer: customer, date: date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf(), JD:JD, accounting_account_id: data_approver[0].head_id_staff });
         const sales_data = await data.save();
-
+        
 
         var product_list = sales_data.sale_product
 
@@ -366,7 +370,7 @@ router.post("/add_sales", auth,  async(req, res) => {
         
 
         const baseURL = req.protocol+'://'+req.headers.host;
-        // console.log(baseURL)
+       
         let mailDetails = {
             from: email_data.email,
             to: data_approver[0].head_staff_info.email + ";christian.villamer@jakagroup.com",

@@ -486,7 +486,7 @@
                                             if(element.min_car <= theQTY && element.max_car >= theQTY){
                                                 // console.log(element.min_car + " <> " + element.max_car + " <> " + element.discount_price)
                                                 document.getElementById("dicount_price"+i).value = element.discount_price;
-                                                document.getElementById("dicount_price"+i).disabled = true;
+                                                document.getElementById("dicount_price"+i).readOnly = true;
                                                 computePerPrice(i)
                                             }
                                         }
@@ -530,7 +530,7 @@
                         document.getElementById("dicount_price"+i).value = total_discount.toFixed(2);
                         // document.getElementById("totalPrice"+i).value = gross_price.toFixed(2);
                         computePerPrice(i);
-                        document.getElementById("dicount_price"+i).disabled = true;
+                        document.getElementById("dicount_price"+i).readOnly = true;
                         
                     }
 
