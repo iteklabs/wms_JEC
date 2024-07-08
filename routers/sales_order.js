@@ -18,28 +18,46 @@ router.get("/", auth,  async(req, res) => {
         const role_data = req.user
         const profile_data = await profile.findOne({email : role_data.email});
         const staff_data = await staff.findOne({email: role_data.email});
-        const sales_data = await sales_order.find({ sales_staff_id : staff_data._id });
-    
+        // const sales_data = await sales_order.find({ sales_staff_id : staff_data._id });
+        const sales_data = await sales_order.aggregate([
+            { 
+                $match: {
+                    sales_staff_id : staff_data._id.valueOf()
+                }
+            },
+            {
+                $unwind: "$sale_product"
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    invoice: { $first: "$invoice"},
+                    customer: { $first: "$customer"},
+                    date: { $first: "$date"},
+                    JD: { $first: "$JD"},
+                    accounting_account_confirm: { $first: "$accounting_account_confirm"},
+                    wms_account_confirm: { $first: "$wms_account_confirm"},
+                    totalQTY: { $sum: "$sale_product.quantity" },
+                }
+            }
+        ]);
+
+        // res.json(sales_data)
+        // return;
         if (master[0].language == "English (US)") {
             var lan_data = users.English
         } else if(master[0].language == "Hindi") {
             var lan_data = users.Hindi
-
         }else if(master[0].language == "German") {
             var lan_data = users.German
-        
         }else if(master[0].language == "Spanish") {
             var lan_data = users.Spanish
-        
         }else if(master[0].language == "French") {
             var lan_data = users.French
-        
         }else if(master[0].language == "Portuguese (BR)") {
             var lan_data = users.Portuguese
-        
         }else if(master[0].language == "Chinese") {
             var lan_data = users.Chinese
-        
         }else if(master[0].language == "Arabic (ae)") {
             var lan_data = users.Arabic
         }
@@ -212,7 +230,7 @@ router.get("/view_sales/:id", auth,  async(req, res) => {
 
 router.post("/add_sales", auth,  async(req, res) => {
     try {
-        const {customer, date, prod_code, note, paid_status,JD} = req.body
+        const {customer, date, prod_code, note, paid_status,JD, po_number, desire_date} = req.body
         // res.json(req.body.dicount_price)
         // return;
         if(typeof prod_code == "string"){
@@ -332,7 +350,7 @@ router.post("/add_sales", auth,  async(req, res) => {
         const staff_data = await staff.findOne({email: role_data.email});
        
 
-        const data = new sales_order({ invoice: invoice.invoice_init.toString().padStart(8, '0'), customer: customer, date: date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf(), JD:JD, accounting_account_id: data_approver[0].head_id_staff });
+        const data = new sales_order({ invoice: invoice.invoice_init.toString().padStart(8, '0'), customer: customer, date: date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf(), JD:JD, accounting_account_id: data_approver[0].head_id_staff, po_number: po_number, desired_delivery: desire_date });
         const sales_data = await data.save();
         
 

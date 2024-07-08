@@ -2669,6 +2669,12 @@ const sales_order_data = new mongoose.Schema({
     },
     outgoing_id: {
         type: String
+    }, 
+    po_number: {
+        type: String
+    },
+    desired_delivery: {
+        type: String
     }
 })
 const sales_order = new mongoose.model("sales_orders", sales_order_data);

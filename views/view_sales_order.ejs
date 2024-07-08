@@ -79,8 +79,23 @@
 
                                                         <div class="col-xl-4 col-sm-4">
                                                             <div class="form-group">
-                                                                <label for="invoice_no">JD<span class="text-red">*</span></label>
+                                                                <label for="invoice_no">Sales Order Number<span class="text-red">*</span></label>
                                                                 <span><h3><%= sales_sa.JD %></h3></span>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">PO Number<span class="text-red">*</span></label>
+                                                                <span><h3><%= sales_sa.po_number %></h3></span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Desired Delivery Date<span class="text-red">*</span></label>
+                                                                <span><h3><%= sales_sa.desired_delivery %></h3></span>
                                                             </div>
                                                         </div>
                                                             
@@ -165,7 +180,7 @@
                                                                         <td>Accounting</td>
                                                                         <td><%= approvers.account_data.name %></td>
                                                                         <td>
-                                                                          
+                                                                        
                                                                             <% if (sales_sa.accounting_account_confirm == "false") {  %>
                                                                                 <div class="alert alert-dark text-center" role="alert">Pending</div>
                                                                             <% }else{ %>

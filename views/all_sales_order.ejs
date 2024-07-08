@@ -41,9 +41,12 @@
                                                 class="table table-responsive-sm text-center">
                                                 <thead>
                                                     <tr>
-                                                        <th>Invoice Number </th>
+                                                        <th>Document Number </th>
                                                         <th><%= language.date %> </th>
                                                         <th><%= language.customer %> </th>
+                                                        <th>Sales Order Number </th>
+                                                        <th>Status </th>
+                                                        <th>Quantity </th>
                                                         <th></th>
                                                     </tr>
                                                 </thead>
@@ -53,6 +56,15 @@
                                                             <td><%= data.invoice %></td>
                                                             <td><%= data.date %></td>
                                                             <td><%= data.customer %></td>
+                                                            <td><%= data.JD %></td>
+                                                            <td>
+                                                                <% if( data.accounting_account_confirm == "true" && data.wms_account_confirm == "true"){ %>
+                                                                    <div class="alert alert-success text-center" role="alert">Approved</div>
+                                                                <% }else { %>
+                                                                    <div class="alert alert-dark text-center" role="alert">Pending</div>
+                                                                <% } %>
+                                                            </td>
+                                                            <td><%= data.totalQTY %></td>
                                                             <td>
                                                                 <a href="/sales_order/view_sales/<%= data._id %>">
                                                                     <button type="button" class="btn btn-success m-1">view </button>
