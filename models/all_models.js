@@ -506,7 +506,23 @@ const customer_data = new mongoose.Schema({
                 default: 0
             },
         }
-    ]
+    ],
+    type_organization:{
+        type: String
+    },
+    business_start_year: {
+        type: String
+    },
+    credit_limit: {
+        type: String
+    },
+    terms_of_payments: {
+        type: String
+    },
+    res_address:{
+        type: String
+    }
+
 })
 
 const customer = new mongoose.model("customer", customer_data);

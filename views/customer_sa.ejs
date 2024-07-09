@@ -99,8 +99,8 @@
                                                     <tr>
                                                         <th class="customer_thead_name"><%= language.name %></th>
                                                         <th class="customer_thead_address"><%= language.address %> </th>
-                                                        <th class="customer_thead_mobile"><%= language.mobile %> </th>
-                                                        <th class="customer_thead_email"><%= language.email %> </th>    
+                                                        <!-- <th class="customer_thead_mobile"><%= language.mobile %> </th>
+                                                        <th class="customer_thead_email"><%= language.email %> </th>     -->
                                                         <th class="customer_thead_edit"><%= language.edit %> </th>
                                                    
                                                     </tr>
@@ -121,7 +121,7 @@
                                                                         
                                                                     </td>
                                                                 
-                                                                    <td class="customer_thead_mobile">
+                                                                    <!-- <td class="customer_thead_mobile">
                                                                         <%= user.mobile %>
                                                                         
                                                                     </td>
@@ -129,7 +129,7 @@
                                                                     <td class="customer_tbody_email">
                                                                         <%= user.email %>
                                                                         
-                                                                    </td>
+                                                                    </td> -->
                                                                 
                                                                     <!--<td class="customer_thead_receivable">-->
                                                                     <!--    <%= user.sale.toLocaleString() %> <%= master_shop[0].currency %>-->
@@ -182,7 +182,7 @@
                                                                         
                                                                     </td>
                                                                 
-                                                                    <td class="customer_thead_mobile">
+                                                                    <!-- <td class="customer_thead_mobile">
                                                                         <%= user.mobile %>
                                                                         
                                                                     </td>
@@ -190,7 +190,7 @@
                                                                     <td class="customer_tbody_email">
                                                                         <%= user.email %>
                                                                         
-                                                                    </td>
+                                                                    </td> -->
                                                                                                                                 
                                                                     <td class="customer_tbody_edit">
                                                                         <button type="button" class="badge badge-lg badge-success">
@@ -202,6 +202,11 @@
                                                                                 data-email="<%= user.email %>"
                                                                                 data-contactperson="<%= user.contactperson %>"
                                                                                 data-landline="<%= user.landline %>"
+                                                                                data-business_start_year="<%= user.business_start_year %>"
+                                                                                data-credit_limit="<%= user.credit_limit %>"
+                                                                                data-terms_of_payments="<%= user.terms_of_payments %>"
+                                                                                data-res_address="<%= user.res_address %>"
+                                                                                data-type_organization="<%= user.type_organization %>"
                                                                                 data-volume="<%= JSON.stringify(user.customer_discount) %>"
                                                                                 data-id="<%= user._id %>"><i class="la la-pencil"></i>
                                                                                 <%= language.edit %> </a>
@@ -259,33 +264,32 @@
                                     <div class="modal-body">
                                         <div class="row">
                                             <div class="mb-3 col-md-6">
-                                                <label for="recipient-name" class="col-form-label"><%= language.name %>  <span class="text-red">*</span>
+                                                <label for="recipient-name" class="col-form-label"> Business <%= language.name %>  <span class="text-red">*</span>
                                                 </label>
                                                 <input type="text" class="form-control" id="recipient-name"
                                                     placeholder="customer Name" name="name" required>
                                             </div>
 
                                             <div class="mb-3 col-md-6">
-                                                <label for="recipient-name" class="col-form-label"><%= language.address %> 
+                                                <label for="recipient-name" class="col-form-label">Business <%= language.address %> 
                                                 </label>
                                                 <input type="text" class="form-control" id="recipient-address"
                                                     placeholder="address" name="address">
                                             </div>
                                         </div>
 
+
                                         <div class="row">
                                             <div class="mb-3 col-md-6">
-                                                <label for="recipient-name" class="col-form-label"><%= language.mobile %> 
+                                                <label for="recipient-name" class="col-form-label"> Type of Organization<span class="text-red">*</span>
                                                 </label>
-                                                <input type="number" class="form-control" id="recipient-mobile"
-                                                    placeholder="mobile" name="mobile" >
+                                                <input type="text" class="form-control" id="type_org" name="type_org" required>
                                             </div>
 
                                             <div class="mb-3 col-md-6">
-                                                <label for="recipient-name" class="col-form-label"><%= language.email %> 
+                                                <label for="recipient-name" class="col-form-label">Residence <%= language.address %> 
                                                 </label>
-                                                <input type="email" class="form-control" id="recipient-email"
-                                                    placeholder="email" name="email" >
+                                                <input type="text" class="form-control" id="res_address" name="res_address">
                                             </div>
                                         </div>
 
@@ -299,12 +303,35 @@
                                             </div>
     
                                             <div class="mb-3 col-md-6">
-                                                <label for="recipient-password" class="col-form-label">Landline
+                                                <label for="recipient-password" class="col-form-label">Contact Number
                                                 </label>
                                                 <input type="text" class="form-control" id="andline"
                                                     value="" name="landline">
                                             </div>
                                         </div>
+
+                                        <div class="row">
+                                            <div class="mb-3 col-md-6">
+                                                <label for="recipient-name" class="col-form-label">Business Start Up Year
+                                                </label>
+                                                <input type="number" class="form-control" id="business_start_year" name="business_start_year" >
+                                            </div>
+
+                                            <div class="mb-3 col-md-6">
+                                                <label for="recipient-name" class="col-form-label">Credit Limit
+                                                </label>
+                                                <input type="number" class="form-control" id="credit_limit" name="credit_limit" >
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="mb-3 col-md-6">
+                                                <label for="recipient-name" class="col-form-label">Terms of Payment
+                                                </label>
+                                                <input type="text" class="form-control" id="term_pay" name="term_pay" >
+                                            </div>
+                                        </div>
+                                        
 
                                         <div class="row">
                                             <div class="mb-3 col-md-12">
@@ -377,7 +404,7 @@
                                         </div>
 
 
-                                        <div class="row">
+                                        <!-- <div class="row">
                                             <div class="mb-3 col-md-6">
                                                 <label for="recipient-email" class="col-form-label"><%= language.mobile %> 
                                                 </label>
@@ -391,6 +418,21 @@
                                                 <input type="email" class="form-control" id="edit-email"
                                                     value="<%= user.email %>" name="email" >
                                             </div>
+                                        </div> -->
+
+
+                                        <div class="row">
+                                            <div class="mb-3 col-md-6">
+                                                <label for="recipient-name" class="col-form-label"> Type of Organization<span class="text-red">*</span>
+                                                </label>
+                                                <input type="text" class="form-control" id="edit_type_org" name="edit_type_org" required>
+                                            </div>
+
+                                            <div class="mb-3 col-md-6">
+                                                <label for="recipient-name" class="col-form-label">Residence <%= language.address %> 
+                                                </label>
+                                                <input type="text" class="form-control" id="edit_res_address" name="edit_res_address">
+                                            </div>
                                         </div>
 
 
@@ -403,7 +445,7 @@
                                             </div>
 
                                             <div class="mb-3 col-md-6">
-                                                <label for="recipient-password" class="col-form-label">Landline
+                                                <label for="recipient-password" class="col-form-label">Contact Number
                                                 </label>
                                                 <input type="text" class="form-control" id="edit-landline"
                                                     value="<%= user.landline %>" name="landline">
@@ -412,8 +454,31 @@
 
 
                                         <div class="row">
+                                            <div class="mb-3 col-md-6">
+                                                <label for="recipient-name" class="col-form-label">Business Start Up Year
+                                                </label>
+                                                <input type="number" class="form-control" id="edit_business_start_year" name="edit_business_start_year" >
+                                            </div>
+
+                                            <div class="mb-3 col-md-6">
+                                                <label for="recipient-name" class="col-form-label">Credit Limit
+                                                </label>
+                                                <input type="number" class="form-control" id="edit_credit_limit" name="edit_credit_limit" >
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="mb-3 col-md-6">
+                                                <label for="recipient-name" class="col-form-label">Terms of Payment
+                                                </label>
+                                                <input type="text" class="form-control" id="edit_term_pay" name="edit_term_pay" >
+                                            </div>
+                                        </div>
+
+
+                                        <div class="row">
                                             <div class="mb-3 col-md-12">
-                                                <span class="text-info">Volume Discount</span>
+                                                <span class="text-info">Customer Discount</span>
                                                 <table class="table primary-table-bordered" id="discount_table">
                                                     <thead>
                                                         <tr>
@@ -587,6 +652,17 @@
         let dataContactperson = $(this).attr("data-contactperson");
         let datalandline = $(this).attr("data-landline")
         let datavolume = JSON.parse($(this).attr("data-volume"));
+
+        let business_start_year  = $(this).attr("data-business_start_year");
+        let credit_limit = $(this).attr("data-credit_limit");
+        let terms_of_payments = $(this).attr("data-terms_of_payments");
+        let res_address  = $(this).attr("data-res_address");
+        let type_organization = $(this).attr("data-type_organization");
+        
+        
+        
+        
+        
         // console.log(datavolume);
 
         $("#edit_form").attr('action', '/customer_sa/view/' + dataId);
@@ -596,6 +672,16 @@
         $('#edit-mobile').attr('value', dataMobile);
         $('#edit-contactperson').attr('value', dataContactperson);
         $('#edit-landline').attr('value', datalandline);
+        $('#edit_business_start_year').attr('value', business_start_year);
+        $('#edit_res_address').attr('value', res_address);
+        $('#edit_credit_limit').attr('value', credit_limit);
+        $('#edit_term_pay').attr('value', terms_of_payments);
+        $('#edit_type_org').attr('value', type_organization);
+        
+        
+        
+        
+        
         document.getElementById("discount_table_edit").innerHTML = "";
 
         for (let index = 0; index <= datavolume.length - 1; index++) {

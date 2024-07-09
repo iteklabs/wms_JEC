@@ -99,7 +99,9 @@ router.get("/view", auth,  async(req, res) => {
 
 router.post("/view", auth, async(req, res) => {
     try{
-        const {name, address, mobile, email, receivable, payable, contactperson, landline, agent_id, less_percent} = req.body;
+        const {name, address, mobile, email, receivable, payable, contactperson, landline, agent_id, less_percent, type_org, res_address, business_start_year, credit_limit, term_pay} = req.body;
+        // res.json(req.body);
+        // return;
         
         if(typeof less_percent == "string"){
             var less_percent_array = [req.body.less_percent];
@@ -117,7 +119,7 @@ router.post("/view", auth, async(req, res) => {
         // res.json(newproduct);
         // return;
 
-        const data = new customer({name, address, mobile, email, receivable, payable, customer_discount: newproduct, contactperson, landline, agent_id})
+        const data = new customer({name, address, mobile, email, receivable, payable, customer_discount: newproduct, contactperson, landline, agent_id, res_address: res_address, type_organization: type_org, business_start_year: business_start_year, credit_limit: credit_limit, terms_of_payments: term_pay})
 
         const userdata = await data.save();
         // console.log(userdata);
@@ -186,9 +188,10 @@ router.post("/view/:id", auth, async(req, res) => {
     try{
         const _id = req.params.id;
         const data = await customer.findById(_id);
-        const {name, address, mobile, email, receivable, payable, contactperson, landline, less_percent_edit} = req.body;
+        const {name, address, mobile, email, receivable, payable, contactperson, landline, less_percent_edit, edit_type_org, edit_res_address, edit_business_start_year, edit_credit_limit, edit_term_pay} = req.body;
 
-        
+            // res.json(req.body);
+            // return;
         if(typeof less_percent_edit == "string"){
             var less_percent_edit_array = [req.body.less_percent_edit];
         }else{
@@ -202,10 +205,6 @@ router.post("/view/:id", auth, async(req, res) => {
                     }
         });
 
-
-
-        // res.json(newproduct);
-        // return
         data.name = name
         data.address = address
         data.mobile = mobile
@@ -215,10 +214,17 @@ router.post("/view/:id", auth, async(req, res) => {
         data.contactperson = contactperson
         data.landline = landline
         data.customer_discount = newproduct
-
+        data.type_organization = edit_type_org
+        data.business_start_year = edit_business_start_year
+        data.credit_limit = edit_credit_limit
+        data. terms_of_payments = edit_term_pay
+        data.res_address = edit_res_address
+        
         const new_data = await data.save();
         req.flash('success', `customer update successfully`)
         res.redirect("/customer_sa/view")
+
+        
     }catch(error){
         console.log(error);
     }   
