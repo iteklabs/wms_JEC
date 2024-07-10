@@ -81,7 +81,7 @@
                                                         <th class="staff_thead_email"><%= language.email %> </th>
                                                         <th class="staff_thead_mobile"><%= language.mobile %> </th>
                                                         <th class="staff_thead_warehouse"><%= language.warehouse %> </th>
-                                                        <th class="staff_thead_position">Position</th>
+                                                        <!-- <th class="staff_thead_position">Position</th> -->
                                                         <th class="staff_thead_status"><%= language.status %> </th>
                                                         <th class="staff_thead_edit"><%= language.edit %> </th>
                                                         <th class="staff_thead_login"><%= language.login %></th>
@@ -109,9 +109,9 @@
                                                                     <%= user.warehouse %>
                                                                 </td>
                                                                 
-                                                                 <td class="staff_tbody_mobile">
+                                                                 <!-- <td class="staff_tbody_mobile">
                                                                     <%= user.position %>
-                                                                </td>
+                                                                </td> -->
                                                                 <td class="staff_tbody_status">
                                                                     <% if(user.status == "Enabled"){ %>
                                                                         <span class="badge badge-lg badge-outline-info"><%= user.status %></span>
