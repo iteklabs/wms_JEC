@@ -341,6 +341,9 @@ const staff_data = new mongoose.Schema({
         type: String,
         unique: true
     },
+    district: {
+        type: String
+    },
     product_list: [
         {
             product_name: {
@@ -1481,6 +1484,12 @@ const sales_data_finished = new mongoose.Schema({
         type: String
     },
     typeOfProducts: {
+        type: String
+    },
+    pullout_date: {
+        type: String
+    },
+    actualdelivery_date: {
         type: String
     }
 })

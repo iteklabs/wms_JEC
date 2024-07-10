@@ -847,7 +847,7 @@ router.post("/view/add_sale/product", auth, async (req, res) => {
 
 router.post("/view/add_sales", auth, async (req, res) => {
     try {
-        const { invoice, date, warehouse_name, product_name, note, room, primary_code, secondary_code, prod_code,  SCRN, ReqBy, dateofreq, PO_number, typeservicesData,  typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU, mode_transpo, name_driver } = req.body
+        const { invoice, date, warehouse_name, product_name, note, room, primary_code, secondary_code, prod_code,  SCRN, ReqBy, dateofreq, PO_number, typeservicesData,  typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU, mode_transpo, name_driver, pull_out_date, actual_delivery_date } = req.body
        
         if(typeof product_name == "string"){
             var product_name_array = [req.body.product_name]
@@ -995,7 +995,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
         }
         const Newnewproduct = newproduct.filter(obj => obj.quantity !== "0" && obj.quantity !== "");
         
-        const data = new sales_finished({ invoice: "OUT-" + Invoice_out.invoice_init.toString().padStart(8, '0'), sales_data: req.body.sales, customer: req.body.customer, date, warehouse_name, sale_product:Newnewproduct, note, room, primary_code, secondary_code, prod_code, SCRN, finalize: "False", mode_transpo,name_driver, ReqBy, dateofreq, PO_number, typeservicesData, typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU })
+        const data = new sales_finished({ invoice: "OUT-" + Invoice_out.invoice_init.toString().padStart(8, '0'), sales_data: req.body.sales, customer: req.body.customer, date, warehouse_name, sale_product:Newnewproduct, note, room, primary_code, secondary_code, prod_code, SCRN, finalize: "False", mode_transpo,name_driver, ReqBy, dateofreq, PO_number, typeservicesData, typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU, pullout_date: pull_out_date, actualdelivery_date: actual_delivery_date })
         const purchases_data = await data.save()
         const new_sales = await sales_finished.findOne({ invoice: invoice });
         req.flash("success", "Sales Add successfully")

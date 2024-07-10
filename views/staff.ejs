@@ -135,6 +135,7 @@
                                                                             data-account_cat = "<%= user.account_category %>"
                                                                             data-type_of_acc_cat = "<%= user.type_of_acc_cat %>"
                                                                             data-sales_man_code = "<%= user.sales_man_code %>"
+                                                                            data-district = "<%= user.district %>"
                                                                             data-id="<%= user._id %>"><i class="la la-pencil"></i>
                                                                             <%= language.edit %></a>
 
@@ -216,6 +217,9 @@
                                                     <option value="wm">Warehouse Account</option>
                                                     <option value="sa">Sales Account</option>
                                                     <option value="acc">Accounting Account</option>
+                                                    <option value="rsm">RSM</option>
+                                                    <option value="fss">FSS</option>
+                                                    <option value="gm">GM</option>
                                                 </select>
                                             </div>
 
@@ -230,10 +234,26 @@
                                             </div>
                                             
                                             
-                                           </div>  
+                                        </div>  
 
-                                                              
-                                      <div class="row">                          
+                                        <div class="row">                          
+                                            <div class="mb-3 col-md-12">
+                                                <label for="warrehouse">District<span class="text-red">*</span> </label>
+                                                <select class="form-control" name="district" id="district" required>
+                                                    <option value="">Select</option>
+                                                    <option value="clz">Central Luzon</option>
+                                                    <option value="gma">GMA</option>
+                                                    <option value="nlz">North Luzon</option>
+                                                    <option value="slz">South Luzon</option>
+                                                    <option value="cvs">Central Visayas</option>
+                                                    <option value="wvs">Western Visayas</option>
+                                                    <option value="nmo">Northern Mindanao</option>
+                                                    <option value="smo">Southern Mindanao</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    <div class="row">
                                         <div class="mb-3 col-md-6">
                                             <label for="warrehouse">Warehouse <span class="text-red">*</span> </label>
                                             <select class="form-control" name="warehouse" id="warehouse" required>
@@ -364,6 +384,9 @@
                                                 <option value="wm" <%= user.account_category == "wm" ? "selected" : "" %> >Warehouse Account</option>
                                                 <option value="sa" <%= user.account_category == "fg" ? "selected" : "" %> >Sales Account</option>
                                                 <option value="acc" <%= user.account_category == "acc" ? "selected" : "" %> >Accounting Account</option>
+                                                <option value="rsm" <%= user.account_category == "rsm" ? "selected" : "" %> >RSM</option>
+                                                <option value="fss" <%= user.account_category == "fss" ? "selected" : "" %>>FSS</option>
+                                                <option value="gm" <%= user.account_category == "gm" ? "selected" : "" %>>GM</option>
                                             </select>
                                         </div>
 
@@ -377,7 +400,23 @@
                                         </div>
                                         
                                         
-                                       </div>  
+                                       </div>
+                                       <div class="row">                          
+                                        <div class="mb-3 col-md-12">
+                                            <label for="warrehouse">District<span class="text-red">*</span> </label>
+                                            <select class="form-control" name="district_edit" id="district_edit" required>
+                                                <option value="">Select</option>
+                                                <option value="clz" <%= user.district == "clz" ? "selected" : "" %>>Central Luzon</option>
+                                                <option value="gma" <%= user.district == "gma" ? "selected" : "" %>>GMA</option>
+                                                <option value="nlz" <%= user.district == "nlz" ? "selected" : "" %>>North Luzon</option>
+                                                <option value="slz" <%= user.district == "slz" ? "selected" : "" %>>South Luzon</option>
+                                                <option value="cvs" <%= user.district == "cvs" ? "selected" : "" %>>Central Visayas</option>
+                                                <option value="wvs" <%= user.district == "wvs" ? "selected" : "" %>>Western Visayas</option>
+                                                <option value="nmo" <%= user.district == "nmo" ? "selected" : "" %>>Northern Mindanao</option>
+                                                <option value="smo" <%= user.district == "smo" ? "selected" : "" %>>Southern Mindanao</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                        <div class="row">
                                         <div class="mb-3 col-md-6">
                                             <label for="warrehouse">Warehouse <span class="text-red">*</span> </label>
@@ -450,6 +489,7 @@
 
         let data_type_acct = $(this).attr("data-type_of_acc_cat");
         let sales_man_code = $(this).attr("data-sales_man_code");
+        let dsitrict_data = $(this).attr("data-district");
 
         $("#edit_form").attr('action', '/staff/view/' + dataId);
         $('#edit-name').attr('value', dataName);
@@ -462,6 +502,7 @@
         $("#edit-warehouse").val(datawarehouse).attr("selected", "selected");
         $("#account_edit_cat").val(account_category).attr("selected", "selected");
         $("#sales_cat2").val(data_type_acct).attr("selected", "selected");
+        $("#district_edit").val(dsitrict_data).attr("selected", "selected");
     });
     </script>
 

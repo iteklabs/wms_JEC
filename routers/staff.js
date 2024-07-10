@@ -79,9 +79,9 @@ router.get("/view", auth, async(req, res) => {
 
 router.post("/view", auth, async(req, res) => {
     try{
-        const {name, email, mobile, password, status, warehouse, position, warehouse_cat, account_cat, sales_cat, sales_man_code} = req.body;
+        const {name, email, mobile, password, status, warehouse, position, warehouse_cat, account_cat, sales_cat, sales_man_code, district} = req.body;
         const hash = await bcrypt.hash(password, 10)
-        const data = new staff({name, email, mobile, status, warehouse, position, account_category:account_cat, type_of_acc_cat: sales_cat, sales_man_code : sales_man_code})
+        const data = new staff({name, email, mobile, status, warehouse, position, account_category:account_cat, type_of_acc_cat: sales_cat, sales_man_code : sales_man_code, district: district })
         const staff_name = await staff.findOne({email:email});
         if(staff_name){
             req.flash('errors', `Email ${email} is alredy added. please choose another`)
@@ -154,7 +154,7 @@ router.post("/view/:id", auth, async(req, res) => {
     try{
         const _id = req.params.id;
         const data = await staff.findById(_id);
-        const {name, email, mobile, password, status, warehouse, position, account_edit_cat, sales_cat2, sales_man_code2} = req.body;
+        const {name, email, mobile, password, status, warehouse, position, account_edit_cat, sales_cat2, sales_man_code2, district_edit} = req.body;
 
         // res.json(sales_cat2)
 
@@ -168,6 +168,7 @@ router.post("/view/:id", auth, async(req, res) => {
         data.account_category = account_edit_cat
         data.type_of_acc_cat = sales_cat2
         data.sales_man_code = sales_man_code2
+        data.district = district_edit
 
         const new_data = await data.save();
         // res.json(new_data);
