@@ -212,6 +212,10 @@ const warehouse_data = new mongoose.Schema({
     warehouse_category:{
         type: String
     },
+    isStaging: {
+        type: String,
+        default: "false"
+    },
     product_details: [
         {
             product_name: {

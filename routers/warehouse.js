@@ -67,9 +67,13 @@ router.get("/view", auth, async (req, res) => {
 
 router.post("/view", auth, async (req, res) => {
     try {
-        const {name, address, status, Room_name, rawfinished, category_name } = req.body;
-
-        const data = new warehouse({ name, address, status, room: Room_name, warehouse_category: rawfinished , category: category_name })
+        const {name, address, status, Room_name, rawfinished, category_name, isStaging } = req.body;
+        
+        var dataStaging = "false";
+        if(req.body.isStaging == "on"){
+            dataStaging = "true";
+        }
+        const data = new warehouse({ name, address, status, room: Room_name, warehouse_category: rawfinished , category: category_name, isStaging: dataStaging })
 
         const warehouse_name = await warehouse.findOne({ name:name, room: Room_name });
         if(warehouse_name){
@@ -143,8 +147,12 @@ router.post("/view/:id", auth, async (req, res) => {
 
         const { name, address, status, Room_name  } = req.body;
 
-        
-        
+        var dataStaging = "false";
+        if(req.body.isStaging_edit == "on"){
+            dataStaging = "true";
+        }
+        // res.json(req.body);
+        // return;
 
         // const purchases_data = await purchases.updateMany({warehouse_name:"Nike Warehouses"}, { $set: { warehouse_name: name } });
         const warehouse_data = await warehouse.findById(_id);
@@ -165,6 +173,7 @@ router.post("/view/:id", auth, async (req, res) => {
         data.address = address
         data.status = status
         data.room = Room_name
+        data.isStaging= dataStaging
 
         const new_data = await data.save();
 

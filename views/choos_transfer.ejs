@@ -636,6 +636,23 @@
                                                                             </div>
                                                                         </div>
                                                                     </div>
+
+
+                                                                    <div class="col-xl-4 col-sm-6">
+                                                                        <div class="form-group">
+                                                                            <label for="invoice_no">To Warehouse <span
+                                                                                    class="text-red">*</span></label>
+                                                                            <select class="form-control" name="to_warehouse"
+                                                                                id="to_warehouse" required>
+                                                                                <option value selected disabled>Select One</option>
+                                                                                <% warehouse.forEach((warehouse)=> { %>
+                                                                                    <option value="<%= warehouse.name %>">
+                                                                                        <%= warehouse.name %>
+                                                                                    </option>
+                                                                                    <% }) %>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
             
                                                                     <!-- <div class="col-xl-4 col-sm-6">
                                                                         <div class="form-group">
@@ -916,9 +933,9 @@
                                 .attr('type', 'checkbox')
                                 .addClass('form-check-input')
                                 .val(roomName)
-                                .attr("name", "room_name")
-                                .attr("id", "room_data"+index)
-                                .attr('roomcode', roomCode);
+                                .attr("name", "room_name_loc")
+                                .attr("id", "room_data_loc"+index)
+                                .attr('roomcode_loc', roomCode);
     
                             // Create label for the checkbox
                             var labelElement = $('<h5>').text(roomName).prepend(checkboxElement);
@@ -1148,29 +1165,29 @@
                   var selectedChoice = dropdown.value;
     
     
-                  var productTextbox = document.getElementById("product-textbox_loc");
-                  var primaryTextbox = document.getElementById("primary-textbox_loc");
-                  var secondaryTextbox = document.getElementById("secondary-textbox_loc");
+                var productTextbox = document.getElementById("product-textbox_loc");
+                var primaryTextbox = document.getElementById("primary-textbox_loc");
+                var secondaryTextbox = document.getElementById("secondary-textbox_loc");
             
-                  if (selectedChoice === "Product") {
+                if (selectedChoice === "Product") {
                     productTextbox.style.display = "block";
                     secondaryTextbox.style.display = "none";
                     primaryTextbox.style.display = "none";
                     
-                  } else if (selectedChoice === "Primary") {
+                } else if (selectedChoice === "Primary") {
                     primaryTextbox.style.display = "block";
                     secondaryTextbox.style.display = "none";
                     productTextbox.style.display = "none";
                     document.getElementById("product_code_loc").focus()
-                  } else if(selectedChoice === "Secondary"){
+                } else if(selectedChoice === "Secondary"){
                     primaryTextbox.style.display = "none";
                     secondaryTextbox.style.display = "block"
                     productTextbox.style.display = "none";
-                  } else {
+                } else {
                     primaryTextbox.style.display = "none";
                     secondaryTextbox.style.display = "none";
                     productTextbox.style.display = "none";
-                  }
+                }
                 }
                 
                 function ValidationForMaxQTY(i){
@@ -1347,6 +1364,37 @@
                                 })
         
                                 roomdataselected(x);
+                                // BayBin();
+                                // BayBin2();
+                        }
+                    })
+    
+    
+    
+                }
+    
+
+                function RoomProducts_loc(x){
+                    var varibale = document.getElementById("to_warehouse").value;
+                    var RoomAssigned =  $('#ToRoomAssigned_loc'+x+''); //document.getElementById("ToRoomAssigned"+x);
+    
+                    
+                    $.ajax({
+                        url: '/warehousemap_Income/Rooms_data', 
+                        method: 'POST',
+                        data: { warehouse_name: varibale }, 
+                        success: function(response) {
+                            console.log(response)
+                        
+                            RoomAssigned.empty();
+                                $.each(response, function(index, data) {
+                                    var roomName = data.room_name;
+                                    var roomCode = data.room_name
+                                    var option = $('<option>').text(roomName).val(roomName).attr('roomcode', roomCode);
+                                    RoomAssigned.append(option);
+                                })
+        
+                                // roomdataselected(x);
                                 // BayBin();
                                 // BayBin2();
                         }
@@ -2041,9 +2089,224 @@
                     });
                     }
                 });
-                });
+                
+                $('#product_code_loc').on('input', function() {
+                    var primarycode = $(this).val();
+                    var FromWarehouse_data = $('#transfer_from_warehouse_loc').val();
+                    var FromRooms_data = $('#FromRoom_name').val();
+                    var isProductExists = false;
+                   
+
+
+                    var rooms_data = document.getElementsByName("room_name_loc");
+                        var RoomAssign = [];
     
-               
+                        for (let index = 0; index < rooms_data.length; index++) {
+                            const element = rooms_data[index];
+    
+                            if (element.checked) {
+                                RoomAssign.push(element.value);
+                            }
+                        }
+    
+                        var output = RoomAssign.join(',');
+                        console.log(output)
+                    $.ajax({
+                        url: '/transfer_finished/barcode_scanner', 
+                        method: 'POST',
+                        data: { primary_code: primarycode, FromWareHouse: FromWarehouse_data,  FromRoom: FromRooms_data, Roomslist:output }, // Pass the product code as a parameter
+                        success: function(response) {
+                        
+                        $.each(response, function(index, data1) {
+                        data1.forEach((data) => {
+                        if(data.instock > 0){
+                            var row = $('<tr>');
+                            const levelData = data.level === null ? 0 : data.level;
+                            const isleData =  data.isle === null ? 0 : data.isle;
+                            const palletData =  data.pallet === null ? 0 : data.pallet;  
+                            // var Invoice_num = document.getElementById("invoice").value;
+                            
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="product_code3" id="product_code3'+ x +'" value="' + data.product_code + '" readonly>'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 355px;" name="prod_name" id="prod_name'+ x +'" value="' + data.name + '" readonly>'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="from_prod_qty" id="from_prod_qty'+x+'" value="' + data.instock + '" readonly>'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="RoomAssigned" id="RoomAssigned'+x+'" value="'+data.roomNamed+'" readonly>'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="from_prod_level2" value="' + data.level+data.bay + '" readonly>'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="to_prod_qty" id="to_prod_qty'+ x +'" onkeyup="ValidationForMaxQTY('+ x +'); ComputeConversionI('+x+', '+data.maxPerUnit+');"  >'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="unit" id="unit'+x+'" value="" readonly>'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="Conver" id="Conver'+x+'" value=""  readonly>'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="batch_code" value="'+data.batch_code+'" readonly>'));
+                            row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="product_date" value="'+data.production_date+'" readonly>'));
+                            row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="expiry_date" value="'+data.expiry_date+'" readonly>'));
+                            row.append($('<td>').html('<select class="form-control" name="ToRoomAssigned" id="ToRoomAssigned_loc' + x + '" onchange="roomdataselected('+x+')" style="width: 150px;"></select>'));
+                            row.append($('<td>').html('<select class="form-control" name="to_prod_level" level="levelOslie" id="to_prod_level' + x + '" style="width: 150px;" onchange="checkingWarehouse('+x+')"></select>'));
+                            row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+                            
+    
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'from_prod_level',
+                                name: 'from_prod_level',
+                                value: levelData
+                            }).appendTo(row);
+                            
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'primary_code',
+                                name: 'primary_code',
+                                value: data.primary_code
+                            }).appendTo(row);
+                            
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'secondary_code',
+                                name: 'secondary_code',
+                                value: data.secondary_code
+                            }).appendTo(row);
+    
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'primary_unit'+x,
+                                name: 'primary_unit',
+                                value: data.unit
+                            }).appendTo(row);
+                            
+                            
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'secondary_unit'+x,
+                                name: 'secondary_unit',
+                                value: data.secondary_unit
+                            }).appendTo(row);
+    
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'MaxStocks_data'+x,
+                                name: 'MaxStocks_data',
+                                value: data.maxProducts
+                            }).appendTo(row);
+    
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'MaxStocks_data2'+x,
+                                name: 'MaxStocks_data2',
+                                value: data.maxProducts
+                            }).appendTo(row);
+    
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'storage',
+                                name: 'storage',
+                                value: data.storage
+                            }).appendTo(row);
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'rak',
+                                name: 'rak',
+                                value: data.rack
+                            }).appendTo(row);
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'from_storage',
+                                name: 'from_storage',
+                                value: ""
+                            }).appendTo(row);
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'from_rak',
+                                name: 'from_rak',
+                                value: ""
+                            }).appendTo(row);
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'maxPerUnit',
+                                name: 'maxPerUnit',
+                                value: data.maxPerUnit
+                            }).appendTo(row);
+    
+    
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'prod_cat'+x,
+                                name: 'prod_cat',
+                                value: data.prod_cat
+                            }).appendTo(row);
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'New_Qty_Converted'+x,
+                                name: 'New_Qty_Converted',
+                                value: ""
+                            }).appendTo(row);
+    
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'from_invoice'+x,
+                                name: 'from_invoice',
+                                value: data.invoice
+                            }).appendTo(row);
+    
+    
+                            // $('<input>').attr({
+                            //     type: 'hidden',
+                            //     id: 'to_invoice'+x,
+                            //     name: 'to_invoice',
+                            //     value: Invoice_num
+                            // }).appendTo(row);
+    
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'id_transaction'+x,
+                                name: 'id_transaction',
+                                value: data._id
+                            }).appendTo(row);
+    
+    
+                            
+    
+    
+                            
+                            $('#tblPage_new_loc').append(row);
+                            ComputeConversion(x, data.maxPerUnit)
+                            RoomProducts_loc(x);
+           
+                            // BayBin(x);
+                            // BayBin2();
+                            x++;
+                        }
+                        
+                        })
+                        });
+                        
+                        // Clear the product code input field
+                        $("#product_code_loc").val('');
+                        },
+                        error: function(xhr, status, error) {
+                            $("#product_code").val('');
+                            Swal.fire(
+                            '',
+                            'We were unable to locate the barcode you entered. Please try scanning another barcode.',
+                            'warning'
+                            )
+                        }
+                    });
+
+
+                    console.log(primarycode)
+                })
+            });
+    
+                
             </script>
         <!--**********************************
         Scripts end

@@ -121,6 +121,7 @@
                                                                         data-address="<%= user.address %>"
                                                                         data-id="<%= user._id %>"
                                                                         data-room="<%= user.room %>"
+                                                                        data-isStaging="<%= user.isStaging %>"
                                                                         >
                                                                         
                                                                         <%= language.edit %> 
@@ -173,6 +174,11 @@
                                             </label>
                                             <input type="text" class="form-control" id="recipient-name"
                                                 placeholder="Room Name" name="Room_name" required>
+
+
+                                            <input type="checkbox" class="form-check-input" id="isStaging" name="isStaging">
+                                            <label for="isStaging" class="col-form-label">Staging</label>
+                                            
 
                                         </div>
                                         
@@ -267,6 +273,9 @@
 
 
                                         </div> -->
+
+                                        <input type="checkbox" class="form-check-input" id="isStaging_edit" name="isStaging_edit">
+                                            <label for="isStaging_edit" class="col-form-label">Staging</label>
                                         <button type="submit" class="btn btn-primary w-100"><%= language.submit %> </button>
 
                                     </div>
@@ -315,17 +324,27 @@
         let dataName = $(this).attr("data-name");
         let dataAddress = $(this).attr("data-address");
 
+        let isStaging = $(this).attr("data-isStaging");
 
+        // console.log(isStaging);
+        console.log("isStaging:", isStaging);
         $("#edit_form").attr('action', '/warehouse/view/' + dataId);
         $('#edit-name').attr('value', dataName);
         $('#edit-room').attr('value', dataRoom);
         $('#edit-address').attr('value', dataAddress);
-        $('#edit-email').attr('value', dataEmail);
-        $('#edit-mobile').attr('value', dataMobile);
-        $('#edit-poistion').attr('value', dataPosition);
-        $("#edit-status").val(dataStatus).attr("selected","selected");
-        $("#edit-warehouse").val(datawarehouse).attr("selected", "selected");
-        $("#edit-warehouse_cat").val(warehousecategory).attr("selected", "selected");
+        // $('#edit-email').attr('value', dataEmail);
+        // $('#edit-mobile').attr('value', dataMobile);
+        // $('#edit-poistion').attr('value', dataPosition);
+        // $("#edit-status").val(dataStatus).attr("selected","selected");
+        // $("#edit-warehouse").val(datawarehouse).attr("selected", "selected");
+        // $("#edit-warehouse_cat").val(warehousecategory).attr("selected", "selected");
+        if(isStaging == "true"){
+            $("#isStaging_edit").prop("checked", true);
+        }else {
+            $("#isStaging_edit").prop("checked", false);
+        }
+        
+
     });
     </script>
 
