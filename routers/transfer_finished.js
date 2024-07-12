@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
-const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, purchases_return, sales, sales_return, suppliers_payment, customer_payment, transfers , transfers_finished, email_settings, supervisor_settings, invoice_for_transfer } = require("../models/all_models");
+const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, purchases_return, sales, sales_return, suppliers_payment, customer_payment, transfers , transfers_finished, email_settings, supervisor_settings, invoice_for_transfer, transfers_logs } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const users = require("../public/language/languages.json");
 const nodemailer = require('nodemailer');
@@ -81,6 +81,97 @@ router.get("/view", auth, async(req, res) => {
         }
 
         res.render("transfer_finished", {
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            role : role_data,
+            profile : profile_data,
+            master_shop : master,
+            transfer: transfer_data,
+            language : lan_data
+        })
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+router.get("/view_logs", auth, async(req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+        const master = await master_shop.find()
+
+        let transfer_data
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
+            transfer_data = await transfers_finished.find({ from_warehouse : staff_data.warehouse });
+        }else{
+            // transfer_data = await transfers_finished.find()
+            transfer_data = await transfers_finished.aggregate([
+                {
+                    $match:{
+                        "type_of_transaction": "logs"
+                    }
+                },
+                {
+                  $unwind: "$product"
+                },
+                {
+                  $group: {
+                    _id: "$_id",
+                    invoice: { $first: "$invoice" },
+                    date: { $first: "$date" },
+                    from_warehouse: { $first: "$from_warehouse" },
+                    to_warehouse: { $first: "$to_warehouse" },
+                    from_room_name: { $addToSet: "$product.from_room_name" },
+                    to_room_name: { $addToSet: "$product.to_room_name" },
+                    finalize: { $first: "$finalize" }
+                  }
+                  
+                },
+                {
+                  $project: {
+                    _id: 1,
+                    invoice: 1,
+                    date: 1,
+                    from_warehouse:1,
+                    to_warehouse: 1,
+                    from_room_name: 1,
+                    to_room_name: 1,
+                    finalize: 1
+                    
+                  }
+               }
+          ]);
+        }
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("transfer_finished_logs", {
             success: req.flash('success'),
             errors: req.flash('errors'),
             role : role_data,
@@ -331,6 +422,538 @@ router.get("/view/choose", auth, async(req, res) => {
     }
 })
 
+
+router.get("/view/choose_logs", auth, async(req, res) => {
+    try{
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+
+        const master = await master_shop.find()
+
+        let warehouse_data
+        if(role_data.role == "staff"){
+            const staff_data = await staff.findOne({ email: role_data.email })
+            // warehouse_data = await warehouse.find({status : 'Enabled', name: staff_data.warehouse });
+            warehouse_data = await warehouse.aggregate([
+                {
+                    $match: { 
+                        "status" : 'Enabled', 
+                        name: staff_data.warehouse,
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$name",
+                        name: { $first: "$name"}
+                    }
+                },
+            ])
+        }else{
+            // warehouse_data = await warehouse.find({status : 'Enabled'});
+            warehouse_data = await warehouse.aggregate([
+                {
+                    $match: { 
+                        "status" : 'Enabled',
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$name",
+                        name: { $first: "$name"}
+                    }
+                },
+            ])
+        }
+
+
+        const transfer_data = await transfers_finished.find({})
+        const invoice_noint = transfer_data.length + 1
+        const invoice_no = "TRFF-" + invoice_noint.toString().padStart(5, "0")
+
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+
+        const randominv = getRandom8DigitNumber();
+
+        randominv.then(invoicedata => {
+
+            res.render("choos_transfer_logs", {
+                success: req.flash('success'),
+                errors: req.flash('errors'),
+                role : role_data,
+                profile : profile_data,
+                master_shop : master,
+                warehouse: warehouse_data,
+                language : lan_data,
+                invoice: invoicedata
+            })
+        }).catch(error => {
+            req.flash('errors', `There's a error in this transaction`)
+            res.redirect("/transfer/view");
+        })
+        
+    }catch(error){
+        console.log(error);
+    }
+})
+
+
+router.post("/view/add_transfer_logs", auth, async(req, res) => {
+    try{
+        // res.json(req.body);
+        // return
+        const {date, from_warehouse, FromRoom_name, to_warehouse, ToRoom_name, prod_name, from_prod_qty, from_prod_level, from_prod_isle, from_prod_pallet, to_prod_qty, to_prod_level, to_prod_isle, to_prod_pallet, primary_code, secondary_code, product_code3, note, MaxStocks_data2, invoice, expiry_date} = req.body
+        
+        if(typeof prod_name == "string"){
+            var product_name_array = [req.body.prod_name]
+            
+            var from_qty_array = [req.body.from_prod_qty]
+            var from_level_array = [req.body.from_prod_level2]
+        
+
+            var to_qty_array = [req.body.New_Qty_Converted]
+            var to_level_array = [req.body.to_prod_level]
+            
+            var primary_code_array = [req.body.primary_code]
+            var secondary_code_array = [req.body.secondary_code]
+            var product_code3_array = [req.body.product_code3]
+            var MaxStocks_data2_array = [req.body.MaxStocks_data2]
+
+            var unit_array = [req.body.primary_unit]
+            var secondary_unit_array = [req.body.secondary_unit]
+            var batch_code_array = [req.body.batch_code]
+            var expiry_date_array = [req.body.expiry_date]
+            var product_date_array = [req.body.product_date]
+            var maxProducts_array = [req.body.MaxStocks_data]
+
+            var maxPerUnit_array = [req.body.maxPerUnit]
+            var prod_cat_array = [req.body.prod_cat]
+
+            var RoomAssigned_array = [req.body.RoomAssigned]
+            var ToRoomAssigned_array = [req.body.ToRoomAssigned]
+            var from_invoice_array = [req.body.from_invoice]
+            // var to_invoice_array = [req.body.to_invoice]
+
+            var id_transaction_array = [req.body.id_transaction]
+            
+            
+        }else{
+            var product_name_array = [...req.body.prod_name]
+            
+
+            var from_qty_array = [...req.body.from_prod_qty]
+            var from_level_array = [...req.body.from_prod_level2]
+        
+            
+            var to_qty_array = [...req.body.New_Qty_Converted]
+            var to_level_array = [...req.body.to_prod_level]
+            
+            var primary_code_array = [...req.body.primary_code]
+            var secondary_code_array = [...req.body.secondary_code]
+            var product_code3_array = [...req.body.product_code3]
+            var MaxStocks_data2_array = [...req.body.MaxStocks_data2]
+
+            var unit_array = [...req.body.primary_unit]
+            var secondary_unit_array = [...req.body.secondary_unit]
+            var batch_code_array = [...req.body.batch_code]
+            var expiry_date_array = [...req.body.expiry_date]
+            var product_date_array = [...req.body.product_date]
+            var maxProducts_array = [...req.body.MaxStocks_data]
+            var maxPerUnit_array = [...req.body.maxPerUnit]
+            var prod_cat_array = [...req.body.prod_cat]
+
+            var RoomAssigned_array = [...req.body.RoomAssigned]
+            var ToRoomAssigned_array = [...req.body.ToRoomAssigned]
+
+            var from_invoice_array = [...req.body.from_invoice]
+            // var to_invoice_array = [...req.body.to_invoice]
+            var id_transaction_array = [...req.body.id_transaction]
+        } 
+        // res.json(req.body);
+        // return;
+        const newproduct = product_name_array.map((value)=>{
+            
+            return  value  = {
+                        product_name : value,
+                    }   
+            })
+                    
+        from_qty_array.forEach((value,i) => {
+            newproduct[i].from_quantity = value
+        });
+
+        from_level_array.forEach((value,i) => {
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].from_bay = number
+            newproduct[i].from_level = letter
+        });
+
+        id_transaction_array.forEach((value, i) => {
+            newproduct[i].id_transaction = value
+        })
+
+
+        from_invoice_array.forEach((value,i) => {
+            newproduct[i].from_invoice = value
+        });
+        
+        
+        
+        to_qty_array.forEach((value,i) => {
+            newproduct[i].to_quantity = value
+        });
+        
+        to_level_array.forEach((value,i) => {
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].to_level = letter
+            newproduct[i].to_bay = number
+        });
+        
+        primary_code_array.forEach((value,i) => {
+            newproduct[i].primary_code = value
+        });
+        
+        secondary_code_array.forEach((value,i) => {
+            newproduct[i].secondary_code = value
+        });
+        
+        product_code3_array.forEach((value,i) => {
+            newproduct[i].product_code = value
+        });
+
+        MaxStocks_data2_array.forEach((value, i) => {
+            newproduct[i].maxProducts = value
+        })
+
+
+
+        unit_array.forEach((value, i) => {
+            newproduct[i].unit = value
+        })
+
+
+        secondary_unit_array.forEach((value, i) => {
+            newproduct[i].secondary_unit = value
+        })
+
+
+        batch_code_array.forEach((value, i) => {
+            newproduct[i].batch_code = value
+        })
+
+
+        expiry_date_array.forEach((value, i) => {
+            newproduct[i].expiry_date = value
+        })
+
+        product_date_array.forEach((value, i) => {
+            newproduct[i].production_date = value
+        })
+
+        maxProducts_array.forEach((value, i) => {
+            newproduct[i].maxProducts = value
+        })
+
+        maxPerUnit_array.forEach((value, i) => {
+            newproduct[i].maxPerUnit = value
+        })
+
+        prod_cat_array.forEach((value, i)=>{
+            newproduct[i].prod_cat = value
+        })
+
+        RoomAssigned_array.forEach((value, i) => {
+            newproduct[i].from_room_name = value
+        })
+
+
+        ToRoomAssigned_array.forEach((value, i) => {
+            newproduct[i].to_room_name = value
+        })
+
+        
+
+      
+
+        const Newnewproduct = newproduct.filter(obj => obj.to_quantity !== "0" && obj.to_quantity !== "" || obj.to_floorlevel !== "0" && obj.to_floorlevel !== "");
+        // res.json(Newnewproduct)
+        // return
+        var error = 0
+        Newnewproduct.forEach(data => {
+            if (parseInt(data.from_quantity) < parseInt(data.to_quantity)) {
+                
+                error++
+            }
+        })
+        if (error != 0) {
+            
+            req.flash("errors", `Must not be greater than stock Qty`)
+            return res.redirect("back")
+        }
+
+    
+        const invoice_transfer = new transfers_logs();
+        await invoice_transfer.save();
+
+        for (let index = 0; index <= ToRoomAssigned_array.length -1; index++) {
+            newproduct[index].To_invoice = "LOG-TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0');
+        }
+        
+        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: from_warehouse, product:Newnewproduct, note, invoice : "LOG-TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_process: "bin2bin", type_of_transaction: "logs" })
+        const transfers_data = await data.save()
+
+
+        req.flash('success', `Product Transfer successfully`)
+        res.redirect("/transfer_finished/preview/"+transfers_data._id)
+
+    }catch(error){
+        console.log(error);
+        res.status(200).json({ errorMessage: error.message})
+    }
+})
+router.post("/view/addlog", auth, async(req, res) => {
+    try{
+        
+        const {date, from_warehouse, FromRoom_name, to_warehouse, ToRoom_name, prod_name, from_prod_qty, from_prod_level, from_prod_isle, from_prod_pallet, to_prod_qty, to_prod_level, to_prod_isle, to_prod_pallet, primary_code, secondary_code, product_code3, note, MaxStocks_data2, invoice, expiry_date} = req.body
+
+        if(typeof prod_name == "string"){
+            var product_name_array = [req.body.prod_name]
+            
+            var from_qty_array = [req.body.from_prod_qty]
+            var from_level_array = [req.body.from_prod_level2]
+        
+
+            var to_qty_array = [req.body.New_Qty_Converted]
+            var to_level_array = [req.body.to_prod_level]
+            
+            var primary_code_array = [req.body.primary_code]
+            var secondary_code_array = [req.body.secondary_code]
+            var product_code3_array = [req.body.product_code3]
+            var MaxStocks_data2_array = [req.body.MaxStocks_data2]
+
+            var unit_array = [req.body.primary_unit]
+            var secondary_unit_array = [req.body.secondary_unit]
+            var batch_code_array = [req.body.batch_code]
+            var expiry_date_array = [req.body.expiry_date]
+            var product_date_array = [req.body.product_date]
+            var maxProducts_array = [req.body.MaxStocks_data]
+
+            var maxPerUnit_array = [req.body.maxPerUnit]
+            var prod_cat_array = [req.body.prod_cat]
+
+            var RoomAssigned_array = [req.body.RoomAssigned]
+            var ToRoomAssigned_array = [req.body.ToRoomAssigned]
+            var from_invoice_array = [req.body.from_invoice]
+            // var to_invoice_array = [req.body.to_invoice]
+
+            var id_transaction_array = [req.body.id_transaction]
+            
+            
+        }else{
+            var product_name_array = [...req.body.prod_name]
+            
+
+            var from_qty_array = [...req.body.from_prod_qty]
+            var from_level_array = [...req.body.from_prod_level2]
+        
+            
+            var to_qty_array = [...req.body.New_Qty_Converted]
+            var to_level_array = [...req.body.to_prod_level]
+            
+            var primary_code_array = [...req.body.primary_code]
+            var secondary_code_array = [...req.body.secondary_code]
+            var product_code3_array = [...req.body.product_code3]
+            var MaxStocks_data2_array = [...req.body.MaxStocks_data2]
+
+            var unit_array = [...req.body.primary_unit]
+            var secondary_unit_array = [...req.body.secondary_unit]
+            var batch_code_array = [...req.body.batch_code]
+            var expiry_date_array = [...req.body.expiry_date]
+            var product_date_array = [...req.body.product_date]
+            var maxProducts_array = [...req.body.MaxStocks_data]
+            var maxPerUnit_array = [...req.body.maxPerUnit]
+            var prod_cat_array = [...req.body.prod_cat]
+
+            var RoomAssigned_array = [...req.body.RoomAssigned]
+            var ToRoomAssigned_array = [...req.body.ToRoomAssigned]
+
+            var from_invoice_array = [...req.body.from_invoice]
+            // var to_invoice_array = [...req.body.to_invoice]
+            var id_transaction_array = [...req.body.id_transaction]
+        } 
+        // res.json(req.body);
+        // return;
+        const newproduct = product_name_array.map((value)=>{
+            
+            return  value  = {
+                        product_name : value,
+                    }   
+            })
+                    
+        from_qty_array.forEach((value,i) => {
+            newproduct[i].from_quantity = value
+        });
+
+        from_level_array.forEach((value,i) => {
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].from_bay = number
+            newproduct[i].from_level = letter
+        });
+
+        id_transaction_array.forEach((value, i) => {
+            newproduct[i].id_transaction = value
+        })
+
+
+        from_invoice_array.forEach((value,i) => {
+            newproduct[i].from_invoice = value
+        });
+        
+        
+        
+        to_qty_array.forEach((value,i) => {
+            newproduct[i].to_quantity = value
+        });
+        
+        to_level_array.forEach((value,i) => {
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].to_level = letter
+            newproduct[i].to_bay = number
+        });
+        
+        primary_code_array.forEach((value,i) => {
+            newproduct[i].primary_code = value
+        });
+        
+        secondary_code_array.forEach((value,i) => {
+            newproduct[i].secondary_code = value
+        });
+        
+        product_code3_array.forEach((value,i) => {
+            newproduct[i].product_code = value
+        });
+
+        MaxStocks_data2_array.forEach((value, i) => {
+            newproduct[i].maxProducts = value
+        })
+
+
+
+        unit_array.forEach((value, i) => {
+            newproduct[i].unit = value
+        })
+
+
+        secondary_unit_array.forEach((value, i) => {
+            newproduct[i].secondary_unit = value
+        })
+
+
+        batch_code_array.forEach((value, i) => {
+            newproduct[i].batch_code = value
+        })
+
+
+        expiry_date_array.forEach((value, i) => {
+            newproduct[i].expiry_date = value
+        })
+
+        product_date_array.forEach((value, i) => {
+            newproduct[i].production_date = value
+        })
+
+        maxProducts_array.forEach((value, i) => {
+            newproduct[i].maxProducts = value
+        })
+
+        maxPerUnit_array.forEach((value, i) => {
+            newproduct[i].maxPerUnit = value
+        })
+
+        prod_cat_array.forEach((value, i)=>{
+            newproduct[i].prod_cat = value
+        })
+
+        RoomAssigned_array.forEach((value, i) => {
+            newproduct[i].from_room_name = value
+        })
+
+
+        ToRoomAssigned_array.forEach((value, i) => {
+            newproduct[i].to_room_name = value
+        })
+
+        
+        // res.json(newproduct);
+        // return
+      
+
+        const Newnewproduct = newproduct.filter(obj => obj.to_quantity !== "0" && obj.to_quantity !== "" || obj.to_floorlevel !== "0" && obj.to_floorlevel !== "");
+        // res.json(Newnewproduct)
+        // return
+        var error = 0
+        Newnewproduct.forEach(data => {
+            if (parseInt(data.from_quantity) < parseInt(data.to_quantity)) {
+                
+                error++
+            }
+        })
+        if (error != 0) {
+            
+            req.flash("errors", `Must not be greater than stock Qty`)
+            return res.redirect("back")
+        }
+
+    
+        const invoice_transfer = new transfers_logs();
+        await invoice_transfer.save();
+
+        for (let index = 0; index <= ToRoomAssigned_array.length -1; index++) {
+            newproduct[index].To_invoice = "LOG-TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0');
+        }
+        
+        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: to_warehouse, product:Newnewproduct, note, invoice : "LOG-TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_transaction: "logs", type_of_process: "location2location" })
+        const transfers_data = await data.save()
+
+
+        req.flash('success', `Product Transfer successfully`)
+        res.redirect("/transfer_finished/preview/"+transfers_data._id)
+
+    }catch(error){
+        console.log(error);
+        res.status(200).json({ errorMessage: error.message})
+    }
+})
+
 router.post("/view/add_transfer", auth, async(req, res) => {
     try{
         // res.json(req.body);
@@ -534,7 +1157,225 @@ router.post("/view/add_transfer", auth, async(req, res) => {
             newproduct[index].To_invoice = "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0');
         }
         
-        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: from_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0') })
+        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: from_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_process: "bin2bin" , type_of_transaction: "own" })
+        const transfers_data = await data.save()
+
+
+        req.flash('success', `Product Transfer successfully`)
+        res.redirect("/transfer_finished/preview/"+transfers_data._id)
+
+    }catch(error){
+        console.log(error);
+        res.status(200).json({ errorMessage: error.message})
+    }
+})
+
+
+
+router.post("/view/add_transfer_loc", auth, async(req, res) => {
+    try{
+        
+        const {date, from_warehouse, FromRoom_name, to_warehouse, ToRoom_name, prod_name, from_prod_qty, from_prod_level, from_prod_isle, from_prod_pallet, to_prod_qty, to_prod_level, to_prod_isle, to_prod_pallet, primary_code, secondary_code, product_code3, note, MaxStocks_data2, invoice, expiry_date} = req.body
+        
+        if(typeof prod_name == "string"){
+            var product_name_array = [req.body.prod_name]
+            
+            var from_qty_array = [req.body.from_prod_qty]
+            var from_level_array = [req.body.from_prod_level2]
+        
+
+            var to_qty_array = [req.body.New_Qty_Converted]
+            var to_level_array = [req.body.to_prod_level]
+            
+            var primary_code_array = [req.body.primary_code]
+            var secondary_code_array = [req.body.secondary_code]
+            var product_code3_array = [req.body.product_code3]
+            var MaxStocks_data2_array = [req.body.MaxStocks_data2]
+
+            var unit_array = [req.body.primary_unit]
+            var secondary_unit_array = [req.body.secondary_unit]
+            var batch_code_array = [req.body.batch_code]
+            var expiry_date_array = [req.body.expiry_date]
+            var product_date_array = [req.body.product_date]
+            var maxProducts_array = [req.body.MaxStocks_data]
+
+            var maxPerUnit_array = [req.body.maxPerUnit]
+            var prod_cat_array = [req.body.prod_cat]
+
+            var RoomAssigned_array = [req.body.RoomAssigned]
+            var ToRoomAssigned_array = [req.body.ToRoomAssigned]
+            var from_invoice_array = [req.body.from_invoice]
+            // var to_invoice_array = [req.body.to_invoice]
+
+            var id_transaction_array = [req.body.id_transaction]
+            
+            
+        }else{
+            var product_name_array = [...req.body.prod_name]
+            
+
+            var from_qty_array = [...req.body.from_prod_qty]
+            var from_level_array = [...req.body.from_prod_level2]
+        
+            
+            var to_qty_array = [...req.body.New_Qty_Converted]
+            var to_level_array = [...req.body.to_prod_level]
+            
+            var primary_code_array = [...req.body.primary_code]
+            var secondary_code_array = [...req.body.secondary_code]
+            var product_code3_array = [...req.body.product_code3]
+            var MaxStocks_data2_array = [...req.body.MaxStocks_data2]
+
+            var unit_array = [...req.body.primary_unit]
+            var secondary_unit_array = [...req.body.secondary_unit]
+            var batch_code_array = [...req.body.batch_code]
+            var expiry_date_array = [...req.body.expiry_date]
+            var product_date_array = [...req.body.product_date]
+            var maxProducts_array = [...req.body.MaxStocks_data]
+            var maxPerUnit_array = [...req.body.maxPerUnit]
+            var prod_cat_array = [...req.body.prod_cat]
+
+            var RoomAssigned_array = [...req.body.RoomAssigned]
+            var ToRoomAssigned_array = [...req.body.ToRoomAssigned]
+
+            var from_invoice_array = [...req.body.from_invoice]
+            // var to_invoice_array = [...req.body.to_invoice]
+            var id_transaction_array = [...req.body.id_transaction]
+        } 
+        // res.json(req.body);
+        // return;
+        const newproduct = product_name_array.map((value)=>{
+            
+            return  value  = {
+                        product_name : value,
+                    }   
+            })
+                    
+        from_qty_array.forEach((value,i) => {
+            newproduct[i].from_quantity = value
+        });
+
+        from_level_array.forEach((value,i) => {
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].from_bay = number
+            newproduct[i].from_level = letter
+        });
+
+        id_transaction_array.forEach((value, i) => {
+            newproduct[i].id_transaction = value
+        })
+
+
+        from_invoice_array.forEach((value,i) => {
+            newproduct[i].from_invoice = value
+        });
+        
+        
+        
+        to_qty_array.forEach((value,i) => {
+            newproduct[i].to_quantity = value
+        });
+        
+        to_level_array.forEach((value,i) => {
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+            newproduct[i].to_level = letter
+            newproduct[i].to_bay = number
+        });
+        
+        primary_code_array.forEach((value,i) => {
+            newproduct[i].primary_code = value
+        });
+        
+        secondary_code_array.forEach((value,i) => {
+            newproduct[i].secondary_code = value
+        });
+        
+        product_code3_array.forEach((value,i) => {
+            newproduct[i].product_code = value
+        });
+
+        MaxStocks_data2_array.forEach((value, i) => {
+            newproduct[i].maxProducts = value
+        })
+
+
+
+        unit_array.forEach((value, i) => {
+            newproduct[i].unit = value
+        })
+
+
+        secondary_unit_array.forEach((value, i) => {
+            newproduct[i].secondary_unit = value
+        })
+
+
+        batch_code_array.forEach((value, i) => {
+            newproduct[i].batch_code = value
+        })
+
+
+        expiry_date_array.forEach((value, i) => {
+            newproduct[i].expiry_date = value
+        })
+
+        product_date_array.forEach((value, i) => {
+            newproduct[i].production_date = value
+        })
+
+        maxProducts_array.forEach((value, i) => {
+            newproduct[i].maxProducts = value
+        })
+
+        maxPerUnit_array.forEach((value, i) => {
+            newproduct[i].maxPerUnit = value
+        })
+
+        prod_cat_array.forEach((value, i)=>{
+            newproduct[i].prod_cat = value
+        })
+
+        RoomAssigned_array.forEach((value, i) => {
+            newproduct[i].from_room_name = value
+        })
+
+
+        ToRoomAssigned_array.forEach((value, i) => {
+            newproduct[i].to_room_name = value
+        })
+
+        
+        // res.json(newproduct);
+        // return
+      
+
+        const Newnewproduct = newproduct.filter(obj => obj.to_quantity !== "0" && obj.to_quantity !== "" || obj.to_floorlevel !== "0" && obj.to_floorlevel !== "");
+        // res.json(Newnewproduct)
+        // return
+        var error = 0
+        Newnewproduct.forEach(data => {
+            if (parseInt(data.from_quantity) < parseInt(data.to_quantity)) {
+                
+                error++
+            }
+        })
+        if (error != 0) {
+            
+            req.flash("errors", `Must not be greater than stock Qty`)
+            return res.redirect("back")
+        }
+
+    
+        const invoice_transfer = new invoice_for_transfer();
+        await invoice_transfer.save();
+
+        for (let index = 0; index <= ToRoomAssigned_array.length -1; index++) {
+            newproduct[index].To_invoice = "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0');
+        }
+        
+        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: from_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_transaction: "own", type_of_process: "location2location" })
         const transfers_data = await data.save()
 
 
@@ -1485,5 +2326,16 @@ router.post("/CheckingWarehouse", async (req, res) => {
     }
 
 })
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = router;

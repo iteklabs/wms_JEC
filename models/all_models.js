@@ -1953,6 +1953,13 @@ const transfers_data_finished = new mongoose.Schema({
         type: String,
         default: "False"
     },
+    type_of_transaction: {
+        type: String,
+        default: "own"
+    },
+    type_of_process: {
+        type: String
+    }
 })
 
 const transfers_finished = new mongoose.model("transfer_finished", transfers_data_finished);
@@ -2827,7 +2834,24 @@ log_adjustments.plugin(autoIncrement.plugin, {
 
 const adjustment_logs = new mongoose.model("adjustment_logs", log_adjustments);
 
-module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa, invoice_for_sales_order, approver_acct, discount_volume_db,  purchases_logs, sales_logs, adjustment_logs,
+
+const log_transfers = new mongoose.Schema({
+    invoice_init: {
+        type: Number,
+        default : 0
+    },
+})
+
+log_transfers.plugin(autoIncrement.plugin, {
+    model: 'transfers_logs',  // Name of the model
+    field: 'invoice_init', // Field to increment
+    startAt: 1, // Initial value
+    incrementBy: 1 
+});
+
+const transfers_logs = new mongoose.model("transfers_logs", log_transfers);
+
+module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa, invoice_for_sales_order, approver_acct, discount_volume_db,  purchases_logs, sales_logs, adjustment_logs, transfers_logs, 
                     suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, 
                     invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer, invoice_for_inventory, sales_inv_data, sales_order, 
                     customer_payment, c_payment_data, transfers, expenses_type, all_expenses, adjustment, master_shop, email_settings, 
