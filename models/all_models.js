@@ -2650,6 +2650,10 @@ const sales_order_data = new mongoose.Schema({
         discount:{
             type: Number
         },
+        adjustment_discount:{
+            type: Number,
+            default: 0
+        },
         accounting_discount:{
             type: Number,
             default: 0

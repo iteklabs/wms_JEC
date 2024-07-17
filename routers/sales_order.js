@@ -231,7 +231,7 @@ router.get("/view_sales/:id", auth,  async(req, res) => {
 router.post("/add_sales", auth,  async(req, res) => {
     try {
         const {customer, date, prod_code, note, paid_status,JD, po_number, desire_date} = req.body
-        // res.json(req.body.dicount_price)
+        // res.json(req.body)
         // return;
         if(typeof prod_code == "string"){
             var prod_code_array = [req.body.prod_code];
@@ -244,6 +244,7 @@ router.post("/add_sales", auth,  async(req, res) => {
             var totalPrice_array = [req.body.totalPrice];
             var dicount_price_array = [req.body.dicount_price];
             var tmpisFG_array = [req.body.tmpisFG];
+            var dicount_price_adjust_array = [req.body.dicount_price_adjust];
         }else{
             var prod_code_array = [...req.body.prod_code];
             var prod_name_array = [...req.body.prod_name];
@@ -255,6 +256,7 @@ router.post("/add_sales", auth,  async(req, res) => {
             var totalPrice_array = [...req.body.totalPrice];
             var dicount_price_array = [...req.body.dicount_price];
             var tmpisFG_array = [...req.body.tmpisFG];
+            var dicount_price_adjust_array = [...req.body.dicount_price_adjust];
         }
         
         const newproduct = prod_code_array.map((value)=>{
@@ -279,6 +281,10 @@ router.post("/add_sales", auth,  async(req, res) => {
         });
         product_id_array.forEach((value,i) => {
             newproduct[i].product_id = value
+        });
+
+        dicount_price_adjust_array.forEach((value,i) => {
+            newproduct[i].adjustment_discount = value
         });
 
 

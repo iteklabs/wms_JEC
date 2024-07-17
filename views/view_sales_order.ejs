@@ -109,10 +109,11 @@
                                                                         <th scope="col">Item Description </th>
                                                                         <!-- <th scope="col"><%= language.in_stock %> </th> -->
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
-                                                                        <th scope="col">Unit of Measure </th>
+                                                                        <th scope="col">UOM </th>
                                                                         <th scope="col">Price </th>
-                                                                        <th scope="col">Discount Price </th>
-                                                                        <th scope="col">Approved Discount Price </th>
+                                                                        <th scope="col">All. Discount</th>
+                                                                        <th scope="col">Dist. Adj</th>
+                                                                        <th scope="col">Net Sales Value</th>
                                                                         <th scope="col">Total Price </th>
                                                                     </tr>
                                                                 </thead>
@@ -121,6 +122,7 @@
                                                                 <% var totalprices = 0; %>
                                                                 <% var totaldiscprice = 0; %>
                                                                 <% var totalacctdisc = 0; %>
+                                                                <% var totaladjdisc = 0; %>
                                                                 <%
                                                                     const nFormat = new Intl.NumberFormat();
                                                                 %>
@@ -138,13 +140,16 @@
                                                                             <td><%= data.unit %></td>
                                                                             <td><%= nFormat.format(data.price) %></td>
                                                                             <td><%= nFormat.format(data.discount) %></td>
+                                                                            <td><%= nFormat.format(data.adjustment_discount) %></td>
                                                                             <td><%= nFormat.format(data.accounting_discount) %></td>
                                                                             <td><%= nFormat.format(data.totalprice)  %></td>
                                                                             <% total += parseInt(data.totalprice)  %>
                                                                             <% totalqty += parseInt(data.quantity)  %>
                                                                             <% totalprices += parseInt(data.price)  %>
                                                                             <% totaldiscprice += parseInt(data.discount)  %>
-                                                                            <% totalacctdisc += parseInt(data.accounting_discount) %>
+                                                                            <% totalacctdisc += parseFloat(data.accounting_discount) %>
+                                                                            <% totaladjdisc += parseFloat(data.adjustment_discount) %>
+                                                                            
                                                                         </tr>
                                                                     <% }) %>
 
@@ -156,7 +161,9 @@
                                                                         <td></td>
                                                                         <td><b><%= nFormat.format(totalprices) %></b></td>
                                                                         <td><b><%= (totaldiscprice != null && !isNaN(totaldiscprice)) ? nFormat.format(totaldiscprice) : 0 %></b></td>
+                                                                        <td><b><%= totaladjdisc %></b></td>
                                                                         <td><b><%= totalacctdisc %></b></td>
+                                                                        
                                                                         <td><b><%= nFormat.format(total) %></b></td>
                                                                     </tr>
                                                                     
