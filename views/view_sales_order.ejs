@@ -110,7 +110,7 @@
                                                                         <!-- <th scope="col"><%= language.in_stock %> </th> -->
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">UOM </th>
-                                                                        <th scope="col">Price </th>
+                                                                        <th scope="col">Invoice Price </th>
                                                                         <th scope="col">All. Discount</th>
                                                                         <th scope="col">Dist. Adj</th>
                                                                         <th scope="col">Net Sales Value</th>
@@ -143,7 +143,7 @@
                                                                             <td><%= nFormat.format(data.adjustment_discount) %></td>
                                                                             <!-- <td><%= nFormat.format(data.accounting_discount) %></td> -->
                                                                             <td><%= nFormat.format(data.totalprice)  %></td>
-                                                                            <% total += parseInt(data.totalprice)  %>
+                                                                            <% total += parseFloat(data.totalprice)  %>
                                                                             <% totalqty += parseInt(data.quantity)  %>
                                                                             <% totalprices += parseInt(data.price)  %>
                                                                             <% totaldiscprice += parseInt(data.discount)  %>

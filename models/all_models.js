@@ -2379,6 +2379,12 @@ const sales_sa_data = new mongoose.Schema({
         },
         fin_disc:{
             type: String
+        },
+        vol_deals:{
+            type: String
+        },
+        bo_disc:{
+            type: String
         }
 
     }],
@@ -2683,6 +2689,12 @@ const sales_order_data = new mongoose.Schema({
             type: String
         },
         fin_disc:{
+            type: String
+        },
+        vol_deals:{
+            type: String
+        },
+        bo_disc:{
             type: String
         }
     }],

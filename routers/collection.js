@@ -131,11 +131,17 @@ router.post("/view/:id", auth, async(req, res) => {
             var ewt_array = [req.body.ewt]
             var spwp_array = [req.body.spwp]
             var fin_disc_array = [req.body.fin_disc]
+            var vol_deals_array = [req.body.vol_deals]
+            var bo_disc_array = [req.body.bo_disc]
+            var totalNewPrice_array = [req.body.totalNewPrice]
         }else{
             var id_detl_array = [...req.body.id_detl]
             var ewt_array = [...req.body.ewt]
             var spwp_array = [...req.body.spwp]
             var fin_disc_array = [...req.body.fin_disc]
+            var vol_deals_array = [...req.body.vol_deals]
+            var bo_disc_array = [...req.body.bo_disc]
+            var totalNewPrice_array = [...req.body.totalNewPrice]
         }
 
 
@@ -158,6 +164,18 @@ router.post("/view/:id", auth, async(req, res) => {
             newproduct[i].fin_disc = value
         });
 
+        vol_deals_array.forEach((value,i) => {
+            newproduct[i].vol_deals = value
+        });
+
+        bo_disc_array.forEach((value,i) => {
+            newproduct[i].bo_disc = value
+        });
+
+        totalNewPrice_array.forEach((value,i) => {
+            newproduct[i].totalcollection = value
+        });
+
         
         data.collection_price = collection
         data.collectionnumber = collectionnumber
@@ -177,7 +195,7 @@ router.post("/view/:id", auth, async(req, res) => {
                 // console.log(element)
 
                 const ObjectId = mongoose.Types.ObjectId;
-                // console.log(ObjectId(element.id_detl))
+                console.log(element)
                    const new_data2 =  await sales_sa.updateOne(
                         {
                             _id: ObjectId(_id.valueOf()),
@@ -188,6 +206,10 @@ router.post("/view/:id", auth, async(req, res) => {
                                 "sale_product.$.ewt": element.ewt,
                                 "sale_product.$.spwp": element.spwp,
                                 "sale_product.$.fin_disc": element.fin_disc,
+                                "sale_product.$.vol_deals": element.vol_deals,
+                                "sale_product.$.bo_disc": element.bo_disc,
+                                "sale_product.$.totalprice": parseFloat(element.totalcollection)
+                       
                             }
                         }
                 );
