@@ -114,7 +114,7 @@
                                                                         <th scope="col">All. Discount</th>
                                                                         <th scope="col">Dist. Adj</th>
                                                                         <th scope="col">Net Sales Value</th>
-                                                                        <th scope="col">Total Price </th>
+                                                                        <!-- <th scope="col">Total Price </th> -->
                                                                     </tr>
                                                                 </thead>
                                                                 <% var total = 0; %>
@@ -141,7 +141,7 @@
                                                                             <td><%= nFormat.format(data.price) %></td>
                                                                             <td><%= nFormat.format(data.discount) %></td>
                                                                             <td><%= nFormat.format(data.adjustment_discount) %></td>
-                                                                            <td><%= nFormat.format(data.accounting_discount) %></td>
+                                                                            <!-- <td><%= nFormat.format(data.accounting_discount) %></td> -->
                                                                             <td><%= nFormat.format(data.totalprice)  %></td>
                                                                             <% total += parseInt(data.totalprice)  %>
                                                                             <% totalqty += parseInt(data.quantity)  %>
@@ -162,7 +162,7 @@
                                                                         <td><b><%= nFormat.format(totalprices) %></b></td>
                                                                         <td><b><%= (totaldiscprice != null && !isNaN(totaldiscprice)) ? nFormat.format(totaldiscprice) : 0 %></b></td>
                                                                         <td><b><%= totaladjdisc %></b></td>
-                                                                        <td><b><%= totalacctdisc %></b></td>
+                                                                        <!-- <td><b><%= totalacctdisc %></b></td> -->
                                                                         
                                                                         <td><b><%= nFormat.format(total) %></b></td>
                                                                     </tr>
