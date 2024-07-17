@@ -2370,6 +2370,15 @@ const sales_sa_data = new mongoose.Schema({
         },
         isFG:{
             type: String
+        },
+        ewt:{
+            type: String
+        },
+        spwp:{
+            type: String
+        },
+        fin_disc:{
+            type: String
         }
 
     }],
@@ -2394,7 +2403,13 @@ const sales_sa_data = new mongoose.Schema({
     collectionnumber: {
         type: String,
         default: ""
-    }
+    },
+    cash_date: {
+        type: String
+    },
+    type_of_payment: {
+        type: String
+    },
 })
 const sales_sa = new mongoose.model("sales_sas", sales_sa_data);
 
@@ -2656,6 +2671,15 @@ const sales_order_data = new mongoose.Schema({
         },
         isFG:{
             type: String
+        },
+        ewt:{
+            type: String
+        },
+        spwp:{
+            type: String
+        },
+        fin_disc:{
+            type: String
         }
     }],
     note: {
@@ -2679,6 +2703,12 @@ const sales_order_data = new mongoose.Schema({
     collectionnumber: {
         type: String,
         default: ""
+    },
+    cash_date: {
+        type: String
+    },
+    type_of_payment: {
+        type: String
     },
     wms_account_confirm:{
         type: String,

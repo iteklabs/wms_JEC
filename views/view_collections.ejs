@@ -57,35 +57,66 @@
 
                                                     <div class="row mb-3">
 
-                                                        <div class="col-xl-4 col-sm-4">
+                                                        <div class="col-xl-3 col-sm-3">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Document Number  <span class="text-red">*</span></label>
+                                                                <span><h3><%= sales_sa.invoice %></h3></span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-3">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"><%= language.customer %>  <span class="text-red">*</span></label>
                                                                 <span><h3><%= sales_sa.customer %></h3></span>
                                                             </div>
                                                         </div>
-                                                        <div class="col-xl-4 col-sm-4">
+                                                        <div class="col-xl-3 col-sm-3">
                                                             <div class="form-group">
-                                                                <label for="invoice_no"><%= language.date %> <span class="text-red">*</span></label>
+                                                                <label for="invoice_no">CR <%= language.date %> <span class="text-red">*</span></label>
                                                                 <span><h3><%= sales_sa.date %></h3></span>
                                                             </div>
                                                         </div>
 
-                                                        <div class="col-xl-4 col-sm-4">
+                                                        <div class="col-xl-3 col-sm-3">
                                                             <div class="form-group">
-                                                                <label for="invoice_no">DSI<span class="text-red">*</span></label>
+                                                                <label for="invoice_no">Invoice Number<span class="text-red">*</span></label>
                                                                 <span><h3><%= sales_sa.dsi %></h3></span>
                                                             </div>
                                                         </div>
                                                             
                                                     </div>
-                                                    <div class="row mb-3">
+                                                    <div class="row">
                                                         <div class="col-xl-4 col-sm-4">
                                                             <div class="form-group">
-                                                                <label for="invoice_no">Collection Number<span class="text-red">*</span></label>
+                                                                <label for="invoice_no">Collection Receipt Number<span class="text-red">*</span></label>
                                                                 <input type="text" class="form-control text-center"  id="collectionnumber" name="collectionnumber" value="<%= sales_sa.collectionnumber %>">
                                                             </div>
+
+                                                           
+
                                                         </div>
+
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Cash Date<span class="text-red">*</span></label>
+                                                                <input type="date" class="form-control text-center"  id="cashdate" name="cashdate" value="<%= sales_sa.cash_date %>">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type of Payment<span class="text-red">*</span></label>
+                                                                <select class="form-control" name="typeofpayment" id="typeofpayment">
+                                                                    <option value="">Select</option>
+                                                                    <option value="cash" <%=sales_sa.type_of_payment=="cash" ? "selected" : "" %>>Cash</option>
+                                                                    <option value="cheque" <%=sales_sa.type_of_payment=="cheque" ? "selected" : "" %>>Cheque</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
                                                     </div>
+
 
                                                     
                                                     <div class="col-xl-12">
@@ -93,7 +124,7 @@
                                                             <table class="table primary-table-bordered" id="sales_tbl_new">
                                                                 <thead class="thead-primary">
                                                                     <tr>
-                                                                        <th scope="col">Item Code </th>
+                                                                        <!-- <th scope="col">Item Code </th> -->
                                                                         <th scope="col">Item Description </th>
                                                                         <!-- <th scope="col">Primary Barcode </th>
                                                                         <th scope="col">Batch Code</th>
@@ -104,8 +135,11 @@
                                                                         <th scope="col">Unit of Measure </th>
                                                                         <th scope="col">Price </th>
                                                                         <th scope="col">Discount Price </th>
-                                                                        <th scope="col">Total Price </th>
-                                                                        <th scope="col">Collection </th>
+                                                                        <th scope="col">EWT </th>
+                                                                        <th scope="col">SPWP </th>
+                                                                        <th scope="col">Fin Disct </th>
+                                                                        <th scope="col">Collection Amount</th>
+                                                                        <!-- <th scope="col">Collection </th> -->
                                                                     </tr>
                                                                 </thead>
                                                                 <% var total = 0; %>
@@ -118,7 +152,7 @@
                                                                 <tbody id="tblPage_NewOut">
                                                                     <% sales_sa.sale_product.map((data) => { %>
                                                                         <tr>
-                                                                            <td><%= data.product_code %></td>
+                                                                            <!-- <td><%= data.product_code %></td> -->
                                                                             <td><%= data.product_name %></td>
                                                                             <!-- <td><%= data.primary_code %></td>
                                                                             <td><%= data.batch_code %></td>
@@ -128,9 +162,13 @@
                                                                             <td><%= nFormat.format(data.quantity) %></td>
                                                                             <td><%= data.unit %></td>
                                                                             <td><%= nFormat.format(data.price) %></td>
-                                                                            <td><%= nFormat.format(data.discount) %></td>
+                                                                            <td><%= (data.discount != null && !isNaN(data.discount)) ? nFormat.format(data.discount) : 0 %></td>
+                                                                            <td><input type="number" class="form-control text-center" id="ewt" name="ewt" value="<%= (data.ewt != null && !isNaN(data.ewt)) ? nFormat.format(data.ewt) : 0 %>"></td>
+                                                                            <td><input type="number" class="form-control text-center" id="spwp" name="spwp" value="<%= (data.spwp != null && !isNaN(data.spwp)) ? nFormat.format(data.spwp) : 0 %>"></td>
+                                                                            <td><input type="number" class="form-control text-center" id="fin_disc" name="fin_disc" value="<%= (data.fin_disc != null && !isNaN(data.fin_disc)) ? nFormat.format(data.fin_disc) : 0 %>"></td>
                                                                             <td><%= nFormat.format(data.totalprice) %></td>
-                                                                            <td></td>
+                                                                            <!-- <td></td> -->
+                                                                            <input type="hidden" name="id_detl" value="<%= data._id %>">
                                                                             <% total += data.totalprice  %>
                                                                             <% totalqty += parseInt(data.quantity)  %>
                                                                             <% totalprices += parseInt(data.price)  %>
@@ -139,14 +177,18 @@
                                                                     <% }) %>
 
                                                                     <tr>
-                                                                        <td colspan="2"></td>
+                                                                        <td colspan="1"></td>
                                                                         <td><b>TOTAL: </b></td>
                                                                         <td><b><%= nFormat.format(totalqty) %></b></td>
                                                                         <td></td>
                                                                         <td><b><%= nFormat.format(totalprices) %></b></td>
                                                                         <td><b><%= (totaldiscprice != null && !isNaN(totaldiscprice)) ? nFormat.format(totaldiscprice) : 0 %></b></td>
+                                                                        <td></td>
+                                                                        <td></td>
+                                                                        <td></td>
                                                                         <td><b><%= nFormat.format(total) %></b></td>
-                                                                        <td><b><input type="number" class="form-control text-center"  style="width: 150px;" id="collection" name="collection" value="<%= sales_sa.collection_price %>"></b></td>
+                                                                        <!-- <td></td> -->
+                                                                        <!-- <td><b><input type="number" class="form-control text-center"  style="width: 150px;" id="collection" name="collection" value="<%= sales_sa.collection_price %>"></b></td> -->
                                                                     </tr>
                                                                     
                                                                 </tbody>

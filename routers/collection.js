@@ -7,6 +7,7 @@ const users = require("../public/language/languages.json");
 const excelJS = require("exceljs");
 const xlsx = require('xlsx');
 const multer = require('multer');
+const mongoose = require("mongoose");
 
 router.get("/view", auth,  async(req, res) => {
     try{
@@ -117,15 +118,86 @@ router.post("/view/:id", auth, async(req, res) => {
 
         // res.json(req.body);
         // return;
+
+
+        // console.log(_id)
         const data = await sales_sa.findById(_id);
-        const {collection, invoicemoney, collectionnumber} = req.body;
+        const {collection, invoicemoney, collectionnumber, typeofpayment, cashdate, id_detl} = req.body;
         // res.json(data);
         // return;
+
+        if(typeof id_detl == "string"){
+            var id_detl_array = [req.body.id_detl]
+            var ewt_array = [req.body.ewt]
+            var spwp_array = [req.body.spwp]
+            var fin_disc_array = [req.body.fin_disc]
+        }else{
+            var id_detl_array = [...req.body.id_detl]
+            var ewt_array = [...req.body.ewt]
+            var spwp_array = [...req.body.spwp]
+            var fin_disc_array = [...req.body.fin_disc]
+        }
+
+
+        const newproduct = id_detl_array.map((value)=>{
+            return  value  = {
+                id_detl : value,
+            }  
+        });
+
+        ewt_array.forEach((value,i) => {
+            newproduct[i].ewt = value
+        });
+
+        spwp_array.forEach((value,i) => {
+            newproduct[i].spwp = value
+        });
+
+
+        fin_disc_array.forEach((value,i) => {
+            newproduct[i].fin_disc = value
+        });
+
+        
         data.collection_price = collection
         data.collectionnumber = collectionnumber
+        data.type_of_payment = typeofpayment
+        data.cash_date = cashdate
         data.paid = "True"
 
         const new_data = await data.save();
+
+        
+
+        if(new_data.paid == "True"){
+
+            // console.log(new_data.sale_product.length);
+            for (let index = 0; index <= newproduct.length - 1; index++) {
+                const element = newproduct[index];
+                // console.log(element)
+
+                const ObjectId = mongoose.Types.ObjectId;
+                // console.log(ObjectId(element.id_detl))
+                   const new_data2 =  await sales_sa.updateOne(
+                        {
+                            _id: ObjectId(_id.valueOf()),
+                            "sale_product._id": ObjectId(element.id_detl.valueOf()),
+                        },
+                        {
+                            $set: {
+                                "sale_product.$.ewt": element.ewt,
+                                "sale_product.$.spwp": element.spwp,
+                                "sale_product.$.fin_disc": element.fin_disc,
+                            }
+                        }
+                );
+                // console.log(ObjectId(_id) + " <> " + ObjectId(element.id_detl))
+                // console.log(new_data2)
+            }
+        }
+        // res.json(new_data);
+        // return;
+        
         req.flash('success', `Collection Update successfully`)
         res.redirect("/collection/view/"+_id)
     }catch(error){

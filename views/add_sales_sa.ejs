@@ -363,7 +363,7 @@
                                             if(element.min_car <= theQTY && element.max_car >= theQTY){
                                                 // console.log(element.min_car + " <> " + element.max_car + " <> " + element.discount_price)
                                                 document.getElementById("dicount_price"+i).value = element.discount_price;
-                                                document.getElementById("dicount_price"+i).disabled = true;
+                                                document.getElementById("dicount_price"+i).readOnly = true;
                                                 computePerPrice(i)
                                             }
                                         }
@@ -407,7 +407,7 @@
                         document.getElementById("dicount_price"+i).value = total_discount.toFixed(2);
                         // document.getElementById("totalPrice"+i).value = gross_price.toFixed(2);
                         computePerPrice(i);
-                        document.getElementById("dicount_price"+i).disabled = true;
+                        document.getElementById("dicount_price"+i).readOnly = true;
                         
                     }
 
@@ -646,7 +646,7 @@
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+'); computePerPrice('+x+'); volume_general(); " id="quantity'+x+'" value="" required>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + data.product_list.unit + '" readonly>'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="'+data.product_list.gross_price+'" readonly>'));
-                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="0">'));
+                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="adj_dicount_price" id="adj_dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
                                         row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
