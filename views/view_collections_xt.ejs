@@ -35,7 +35,7 @@
     </div>
     <div id="main-wrapper">
         <%- include('./partials/header_logo'); -%>
-            <%- include('./partials/header',{titel: "Invoice Collection (Booking)"}); -%>
+            <%- include('./partials/header',{titel: "Invoice Collection (Ex-Truck)"}); -%>
                 <%- include('./partials/sidebar_sa'); -%>
                     <div class="content-body">
                         <div class="container-fluid">
@@ -52,7 +52,7 @@
                                         <div class="card-body">
                                             <div class="form-validation">
 
-                                                <form class="needs-validation" action="/collection/view/<%= sales_sa._id %>"
+                                                <form class="needs-validation" action="/collection/view_xt/<%= sales_sa._id %>"
                                                     method="post" id="form">
 
                                                     <div class="row mb-3">
@@ -90,12 +90,12 @@
 
                                                     <% if (sales_sa.paid == "True") { %>
                                                         <div class="row">
-                                                            <div class="col-xl-4 col-sm-4">
+                                                            <!-- <div class="col-xl-4 col-sm-4">
                                                                 <div class="form-group">
                                                                     <label for="invoice_no">Collection Receipt Number<span class="text-red">*</span></label>
                                                                     <input type="text" class="form-control text-center"  id="collectionnumber" name="collectionnumber" value="<%= sales_sa.collectionnumber %>" disabled>
                                                                 </div>
-                                                            </div>
+                                                            </div> -->
                                                             <div class="col-xl-4 col-sm-4">
                                                                 <div class="form-group">
                                                                     <label for="invoice_no">Type of Payment<span class="text-red">*</span></label>
@@ -120,15 +120,12 @@
                                                         </div>
                                                     <% }else { %>
                                                         <div class="row">
-                                                            <div class="col-xl-4 col-sm-4">
+                                                            <!-- <div class="col-xl-4 col-sm-4">
                                                                 <div class="form-group">
                                                                     <label for="invoice_no">Collection Receipt Number<span class="text-red">*</span></label>
                                                                     <input type="text" class="form-control text-center"  id="collectionnumber" name="collectionnumber" value="<%= sales_sa.collectionnumber %>">
                                                                 </div>
-    
-                                                               
-    
-                                                            </div>
+                                                            </div> -->
     
                                                             <div class="col-xl-4 col-sm-4">
                                                                 <div class="form-group">
@@ -273,6 +270,7 @@
                                                                         <td><b><%= (totaldiscvol_deals != null && !isNaN(totaldiscvol_deals)) ? nFormat.format(totaldiscvol_deals) : 0 %></b></td>
                                                                         <td><b><%= (totaldiscbo != null && !isNaN(totaldiscbo)) ? nFormat.format(totaldiscbo) : 0 %></b></td>
                                                                         <td><b><%= nFormat.format(total) %></b></td>
+                                                                        <input type="hidden" name="collection" id="collection<%= x %>" value="<%= (total != null && !isNaN(total)) ? total : 0 %>">
                                                                         <!-- <td></td> -->
                                                                         <!-- <td><b><input type="number" class="form-control text-center"  style="width: 150px;" id="collection" name="collection" value="<%= sales_sa.collection_price %>"></b></td> -->
                                                                     </tr>

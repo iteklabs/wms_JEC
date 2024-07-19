@@ -14,7 +14,7 @@
     </div>
     <div id="main-wrapper">
         <%- include('./partials/header_logo'); -%>
-            <%- include('./partials/header',{titel: "Invoice Collection (Booking)"}); -%>
+            <%- include('./partials/header',{titel: "Invoice Collection (Ex-truck)"}); -%>
                 <%- include('./partials/sidebar_sa'); -%>
                     <div class="content-body">
                         <div class="container-fluid">
@@ -54,7 +54,7 @@
                                                             <td><%= data.date %></td>
                                                             <td><%= data.customer %></td>
                                                             <td>
-                                                                <a href="/collection/view/<%= data._id %>">
+                                                                <a href="/collection/view_xt/<%= data._id %>">
                                                                     <button type="button" class="btn btn-success m-1">view </button>
                                                                 </a>
                                                             </td>

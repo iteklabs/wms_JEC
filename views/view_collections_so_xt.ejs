@@ -35,7 +35,7 @@
     </div>
     <div id="main-wrapper">
         <%- include('./partials/header_logo'); -%>
-            <%- include('./partials/header',{titel: "Invoice Collection (Booking)"}); -%>
+            <%- include('./partials/header',{titel: "Sales Order Collection (Ex-Truck)"}); -%>
                 <%- include('./partials/sidebar_sa'); -%>
                     <div class="content-body">
                         <div class="container-fluid">
@@ -52,7 +52,7 @@
                                         <div class="card-body">
                                             <div class="form-validation">
 
-                                                <form class="needs-validation" action="/collection/view/<%= sales_sa._id %>"
+                                                <form class="needs-validation" action="/collection/view_so_xt/<%= sales_sa._id %>"
                                                     method="post" id="form">
 
                                                     <div class="row mb-3">
@@ -90,12 +90,12 @@
 
                                                     <% if (sales_sa.paid == "True") { %>
                                                         <div class="row">
-                                                            <div class="col-xl-4 col-sm-4">
+                                                            <!-- <div class="col-xl-4 col-sm-4">
                                                                 <div class="form-group">
                                                                     <label for="invoice_no">Collection Receipt Number<span class="text-red">*</span></label>
                                                                     <input type="text" class="form-control text-center"  id="collectionnumber" name="collectionnumber" value="<%= sales_sa.collectionnumber %>" disabled>
                                                                 </div>
-                                                            </div>
+                                                            </div> -->
                                                             <div class="col-xl-4 col-sm-4">
                                                                 <div class="form-group">
                                                                     <label for="invoice_no">Type of Payment<span class="text-red">*</span></label>
@@ -120,15 +120,12 @@
                                                         </div>
                                                     <% }else { %>
                                                         <div class="row">
-                                                            <div class="col-xl-4 col-sm-4">
+                                                            <!-- <div class="col-xl-4 col-sm-4">
                                                                 <div class="form-group">
                                                                     <label for="invoice_no">Collection Receipt Number<span class="text-red">*</span></label>
                                                                     <input type="text" class="form-control text-center"  id="collectionnumber" name="collectionnumber" value="<%= sales_sa.collectionnumber %>">
                                                                 </div>
-    
-                                                               
-    
-                                                            </div>
+                                                            </div> -->
     
                                                             <div class="col-xl-4 col-sm-4">
                                                                 <div class="form-group">
@@ -173,11 +170,11 @@
                                                                         <th scope="col">UOM </th>
                                                                         <th scope="col">Invoice Price </th>
                                                                         <th scope="col">Discount Price </th>
-                                                                        <th scope="col">EWT </th>
+                                                                        <!-- <th scope="col">EWT </th>
                                                                         <th scope="col">SPWP </th>
                                                                         <th scope="col">Fin Disct </th>
                                                                         <th scope="col">Volume Deals </th>
-                                                                        <th scope="col">BO </th>
+                                                                        <th scope="col">BO </th> -->
                                                                         <th scope="col">Collection Amount</th>
                                                                         <!-- <th scope="col">Collection </th> -->
                                                                     </tr>
@@ -217,30 +214,30 @@
 
                                                                             <% if (sales_sa.paid == "True") { %>
 
-                                                                            <td><input type="number" class="form-control text-center" id="ewt<%= x %>" name="ewt" value="<%= (data.ewt != null && !isNaN(data.ewt)) ? nFormat.format(data.ewt) : 0 %>" oninput="computeTotal('<%= x %>')" disabled></td>
+                                                                            <!-- <td><input type="number" class="form-control text-center" id="ewt<%= x %>" name="ewt" value="<%= (data.ewt != null && !isNaN(data.ewt)) ? nFormat.format(data.ewt) : 0 %>" oninput="computeTotal('<%= x %>')" disabled></td>
                                                                             <td><input type="number" class="form-control text-center" id="spwp<%= x %>" name="spwp" value="<%= (data.spwp != null && !isNaN(data.spwp)) ? nFormat.format(data.spwp) : 0 %>" oninput="computeTotal('<%= x %>')" disabled></td>
                                                                             <td><input type="number" class="form-control text-center" id="fin_disc<%= x %>" name="fin_disc" value="<%= (data.fin_disc != null && !isNaN(data.fin_disc)) ? nFormat.format(data.fin_disc) : 0 %>" oninput="computeTotal('<%= x %>')" disabled></td>
                                                                             <td><input type="number" class="form-control text-center" id="vol_deals<%= x %>" name="vol_deals" value="<%= (data.vol_deals != null && !isNaN(data.vol_deals)) ? nFormat.format(data.vol_deals) : 0 %>" oninput="computeTotal('<%= x %>')" disabled></td>
                                                                             <td><input type="number" class="form-control text-center" id="bo_disc<%= x %>" name="bo_disc" value="<%= (data.bo_disc != null && !isNaN(data.bo_disc)) ? nFormat.format(data.bo_disc) : 0 %>" oninput="computeTotal('<%= x %>')" disabled></td>
-                                                                            
+                                                                             -->
 
                                                                             <% } else { %>
 
-                                                                            <td><input type="number" class="form-control text-center" id="ewt<%= x %>" name="ewt" value="<%= (data.ewt != null && !isNaN(data.ewt)) ? nFormat.format(data.ewt) : 0 %>" oninput="computeTotal('<%= x %>')"></td>
+                                                                            <!-- <td><input type="number" class="form-control text-center" id="ewt<%= x %>" name="ewt" value="<%= (data.ewt != null && !isNaN(data.ewt)) ? nFormat.format(data.ewt) : 0 %>" oninput="computeTotal('<%= x %>')"></td>
                                                                             <td><input type="number" class="form-control text-center" id="spwp<%= x %>" name="spwp" value="<%= (data.spwp != null && !isNaN(data.spwp)) ? nFormat.format(data.spwp) : 0 %>" oninput="computeTotal('<%= x %>')"></td>
                                                                             <td><input type="number" class="form-control text-center" id="fin_disc<%= x %>" name="fin_disc" value="<%= (data.fin_disc != null && !isNaN(data.fin_disc)) ? nFormat.format(data.fin_disc) : 0 %>" oninput="computeTotal('<%= x %>')"></td>
                                                                             <td><input type="number" class="form-control text-center" id="vol_deals<%= x %>" name="vol_deals" value="<%= (data.vol_deals != null && !isNaN(data.vol_deals)) ? nFormat.format(data.vol_deals) : 0 %>" oninput="computeTotal('<%= x %>')"></td>
                                                                             <td><input type="number" class="form-control text-center" id="bo_disc<%= x %>" name="bo_disc" value="<%= (data.bo_disc != null && !isNaN(data.bo_disc)) ? nFormat.format(data.bo_disc) : 0 %>" oninput="computeTotal('<%= x %>')"></td>
-                                                                            
+                                                                             -->
 
                                                                             <% } %>
                                                                             
                                                                             <!-- <td></td> -->
                                                                             <input type="hidden" name="id_detl" value="<%= data._id %>">
                                                                             <% //total += data.totalprice  %>
-                                                                            <% totalqty += parseInt(data.quantity)  %>
-                                                                            <% totalprices += parseInt(data.price)  %>
-                                                                            <% totaldiscprice += parseInt(data.discount)  %>
+                                                                            <% totalqty += parseFloat(data.quantity)  %>
+                                                                            <% totalprices += parseFloat(data.price)  %>
+                                                                            <% totaldiscprice += parseFloat(data.discount)  %>
 
                                                                             <% totaldiscewt += parseFloat(data.ewt)  %>
                                                                             <% totaldiscspwp += parseFloat(data.spwp)  %>
@@ -251,9 +248,9 @@
                                                                             <% totalcollection = parseFloat(data.quantity) * (parseFloat(data.price) - (data.discount !== undefined ? parseFloat(data.discount) : 0)) %>
 
                                                                             <% console.log(totalcollection) %>
-                                                                            <% totalcollection = parseFloat(totalcollection)-(parseFloat(data.ewt)+parseFloat(data.spwp)+parseFloat(data.fin_disc)+parseFloat(data.vol_deals)+parseFloat(data.bo_disc)) %>
+                                                                            <!-- <% //totalcollection = parseFloat(totalcollection)-(parseFloat(data.ewt)+parseFloat(data.spwp)+parseFloat(data.fin_disc)+parseFloat(data.vol_deals)+parseFloat(data.bo_disc)) %> -->
                                                                             <% total += totalcollection%>
-                                                                            <input type="hidden" name="totalNewPrice" id="totalNewPrice<%= x %>" value="<%= (totalcollection != null && !isNaN(totalcollection)) ? totalcollection : 0 %>">
+                                                                            <input type="hidden" name="totalNewPrice" id="totalNewPrice<%= x %>" value="<%= (totalcollection != null && !isNaN(totalcollection)) ? parseFloat(totalcollection).toFixed(2) : 0 %>">
                                                                             <td id="totalidealorice<%= x %>"><%= nFormat.format(totalcollection) %></td>
                                                                             
                                                                         </tr>
@@ -267,12 +264,13 @@
                                                                         <td></td>
                                                                         <td><b><%= nFormat.format(totalprices) %></b></td>
                                                                         <td><b><%= (totaldiscprice != null && !isNaN(totaldiscprice)) ? nFormat.format(totaldiscprice) : 0 %></b></td>
-                                                                        <td><b><%= (totaldiscewt != null && !isNaN(totaldiscewt)) ? nFormat.format(totaldiscewt) : 0 %></b></td>
+                                                                        <!-- <td><b><%= (totaldiscewt != null && !isNaN(totaldiscewt)) ? nFormat.format(totaldiscewt) : 0 %></b></td>
                                                                         <td><b><%= (totaldiscspwp != null && !isNaN(totaldiscspwp)) ? nFormat.format(totaldiscspwp) : 0 %></b></td>
                                                                         <td><b><%= (totaldiscfin_disc != null && !isNaN(totaldiscfin_disc)) ? nFormat.format(totaldiscfin_disc) : 0 %></b></td>
                                                                         <td><b><%= (totaldiscvol_deals != null && !isNaN(totaldiscvol_deals)) ? nFormat.format(totaldiscvol_deals) : 0 %></b></td>
-                                                                        <td><b><%= (totaldiscbo != null && !isNaN(totaldiscbo)) ? nFormat.format(totaldiscbo) : 0 %></b></td>
-                                                                        <td><b><%= nFormat.format(total) %></b></td>
+                                                                        <td><b><%= (totaldiscbo != null && !isNaN(totaldiscbo)) ? nFormat.format(totaldiscbo) : 0 %></b></td> -->
+                                                                        <td><input type="string" class="form-control text-center" name="collection" id="collection<%= x %>" value="<%= sales_sa.collection_price %>"></td>
+                                                                        
                                                                         <!-- <td></td> -->
                                                                         <!-- <td><b><input type="number" class="form-control text-center"  style="width: 150px;" id="collection" name="collection" value="<%= sales_sa.collection_price %>"></b></td> -->
                                                                     </tr>

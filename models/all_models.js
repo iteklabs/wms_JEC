@@ -2416,6 +2416,9 @@ const sales_sa_data = new mongoose.Schema({
     type_of_payment: {
         type: String
     },
+    typeofprocess: {
+        type: String
+    }
 })
 const sales_sa = new mongoose.model("sales_sas", sales_sa_data);
 
@@ -2713,8 +2716,8 @@ const sales_order_data = new mongoose.Schema({
         type: String
     },
     collection_price:{
-        type: Number,
-        default:0
+        type: String,
+        default: "0"
     },
     collectionnumber: {
         type: String,
