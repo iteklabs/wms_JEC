@@ -143,21 +143,21 @@
         // }
 
     
-        var product_date = document.getElementsByName("product_date");
+        // var product_date = document.getElementsByName("product_date");
 
-        for (let index = 0; index < product_date.length; index++) {
-            const inputElement  = product_date[index];
+        // for (let index = 0; index < product_date.length; index++) {
+        //     const inputElement  = product_date[index];
 
-            if(inputElement.value.length == 0){
-                modal.style.display = "none";
-                strTemp += "Production date  is required. <br>"
-                inputElement.style.borderColor = "red";
-                inputElement.focus()
-            }else{
-                inputElement.style.borderColor = "";
-            }
+        //     if(inputElement.value.length == 0){
+        //         modal.style.display = "none";
+        //         strTemp += "Production date  is required. <br>"
+        //         inputElement.style.borderColor = "red";
+        //         inputElement.focus()
+        //     }else{
+        //         inputElement.style.borderColor = "";
+        //     }
             
-        }
+        // }
 
 
         var prod_qty = document.getElementsByName("prod_qty");
@@ -177,38 +177,38 @@
         }
 
 
-        var expiry_date = document.getElementsByName("expiry_date");
+        // var expiry_date = document.getElementsByName("expiry_date");
 
-        for (let index = 0; index < expiry_date.length; index++) {
-            const inputElement  = expiry_date[index];
+        // for (let index = 0; index < expiry_date.length; index++) {
+        //     const inputElement  = expiry_date[index];
 
-            if(inputElement.value.length == 0){
-                modal.style.display = "none";
-                strTemp += "Expiry date  is required. <br>"
-                inputElement.style.borderColor = "red";
-                inputElement.focus()
-            }else{
-                inputElement.style.borderColor = "";
-            }
+        //     if(inputElement.value.length == 0){
+        //         modal.style.display = "none";
+        //         strTemp += "Expiry date  is required. <br>"
+        //         inputElement.style.borderColor = "red";
+        //         inputElement.focus()
+        //     }else{
+        //         inputElement.style.borderColor = "";
+        //     }
             
-        }
+        // }
 
 
-        var batch_code = document.getElementsByName("batch_code");
+        // var batch_code = document.getElementsByName("batch_code");
 
-        for (let index = 0; index < batch_code.length; index++) {
-            const inputElement  = batch_code[index];
+        // for (let index = 0; index < batch_code.length; index++) {
+        //     const inputElement  = batch_code[index];
 
-            if(inputElement.value.length == 0){
-                modal.style.display = "none";
-                strTemp += "Batch Code is required. <br>"
-                inputElement.style.borderColor = "red";
-                inputElement.focus()
-            }else{
-                inputElement.style.borderColor = "";
-            }
+        //     if(inputElement.value.length == 0){
+        //         modal.style.display = "none";
+        //         strTemp += "Batch Code is required. <br>"
+        //         inputElement.style.borderColor = "red";
+        //         inputElement.focus()
+        //     }else{
+        //         inputElement.style.borderColor = "";
+        //     }
             
-        }
+        // }
 
         var table = document.getElementById("purchases_tbl_new");
         var noofrow = table.rows.length -1;
