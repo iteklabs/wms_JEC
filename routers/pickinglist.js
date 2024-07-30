@@ -906,7 +906,7 @@ router.get("/pdf_puchases_fin/:id", auth, async (req, res) => {
 
       doc
       .fontSize(10)
-      .text("TOTAL QTY: ", lastTableX, lastTableY+=350);
+      .text("TOTAL QTY: ", lastTableX, lastTableY+=100);
 
       doc
       .fontSize(10)
@@ -918,20 +918,24 @@ router.get("/pdf_puchases_fin/:id", auth, async (req, res) => {
 
       doc
       .fontSize(10)
-      .text('                                              ', lastTableX+55, lastTableY,{ underline: true});
+      .text('                                              ', lastTableX+60, lastTableY,{ underline: true});
 
 
       doc
       .fontSize(10)
       .text("Check By    : ", lastTableX, lastTableY+50);
 
+      doc
+      .fontSize(10)
+      .text('                                              ', lastTableX+60, lastTableY+50,{ underline: true});
+
       // doc
       // .fontSize(10)
       // .text("          ARMAN CRUZ                          ", lastTableX+50, lastTableY+50,{ underline: true});
       
-      // doc
-      // .fontSize(10)
-      // .text("Finished Good Warehouse Supervisor", lastTableX+50, lastTableY+60);
+      doc
+      .fontSize(10)
+      .text("Warehouse Supervisor", lastTableX+70, lastTableY+60);
       // const pageNumber = doc.bufferedPageRange().start + 1; 
       let pages = doc.bufferedPageRange();
 
