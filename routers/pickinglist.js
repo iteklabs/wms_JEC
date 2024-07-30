@@ -325,10 +325,10 @@ router.get("/PDF_transfer/:id", auth, async (req, res) => {
 
       doc
       .fontSize(20)
-      .text('DELI MONDO FOOD SPECIALTIES INC.', x, y);
-      doc
-      .fontSize(10)
-      .text('BRGY.HALAYHAY, TANZA CAVITE', x, y+=15);
+      .text('JAKA EQUITIES CORPORATION', x, y);
+      // doc
+      // .fontSize(10)
+      // .text('BRGY.HALAYHAY, TANZA CAVITE', x, y+=15);
 
       doc
       .fontSize(15)
@@ -439,9 +439,9 @@ router.get("/PDF_transfer/:id", auth, async (req, res) => {
             unit: Unit,
             proddate: ProductDetl.production_date,
             batchno: ProductDetl.batch_code,
-            binloc: warecode+ProductDetl.to_bay,
+            binloc: ProductDetl.to_level+ProductDetl.to_bay,
             qtyFrom: ProductDetl.from_quantity,
-            binlocFrom: warecode+ProductDetl.from_bay,
+            binlocFrom: ProductDetl.from_level+ProductDetl.from_bay,
           };
           totalQTY += TotalQTYS
           
@@ -467,7 +467,7 @@ router.get("/PDF_transfer/:id", auth, async (req, res) => {
 
       doc
       .fontSize(10)
-      .text("TOTAL QTY: ", lastTableX, lastTableY+=350);
+      .text("TOTAL QTY: ", lastTableX, lastTableY+=80);
 
       doc
       .fontSize(10)
@@ -489,13 +489,17 @@ router.get("/PDF_transfer/:id", auth, async (req, res) => {
       .fontSize(10)
       .text("Checked By: ", lastTableX, lastTableY+=50);
 
+      doc
+      .fontSize(10)
+      .text(" ".repeat(60), lastTableX+62, lastTableY,{ underline: true});
+
       // doc
       //   .fontSize(10)
       //   .text("          ARMAN CRUZ                          ", lastTableX+60, lastTableY,{ underline: true});
         
-      //   doc
-      //   .fontSize(10)
-      //   .text("Finished Good Warehouse Supervisor", lastTableX+60, lastTableY+12);
+        doc
+        .fontSize(10)
+        .text("Warehouse Supervisor", lastTableX+90, lastTableY+12);
 
       // doc
       // .fontSize(10)
