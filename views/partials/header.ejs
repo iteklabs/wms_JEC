@@ -113,7 +113,22 @@
 
                             <div class="header-info">
                                 <span class="text-black text-capitalize"><%= profile.firstname %> <%= profile.lastname %></span>
-                                <p class="fs-12 mb-0 text-capitalize"><%= role.role %></p>
+                                <% if (role.account_category == "ad") { %>
+                                    <p class="fs-12 mb-0 text-capitalize">Super Admin</p>
+                                <% } else if (role.account_category == "wm") { %>
+                                    <p class="fs-12 mb-0 text-capitalize">Super Admin</p>
+                                <% } else if (role.account_category == "sa") { %>
+                                    <p class="fs-12 mb-0 text-capitalize">Sales Accounting</p>
+                                <% } else if (role.account_category == "acc") { %>
+                                    <p class="fs-12 mb-0 text-capitalize">Accounting Account</p>
+                                <% } else if (role.account_category == "rsm") { %>
+                                    <p class="fs-12 mb-0 text-capitalize">Regional Sales Manager</p>
+                                <% } else if (role.account_category == "fss") { %>
+                                    <p class="fs-12 mb-0 text-capitalize">FSS</p>
+                                <% } else if (role.account_category == "gm") { %>
+                                    <p class="fs-12 mb-0 text-capitalize">General Manager</p>
+                                <% } %>
+                                
                             </div>
                             
                         </a>

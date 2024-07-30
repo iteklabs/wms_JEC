@@ -664,7 +664,7 @@ router.get("/PDF_adjustment/:id", auth, async (req, res) => {
             // unitConversion:dataUnit,
             proddate: ProductDetl.production_date,
             batchno: ProductDetl.batch_code,
-            binloc: warecode+ProductDetl.bay,
+            binloc: ProductDetl.level+ProductDetl.bay,
           };
           totalQTY += TotalQTYS
           
@@ -691,7 +691,7 @@ router.get("/PDF_adjustment/:id", auth, async (req, res) => {
 
       doc
       .fontSize(10)
-      .text("TOTAL QTY : ", lastTableX, lastTableY+=350);
+      .text("TOTAL QTY : ", lastTableX, lastTableY+=250);
 
       doc
       .fontSize(10)
@@ -720,13 +720,18 @@ router.get("/PDF_adjustment/:id", auth, async (req, res) => {
       .fontSize(10)
       .text(" : ", lastTableX + 55, lastTableY);
 
+
+      doc
+      .fontSize(10)
+      .text(" ".repeat(60), lastTableX+62, lastTableY,{ underline: true});
+
       // doc
       // .fontSize(10)
       // .text("          ARMAN CRUZ                          ", lastTableX+60, lastTableY,{ underline: true});
         
-      //   doc
-      //   .fontSize(10)
-      //   .text("Finished Good Warehouse Supervisor", lastTableX+60, lastTableY+12);
+        doc
+        .fontSize(10)
+        .text("Warehouse Supervisor", lastTableX+90, lastTableY+12);
 
       // doc
       // .fontSize(10)

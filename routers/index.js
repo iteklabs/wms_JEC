@@ -272,7 +272,7 @@ router.get("/index", auth, async(req, res) => {
                 }
             ])
 
-
+            // res.json(role_data)
             const sales_sa_data_count = await staff.aggregate([
                 {
                     $match: {

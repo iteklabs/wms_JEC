@@ -105,11 +105,11 @@
                                                                     <%= user.mobile %>
                                                                 </td>
                                                                 
-                                                                 <td class="staff_tbody_mobile">
+                                                                <td class="staff_tbody_mobile">
                                                                     <%= user.warehouse %>
                                                                 </td>
                                                                 
-                                                                 <!-- <td class="staff_tbody_mobile">
+                                                                <!-- <td class="staff_tbody_mobile">
                                                                     <%= user.position %>
                                                                 </td> -->
                                                                 <td class="staff_tbody_status">
@@ -228,6 +228,7 @@
                                                 <label for="warrehouse">Sales Category<span class="text-red">*</span> </label>
                                                 <select class="form-control" name="sales_cat" id="sales_cat" required>
                                                     <option value="">Select</option>
+                                                    <option value="all">All</option>
                                                     <option value="1">Ex Truck</option>
                                                     <option value="2">Booking</option>
                                                 </select>
@@ -274,22 +275,12 @@
 
 
                                             <div class="mb-3 col-md-6">
-                                                <label for="recipient-name" class="col-form-label">Sales Man Code 
+                                                <label for="recipient-name" class="col-form-label">Salesman Code 
                                                 </label>
                                                 <input type="text" class="form-control" id="sales_man_code"
-                                                     value="<%= user.sales_man_code %>" name="sales_man_code">
+                                                    value="<%= user.sales_man_code %>" name="sales_man_code">
                                             </div>
-                                       </div>  
-                                       
-                                       
-
-                                       
-                                                                
-
-                                                             
-
-                                                        
-
+                                    </div>
                                         <button type="submit" class="btn btn-primary w-100"><%= language.submit %></button>
 
                                     </div>
@@ -394,6 +385,7 @@
                                             <label for="warrehouse">Sales Category<span class="text-red">*</span> </label>
                                             <select class="form-control" name="sales_cat2" id="sales_cat2">
                                                 <option value="">Select</option>
+                                                <option value="all" <%= user.type_of_acc_cat == "all" ? "selected" : "" %>>All</option>
                                                 <option value="1" <%= user.type_of_acc_cat == "1" ? "selected" : "" %>>Ex Truck</option>
                                                 <option value="2" <%= user.type_of_acc_cat == "2" ? "selected" : "" %>>Booking</option>
                                             </select>
@@ -429,7 +421,7 @@
                                         </div>
     
                                         <div class="mb-3 col-md-6">
-                                            <label for="recipient-name" class="col-form-label">Sales Man Code 
+                                            <label for="recipient-name" class="col-form-label">Salesman Code 
                                             </label>
                                             <input type="text" class="form-control" id="sales_man_code2"
                                                  value="<%= user.sales_man_code %>" name="sales_man_code2">
