@@ -525,10 +525,9 @@
 
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
-                                                                <label for="invoice_no"><%= language.supplier %>  <span
-                                                                        class="text-red">*</span></label>
+                                                                <label for="invoice_no"><%= language.supplier %></label>
                                                                 <select class="form-control" name="suppliers"
-                                                                    id="suppliers" required>
+                                                                    id="suppliers">
                                                                     <option value selected disabled>Select One</option>
                                                                     <% suppliers.forEach((suppliers)=> { %>
                                                                         <option value="<%= suppliers.name %>">
