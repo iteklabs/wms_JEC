@@ -1375,7 +1375,7 @@ router.post("/view/add_transfer_loc", auth, async(req, res) => {
             newproduct[index].To_invoice = "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0');
         }
         
-        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: from_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_transaction: "own", type_of_process: "location2location" })
+        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: to_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_transaction: "own", type_of_process: "location2location" })
         const transfers_data = await data.save()
 
 
