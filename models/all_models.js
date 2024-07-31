@@ -299,6 +299,9 @@ const warehouse_data = new mongoose.Schema({
             },
             sales_category:{
                 type: String
+            },
+            type_products: {
+                type: String
             }
         }
     ]

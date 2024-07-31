@@ -764,12 +764,13 @@ router.get("/view/:id", auth, async (req, res) => {
 
 router.post("/view/:id", auth, upload.single("image"), async (req, res) => {
     try {
-        console.log("hello");
+        
         const _id = req.params.id;
         const data = await product.findById(_id)
 
-        const { image, name, category, brand, sku, unit, alertquantity, product_code,  warehouse, primary_ItemCode, second_ItemCode, second_unit, maxPerUnit, MaxPerProduct, prod_catdata, type_prod } = req.body
-
+        const { image, name, category, brand, sku, unit, alertquantity, product_code,  warehouse, primary_ItemCode, second_ItemCode, second_unit, maxPerUnit, MaxPerProduct, prod_catdata, type_prod, sales_cat } = req.body
+        // res.json(req.body);
+        // return;
         if (req.file) {
             data.image = req.file.filename
         }
@@ -788,6 +789,7 @@ router.post("/view/:id", auth, upload.single("image"), async (req, res) => {
         data.maxProdPerUnit = maxPerUnit
         data.product_category = prod_catdata
         data.type_products = type_prod
+        data.sales_category = sales_cat
 
         const new_data = await data.save();
         console.log("product edit", data);

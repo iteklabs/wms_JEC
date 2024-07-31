@@ -2728,7 +2728,7 @@ router.post("/barcode_scanner_logs", async (req, res) => {
                 $match: { 
                     "product_details.primary_code": product_code,
                     "product_details.sales_category": sales_category,
-                    "product_details.type_products": "logs",
+                    "product_details.type_products": "log",
                 }
             },
             {
@@ -2763,7 +2763,7 @@ router.post("/barcode_scanner_logs", async (req, res) => {
                 }
             },
         ]);
-console.log( "logs" + " <> " + product_code + " <> " + sales_category )
+console.log( "log" + " <> " + product_code + " <> " + sales_category )
         const stock_data2 = await warehouse.aggregate([
             
             {
@@ -2776,7 +2776,7 @@ console.log( "logs" + " <> " + product_code + " <> " + sales_category )
                 $match: { 
                     "product_details.secondary_code": product_code,
                     "product_details.sales_category": sales_category,
-                    "product_details.type_products": "logs",
+                    "product_details.type_products": "log",
                 }
             },
             {

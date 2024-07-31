@@ -1302,7 +1302,7 @@ router.post("/view/add_purchases_logs", auth, async (req, res) => {
                         uuid: product_details.uuid,
                         gross_price: product_details.gross_price,
                         sales_category: product_details.sales_category,
-                        type_products: product_details.typeOfProducts
+                        type_products: product_details.type_of_products
                     })
                 }
         

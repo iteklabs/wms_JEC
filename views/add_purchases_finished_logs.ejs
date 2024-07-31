@@ -1629,12 +1629,12 @@
                             row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="RoomAssign" id="RoomAssign'+lastIncre+'" value="'+RoomAssign+'" readonly>'));
                             row.append($('<td>').html('<select class="form-control" name="prod_level" level="levelOslie'+lastIncre+'" id="prod_level' + lastIncre + '" style="width: 150px;"></select>'));
                             row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
-                            
+                            console.log(data.type_products)
                                 $('<input>').attr({
                                 type: 'hidden',
                                 id: 'type_of_products_type',
                                 name: 'type_of_products_type',
-                                value: data.logs
+                                value: data.type_products
                             }).appendTo(row);
 
                             $('<input>').attr({
