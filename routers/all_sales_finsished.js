@@ -995,7 +995,7 @@ router.post("/view/add_sales", auth, async (req, res) => {
         }
         const Newnewproduct = newproduct.filter(obj => obj.quantity !== "0" && obj.quantity !== "");
         
-        const data = new sales_finished({ invoice: "OUT-" + Invoice_out.invoice_init.toString().padStart(8, '0'), sales_data: req.body.sales, customer: req.body.customer, date, warehouse_name, sale_product:Newnewproduct, note, room, primary_code, secondary_code, prod_code, SCRN, finalize: "False", mode_transpo,name_driver, ReqBy, dateofreq, PO_number, typeservicesData, typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU, pullout_date: pull_out_date, actualdelivery_date: actual_delivery_date })
+        const data = new sales_finished({ invoice: "OUT-" + Invoice_out.invoice_init.toString().padStart(8, '0'), sales_data: req.body.sales, customer: req.body.customer, date, warehouse_name, sale_product:Newnewproduct, note, room, primary_code, secondary_code, prod_code, SCRN, finalize: "False", mode_transpo,name_driver, ReqBy, dateofreq, PO_number, typeservicesData, typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU, pullout_date: pull_out_date, actualdelivery_date: actual_delivery_date, typeOfProducts: "own" })
         const purchases_data = await data.save()
         const new_sales = await sales_finished.findOne({ invoice: invoice });
         req.flash("success", "Sales Add successfully")
