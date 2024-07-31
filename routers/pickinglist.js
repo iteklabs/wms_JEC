@@ -242,6 +242,14 @@ router.get("/PDF/:id", auth, async (req, res) => {
         .fontSize(10)
         .text("Checked By: ", lastTableX, lastTableY+=50);
 
+        doc
+        .fontSize(10)
+        .text(" ".repeat(60), lastTableX+62, lastTableY,{ underline: true});
+
+        doc
+        .fontSize(10)
+        .text("Warehouse Supervisor", lastTableX+90, lastTableY+12);
+
         // doc
         // .fontSize(10)
         // .text("ARMAN CRUZ", lastTableX+60, lastTableY,{ underline: true});
