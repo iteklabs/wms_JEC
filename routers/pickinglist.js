@@ -1771,22 +1771,22 @@ router.get("/PDF_adjustmentFinal/:id", auth, async (req, res) => {
         .text(formatNumber(totalQTY), lastTableX+400, lastTableY);
 
 
-        doc
-        .fontSize(9)
-        .text('NUMBER OF CBM', lastTableX, lastTableY+=13);
+        // doc
+        // .fontSize(9)
+        // .text('NUMBER OF CBM', lastTableX, lastTableY+=13);
 
-        doc
-        .fontSize(9)
-        .text(':', lastTableX+100, lastTableY);
+        // doc
+        // .fontSize(9)
+        // .text(':', lastTableX+100, lastTableY);
 
 
-        doc
-        .fontSize(9)
-        .text(TotalCBM.toFixed(3), lastTableX+150, lastTableY);
+        // doc
+        // .fontSize(9)
+        // .text(TotalCBM.toFixed(3), lastTableX+150, lastTableY);
         
-        doc.moveTo(lastTableX+105, lastTableY+10); // Move to the starting point
-        doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
-        doc.stroke();
+        // doc.moveTo(lastTableX+105, lastTableY+10); // Move to the starting point
+        // doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
+        // doc.stroke();
 
 
 
@@ -1795,7 +1795,7 @@ router.get("/PDF_adjustmentFinal/:id", auth, async (req, res) => {
 
         doc
         .fontSize(9)
-        .text('NUMBER OF PCS', lastTableX+270, lastTableY);
+        .text('NUMBER OF PCS', lastTableX+270, lastTableY+=13);
         doc.moveTo(lastTableX+380, lastTableY+10); // Move to the starting point
         doc.lineTo(lastTableX+570, lastTableY+10); // Draw a line to the ending point
         doc.stroke();
