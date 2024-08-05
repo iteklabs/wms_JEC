@@ -71,15 +71,22 @@
 
                                         <div class="card-body">
                                             
-                                            <a href="/picking_list/pdf/<%= user._id %>" id="picklist" data-id="<%= user._id %>"
-                                                    class="btn btn-warning btn-sm" target="_blank">
-                                                    <i class="feather icon-printer"></i>
+                                            
                                                     <% if(user.finalize == "False"){ %>
-                                                        Print Picking List
+                                                        <a href="/picking_list/pdf/<%= user._id %>" id="picklist" data-id="<%= user._id %>"
+                                                            class="btn btn-warning btn-sm" target="_blank">
+                                                            <i class="feather icon-printer"></i>
+                                                            Print Picking List
+                                                        </a>
                                                     <% } else{ %>
-                                                        Print Delivery Receipt
+                                                        
+                                                        <a href="/picking_list/PDFFinal_own/<%= user._id %>" id="picklist" data-id="<%= user._id %>"
+                                                            class="btn btn-warning btn-sm" target="_blank">
+                                                            <i class="feather icon-printer"></i>
+                                                            Print Delivery Receipt
+                                                        </a>
                                                     <% } %>
-                                            </a>
+                                            
                                         </div>
                                         <div class="card-body">
                                             <div class="form-validation">
