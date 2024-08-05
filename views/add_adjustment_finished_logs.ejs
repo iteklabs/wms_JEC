@@ -452,6 +452,29 @@
 
                                                         <input type="hidden" name="type_of_transaction" value="logs">
 
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Requested By</label>
+                                                                <input type="text" class="form-control" name="ReqBy" id="ReqBy">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Date of Request</label>
+                                                                <input type="date" class="form-control" name="dateofreq" id="dateofreq">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">PO number</label>
+                                                                <input type="text" class="form-control" name="PO_number" id="PO_number">
+                                                            </div>
+                                                        </div>
+
                                                         <!-- <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label class="form-label">Expiry date</label>
@@ -459,6 +482,119 @@
                                                             </div>
                                                         </div> -->
                                                          
+                                                    </div>
+
+
+                                                    <div class="row mb-3">
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type of Services </label>
+                                                            
+
+                                                                <br><input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Freight">
+                                                                <label for="Freight"> Freight</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Handling In">
+                                                                <label for="HandlingIn"> Handling In</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Handling Out">
+                                                                <label for="HandlingOut"> Handling Out</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stripping">
+                                                                <label for="Stripping"> Stripping</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stuffing">
+                                                                <label for="Stuffing"> Stuffing</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Barcoding">
+                                                                <label for="Barcoding"> Barcoding</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Repacking">
+                                                                <label for="Repacking"> Repacking</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Reprocessing">
+                                                                <label for="Reprocessing"> Reprocessing</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stickering">
+                                                                <label for="Stickering"> Stickering</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Sorting">
+                                                                <label for="Sorting"> Sorting</label><br>
+
+                                                                <input type="hidden" class="form-check-input" id="typeservicesData" name="typeservicesData">
+
+
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type of Vehicle  <span
+                                                                        class="text-red">*</span></label>
+                                                                <select class="form-control" name="typevehicle"
+                                                                    id="typevehicle" required>
+                                                                    <option value="4WH">4 WHEELER</option>
+                                                                    <option value="6WH">6 WHEELER</option>
+                                                                    <option value="FWD">FORWARD</option>
+                                                                    <option value="10WH">10 WHEELER</option>
+                                                                    <option value="10FT">10 FOOTER</option>
+                                                                    <option value="20FT">20 FOOTER</option>
+                                                                    <option value="40FT">40 FOOTER</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Destination</label>
+                                                                <input type="text" class="form-control" name="destination" id="destination">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Pick Up/Delivery Date</label>
+                                                                <input type="date" class="form-control" name="deliverydate" id="deliverydate">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Name of trucker/Driver</label>
+                                                                <input type="text" class="form-control" name="driver" id="driver">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Plate Number</label>
+                                                                <input type="text" class="form-control" name="plate" id="plate">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Van/Seal Number</label>
+                                                                <input type="text" class="form-control" name="van" id="can">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">D.R. / S.I Number</label>
+                                                                <input type="text" class="form-control" name="DRSI" id="DRSI">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">TIME START UNLOADING</label>
+                                                                <input type="time" class="form-control" name="TSU" id="TSU">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">TIME FINISH UNLOADING</label>
+                                                                <input type="time" class="form-control" name="TFU" id="TFU">
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     
                                                     
@@ -637,6 +773,30 @@
         <%- include('./partials/script'); -%>
         
      <script>
+
+            function datahceck(){
+                var checkBox = document.getElementsByName("typeservices");
+                var arrayData = [];
+                for (let index = 0; index < checkBox.length; index++) {
+                    const element = checkBox[index];
+
+                    if(element.checked == true){
+                        arrayData += element.value + ',';
+                    }
+                    
+                }
+
+                if (arrayData.endsWith(',')) {
+                    arrayData = arrayData.substring(0, arrayData.length - 1);
+                }
+
+                document.getElementById("typeservicesData").value = arrayData;
+
+
+            }
+
+
+
             $(function(){
                 var dtToday = new Date();
                 

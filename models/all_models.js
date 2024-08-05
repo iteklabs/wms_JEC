@@ -2207,7 +2207,47 @@ const adjustment_data_finished = new mongoose.Schema({
     type_of_transaction : {
         type: String,
         default: "own"
-    }
+    },
+    RequestedBy: {
+        type: String
+    },
+    DateofRequest: {
+        type: String
+    },
+    typeservices: {
+        type: String
+    },
+    typevehicle: {
+        type: String
+    },
+    destination: {
+        type: String
+    },
+    deliverydate: {
+        type: String
+    },
+    driver: {
+        type: String
+    },
+    plate: {
+        type: String
+    },
+    van: {
+        type: String
+    },
+    DRSI: {
+        type: String
+    },
+    PO_number: {
+        type: String
+    },
+    TSU: {
+        type: String
+    },
+    TFU: {
+        type: String
+    },
+
 })
 
 const adjustment_finished = new mongoose.model("adjustment_finished", adjustment_data_finished);
