@@ -1365,11 +1365,11 @@ router.get("/PDFFinal_own/:id", auth, async (req, res) => {
       doc
       .fontSize(10)
       .font('Helvetica-Bold')
-      .text('JOB ORDER - '+ user_id.customer, x+=190, y+=10);
+      .text('JOB ORDER', x+=250, y+=10);
       
       doc
       .fontSize(9)
-      .text('Name of Client', x+=80, y+=25);
+      .text('Name of Client', x+=40, y+=25);
 
 
       doc
@@ -2577,11 +2577,18 @@ router.get("/PDF/:id", auth, async (req, res) => {
         const _id = req.params.id;
         const user_id = await sales_finished.findById(_id);
         var Title;
-        Title = "PICKING LIST";
-        if(user_id.finalize == "True"){
-         Title = "DELIVERY RECEIPT";
+        console.log(user_id.typeOfProducts)
 
+        if(user_id.typeOfProducts == "logs"){
+          Title = "PICKING LIST (LOGISTICS)";
+        }else{
+          Title = "PICKING LIST";
         }
+        
+        // if(user_id.finalize == "True"){
+        //  Title = "DELIVERY RECEIPT";
+
+        // }
         const doc = new PDFDocument({ margin: 30, size: 'A4', bufferPages: true });
 
 
@@ -2812,13 +2819,20 @@ router.get("/PDF_transfer/:id", auth, async (req, res) => {
       const user_id = await transfers_finished.findById(_id);
       var Title;
       var SubTitle;
-      Title = "Picking List";
-      SubTitle = "(STOCKS TRANSFER)";
-      if(user_id.finalize == "True"){
-       Title = "STOCKS TRANSFER";
-       SubTitle ="";
 
+      console.log(user_id)
+      if(user_id.type_of_transaction == "logs"){
+        Title = "PICKING LIST (LOGISTICS)";
+      }else{
+        Title = "PICKING LIST";
       }
+            // Title = "Picking List";
+      // SubTitle = "(STOCKS TRANSFER)";
+      // if(user_id.finalize == "True"){
+      //  Title = "STOCKS TRANSFER";
+      //  SubTitle ="";
+
+      // }
       const doc = new PDFDocument({ margin: 30, size: 'A4', bufferPages: true });
 
 
@@ -3062,12 +3076,18 @@ router.get("/PDF_adjustment/:id", auth, async (req, res) => {
       const user_id = await adjustment_finished.findById(_id);
       var Title;
       var SubTitle;
-      Title = "PICKING LIST";
-      SubTitle = "(INVENTORY ADJUSTMENT)";
-      if(user_id.finalize == "True"){
-        Title = "INVENTORY ADJUSTMENT";
-        SubTitle = "";
+      // Title = "PICKING LIST";
+      // SubTitle = "(INVENTORY ADJUSTMENT)";
+      // if(user_id.finalize == "True"){
+      //   Title = "INVENTORY ADJUSTMENT";
+      //   SubTitle = "";
 
+      // }
+      console.log(user_id)
+      if(user_id.type_of_transaction == "logs"){
+        Title = "PICKING LIST (LOGISTICS)";
+      }else{
+        Title = "PICKING LIST";
       }
       const doc = new PDFDocument({ margin: 30, size: 'A4', bufferPages: true });
 
@@ -3200,7 +3220,7 @@ router.get("/PDF_adjustment/:id", auth, async (req, res) => {
 
       doc
       .fontSize(10)
-      .text("TOTAL QTY : ", lastTableX, lastTableY+=250);
+      .text("TOTAL QTY : ", lastTableX, lastTableY+=100);
 
       doc
       .fontSize(10)
