@@ -1962,7 +1962,46 @@ const transfers_data_finished = new mongoose.Schema({
     },
     type_of_process: {
         type: String
-    }
+    },
+    RequestedBy: {
+        type: String
+    },
+    DateofRequest: {
+        type: String
+    },
+    typeservices: {
+        type: String
+    },
+    typevehicle: {
+        type: String
+    },
+    destination: {
+        type: String
+    },
+    deliverydate: {
+        type: String
+    },
+    driver: {
+        type: String
+    },
+    plate: {
+        type: String
+    },
+    van: {
+        type: String
+    },
+    DRSI: {
+        type: String
+    },
+    PO_number: {
+        type: String
+    },
+    TSU: {
+        type: String
+    },
+    TFU: {
+        type: String
+    },
 })
 
 const transfers_finished = new mongoose.model("transfer_finished", transfers_data_finished);

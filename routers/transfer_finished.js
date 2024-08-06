@@ -22,8 +22,11 @@ router.get("/view", auth, async(req, res) => {
         }else{
             // transfer_data = await transfers_finished.find()
             transfer_data = await transfers_finished.aggregate([
-              
-        
+                {
+                    $match:{
+                        "type_of_transaction" : "own"
+                    }
+                },
                 {
                   $unwind: "$product"
                 },
@@ -527,7 +530,7 @@ router.post("/view/add_transfer_logs", auth, async(req, res) => {
     try{
         // res.json(req.body);
         // return
-        const {date, from_warehouse, FromRoom_name, to_warehouse, ToRoom_name, prod_name, from_prod_qty, from_prod_level, from_prod_isle, from_prod_pallet, to_prod_qty, to_prod_level, to_prod_isle, to_prod_pallet, primary_code, secondary_code, product_code3, note, MaxStocks_data2, invoice, expiry_date} = req.body
+        const {date, from_warehouse, FromRoom_name, to_warehouse, ToRoom_name, prod_name, from_prod_qty, from_prod_level, from_prod_isle, from_prod_pallet, to_prod_qty, to_prod_level, to_prod_isle, to_prod_pallet, primary_code, secondary_code, product_code3, note, MaxStocks_data2, invoice, expiry_date,PO_number, ReqBy, dateofreq,typeservicesData, destination, deliverydate, driver, plate, van, DRSI, typevehicle, TSU, TFU} = req.body
         
         if(typeof prod_name == "string"){
             var product_name_array = [req.body.prod_name]
@@ -726,7 +729,7 @@ router.post("/view/add_transfer_logs", auth, async(req, res) => {
             newproduct[index].To_invoice = "LOG-TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0');
         }
         
-        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: from_warehouse, product:Newnewproduct, note, invoice : "LOG-TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_process: "bin2bin", type_of_transaction: "logs" })
+        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: from_warehouse, product:Newnewproduct, note, invoice : "LOG-TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_process: "bin2bin", type_of_transaction: "logs", PO_number , RequestedBy: ReqBy, DateofRequest: dateofreq, typeservices:typeservicesData, destination, deliverydate, driver, plate, van, DRSI, typevehicle:typevehicle, TSU, TFU })
         const transfers_data = await data.save()
 
 
@@ -741,7 +744,7 @@ router.post("/view/add_transfer_logs", auth, async(req, res) => {
 router.post("/view/addlog", auth, async(req, res) => {
     try{
         
-        const {date, from_warehouse, FromRoom_name, to_warehouse, ToRoom_name, prod_name, from_prod_qty, from_prod_level, from_prod_isle, from_prod_pallet, to_prod_qty, to_prod_level, to_prod_isle, to_prod_pallet, primary_code, secondary_code, product_code3, note, MaxStocks_data2, invoice, expiry_date} = req.body
+        const {date, from_warehouse, FromRoom_name, to_warehouse, ToRoom_name, prod_name, from_prod_qty, from_prod_level, from_prod_isle, from_prod_pallet, to_prod_qty, to_prod_level, to_prod_isle, to_prod_pallet, primary_code, secondary_code, product_code3, note, MaxStocks_data2, invoice, expiry_date,PO_number_loc, ReqBy_loc, dateofreq_loc,typeservices_loc_Data, destination_loc, deliverydate_loc, driver_loc, plate_loc, van_loc, DRSI_loc, typevehicle_loc, TSU_loc, TFU_loc} = req.body
 
         if(typeof prod_name == "string"){
             var product_name_array = [req.body.prod_name]
@@ -941,7 +944,7 @@ router.post("/view/addlog", auth, async(req, res) => {
             newproduct[index].To_invoice = "LOG-TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0');
         }
         
-        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: to_warehouse, product:Newnewproduct, note, invoice : "LOG-TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_transaction: "logs", type_of_process: "location2location" })
+        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: to_warehouse, product:Newnewproduct, note, invoice : "LOG-TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_transaction: "logs", type_of_process: "location2location", PO_number: PO_number_loc , RequestedBy: ReqBy_loc, DateofRequest: dateofreq_loc, typeservices:typeservices_loc_Data, destination: destination_loc, deliverydate: deliverydate_loc, driver: driver_loc, plate: plate_loc, van: van_loc, DRSI : DRSI_loc, typevehicle:typevehicle_loc, TSU: TSU_loc, TFU: TFU_loc })
         const transfers_data = await data.save()
 
 
@@ -957,8 +960,8 @@ router.post("/view/addlog", auth, async(req, res) => {
 router.post("/view/add_transfer", auth, async(req, res) => {
     try{
         // res.json(req.body);
-        // return
-        const {date, from_warehouse, FromRoom_name, to_warehouse, ToRoom_name, prod_name, from_prod_qty, from_prod_level, from_prod_isle, from_prod_pallet, to_prod_qty, to_prod_level, to_prod_isle, to_prod_pallet, primary_code, secondary_code, product_code3, note, MaxStocks_data2, invoice, expiry_date} = req.body
+        // return 
+        const {date, from_warehouse, FromRoom_name, to_warehouse, ToRoom_name, prod_name, from_prod_qty, from_prod_level, from_prod_isle, from_prod_pallet, to_prod_qty, to_prod_level, to_prod_isle, to_prod_pallet, primary_code, secondary_code, product_code3, note, MaxStocks_data2, invoice, expiry_date,PO_number, ReqBy, dateofreq,typeservicesData, destination, deliverydate, driver, plate, van, DRSI, typevehicle, TSU, TFU} = req.body
         
         if(typeof prod_name == "string"){
             var product_name_array = [req.body.prod_name]
@@ -1157,7 +1160,7 @@ router.post("/view/add_transfer", auth, async(req, res) => {
             newproduct[index].To_invoice = "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0');
         }
         
-        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: from_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_process: "bin2bin" , type_of_transaction: "own" })
+        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: from_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_process: "bin2bin" , type_of_transaction: "own", PO_number , RequestedBy: ReqBy, DateofRequest: dateofreq, typeservices:typeservicesData, destination, deliverydate, driver, plate, van, DRSI, typevehicle:typevehicle, TSU, TFU })
         const transfers_data = await data.save()
 
 
@@ -1175,7 +1178,7 @@ router.post("/view/add_transfer", auth, async(req, res) => {
 router.post("/view/add_transfer_loc", auth, async(req, res) => {
     try{
         
-        const {date, from_warehouse, FromRoom_name, to_warehouse, ToRoom_name, prod_name, from_prod_qty, from_prod_level, from_prod_isle, from_prod_pallet, to_prod_qty, to_prod_level, to_prod_isle, to_prod_pallet, primary_code, secondary_code, product_code3, note, MaxStocks_data2, invoice, expiry_date} = req.body
+        const {date, from_warehouse, FromRoom_name, to_warehouse, ToRoom_name, prod_name, from_prod_qty, from_prod_level, from_prod_isle, from_prod_pallet, to_prod_qty, to_prod_level, to_prod_isle, to_prod_pallet, primary_code, secondary_code, product_code3, note, MaxStocks_data2, invoice, expiry_date,PO_number_loc, ReqBy_loc, dateofreq_loc,typeservices_loc_Data, destination_loc, deliverydate_loc, driver_loc, plate_loc, van_loc, DRSI_loc, typevehicle_loc, TSU_loc, TFU_loc} = req.body
         
         if(typeof prod_name == "string"){
             var product_name_array = [req.body.prod_name]
@@ -1375,7 +1378,7 @@ router.post("/view/add_transfer_loc", auth, async(req, res) => {
             newproduct[index].To_invoice = "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0');
         }
         
-        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: to_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_transaction: "own", type_of_process: "location2location" })
+        const data = new transfers_finished({ date, from_warehouse: from_warehouse, to_warehouse: to_warehouse, product:Newnewproduct, note, invoice : "TRF-" + invoice_transfer.invoice_init.toString().padStart(8, '0'), type_of_transaction: "own", type_of_process: "location2location", PO_number: PO_number_loc , RequestedBy: ReqBy_loc, DateofRequest: dateofreq_loc, typeservices:typeservices_loc_Data, destination: destination_loc, deliverydate: deliverydate_loc, driver: driver_loc, plate: plate_loc, van: van_loc, DRSI : DRSI_loc, typevehicle:typevehicle_loc, TSU: TSU_loc, TFU: TFU_loc })
         const transfers_data = await data.save()
 
 

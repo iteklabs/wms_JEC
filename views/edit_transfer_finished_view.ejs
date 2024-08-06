@@ -6,7 +6,7 @@
 
 </head>
 
-<body onload="ComputeConversion();">
+<body onload="ComputeConversion(); checkedServices();">
     <!--*******************
         Preloader start
     ********************-->
@@ -72,16 +72,22 @@
 
                                         <div class="card-body">
                                             
-                                            <a href="/picking_list/PDF_transfer/<%= transfer._id %>" id="picklist" data-id="<%= transfer._id %>"
-                                                    class="btn btn-warning btn-sm" target="_blank">
-                                                    <i class="feather icon-printer"></i>
+                                            
 
                                                     <% if(transfer.finalize == "False"){ %>
-                                                        Print Picking List
+                                                        <a href="/picking_list/PDF_transfer/<%= transfer._id %>" id="picklist" data-id="<%= transfer._id %>"
+                                                            class="btn btn-warning btn-sm" target="_blank">
+                                                            <i class="feather icon-printer"></i>
+                                                            Print Picking List
+                                                        </a>
                                                     <% } else{ %>
-                                                        Print Stocks Transfer List
+                                                        <a href="/picking_list/PDF_transferFinal/<%= transfer._id %>" id="picklist" data-id="<%= transfer._id %>"
+                                                                class="btn btn-warning btn-sm" target="_blank">
+                                                                <i class="feather icon-printer"></i>
+                                                            Print JO
+                                                        </a>
                                                     <% } %>
-                                            </a>
+                                            
                                         </div>
                                         <div class="card-body">
                                             <div class="form-validation">
@@ -150,9 +156,166 @@
                                                                     id="ToRoom_name" value="<%= transfer.to_room %>" readonly>
                                                             </div>
                                                         </div> -->
-                                                        
+                                                        <div class="col-xl-3 col-sm-6">
+                                                  
+                                                            <label class="form-label">Requested By</label>
+                                                            <input type="text" class="form-control" name="ReqBy" id="ReqBy" value="<%= transfer.RequestedBy %>" readonly>
+                                         
                                                     </div>
-                                                    
+
+
+                                                    <div class="col-xl-3 col-sm-6">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Date of Request</label>
+                                                            <input type="date" class="form-control" name="dateofreq" id="dateofreq" value="<%= transfer.DateofRequest %>" readonly>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="col-xl-3 col-sm-6">
+                                                        <div class="form-group">
+                                                            <label class="form-label">PO number</label>
+                                                            <input type="text" class="form-control" name="PO_number" value="<%= transfer.PO_number %>" readonly>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type of Services  <span
+                                                                        class="text-red">*</span></label>
+                                                                <!-- <select class="form-control" name="typeservices"
+                                                                    id="typeservices" disabled>
+                                                                    <option value="F" <%=transfer.typeservices=="F"
+                                                                    ? "selected" : "" %>>Freight</option>
+                                                                    <option value="HI" <%=transfer.typeservices=="HI"
+                                                                    ? "selected" : "" %>>Handling In</option>
+                                                                    <option value="S" <%=transfer.typeservices=="S"
+                                                                    ? "selected" : "" %>>Stripping</option>
+                                                                    <option value="PA" <%=transfer.typeservices=="PA"
+                                                                    ? "selected" : "" %>>Put Away</option>
+                                                                    <option value="OTH" <%=transfer.typeservices=="OTH"
+                                                                    ? "selected" : "" %>>Others</option>
+                                                                </select> -->
+                                                                <br>
+
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Freight" disabled>
+                                                                <label for="Freight"> Freight</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Handling In" disabled>
+                                                                <label for="HandlingIn"> Handling In</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Handling Out" disabled>
+                                                                <label for="HandlingOut"> Handling Out</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Stripping" disabled>
+                                                                <label for="Stripping"> Stripping</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Stuffing" disabled>
+                                                                <label for="Stuffing"> Stuffing</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Barcoding" disabled>
+                                                                <label for="Barcoding"> Barcoding</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Repacking" disabled>
+                                                                <label for="Repacking"> Repacking</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Reprocessing" disabled>
+                                                                <label for="Reprocessing"> Reprocessing</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Stickering" disabled>
+                                                                <label for="Stickering"> Stickering</label><br>
+                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Sorting" disabled>
+                                                                <label for="Sorting"> Sorting</label><br>
+
+
+                                                                <input type="hidden" class="form-check-input" id="typeservicesData" name="typeservicesData" value="<%= transfer.typeservices %>">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type of Vehicle  <span
+                                                                        class="text-red">*</span></label>
+                                                                <select class="form-control" name="typevehicle"
+                                                                    id="typevehicle" disabled>
+                                                                    <option value="4WH" <%=transfer.typevehicle=="4WH"
+                                                                    ? "selected" : "" %>>4 WHEELER</option>
+                                                                    <option value="6WH" <%=transfer.typevehicle=="6WH"
+                                                                    ? "selected" : "" %>>6 WHEELER</option>
+                                                                    <option value="FWD" <%=transfer.typevehicle=="FWD"
+                                                                    ? "selected" : "" %>>FORWARD</option>
+                                                                    <option value="10WH" <%=transfer.typevehicle=="10WH"
+                                                                    ? "selected" : "" %>>10 WHEELER</option>
+                                                                    <option value="10FT" <%=transfer.typevehicle=="10FT"
+                                                                    ? "selected" : "" %>>10 FOOTER</option>
+                                                                    <option value="20FT" <%=transfer.typevehicle=="20FT"
+                                                                    ? "selected" : "" %>>20 FOOTER</option>
+                                                                    <option value="40FT" <%=transfer.typevehicle=="40FT"
+                                                                    ? "selected" : "" %>>40 FOOTER</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Destination</label>
+                                                                <input type="text" class="form-control" name="destination" id="destination" value="<%= transfer.destination %>" readonly>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Pick Up/Delivery Date</label>
+                                                                <input type="date" class="form-control" name="deliverydate" id="deliverydate" value="<%= transfer.deliverydate %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Name of trucker/Driver</label>
+                                                                <input type="text" class="form-control" name="driver" id="driver" value="<%= transfer.driver %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Plate Number</label>
+                                                                <input type="text" class="form-control" name="plate" id="plate" value="<%= transfer.plate %>" readonly>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Van/Seal Number</label>
+                                                                <input type="text" class="form-control" name="van" id="can" value="<%= transfer.van %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">D.R. / S.I Number</label>
+                                                                <input type="text" class="form-control" name="DRSI" id="DRSI" value="<%= transfer.DRSI %>" readonly>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">TIME START LOADING</label>
+                                                                <input type="time" class="form-control" name="TSU" id="TSU" value="<%= transfer.TSU %>" readonly>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">TIME FINISH LOADING</label>
+                                                                <input type="time" class="form-control" name="TFU" id="TFU" value="<%= transfer.TFU %>" readonly>
+                                                            </div>
+                                                        </div>
+
+
+
+
+
+                                                    </div>
                                            
 
                                                     <div class="col-xl-12">
@@ -359,7 +522,24 @@
         
 
         <script>
+function checkedServices(){
+                var data = document.getElementById("typeservicesData").value
+                var checking = document.getElementsByName("typeservices");
+                var dataSplit = data.split(",");
 
+
+                for (let i = 0; i < checking.length; i++) {
+                    const dataChecked = checking[i];
+
+                    for(let a = 0; a < dataSplit.length; a++){
+                            var dataVal = dataSplit[a];
+                            if(dataChecked.value == dataVal){
+                                checking[i].checked = true;
+                            }
+                    }
+                    
+                }
+            }
 
             function confirmAlert(){
                 Swal.fire({
