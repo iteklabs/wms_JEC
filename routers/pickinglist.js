@@ -2610,7 +2610,7 @@ router.get("/PDF_adjustmentFinal/:id", auth, async (req, res) => {
         doc
         .fontSize(10)
         .font('Helvetica-Bold')
-        .text('JOB ORDER', x+=250, y+=10);
+        .text('JOB ORDER -  Adjustment', x+=250, y+=10);
 
         doc
         .fontSize(9)
@@ -2748,7 +2748,7 @@ router.get("/PDF_adjustmentFinal/:id", auth, async (req, res) => {
 
 
       doc.fontSize(9);
-      doc.text(user_id.typeservicesData, x1+110, y1+y+30); // (text, x, y, options)
+      doc.text(user_id.typeservices, x1+110, y1+y+30); // (text, x, y, options)
 
       doc.moveTo(x1+100, y1+y+40); // Move to the starting point
       doc.lineTo(x1+570, y1+y+40); // Draw a line to the ending point
