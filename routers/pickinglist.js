@@ -2910,7 +2910,7 @@ router.get("/PDF_transfer/:id", auth, async (req, res) => {
 
 
       const tableHeaders = [
-            { label: "Item Code", property: 'itemcode', width: 60, renderer: null },
+            { label: "Item Code", property: 'itemcode', width: 90, renderer: null },
             { label: "Item Description", property: 'itemdescription', width: 150, renderer: null },
             { label: "Quantity", property: 'qty', width: 40, renderer: null },
             { label: "UOM", property: 'unit', width: 55, renderer: null },
