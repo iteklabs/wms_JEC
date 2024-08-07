@@ -1637,7 +1637,7 @@ router.get("/PDFFinal_own/:id", auth, async (req, res) => {
       function addFooters(doc, lastTableX,lastTableY) {
         doc
         .fontSize(9)
-        .text('NUMBER OF PALLETS', lastTableX, lastTableY);
+        .text('NUMBER OF PALLETS', lastTableX-=25, lastTableY);
 
         
 
