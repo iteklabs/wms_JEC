@@ -2806,6 +2806,277 @@ router.get("/PDF_adjustmentFinal/:id", auth, async (req, res) => {
 // });
 
 
+router.get("/PDF_transfer/:id", auth, async (req, res) => {
+  try {
+      const { username, email, role } = req.user;
+      const role_data = req.user;
+
+      const profile_data = await profile.findOne({ email: role_data.email });
+
+      const master = await master_shop.find();
+
+      const _id = req.params.id;
+      const user_id = await transfers_finished.findById(_id);
+      var Title;
+      var SubTitle;
+
+      console.log(user_id)
+      if(user_id.type_of_transaction == "logs"){
+        Title = "PICKING LIST (LOGISTICS)";
+      }else{
+        Title = "PICKING LIST";
+      }
+            // Title = "Picking List";
+      // SubTitle = "(STOCKS TRANSFER)";
+      // if(user_id.finalize == "True"){
+      //  Title = "STOCKS TRANSFER";
+      //  SubTitle ="";
+
+      // }
+      const doc = new PDFDocument({ margin: 30, size: 'A4', bufferPages: true });
+
+
+      res.setHeader('Content-disposition', 'inline; filename="OUT-'+ _id+'.pdf"');
+      res.setHeader('Content-type', 'application/pdf');
+      var x=20;
+      var y=60;
+
+      doc.pipe(res);
+
+
+      doc.image('./public/upload/'+master[0].image, 20, 0, {fit: [100, 100]})
+
+      // doc
+      // .fontSize(20)
+      // .text('JAKA EQUITIES CORPORATION', x, y);
+      // // doc
+      // // .fontSize(10)
+      // // .text('BRGY.HALAYHAY, TANZA CAVITE', x, y+=15);
+
+      // doc
+      // .fontSize(15)
+      // .text(Title, x, y+=50);
+
+      // doc
+      // .fontSize(10)
+      // .text(SubTitle, x, y+=20);
+
+      // doc
+      // .fontSize(9)
+      // .text('From Warehouse ', x, y+=40);
+
+      // doc
+      // .fontSize(9)
+      // .text('   : '+user_id.from_warehouse, x+63, y);
+
+      // doc
+      // .fontSize(9)
+      // .text('To Warehouse ', x, y+=15);
+
+      // doc
+      // .fontSize(9)
+      // .text('   : '+user_id.to_warehouse, x+63, y);
+      
+      // doc
+      // .fontSize(9)
+      // .text('Customer : ' + user_id.customer, 400, 210, { underline: true });
+      // doc
+      // .fontSize(9)
+      // .text('Pick By : ', x, y+=11);
+
+      // doc
+      // .fontSize(9)
+      // .text('Date ', x, y+=11);
+
+
+      // doc
+      // .fontSize(9)
+      // .text('   : '+user_id.date, x+63, y);
+
+      // doc
+      // .fontSize(9)
+      // .text('Control Number ', x, y+=11);
+
+      // doc
+      // .fontSize(9)
+      // .text('   : '+user_id.invoice, x+63, y);
+
+      const tableHeaders1 = [
+          { label: "", property: 'itemcode', width: 443, renderer: null, textCenter: true },
+          { label: "  FROM", property: 'itemcode', width: 63, renderer: null, textCenter: true },
+          { label: "  TO", property: 'itemdescription', width: 63, renderer: null, textCenter: true  },
+         
+        ];
+
+
+      const tableHeaders = [
+            { label: "Item Code", property: 'itemcode', width: 60, renderer: null },
+            { label: "Item Description", property: 'itemdescription', width: 150, renderer: null },
+            { label: "Quantity", property: 'qty', width: 40, renderer: null },
+            { label: "UOM", property: 'unit', width: 55, renderer: null },
+            { label: "Production Date", property: 'proddate', width: 75, renderer: null },
+            { label: "Batch No", property: 'batchno', width: 63, renderer: null },
+            { label: "Bin Location", property: 'binlocFrom', width: 63, renderer: null },
+            { label: "Bin Location", property: 'binloc', width: 63, renderer: null },
+          ];
+
+        var totalQTY = 0; 
+        let warecode = "";
+        var totalPerUnit =0;
+
+        let rows = user_id.product.map((ProductDetl) => {
+          var prod_cat = ProductDetl.prod_cat;
+          var Unit, TotalQTYS ;
+          Unit = ProductDetl.unit;
+          TotalQTYS = ProductDetl.to_quantity;
+          if(prod_cat == "S"){
+            
+            Unit = ProductDetl.secondary_unit;
+            TotalQTYS = ProductDetl.to_quantity * ProductDetl.maxPerUnit
+          }
+
+          totalQTY += ProductDetl.to_quantity;
+          return {
+            itemcode: ProductDetl.product_code,
+            itemdescription: ProductDetl.product_name,
+            qty: TotalQTYS,
+            unit: Unit,
+            proddate: ProductDetl.production_date,
+            batchno: ProductDetl.batch_code,
+            binloc: ProductDetl.to_level+ProductDetl.to_bay,
+            qtyFrom: ProductDetl.from_quantity,
+            binlocFrom: ProductDetl.from_level+ProductDetl.from_bay,
+            
+          };
+          
+
+        });
+
+      
+        function addHeaders(doc, x, y) {
+          doc.image('./public/upload/' + master[0].image, 20, 0, { fit: [100, 100] });
+
+          doc
+              .fontSize(20)
+              .text('JAKA EQUITIES CORPORATION', x, y)
+              .fontSize(15)
+              .text(Title, x, y += 50)
+              .fontSize(10)
+              .text("(OUTGOING)", x, y += 20)
+              .fontSize(9)
+              .text('From Warehouse ', x, y += 40)
+              .text(' : ' + user_id.from_warehouse, x + 63, y)
+              .text('To Warehouse ', x, y += 11)
+              .text(' : ' + user_id.to_warehouse, x + 63, y)
+              .text('Date ', x, y += 11)
+              .text(' : ' + user_id.date, x + 63, y)
+              .text('Control Number ', x, y += 11)
+              .text(' : ' + user_id.invoice, x + 63, y);
+        }
+
+
+        function addFooters(doc, y) {
+          doc
+              .fontSize(10)
+              .text("*********************** NOTHING TO FOLLOWS ***********************", 145, y)
+              .text("TOTAL QTY: ", 20, y += 25)
+              .text(totalQTY, 240, y, { underline: true })
+              .text('Picked By   : ', 20, y += 25)
+              .text(" ".repeat(60), 82, y, { underline: true })
+              .text("Checked By: ", 20, y += 50)
+              .text(" ".repeat(60), 82, y, { underline: true })
+              .text("Warehouse Supervisor", 110, y + 12);
+      }
+
+
+      function generateTable2(doc, headers, rows, x, y) {
+        const table = {
+            headers: headers,
+            datas: rows,
+        };
+
+        doc.table(table, {
+            x: x,
+            y: y,
+            prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
+            prepareRow: (row, indexColumn, indexRow, rectRow) => doc.font("Helvetica").fontSize(8),
+        });
+
+        return doc.y;
+    }
+
+      function generateTable(doc, headers, rows, x, y) {
+          const table = {
+              headers: headers,
+              datas: rows,
+          };
+
+          doc.table(table, {
+              x: x,
+              y: y,
+              prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
+              prepareRow: (row, indexColumn, indexRow, rectRow) => doc.font("Helvetica").fontSize(8),
+          });
+
+          return doc.y;
+      }
+
+
+      const rowsPerPage = 15;
+        let startY = 300;
+        let currentY;
+        for (let i = 0; i < rows.length; i += rowsPerPage) {
+            const chunk = rows.slice(i, i + rowsPerPage);
+            if (i > 0) {
+                doc.addPage();
+                startY = addHeaders(doc, 20, 60); // Reset startY after adding a new page
+            } else {
+                startY = addHeaders(doc, 20, 60); // Add headers for the first page
+            }
+            console.log(startY)
+            
+            currentY = generateTable2(doc, tableHeaders1, [], 20, 220);
+            currentY = generateTable(doc, tableHeaders, chunk, 20, 235);
+           
+        }
+        addFooters(doc, currentY + 30); // Adjust this value based on your table height
+
+
+
+      let pages = doc.bufferedPageRange();
+
+      // let pages = doc.bufferedPageRange();
+      for (let i = 0; i < pages.count; i++) {
+      doc.switchToPage(i);
+
+      //Footer: Add page number
+      let oldBottomMargin = doc.page.margins.bottom;
+      doc.page.margins.bottom = 0 //Dumb: Have to remove bottom margin in order to write into it
+      doc
+          .text(
+          `Page: ${i + 1} of ${pages.count}`,
+          0,
+          doc.page.height - (oldBottomMargin/2), // Centered vertically in bottom margin
+          { align: 'center' }
+          );
+      doc.page.margins.bottom = oldBottomMargin; // ReProtect bottom margin
+      }
+    
+      
+      const lasttextY = doc.y
+      const lasttextX = doc.x
+      // doc
+      // .fontSize(10)
+      // .text("X: " + lasttextX + " Y : " + lasttextY, lasttextX, lasttextY);
+
+      // Finalize the PDF
+      doc.end();
+  } catch (error) {
+      console.log(error);
+      res.status(500).send("An error occurred while generating the PDF.");
+  }
+});
+
 router.get("/PDF/:id", auth, async (req, res) => {
   try {
       const { username, email, role } = req.user;
@@ -2990,7 +3261,7 @@ router.get("/PDF_adjustment/:id", auth, async (req, res) => {
 
       const tableHeaders = [
           // headers: [
-            { label: "Item Code", property: 'itemcode', width: 60, renderer: null },
+            { label: "Item Code", property: 'itemcode', width: 90, renderer: null },
             { label: "Item Description", property: 'itemdescription', width: 150, renderer: null },
             { label: "Quantity", property: 'qty', width: 60, renderer: null },
             { label: "UOM", property: 'unit', width: 60, renderer: null },
@@ -3189,7 +3460,7 @@ router.get("/PDF_adjustment/:id", auth, async (req, res) => {
   }
 });
 
-router.get("/PDF_transfer/:id", auth, async (req, res) => {
+router.get("/PDF_transfer2/:id", auth, async (req, res) => {
   try {
       const { username, email, role } = req.user;
       const role_data = req.user;
