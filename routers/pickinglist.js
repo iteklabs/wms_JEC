@@ -2952,7 +2952,242 @@ router.get("/PDF/:id", auth, async (req, res) => {
   }
 });
 
+router.get("/PDF_adjustment/:id", auth, async (req, res) => {
+  try {
+      const { username, email, role } = req.user;
+      const role_data = req.user;
 
+      const profile_data = await profile.findOne({ email: role_data.email });
+
+      const master = await master_shop.find();
+
+      const _id = req.params.id;
+      const user_id = await adjustment_finished.findById(_id);
+      var Title;
+      var SubTitle;
+      // Title = "PICKING LIST";
+      // SubTitle = "(INVENTORY ADJUSTMENT)";
+      // if(user_id.finalize == "True"){
+      //   Title = "INVENTORY ADJUSTMENT";
+      //   SubTitle = "";
+
+      // }
+      console.log(user_id)
+      if(user_id.type_of_transaction == "logs"){
+        Title = "PICKING LIST (LOGISTICS)";
+      }else{
+        Title = "PICKING LIST";
+      }
+      const doc = new PDFDocument({ margin: 30, size: 'A4', bufferPages: true });
+
+
+      res.setHeader('Content-disposition', 'inline; filename="OUT-'+ _id+'.pdf"');
+      res.setHeader('Content-type', 'application/pdf');
+      var x=20;
+      var y=60;
+
+      doc.pipe(res);
+
+      const tableHeaders = [
+          // headers: [
+            { label: "Item Code", property: 'itemcode', width: 60, renderer: null },
+            { label: "Item Description", property: 'itemdescription', width: 150, renderer: null },
+            { label: "Quantity", property: 'qty', width: 60, renderer: null },
+            { label: "UOM", property: 'unit', width: 60, renderer: null },
+            { label: "Production Date", property: 'proddate', width: 80, renderer: null },
+            { label: "Batch No", property: 'batchno', width: 63, renderer: null },
+            { label: "Bin Location", property: 'binloc', width: 63, renderer: null },
+          // ],
+          // datas: [],
+      ];
+        var totalQTY = 0; 
+        let warecode = "";
+        var totalPerUnit =0;
+        let rows = user_id.product.map((ProductDetl) => {
+            var prod_cat = ProductDetl.prod_cat;
+            var Unit, TotalQTYS ;
+            Unit = ProductDetl.unit;
+            TotalQTYS = ProductDetl.adjust_qty;
+            if(prod_cat == "S"){
+              
+              Unit = ProductDetl.secondary_unit;
+              TotalQTYS = ProductDetl.adjust_qty * ProductDetl.maxPerUnit
+            }
+          return {
+            itemcode: ProductDetl.product_code,
+            itemdescription: ProductDetl.product_name,
+            qty: TotalQTYS,
+            unit: Unit,
+            proddate: ProductDetl.production_date,
+            batchno: ProductDetl.batch_code,
+            binloc: ProductDetl.level+ProductDetl.bay,
+          };
+          totalQTY += TotalQTYS
+          
+          // tableHeaders.datas.push(rowData);
+        });
+        // console.log("eto",rows)
+        function addHeaders(doc, x, y) {
+            doc.image('./public/upload/' + master[0].image, 20, 0, { fit: [100, 100] });
+
+            doc
+                .fontSize(20)
+                .text('JAKA EQUITIES CORPORATION', x, y)
+                .fontSize(15)
+                .text(Title, x, y += 50)
+                .fontSize(10)
+                // .text("(OUTGOING)", x, y += 20)
+                .fontSize(9)
+                .text('Warehouse ', x, y += 40)
+                .text(' : ' + user_id.warehouse_name, x + 63, y)
+                .text('Date ', x, y += 11)
+                .text(' : ' + user_id.date, x + 63, y)
+                .text('Control Number ', x, y += 11)
+                .text(' : ' + user_id.invoice, x + 63, y);
+        }
+
+
+
+      function addFooters(doc, y) {
+          doc
+              .fontSize(10)
+              .text("*********************** NOTHING TO FOLLOWS ***********************", 145, y)
+              .text("TOTAL QTY: ", 20, y += 25)
+              .text(totalQTY, 240, y, { underline: true })
+              .text('Picked By   : ', 20, y += 25)
+              .text(" ".repeat(60), 82, y, { underline: true })
+              .text("Checked By: ", 20, y += 50)
+              .text(" ".repeat(60), 82, y, { underline: true })
+              .text("Warehouse Supervisor", 110, y + 12);
+      }
+
+    function generateTable(doc, headers, rows, x, y) {
+      const table = {
+          headers: headers,
+          datas: rows,
+      };
+
+      doc.table(table, {
+          x: x,
+          y: y,
+          prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
+          prepareRow: (row, indexColumn, indexRow, rectRow) => doc.font("Helvetica").fontSize(8),
+      });
+
+      return doc.y;
+  }
+
+        const rowsPerPage = 15;
+        let startY = 300;
+        let currentY;
+        for (let i = 0; i < rows.length; i += rowsPerPage) {
+            const chunk = rows.slice(i, i + rowsPerPage);
+            if (i > 0) {
+                doc.addPage();
+                startY = addHeaders(doc, 20, 60); // Reset startY after adding a new page
+            } else {
+                startY = addHeaders(doc, 20, 60); // Add headers for the first page
+            }
+            console.log(startY)
+            currentY = generateTable(doc, tableHeaders, chunk, 20, 225);
+           
+        }
+        addFooters(doc, currentY + 30); // Adjust this value based on your table height
+
+                  
+
+      // doc.table(table, {
+      //     x: 20,
+      //     y: 280,
+      //     prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
+      //     prepareRow: (row, indexColumn, indexRow, rectRow) => doc.font("Helvetica").fontSize(8),
+          
+         
+      //   });
+      //   var lastTableY = doc.y
+      //   var lastTableX = doc.x
+
+
+      //   doc
+      //   .fontSize(10)
+      //   .text("*********************** NOTHING TO FOLLOWS ***********************", lastTableX+125, lastTableY);
+
+      // doc
+      // .fontSize(10)
+      // .text("TOTAL QTY : ", lastTableX, lastTableY+=100);
+
+      // doc
+      // .fontSize(10)
+      // .text(totalQTY, lastTableX+200, lastTableY);
+
+      // // doc
+      // // .fontSize(10)
+      // // .text(totalPerUnit, lastTableX+280, lastTableY,{ underline: true});
+
+      // doc
+      // .fontSize(10)
+      // .text('Picked By   : ', lastTableX, lastTableY+=25);
+
+
+      // doc
+      // .fontSize(10)
+      // .text(" ".repeat(60), lastTableX+62, lastTableY,{ underline: true});
+
+
+      // doc
+      // .fontSize(10)
+      // .text("Checked By ", lastTableX, lastTableY+=50);
+
+
+      // doc
+      // .fontSize(10)
+      // .text(" : ", lastTableX + 55, lastTableY);
+
+
+      // doc
+      // .fontSize(10)
+      // .text(" ".repeat(60), lastTableX+62, lastTableY,{ underline: true});
+
+      // // doc
+      // // .fontSize(10)
+      // // .text("          ARMAN CRUZ                          ", lastTableX+60, lastTableY,{ underline: true});
+        
+      //   doc
+      //   .fontSize(10)
+      //   .text("Warehouse Supervisor", lastTableX+90, lastTableY+12);
+
+      // doc
+      // .fontSize(10)
+      // .text("ARMAN CRUZ", lastTableX+60, lastTableY+30,{ underline: true});
+      // const pageNumber = doc.bufferedPageRange().start + 1; 
+      let pages = doc.bufferedPageRange();
+
+      // let pages = doc.bufferedPageRange();
+      for (let i = 0; i < pages.count; i++) {
+      doc.switchToPage(i);
+
+      //Footer: Add page number
+      let oldBottomMargin = doc.page.margins.bottom;
+      doc.page.margins.bottom = 0 //Dumb: Have to remove bottom margin in order to write into it
+      doc
+          .text(
+          `Page: ${i + 1} of ${pages.count}`,
+          0,
+          doc.page.height - (oldBottomMargin/2), // Centered vertically in bottom margin
+          { align: 'center' }
+          );
+      doc.page.margins.bottom = oldBottomMargin; // ReProtect bottom margin
+      }
+    
+      
+      const lasttextY = doc.y
+      const lasttextX = doc.x
+      doc.end();
+  } catch (error) {
+      console.log(error);
+      res.status(500).send("An error occurred while generating the PDF.");
+  }
+});
 
 router.get("/PDF_transfer/:id", auth, async (req, res) => {
   try {
@@ -3211,7 +3446,7 @@ router.get("/PDF_transfer/:id", auth, async (req, res) => {
 });
 
 
-router.get("/PDF_adjustment/:id", auth, async (req, res) => {
+router.get("/PDF_adjustment2/:id", auth, async (req, res) => {
   try {
       const { username, email, role } = req.user;
       const role_data = req.user;
@@ -4849,17 +5084,6 @@ router.get("/barcode_generator/", auth, async (req, res) => {
     res.status(500).send("An error occurred while generating the PDF.");
   }
 });
-
-
-
-
-
-
-
-
-
-
-
 
 
 module.exports = router;
