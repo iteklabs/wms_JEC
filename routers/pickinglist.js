@@ -2747,7 +2747,7 @@ router.get("/PDF_adjustmentFinal/:id", auth, async (req, res) => {
 
 
 
-      doc.fontSize(9);
+      doc.fontSize(8);
       doc.text(user_id.typeservices, x1+110, y1+y+30); // (text, x, y, options)
 
       doc.moveTo(x1+100, y1+y+40); // Move to the starting point
