@@ -2565,245 +2565,393 @@ router.get("/PDF_adjustmentFinal/:id", auth, async (req, res) => {
   }
 });
 
-router.get("/PDF/:id", auth, async (req, res) => {
-    try {
-        const { username, email, role } = req.user;
-        const role_data = req.user;
+// router.get("/PDF/:id", auth, async (req, res) => {
+//     try {
+//         const { username, email, role } = req.user;
+//         const role_data = req.user;
 
-        const profile_data = await profile.findOne({ email: role_data.email });
+//         const profile_data = await profile.findOne({ email: role_data.email });
 
-        const master = await master_shop.find();
+//         const master = await master_shop.find();
 
-        const _id = req.params.id;
-        const user_id = await sales_finished.findById(_id);
-        var Title;
-        console.log(user_id.typeOfProducts)
+//         const _id = req.params.id;
+//         const user_id = await sales_finished.findById(_id);
+//         var Title;
+//         console.log(user_id.typeOfProducts)
 
-        if(user_id.typeOfProducts == "logs"){
-          Title = "PICKING LIST (LOGISTICS)";
-        }else{
-          Title = "PICKING LIST";
-        }
+//         if(user_id.typeOfProducts == "logs"){
+//           Title = "PICKING LIST (LOGISTICS)";
+//         }else{
+//           Title = "PICKING LIST";
+//         }
         
-        // if(user_id.finalize == "True"){
-        //  Title = "DELIVERY RECEIPT";
+//         // if(user_id.finalize == "True"){
+//         //  Title = "DELIVERY RECEIPT";
 
-        // }
-        const doc = new PDFDocument({ margin: 30, size: 'A4', bufferPages: true });
-
-
-        res.setHeader('Content-disposition', 'inline; filename="'+user_id.invoice+'.pdf"');
-        res.setHeader('Content-type', 'application/pdf');
-        var x=20;
-        var y=60;
-
-        doc.pipe(res);
+//         // }
+//         const doc = new PDFDocument({ margin: 30, size: 'A4', bufferPages: true });
 
 
-        doc.image('./public/upload/'+master[0].image, 20, 0, {fit: [100, 100]})
+//         res.setHeader('Content-disposition', 'inline; filename="'+user_id.invoice+'.pdf"');
+//         res.setHeader('Content-type', 'application/pdf');
+//         var x=20;
+//         var y=60;
 
-        doc
-        .fontSize(20)
-        .text('JAKA EQUITIES CORPORATION', x, y);
-        // doc
-        // .fontSize(10)
-        // .text('BRGY.HALAYHAY, TANZA CAVITE', x, y+=15);
+//         doc.pipe(res);
 
-        doc
-        .fontSize(15)
-        .text(Title, x, y+=50);
 
-        doc
-        .fontSize(10)
-        .text("(OUTGOING)", x, y+=20);
+//         doc.image('./public/upload/'+master[0].image, 20, 0, {fit: [100, 100]})
 
-        doc
-        .fontSize(9)
-        .text('Warehouse ', x, y+=40);
+//         doc
+//         .fontSize(20)
+//         .text('JAKA EQUITIES CORPORATION', x, y);
+//         // doc
+//         // .fontSize(10)
+//         // .text('BRGY.HALAYHAY, TANZA CAVITE', x, y+=15);
 
-        doc
-        .fontSize(9)
-        .text(' : '+user_id.warehouse_name, x+63, y);
+//         doc
+//         .fontSize(15)
+//         .text(Title, x, y+=50);
+
+//         doc
+//         .fontSize(10)
+//         .text("(OUTGOING)", x, y+=20);
+
+//         doc
+//         .fontSize(9)
+//         .text('Warehouse ', x, y+=40);
+
+//         doc
+//         .fontSize(9)
+//         .text(' : '+user_id.warehouse_name, x+63, y);
         
-        // doc
-        // .fontSize(9)
-        // .text('Customer : ' + user_id.customer, x+380, y, { underline: true });
-        // doc
-        // .fontSize(9)
-        // .text('Picked By ', x, y+=11);
+//         // doc
+//         // .fontSize(9)
+//         // .text('Customer : ' + user_id.customer, x+380, y, { underline: true });
+//         // doc
+//         // .fontSize(9)
+//         // .text('Picked By ', x, y+=11);
 
-        // doc
-        // .fontSize(9)
-        // .text(' : ', x+63, y);
+//         // doc
+//         // .fontSize(9)
+//         // .text(' : ', x+63, y);
 
-        doc
-        .fontSize(9)
-        .text('Date ', x, y+=11);
+//         doc
+//         .fontSize(9)
+//         .text('Date ', x, y+=11);
 
-        doc
-        .fontSize(9)
-        .text(' : '+user_id.date, x+63, y);
+//         doc
+//         .fontSize(9)
+//         .text(' : '+user_id.date, x+63, y);
 
-        doc
-        .fontSize(9)
-        .text('Control Number ', x, y+=11);
+//         doc
+//         .fontSize(9)
+//         .text('Control Number ', x, y+=11);
 
-        doc
-        .fontSize(9)
-        .text(' : '+user_id.invoice, x+63, y);
+//         doc
+//         .fontSize(9)
+//         .text(' : '+user_id.invoice, x+63, y);
 
 
-        const table = {
-            headers: [
-              { label: "Item Code", property: 'itemcode', width: 60, renderer: null },
-              { label: "Item Description", property: 'itemdescription', width: 165, renderer: null },
-              { label: "Quantity", property: 'qty', width: 60, renderer: null },
-              { label: "UOM", property: 'unit', width: 60, renderer: null },
-              // { label: "Quantity", property: 'unitConversion', width: 60, renderer: null },
-              { label: "Production Date", property: 'proddate', width: 80, renderer: null },
-              { label: "Batch No", property: 'batchno', width: 63, renderer: null },
-              { label: "Bin Location", property: 'binloc', width: 63, renderer: null },
-            ],
-            datas: [],
-          };
-          var totalQTY = 0; 
-          let warecode = "";
-          var totalPerUnit =0;
-          if(user_id.warehouse_name == "DRY GOODS"){
-            warecode = "DG";
-          }else{
-            warecode = "FG";
-          }
-          var rowCheck = 0;
-          user_id.sale_product.forEach((ProductDetl) => {
-            console.log(ProductDetl)
-            let dataUnit = '';
+//         const table = {
+//             headers: [
+//               { label: "Item Code", property: 'itemcode', width: 60, renderer: null },
+//               { label: "Item Description", property: 'itemdescription', width: 165, renderer: null },
+//               { label: "Quantity", property: 'qty', width: 60, renderer: null },
+//               { label: "UOM", property: 'unit', width: 60, renderer: null },
+//               // { label: "Quantity", property: 'unitConversion', width: 60, renderer: null },
+//               { label: "Production Date", property: 'proddate', width: 80, renderer: null },
+//               { label: "Batch No", property: 'batchno', width: 63, renderer: null },
+//               { label: "Bin Location", property: 'binloc', width: 63, renderer: null },
+//             ],
+//             datas: [],
+//           };
+//           var totalQTY = 0; 
+//           let warecode = "";
+//           var totalPerUnit =0;
+//           if(user_id.warehouse_name == "DRY GOODS"){
+//             warecode = "DG";
+//           }else{
+//             warecode = "FG";
+//           }
+//           var rowCheck = 0;
+//           user_id.sale_product.forEach((ProductDetl) => {
+//             console.log(ProductDetl)
+//             let dataUnit = '';
             
-            const qtydata = ProductDetl.quantity;
-            for (let index = 1; index <= qtydata; index++) {
+//             const qtydata = ProductDetl.quantity;
+//             for (let index = 1; index <= qtydata; index++) {
               
-              if(qtydata == index){
-                dataUnit += ProductDetl.maxperunit;
-              }else{
-                dataUnit += ProductDetl.maxperunit+',';
-              }
+//               if(qtydata == index){
+//                 dataUnit += ProductDetl.maxperunit;
+//               }else{
+//                 dataUnit += ProductDetl.maxperunit+',';
+//               }
               
               
-              totalPerUnit +=ProductDetl.maxperunit;
-            }
-            dataUnit += ' / ' + ProductDetl.secondary_unit ;
-            const rowData = {
+//               totalPerUnit +=ProductDetl.maxperunit;
+//             }
+//             dataUnit += ' / ' + ProductDetl.secondary_unit ;
+//             const rowData = {
 
               
+//               itemcode: ProductDetl.product_code,
+//               itemdescription: ProductDetl.product_name,
+//               qty: ProductDetl.quantity,
+//               unit: ProductDetl.unit,
+//               // unitConversion:dataUnit,
+//               proddate: ProductDetl.production_date,
+//               batchno: ProductDetl.batch_code,
+//               binloc: ProductDetl.level+ProductDetl.bay,
+              
+//             };
+//             totalQTY += ProductDetl.quantity 
+//             rowCheck +=1;
+//             table.datas.push(rowData);
+//           });
+
+                    
+
+//         doc.table(table, {
+//             x: 20,
+//             y: 300,
+//             prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
+//             prepareRow: (row, indexColumn, indexRow, rectRow) => doc.font("Helvetica").fontSize(8),
+            
+           
+//           });
+//           var lastTableY = doc.y
+//           var lastTableX = doc.x
+ 
+         
+//         doc
+//         .fontSize(10)
+//         .text("*********************** NOTHING TO FOLLOWS ***********************", lastTableX+125, lastTableY);
+//         console.log("x: " + lastTableX + " y: " + lastTableY + " row: " + rowCheck);
+//         const lessY = lastTableX*rowCheck;
+//         doc
+//         .fontSize(10)
+//         .text("TOTAL QTY: ", lastTableX, lastTableY+=(350-lessY));
+
+//         doc
+//         .fontSize(10)
+//         .text(totalQTY, lastTableX+220, lastTableY,{ underline: true});
+      
+//         doc
+//         .fontSize(10)
+//         .text('Picked By   : ', lastTableX, lastTableY+=25);
+  
+  
+//         doc
+//         .fontSize(10)
+//         .text(" ".repeat(60), lastTableX+62, lastTableY,{ underline: true});
+
+//         doc
+//         .fontSize(10)
+//         .text("Checked By: ", lastTableX, lastTableY+=50);
+
+//         doc
+//         .fontSize(10)
+//         .text(" ".repeat(60), lastTableX+62, lastTableY,{ underline: true});
+
+//         doc
+//         .fontSize(10)
+//         .text("Warehouse Supervisor", lastTableX+90, lastTableY+12);
+
+//         // doc
+//         // .fontSize(10)
+//         // .text("ARMAN CRUZ", lastTableX+60, lastTableY,{ underline: true});
+
+
+//         // doc
+//         // .fontSize(10)
+//         // .text("          ARMAN CRUZ                          ", lastTableX+60, lastTableY,{ underline: true});
+        
+//         // doc
+//         // .fontSize(10)
+//         // .text("Finished Good Warehouse Supervisor", lastTableX+60, lastTableY+12);
+//         // const pageNumber = doc.bufferedPageRange().start + 1; 
+//         let pages = doc.bufferedPageRange();
+
+//         // let pages = doc.bufferedPageRange();
+//         for (let i = 0; i < pages.count; i++) {
+//         doc.switchToPage(i);
+
+//         //Footer: Add page number
+//         let oldBottomMargin = doc.page.margins.bottom;
+//         doc.page.margins.bottom = 0 //Dumb: Have to remove bottom margin in order to write into it
+//         doc
+//             .text(
+//             `Page: ${i + 1} of ${pages.count}`,
+//             0,
+//             doc.page.height - (oldBottomMargin/2), // Centered vertically in bottom margin
+//             { align: 'center' }
+//             );
+//         doc.page.margins.bottom = oldBottomMargin; // ReProtect bottom margin
+//         }
+      
+        
+//         const lasttextY = doc.y
+//         const lasttextX = doc.x
+//         // doc
+//         // .fontSize(10)
+//         // .text("X: " + lasttextX + " Y : " + lasttextY, lasttextX, lasttextY);
+
+//         // Finalize the PDF
+//         doc.end();
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).send("An error occurred while generating the PDF.");
+//     }
+// });
+
+
+router.get("/PDF/:id", auth, async (req, res) => {
+  try {
+      const { username, email, role } = req.user;
+      const role_data = req.user;
+
+      const profile_data = await profile.findOne({ email: role_data.email });
+
+      const master = await master_shop.find();
+
+      const _id = req.params.id;
+      const user_id = await sales_finished.findById(_id);
+      var Title;
+      console.log(user_id.typeOfProducts);
+
+      if(user_id.typeOfProducts == "logs"){
+        Title = "PICKING LIST (LOGISTICS)";
+      }else{
+        Title = "PICKING LIST";
+      }
+
+      const doc = new PDFDocument({ margin: 30, size: 'A4', bufferPages: true });
+
+      res.setHeader('Content-disposition', 'inline; filename="'+user_id.invoice+'.pdf"');
+      res.setHeader('Content-type', 'application/pdf');
+      
+      doc.pipe(res);
+
+      let totalQTY = 0;
+      let warecode = user_id.warehouse_name === "DRY GOODS" ? "DG" : "FG";
+
+      let rows = user_id.sale_product.map(ProductDetl => {
+          totalQTY += ProductDetl.quantity;
+          return {
               itemcode: ProductDetl.product_code,
               itemdescription: ProductDetl.product_name,
               qty: ProductDetl.quantity,
               unit: ProductDetl.unit,
-              // unitConversion:dataUnit,
               proddate: ProductDetl.production_date,
               batchno: ProductDetl.batch_code,
-              binloc: ProductDetl.level+ProductDetl.bay,
-              
-            };
-            totalQTY += ProductDetl.quantity 
-            rowCheck +=1;
-            table.datas.push(rowData);
+              binloc: ProductDetl.level + ProductDetl.bay,
+          };
+      });
+
+      const tableHeaders = [
+          { label: "Item Code", property: 'itemcode', width: 90 },
+          { label: "Item Description", property: 'itemdescription', width: 165 },
+          { label: "Quantity", property: 'qty', width: 60 },
+          { label: "UOM", property: 'unit', width: 60 },
+          { label: "Production Date", property: 'proddate', width: 80 },
+          { label: "Batch No", property: 'batchno', width: 63 },
+          { label: "Bin Location", property: 'binloc', width: 63 },
+      ];
+
+      function addHeaders(doc, x, y) {
+          doc.image('./public/upload/' + master[0].image, 20, 0, { fit: [100, 100] });
+
+          doc
+              .fontSize(20)
+              .text('JAKA EQUITIES CORPORATION', x, y)
+              .fontSize(15)
+              .text(Title, x, y += 50)
+              .fontSize(10)
+              .text("(OUTGOING)", x, y += 20)
+              .fontSize(9)
+              .text('Warehouse ', x, y += 40)
+              .text(' : ' + user_id.warehouse_name, x + 63, y)
+              .text('Date ', x, y += 11)
+              .text(' : ' + user_id.date, x + 63, y)
+              .text('Control Number ', x, y += 11)
+              .text(' : ' + user_id.invoice, x + 63, y);
+      }
+
+      function addFooters(doc, y) {
+          doc
+              .fontSize(10)
+              .text("*********************** NOTHING TO FOLLOWS ***********************", 145, y)
+              .text("TOTAL QTY: ", 20, y += 25)
+              .text(totalQTY, 240, y, { underline: true })
+              .text('Picked By   : ', 20, y += 25)
+              .text(" ".repeat(60), 82, y, { underline: true })
+              .text("Checked By: ", 20, y += 50)
+              .text(" ".repeat(60), 82, y, { underline: true })
+              .text("Warehouse Supervisor", 110, y + 12);
+      }
+
+      function generateTable(doc, headers, rows, x, y) {
+          const table = {
+              headers: headers,
+              datas: rows,
+          };
+
+          doc.table(table, {
+              x: x,
+              y: y,
+              prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
+              prepareRow: (row, indexColumn, indexRow, rectRow) => doc.font("Helvetica").fontSize(8),
           });
 
-                    
+          return doc.y;
+      }
 
-        doc.table(table, {
-            x: 20,
-            y: 300,
-            prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
-            prepareRow: (row, indexColumn, indexRow, rectRow) => doc.font("Helvetica").fontSize(8),
-            
+      // const rowsPerPage = 10;
+      // let currentY = 220;
+      
+      // for (let i = 0; i < rows.length; i += rowsPerPage) {
+      //     const chunk = rows.slice(i, i + rowsPerPage);
+      //     if (i > 0) doc.addPage();
+      //     addHeaders(doc, 20, 60);
+      //     currentY = generateTable(doc, tableHeaders, chunk, 20, currentY);
+      //     // addFooters(doc, currentY + 160); // Adjust this value based on your table height
+      //     console.log(currentY)
+      //     addFooters(doc, currentY + 30);
+      // }
+      const rowsPerPage = 15;
+        let startY = 300;
+        let currentY;
+        for (let i = 0; i < rows.length; i += rowsPerPage) {
+            const chunk = rows.slice(i, i + rowsPerPage);
+            if (i > 0) {
+                doc.addPage();
+                startY = addHeaders(doc, 20, 60); // Reset startY after adding a new page
+            } else {
+                startY = addHeaders(doc, 20, 60); // Add headers for the first page
+            }
+            console.log(startY)
+            currentY = generateTable(doc, tableHeaders, chunk, 20, 225);
            
-          });
-          var lastTableY = doc.y
-          var lastTableX = doc.x
- 
-         
-        doc
-        .fontSize(10)
-        .text("*********************** NOTHING TO FOLLOWS ***********************", lastTableX+125, lastTableY);
-        console.log("x: " + lastTableX + " y: " + lastTableY + " row: " + rowCheck);
-        const lessY = lastTableX*rowCheck;
-        doc
-        .fontSize(10)
-        .text("TOTAL QTY: ", lastTableX, lastTableY+=(350-lessY));
-
-        doc
-        .fontSize(10)
-        .text(totalQTY, lastTableX+220, lastTableY,{ underline: true});
-      
-        doc
-        .fontSize(10)
-        .text('Picked By   : ', lastTableX, lastTableY+=25);
-  
-  
-        doc
-        .fontSize(10)
-        .text(" ".repeat(60), lastTableX+62, lastTableY,{ underline: true});
-
-        doc
-        .fontSize(10)
-        .text("Checked By: ", lastTableX, lastTableY+=50);
-
-        doc
-        .fontSize(10)
-        .text(" ".repeat(60), lastTableX+62, lastTableY,{ underline: true});
-
-        doc
-        .fontSize(10)
-        .text("Warehouse Supervisor", lastTableX+90, lastTableY+12);
-
-        // doc
-        // .fontSize(10)
-        // .text("ARMAN CRUZ", lastTableX+60, lastTableY,{ underline: true});
-
-
-        // doc
-        // .fontSize(10)
-        // .text("          ARMAN CRUZ                          ", lastTableX+60, lastTableY,{ underline: true});
-        
-        // doc
-        // .fontSize(10)
-        // .text("Finished Good Warehouse Supervisor", lastTableX+60, lastTableY+12);
-        // const pageNumber = doc.bufferedPageRange().start + 1; 
-        let pages = doc.bufferedPageRange();
-
-        // let pages = doc.bufferedPageRange();
-        for (let i = 0; i < pages.count; i++) {
-        doc.switchToPage(i);
-
-        //Footer: Add page number
-        let oldBottomMargin = doc.page.margins.bottom;
-        doc.page.margins.bottom = 0 //Dumb: Have to remove bottom margin in order to write into it
-        doc
-            .text(
-            `Page: ${i + 1} of ${pages.count}`,
-            0,
-            doc.page.height - (oldBottomMargin/2), // Centered vertically in bottom margin
-            { align: 'center' }
-            );
-        doc.page.margins.bottom = oldBottomMargin; // ReProtect bottom margin
         }
-      
-        
-        const lasttextY = doc.y
-        const lasttextX = doc.x
-        // doc
-        // .fontSize(10)
-        // .text("X: " + lasttextX + " Y : " + lasttextY, lasttextX, lasttextY);
+        addFooters(doc, currentY + 30); // Adjust this value based on your table height
 
-        // Finalize the PDF
-        doc.end();
-    } catch (error) {
-        console.log(error);
-        res.status(500).send("An error occurred while generating the PDF.");
-    }
+      let pages = doc.bufferedPageRange();
+      for (let i = 0; i < pages.count; i++) {
+          doc.switchToPage(i);
+          let oldBottomMargin = doc.page.margins.bottom;
+          doc.page.margins.bottom = 0;
+          doc.text(`Page: ${i + 1} of ${pages.count}`, 0, doc.page.height - (oldBottomMargin / 2), { align: 'center' });
+          doc.page.margins.bottom = oldBottomMargin;
+      }
+
+      doc.end();
+  } catch (error) {
+      console.log(error);
+      res.status(500).send("An error occurred while generating the PDF.");
+  }
 });
+
 
 
 router.get("/PDF_transfer/:id", auth, async (req, res) => {
