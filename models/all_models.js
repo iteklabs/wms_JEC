@@ -2002,6 +2002,10 @@ const transfers_data_finished = new mongoose.Schema({
     TFU: {
         type: String
     },
+    to_recieved:{
+        type: String,
+        default: "false"
+    }
 })
 
 const transfers_finished = new mongoose.model("transfer_finished", transfers_data_finished);
@@ -2982,8 +2986,207 @@ log_transfers.plugin(autoIncrement.plugin, {
 
 const transfers_logs = new mongoose.model("transfers_logs", log_transfers);
 
-module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa, invoice_for_sales_order, approver_acct, discount_volume_db,  purchases_logs, sales_logs, adjustment_logs, transfers_logs, 
-                    suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, 
+
+const locationCounterSchema = new mongoose.Schema({
+    prefix: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    seq: {
+        type: Number,
+        default: 0
+    }
+});
+
+const LocationCounter = mongoose.model('LocationCounter', locationCounterSchema);
+
+const logTransfersSchema = new mongoose.Schema({
+    invoice_init: {
+        type: String, // Change to String to accommodate prefix + number
+        required: true
+    },
+    location: {
+        type: String, // Prefix, e.g., 'AA', 'BB'
+        required: true
+    }
+});
+
+autoIncrement.initialize(mongoose.connection);
+
+logTransfersSchema.plugin(autoIncrement.plugin, {
+    model: 'trf_incomings',
+    field: 'invoice_init',
+    startAt: 1,
+    incrementBy: 1
+});
+
+logTransfersSchema.pre('save', async function (next) {
+    const doc = this;
+
+    try {
+        // Find or create the location counter for the given prefix
+        const locationCounter = await LocationCounter.findOneAndUpdate(
+            { prefix: doc.location },
+            { $inc: { seq: 1 } },
+            { new: true, upsert: true }
+        );
+        
+        const seq = locationCounter.seq;
+        const paddedSeq = String(seq).padStart(8, '0'); // Pad the sequence with leading zeros
+        // console.log(`${doc.location}-${paddedSeq}`)
+        // Combine the prefix and the sequence number
+        doc.invoice_init = `${doc.location}-${paddedSeq}`;
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+const datalogs = mongoose.model('trf_incomings', logTransfersSchema);
+
+
+const purchases_data_incoming = new mongoose.Schema({
+    invoice: {
+        type: String,
+    },
+    suppliers: {
+        type: String,
+    },
+    date: {
+        type: String,
+    },
+    warehouse_name: {
+        type: String,
+    },
+    product:[{
+        product_name: {
+            type: String
+        },
+        product_code: {
+            type: String
+        },
+        quantity: {
+            type: Number
+        },
+        standard_unit: {
+            type: String
+        },
+        secondary_unit:{
+            type: String
+        },
+        storage:{
+            type: String
+        },
+        rack:{
+            type: String
+        },
+        bay:{
+           type: Number 
+        },
+        bin:{
+            type: mongoose.Schema.Types.Mixed
+        },
+        type:{
+            type: String
+        },
+        floorlevel:{
+            type: Number
+        },
+        primary_code:{
+            type: String
+        },
+        secondary_code:{
+            type: String
+        },
+        maxStocks:{
+            type: Number
+        },
+        batch_code: {
+            type: String
+        },
+        expiry_date: {
+            type: String
+        },
+        maxperunit:{
+            type: Number
+        },
+        alertQTY:{
+            type: Number
+        },
+        production_date:{
+            type: String
+        },
+        product_cat:{
+            type: String
+        },
+        room_name: {
+            type: String
+        },
+        delivery_code: {
+            type: String
+        },
+        invoice: {
+            type: String
+        },
+        actual_qty:{
+            type: String
+        },
+        actual_uom:{
+            type: String
+        },
+        level: {
+            type: String
+        }
+    }],
+    note: {
+        type: String
+    },
+    paid_amount: {
+        type: Number,
+        default: 0
+    },
+    due_amount: {
+        type: Number,
+    },
+    return_data: {
+        type: String,
+        default: "False"
+    },
+    room:{
+        type: String
+    },
+    POnumber:{
+        type: String
+    },
+    SCRN: {
+        type: String
+    },
+    JO_number: {
+        type: String
+    },
+    finalize: {
+        type: String,
+        default: "False"
+    },
+    isAllowEdit: {
+        type: String,
+        default: "False"
+    },
+    roomList:[{
+        room_name: {
+            type: String
+        }
+    }]
+})
+
+
+
+const purchases_incoming = new mongoose.model("purchases_incoming", purchases_data_incoming);
+
+module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa, invoice_for_sales_order, approver_acct, discount_volume_db,  purchases_logs, sales_logs, adjustment_logs, transfers_logs, datalogs,
+                    suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, purchases_incoming,
                     invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer, invoice_for_inventory, sales_inv_data, sales_order, 
                     customer_payment, c_payment_data, transfers, expenses_type, all_expenses, adjustment, master_shop, email_settings, 
                     purchases_finished, sales_finished, adjustment_finished, transfers_finished, purchases_return_finished, sales_return_finished, 

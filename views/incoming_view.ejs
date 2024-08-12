@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+
+</head>
+
+<body>
+    <!--*******************
+    Preloader start
+********************-->
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <!--*******************
+    Preloader end
+********************-->
+
+    <!--**********************************
+    Main wrapper start
+***********************************-->
+    <div id="main-wrapper">
+
+        <!--**********************************
+        Nav header start
+    ***********************************-->
+        <%- include('./partials/header_logo'); -%>
+
+            <!--**********************************
+        Nav header end
+    ***********************************-->
+
+            <!--**********************************
+        Header start
+    ***********************************-->
+            <%- include('./partials/header',{titel: "Incoming (To receiving)"}); -%>
+
+                <!--**********************************
+        Header end ti-comment-alt
+    ***********************************-->
+
+                <!--**********************************
+        Sidebar start
+    ***********************************-->
+                <%- include('./partials/sidebar'); -%>
+
+                    <!--**********************************
+        Sidebar end
+    ***********************************-->
+
+                    <div class="content-body">
+                        <div class="container-fluid">
+                            <!-- row -->
+
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    
+                                    <div class="card-header">
+                                        <h4 class="card-title col-6">Receiving</h4>
+                                        <div class="card-title col-6 text-end">
+
+                                            <a href="/all_purchases_finished/incoming/add" class="btn btn-rounded btn-info text-white"> <%= language.add_purchases %>
+                                                <span class="btn-icon-start text-info">
+                                                    <i class="fa fa-plus color-info"></i>
+                                                </span>
+                                            </a>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="card-body">
+
+                                        <div class="d-none">
+                                            <input type="hidden" value="<%= master_shop[0].currency %>" id="hidden_currency">
+                                            <input type="hidden" value="<%= master_shop[0].currency_placement %>" id="hidden_currency_placement">
+                                        </div>
+
+                                        <div class="table-responsive">
+                                            <table id="example" class="table table-responsive-sm text-center">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Document Number</th>
+                                                        <th><%= language.date %> </th>
+                                                        <th>From <%= language.warehouse %> </th>
+                                                        <th>To <%= language.warehouse %> </th>
+                                                        <th>Status</th>
+                                                        <th>Print </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+
+                                                    
+                                                    <% purchases.forEach((element) => { %>
+                                                        <td class="text-nowrap"><%= element.invoice %></td>
+                                                        <td class="text-nowrap"><%= element.date %></td>
+                                                        <td class="text-nowrap"><%= element.from_warehouse %></td>
+                                                        <td class="text-nowrap"><%= element.to_warehouse %></td>
+                                                        <td class="text-nowrap">
+                                                            <% if (element.to_recieved == "true") { %>
+                                                                Confirmed
+                                                            <% } else { %>
+                                                                Ongoing
+                                                            <% } %>
+                                                        </td>
+                                                        <td class="text-nowrap">
+                                                            <a href="/picking_list/PDF_transferFinal/<%= element._id %>" target="_blank"
+                                                                class="btn btn-warning btn-sm">
+                                                                <i class="feather icon-printer"></i>
+                                                            </a>
+                                                        </td>
+                                                        <% console.log(element) %>
+                                                    <% }) %>
+                                                </tbody>
+
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment modal end -->
+
+                    <!--**********************************
+            Footer start
+        ***********************************-->
+                    <%- include('./partials/footer'); -%>
+
+                        <!--**********************************
+            Footer end
+        ***********************************-->
+
+    </div>
+    <!--**********************************
+        Main wrapper end
+    ***********************************-->
+
+    <!-- start Toastr -->
+    <%- include('./partials/toastr'); -%>
+        <!-- End Toastr -->
+
+        <!--**********************************
+        Scripts
+    ***********************************-->
+       
+
+        <%- include('./partials/script'); -%>
+
+            <!--**********************************
+        Scripts end
+    ***********************************-->
+</body>
+
+</html>

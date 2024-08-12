@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+
+</head>
+
+<body>
+    <!--*******************
+    Preloader start
+********************-->
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <!--*******************
+    Preloader end
+********************-->
+
+    <!--**********************************
+    Main wrapper start
+***********************************-->
+    <div id="main-wrapper">
+
+        <!--**********************************
+        Nav header start
+    ***********************************-->
+        <%- include('./partials/header_logo'); -%>
+
+            <!--**********************************
+        Nav header end
+    ***********************************-->
+
+            <!--**********************************
+        Header start
+    ***********************************-->
+            <%- include('./partials/header',{titel: "Incoming (To receiving)"}); -%>
+
+                <!--**********************************
+        Header end ti-comment-alt
+    ***********************************-->
+
+                <!--**********************************
+        Sidebar start
+    ***********************************-->
+                <%- include('./partials/sidebar'); -%>
+
+                    <!--**********************************
+        Sidebar end
+    ***********************************-->
+
+                    <div class="content-body">
+                        <div class="container-fluid">
+                            <!-- row -->
+
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    
+                                    <div class="card-header" width="50px">
+                                        <!-- <h4 class="card-title col-6">Receiving</h4> -->
+                                        <!-- <div class="card-title col-6 text-end"> -->
+
+                                            <select class="form-control" id="trf_incoming" name="trf_incoming" width="50px">
+                                                <!-- <option>Please Select</option>
+                                                <option>Please Select</option> -->
+                                            </select>
+
+                                        <!-- </div> -->
+                                    </div>
+                                    <input type="hidden" name="staff_warehouse" id="staff_warehouse" value="<%= staff_data.warehouse %>">
+                                    <div class="card-body">
+
+                                    </div>
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="form-validation">
+
+                                        <form class="needs-validation" action="/all_purchases_finished/incoming/add" method="post" id="form">
+
+                                            <div class="row mb-3">
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label for="invoice_no"> Supplier/Client Ref Number <span
+                                                                class="text-red"> *</span></label>
+                                                        <input type="text" name="SCRN" class="form-control" value=""
+                                                            id="SCRN" required>
+                                                            <input type="hidden" name="type_of_products" id="type_of_products" value="own">
+                                                            <input type="hidden" name="invoice_trf_data" id="invoice_trf_data" value="">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Requested By</label>
+                                                        <input type="text" class="form-control" name="ReqBy" id="ReqBy">
+                                                    </div>
+                                                </div>
+                                                
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Date of Request</label>
+                                                        <input type="date" class="form-control" name="dateofreq" id="dateofreq">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label">PO number</label>
+                                                        <input type="text" class="form-control" name="PO_number" id="PO_number">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label for="invoice_no">Date received  <span
+                                                                class="text-red">*</span></label>
+                                                        <input type="date" name="date" class="form-control"
+                                                            id="date" required>
+                                                    </div>
+                                                </div>
+
+                                    
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label for="invoice_no"><%= language.warehouse %>  <span
+                                                                class="text-red">*</span></label>
+                                                        <input class="form-control" name="warehouse_name" id="warehouse_name" value="<%= staff_data.warehouse %>">
+                                                    </div>
+                                                </div>
+                                               
+
+
+                                                
+
+
+                                                
+                                            </div>
+
+                                            <div class="row mb-3">
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label for="invoice_no">Type of Services  </label><br>
+
+                                                        <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Freight">
+                                                        <label for="Freight"> Freight</label><br>
+                                                        <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Handling In">
+                                                        <label for="HandlingIn"> Handling In</label><br>
+                                                        <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Handling Out">
+                                                        <label for="HandlingOut"> Handling Out</label><br>
+                                                        <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stripping">
+                                                        <label for="Stripping"> Stripping</label><br>
+                                                        <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stuffing">
+                                                        <label for="Stuffing"> Stuffing</label><br>
+                                                        <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Barcoding">
+                                                        <label for="Barcoding"> Barcoding</label><br>
+                                                        <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Repacking">
+                                                        <label for="Repacking"> Repacking</label><br>
+                                                        <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Reprocessing">
+                                                        <label for="Reprocessing"> Reprocessing</label><br>
+                                                        <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stickering">
+                                                        <label for="Stickering"> Stickering</label><br>
+                                                        <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Sorting">
+                                                        <label for="Sorting"> Sorting</label><br>
+
+                                                        <input type="hidden" class="form-check-input" id="typeservicesData" name="typeservicesData">
+                                                        
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label for="invoice_no">Type of Vehicle  <span
+                                                                class="text-red">*</span></label>
+                                                        <select class="form-control" name="typevehicle"
+                                                            id="typevehicle" required>
+                                                            <option value="4WH">4 WHEELER</option>
+                                                            <option value="6WH">6 WHEELER</option>
+                                                            <option value="FWD">FORWARD</option>
+                                                            <option value="10WH">10 WHEELER</option>
+                                                            <option value="10FT">10 FOOTER</option>
+                                                            <option value="20FT">20 FOOTER</option>
+                                                            <option value="40FT">40 FOOTER</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Name of trucker/Driver</label>
+                                                        <input type="text" class="form-control" name="driver" id="driver">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Plate Number</label>
+                                                        <input type="text" class="form-control" name="plate" id="plate">
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Van/Seal Number</label>
+                                                        <input type="text" class="form-control" name="van" id="can">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label">D.R. / S.I Number</label>
+                                                        <input type="text" class="form-control" name="DRSI" id="DRSI">
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label">TIME START UNLOADING</label>
+                                                        <input type="time" class="form-control" name="TSU" id="TSU">
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-xl-3 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="form-label">TIME FINISH UNLOADING</label>
+                                                        <input type="time" class="form-control" name="TFU" id="TFU">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-xl-12">
+                                                <div class="table-responsive">
+                                                    <table class="table primary-table-bordered" id="purchases_tbl_new">
+                                                        <thead class="thead-primary">
+                                                            <tr>
+                                                                <th scope="col">Item Code </th>
+                                                                <th scope="col">Item Description </th>
+                                                                <th scope="col">Primary Barcode </th>
+                                                                <th scope="col">Batch Code </th>
+                                                                <th scope="col">Production date </th>
+                                                                <th scope="col">Expiry date </th>
+                                                                <th scope="col"><%= language.quantity %> </th>
+                                                                <th scope="col">Unit of Measure </th>
+                                                                <!-- <th scope="col">Conversion</th> -->
+                                                                <th scope="col">Room</th>
+                                                                <th scope="col">Bin </th>
+                                                           
+                                                                <!-- <th scope="col">Action</th> -->
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tblPage_new">
+                                                            
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            
+
+                                            <div class="row">
+                                                <div class="col-md-8 col-sm-6">
+                                                    <div class="form-group">
+                                                        <label for="note"><%= language.note %> </label>
+                                                        <input type="text" class="form-control"
+                                                            placeholder="note" id="note" name="note">
+                                                    </div>
+                                                
+
+                                                    
+                                                        
+                                                    <!-- <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Batch code</label>
+                                                        <input type="text" placeholder="Batch code" class="form-control" name="batch_code" required>
+                                                    </div> -->
+
+                                                    
+                                                </div>
+                                                
+                                            
+                                            </div>
+
+                                            <!-- <div class="row">
+                                                <button class="btn btn-primary" type="submit"
+                                                    id="purchase_submit"><%= language.submit %> </button>
+                                            </div> -->
+                                        </form>
+
+                                        <div class="row">
+                                            <button class="btn btn-primary" onclick="showConfirmation()" type="submit" id="purchase_submit"  ><%= language.submit %> </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment modal end -->
+
+                    <!--**********************************
+            Footer start
+        ***********************************-->
+                    <%- include('./partials/footer'); -%>
+
+                        <!--**********************************
+            Footer end
+        ***********************************-->
+
+    </div>
+    <!--**********************************
+        Main wrapper end
+    ***********************************-->
+
+    <!-- start Toastr -->
+    <%- include('./partials/toastr'); -%>
+        <!-- End Toastr -->
+
+        <!--**********************************
+        Scripts
+    ***********************************-->
+       
+
+        <%- include('./partials/script'); -%>
+
+            <!--**********************************
+        Scripts end
+    ***********************************-->
+
+    <script>
+
+        function getPendingStatus(){
+            var warehouse_Staff = document.getElementById("staff_warehouse").value;
+            
+
+            $.ajax({
+                url: '/all_purchases_finished/getTRF', 
+                method: 'POST',
+                data: { warehouse: warehouse_Staff }, // Pass the product code as a parameter
+                success: function(response) {
+                    
+                    let textOptions = '';
+                    textOptions += '<option> Please Select </option>'
+                    $.each(response, function(index, data1) {
+                        textOptions += '<option value='+ data1._id +'>' + data1.invoice + '</option>'
+                        // console.log(data1)
+                    })
+                    // console.log(textOptions)
+                    document.getElementById("trf_incoming").innerHTML = textOptions
+                }
+            })
+        }
+
+        function getInvoice_data(){
+            var trfSelected_data = document.getElementById("trf_incoming").value;
+            console.log(trfSelected_data)
+            $.ajax({
+                url: '/all_purchases_finished/getinvoicetrf', 
+                method: 'POST',
+                data: { invoice: trfSelected_data }, // Pass the product code as a parameter
+                success: function(response) {
+                    
+                    $.each(response, function(index, data1) {
+                        console.log(data1.product)
+                        let txtTbody= "";
+                        $.each(data1.product, function(index2, data2) {
+                            document.getElementById("invoice_trf_data").value = trfSelected_data
+                            txtTbody += "<tr>";
+                                txtTbody += "<td>";
+                                txtTbody += "<input type='text' class='form-control' style='width: 200px;' name='item_code' id='item_code' value="+data2.product_code+" readonly>";
+                                txtTbody += "</td>";
+                                txtTbody += "<td>";
+                                txtTbody += '<input type="text" class="form-control" style="width: 250px;"  name="product_name" id="product_name" value="'+data2.product_name+'" readonly>';
+                                txtTbody += "</td>";
+                                txtTbody += "<td>";
+                                txtTbody += '<input type="text" class="form-control"  name="primary_code" id="primary_code" value="'+data2.primary_code+'" readonly>';
+                                txtTbody += "</td>";
+                                txtTbody += "<td>";
+                                txtTbody += '<input type="text" class="form-control"  name="batch_code" id="batch_code" value="'+data2.batch_code+'" readonly>';
+                                txtTbody += "</td>";
+                                txtTbody += "<td>";
+                                txtTbody += '<input type="text" class="form-control"  name="production_date" id="production_date" value="'+data2.production_date+'" readonly>';
+                                txtTbody += "</td>";
+                                txtTbody += "<td>";
+                                txtTbody += '<input type="text" class="form-control"  name="expiry_date" id="expiry_date" value="'+data2.expiry_date+'" readonly>';
+                                txtTbody += "</td>";
+                                txtTbody += "<td>";
+                                txtTbody += '<input type="text" class="form-control"  name="to_quantity" id="to_quantity" value="'+data2.to_quantity+'" readonly>';
+                                txtTbody += "</td>";
+                                txtTbody += "<td>";
+                                txtTbody += '<input type="text" class="form-control"  name="unit" id="unit" value="'+data2.unit+'" readonly>';
+                                txtTbody += "</td>";
+                                txtTbody += "<td>";
+                                txtTbody += '<select class="form-control" id="room'+index2+'" name="room" style="width: 125px;"></select>';
+                                txtTbody += "</td>";
+                                txtTbody += "</td>";
+                                txtTbody += "<td>";
+                                txtTbody += '<select class="form-control" level="bin'+index2+'" id="bin'+index2+'" name="bin" style="width: 125px;"></select>';
+                                txtTbody += "</td>";
+                                // txtTbody += "<td>";
+                                // txtTbody += '<input type="text" class="form-control"  name="product_name" id="product_name" value="'+data2.product_name+'" readonly>';
+                                // txtTbody += "</td>";
+                                // txtTbody += "<td>";
+                                // txtTbody += '<input type="text" class="form-control"  name="product_name" id="product_name" value="'+data2.product_name+'" readonly>';
+                                // txtTbody += "</td>";
+                                txtTbody += '<input type="hidden" name="secondary_code" id="secondary_code" value="'+data2.secondary_code+'">';
+                                txtTbody += '<input type="hidden" name="prod_secondunit" id="prod_secondunit" value="'+data2.secondary_unit+'">';
+                                txtTbody += '<input type="hidden" name="max_product_unit" id="max_product_unit" value="'+data2.maxPerUnit+'">';
+                                
+
+
+                                
+                            txtTbody += "</tr>";
+                            SelectRoom(index2)
+                        })
+                        document.getElementById("tblPage_new").innerHTML = txtTbody;
+                    })
+                    
+                    
+                }
+            })
+        }
+
+        function BayBin(x, room){
+                const selectlevel= document.getElementById("bin"+x);
+                var warehouse = document.getElementById("warehouse_name").value;
+                // var room = document.getElementById("room"+x).value;
+                console.log(x + " <> " + room + " <> " + warehouse)
+                var levels = [];
+                let outputArray = [];
+                if(warehouse == "TAGUIG"){
+                    
+                    switch(room){
+                        case "1":
+                        levels = [
+                            {
+                                "start": 1,
+                                "end": 16,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 17,
+                                "end": 38,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 39,
+                                "end": 60,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 61,
+                                "end": 76,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 77,
+                                "end": 92,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 93,
+                                "end": 108,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 109,
+                                "end": 124,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 125,
+                                "end": 150,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 151,
+                                "end": 176,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 177,
+                                "end": 202,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "2":
+                        levels = [
+                            {
+                                "start": 203,
+                                "end": 226,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 227,
+                                "end": 250,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 251,
+                                "end": 266,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 267,
+                                "end": 282,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 283,
+                                "end": 298,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 299,
+                                "end": 314,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 315,
+                                "end": 340,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 341,
+                                "end": 366,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 367,
+                                "end": 392,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+
+                        case "3":
+                        levels = [
+                            {
+                                "start": 393,
+                                "end": 416,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 417,
+                                "end": 440,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 441,
+                                "end": 458,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 459,
+                                "end": 476,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 477,
+                                "end": 494,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 495,
+                                "end": 512,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 513,
+                                "end": 538,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 539,
+                                "end": 563,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 564,
+                                "end": 589,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "3":
+                        levels = [
+                            {
+                                "start": 393,
+                                "end": 416,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 417,
+                                "end": 440,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 441,
+                                "end": 458,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 459,
+                                "end": 476,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 477,
+                                "end": 494,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 495,
+                                "end": 512,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 513,
+                                "end": 538,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 539,
+                                "end": 563,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 564,
+                                "end": 589,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "4":
+                        levels = [
+                            {
+                                "start": 590,
+                                "end": 607,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 608,
+                                "end": 625,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 626,
+                                "end": 643,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 644,
+                                "end": 661,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 662,
+                                "end": 689,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 690,
+                                "end": 716,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 717,
+                                "end": 744,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "5":
+                        levels = [
+                            {
+                                "start": 745,
+                                "end": 762,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 763,
+                                "end": 780,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 781,
+                                "end": 798,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 799,
+                                "end": 816,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 817,
+                                "end": 844,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 845,
+                                "end": 871,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 872,
+                                "end": 899,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "6":
+                        levels = [
+                            {
+                                "start": 899,
+                                "end": 926,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 927,
+                                "end": 953,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 954,
+                                "end": 981,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "AISLE":
+                        levels = [
+                            {
+                                "start": 1,
+                                "end": 16,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 17,
+                                "end": 32,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 39,
+                                "end": 60,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 61,
+                                "end": 76,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 77,
+                                "end": 92,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 93,
+                                "end": 108,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 109,
+                                "end": 124,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 135,
+                                "end": 150,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 151,
+                                "end": 176,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 177,
+                                "end": 202,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                        
+                        ];
+                        break;
+                    }
+                    
+                    for (let i = 0; i <= selectlevel.length - 1; i++) {
+                        let optionsHtml = "";
+                        levels.forEach((data, index) => {
+                            for(let x = data.start; x <= data.end; x++){
+                                // console.log(data.letter + " <> " + x)
+                                optionsHtml += '<option value="'+data.letter+ x + '">'+data.letter+ x + '</option>';
+                            }
+                        });
+                        selectlevel[i].innerHTML = optionsHtml;
+                    }
+                }else{
+                
+                    switch(room){
+                        case "STAGING":
+                        
+                            levels = [
+                                {
+                                    "start": 1,
+                                    "end": 1,
+                                    "row": 1,
+                                    "letter": "STAGING"
+                                },
+                            ];
+                        break;
+
+                        }
+                        console.log("here")
+                    // for (let i = 0; i <= selectlevel.length - 1; i++) {
+                        let optionsHtml = "";
+                        levels.forEach((data, index) => {
+                            for(let x = data.start; x <= data.end; x++){
+                                // console.log(data.letter + " <> " + x)
+                                optionsHtml += '<option value="'+data.letter+ x + '">'+data.letter+ x + '</option>';
+                            }
+                        });
+                        selectlevel.innerHTML = optionsHtml;
+                    // }
+                }
+        }
+
+        function SelectRoom(x) {
+            var variable = document.getElementById("warehouse_name").value;
+            
+
+            $.ajax({
+                url: '/warehousemap_Income/Rooms_data',
+                method: 'POST',
+                data: { warehouse_name: variable },
+                success: function (response) {
+                    // selectRoom.empty();
+                    let txtOptions = "";
+                    var selectRoom = document.getElementById("room"+x);
+                    $.each(response, function (index, data) {
+                        var roomName = data.room_name;
+                        var roomCode = data.room_name;
+                        // console.log(data)
+
+                        txtOptions += "<option value="+roomName+">"+roomName+"</option>"
+                        BayBin(x, roomName)
+                    });
+
+                    
+                    selectRoom.innerHTML = txtOptions
+                }
+            });
+        }
+    
+        function showConfirmation() {
+            document.getElementById("form").submit();
+                
+        }
+
+        
+        $(document).ready(function() {
+            getPendingStatus();
+            $('#trf_incoming').on('change', function() {
+                getInvoice_data();
+            })
+        })
+    </script>
+</body>
+
+</html>

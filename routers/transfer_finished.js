@@ -1574,7 +1574,7 @@ router.post("/preview/:id", auth , async (req, res) => {
 
 
 
-
+                    
                     const promises2 = data.product.map( async (product_details) => {
                         var to_warehouse_data = await warehouse.findOne({ name: to_warehouse, room: product_details.to_room_name });
                         if(product_details.to_quantity > 0){
@@ -1620,7 +1620,7 @@ router.post("/preview/:id", auth , async (req, res) => {
                                     invoice: product_details.To_invoice
                                 })
                             }
-                        }  
+                        }
             
                         return to_warehouse_data;
                     })
@@ -1634,13 +1634,18 @@ router.post("/preview/:id", auth , async (req, res) => {
                                 //     await TowarehouseData.save();
                                 // }
 
-                                for (const TowarehouseData of updatedWarehouseDataArray) {
-                                    await warehouse.updateOne({ _id: TowarehouseData._id }, {
-                                            $addToSet: {
-                                                product_details: { $each: TowarehouseData.product_details }
-                                            }
-                                      });
+                                console.log(data.type_of_process)
+                                if(data.type_of_process != "location2location"){
+                                    for (const TowarehouseData of updatedWarehouseDataArray) {
+                                        await warehouse.updateOne({ _id: TowarehouseData._id }, {
+                                                $addToSet: {
+                                                    product_details: { $each: TowarehouseData.product_details }
+                                                }
+                                          });
+                                    }
                                 }
+
+                                
 
                                 
                                 data.finalize = "True"
