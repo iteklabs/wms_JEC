@@ -2188,6 +2188,7 @@ router.post("/inventory_sum/pdf", auth, async(req, res) => {
     const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
     const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
     var fataset = await dataInventoryReports(from_date, to_date, stff_data._id.valueOf());
+    // console.log("asd", fataset)
     htmlContent += `<h1>JAKA EQUITIES CORP</h1>`;
     htmlContent += `<p>INVENTORY SUMMARY</p>`;
     htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;

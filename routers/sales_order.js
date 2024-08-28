@@ -343,10 +343,10 @@ router.post("/add_sales", auth,  async(req, res) => {
         ])
         
 
-        if(data_approver.length == 0){
-            req.flash("errors", `No Approvers Set Please contact admin to setup`)
-            return res.redirect("back")
-        }
+        // if(data_approver.length == 0){
+        //     req.flash("errors", `No Approvers Set Please contact admin to setup`)
+        //     return res.redirect("back")
+        // }
         
         const invoice = new invoice_for_sales_order();
         await invoice.save();
@@ -356,7 +356,8 @@ router.post("/add_sales", auth,  async(req, res) => {
         const staff_data = await staff.findOne({email: role_data.email});
        
 
-        const data = new sales_order({ invoice: invoice.invoice_init.toString().padStart(8, '0'), customer: customer, date: date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf(), JD:JD, accounting_account_id: data_approver[0].head_id_staff, po_number: po_number, desired_delivery: desire_date });
+        // const data = new sales_order({ invoice: invoice.invoice_init.toString().padStart(8, '0'), customer: customer, date: date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf(), JD:JD, accounting_account_id: data_approver[0].head_id_staff, po_number: po_number, desired_delivery: desire_date });
+        const data = new sales_order({ invoice: invoice.invoice_init.toString().padStart(8, '0'), customer: customer, date: date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf(), JD:JD, accounting_account_id: data_approver[0].head_id_staff, po_number: po_number, desired_delivery: desire_date,wms_account_confirm: "true", accounting_account_confirm: "true" });
         const sales_data = await data.save();
         
 
@@ -382,7 +383,7 @@ router.post("/add_sales", auth,  async(req, res) => {
         const email_data = await email_settings.findOne();
 
         let mailTransporter = nodemailer.createTransport({
-            host: email_data.host,
+            // host: email_data.host,
             port: Number(email_data.port),
             secure: false,
             auth: {

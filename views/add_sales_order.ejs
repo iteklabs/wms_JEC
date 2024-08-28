@@ -217,7 +217,7 @@
                 var maxDate = year + '-' + month + '-' + day;
                 $('#date').attr('max', maxDate);
             }
-            function ShowData(){
+            function ShowData_orig(){
                 $.ajax({
                 url: '/sales_order/product_list',
                 method: 'POST',
@@ -557,6 +557,36 @@
 
                 }
                 }
+
+
+                function ShowData(){
+                $.ajax({
+                url: '/sales_sa/getProductData',
+                method: 'POST',
+                // data: { isbool: "false" },
+                success: function (response) {
+                    let dataProduct = "";
+                    var datashowProduct = document.getElementById("product_down");
+                    dataProduct += "<option value=''>Select Product</option>";
+                    
+                    for (let index = 0; index <= response.length - 1; index++) {
+                        const element = response[index];
+                        // console.log(element)
+
+                        dataProduct += "<option value="+element._id+">"+ element.name + "</option>";
+                    //     // console.log(element)
+                    //     // console.log(element.product_list.product_stock)
+                    //     if(element.product_list.product_stock > 0){
+                    //         dataProduct += "<option value="+element.product_list._id+">"+ element.product_list.product_name + "</option>";
+                    //     }
+                        
+                    }
+                 
+                    datashowProduct.innerHTML = dataProduct;
+                }
+            })
+                
+            }
 
             $(document).on('click', 'button#remove', function(event) {
                     removeSelfRow(event);

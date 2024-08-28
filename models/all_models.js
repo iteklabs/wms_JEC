@@ -891,6 +891,9 @@ const purchases_data_finished = new mongoose.Schema({
         default : "own"
     },
     product:[{
+        product_id: {
+            type: String
+        },
         product_name: {
             type: String
         },
@@ -955,6 +958,9 @@ const purchases_data_finished = new mongoose.Schema({
             type: String
         },
         type_of_products: {
+            type: String
+        },
+        date_recieved:{
             type: String
         }
     }],
@@ -1021,6 +1027,10 @@ const purchases_data_finished = new mongoose.Schema({
         type: String,
         default: "False"
     },
+    isProcess: {
+        type: String,
+        default: "false"
+    }
 })
 
 
@@ -1103,6 +1113,10 @@ const purchases_return_data = new mongoose.Schema({
     }],
     note: {
         type: String
+    },
+    isProcess: {
+        type: String,
+        default: "false"
     }
 })
 
@@ -3181,13 +3195,156 @@ const purchases_data_incoming = new mongoose.Schema({
     }]
 })
 
-
-
 const purchases_incoming = new mongoose.model("purchases_incoming", purchases_data_incoming);
+
+const warehouse_data_validation = new mongoose.Schema({
+    warehouse_id: {
+        type: String
+    },
+    warehouse_name:{
+        type: String
+    },
+    room: {
+        type: String
+    },
+    product_data:[{
+        product_id: {
+            type: String
+        },
+        product_name: {
+            type: String
+        },
+        product_code: {
+            type: String
+        },
+        min: {
+            type: Number
+        },
+        max: {
+            type: String
+        },
+        bay:{
+            type: String
+        },
+        bin:{
+            type: String
+        },
+       
+    }],
+})
+
+const warehouse_validation_setup = new mongoose.model("warehouse_validation", warehouse_data_validation);
+
+
+
+
+const warehouse_data_temporary = new mongoose.Schema({
+    warehouse: {
+        type: String,
+        required: true
+    },
+    room_name: {
+        type: String
+    },
+    product_name: {
+        type: String,
+        default: "no product"
+    },
+    product_stock: {
+        type: Number,
+        min: 0,
+        default: 0
+    },
+    primary_code: {
+        type: String
+    },
+    secondary_code: {
+        type: String
+    },
+    product_code: {
+        type: String
+    },
+    level:{
+        type: String
+    },
+    bay:{
+        type: Number
+    },
+    maxProducts:{
+        type: Number,
+        default: 9999
+    },
+    unit:{
+        type: String
+    },
+    secondary_unit: {
+        type: String
+    },
+    expiry_date:{
+        type: String
+    },
+    production_date: {
+        type: String
+    },
+    maxPerUnit:{
+        type: Number
+    },
+    batch_code: {
+        type: String
+    },
+    alertQTY:{
+        type: Number
+    },
+    production_date:{
+        type: String
+    },
+    delivery_date:{
+        type: String
+    },
+    delivery_code:{
+        type: String
+    },
+    product_cat:{
+        type: String
+    },
+    invoice: {
+        type: String
+    },
+    actual_qty:{
+        type: String
+    },
+    actual_uom:{
+        type: String
+    },
+    id_incoming: {
+        type: String
+    },
+    uuid: {
+        type: String
+    },
+    gross_price:{
+        type: Number
+    },
+    sales_category:{
+        type: String
+    },
+    type_products: {
+        type: String
+    },
+    purchases_id: {
+        type: String
+    },
+    createdDate: {
+        type: Date,
+        default: Date.now
+    }
+})
+
+const warehouse_temporary = new mongoose.model("warehouse_temporaries", warehouse_data_temporary);
 
 module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa, invoice_for_sales_order, approver_acct, discount_volume_db,  purchases_logs, sales_logs, adjustment_logs, transfers_logs, datalogs,
                     suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, purchases_incoming,
                     invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer, invoice_for_inventory, sales_inv_data, sales_order, 
                     customer_payment, c_payment_data, transfers, expenses_type, all_expenses, adjustment, master_shop, email_settings, 
                     purchases_finished, sales_finished, adjustment_finished, transfers_finished, purchases_return_finished, sales_return_finished, 
-                    supervisor_settings };
+                    supervisor_settings, warehouse_validation_setup, warehouse_temporary };

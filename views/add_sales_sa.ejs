@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
@@ -178,7 +179,7 @@
                                                                         <th scope="col">Batch Code</th>
                                                                         <th scope="col">Production date </th>
                                                                         <th scope="col">Expiry date </th> -->
-                                                                        <th scope="col"><%= language.in_stock %> </th>
+                                                                        <!-- <th scope="col"><%= language.in_stock %> </th> -->
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">Unit of Measure </th>
                                                                         <th scope="col">Price </th>
@@ -235,7 +236,7 @@
                 var maxDate = year + '-' + month + '-' + day;
                 $('#date').attr('max', maxDate);
             }
-            function ShowData(){
+            function ShowData_orig(){
                 $.ajax({
                 url: '/sales_sa/product_list',
                 method: 'POST',
@@ -578,6 +579,37 @@
             
             
 
+
+            function ShowData(){
+                $.ajax({
+                url: '/sales_sa/getProductData',
+                method: 'POST',
+                // data: { isbool: "false" },
+                success: function (response) {
+                    let dataProduct = "";
+                    var datashowProduct = document.getElementById("product_down");
+                    dataProduct += "<option value=''>Select Product</option>";
+                    
+                    for (let index = 0; index <= response.length - 1; index++) {
+                        const element = response[index];
+                        // console.log(element)
+
+                        dataProduct += "<option value="+element._id+">"+ element.name + "</option>";
+                    //     // console.log(element)
+                    //     // console.log(element.product_list.product_stock)
+                    //     if(element.product_list.product_stock > 0){
+                    //         dataProduct += "<option value="+element.product_list._id+">"+ element.product_list.product_name + "</option>";
+                    //     }
+                        
+                    }
+                 
+                    datashowProduct.innerHTML = dataProduct;
+                }
+            })
+                
+            }
+
+
             $(document).on('click', 'button#remove', function(event) {
                     removeSelfRow(event);
             });
@@ -590,19 +622,26 @@
                     document.getElementById('rfrshData').style.display = 'none';
                     document.getElementById('loadingIcon').style.display = 'inline-block';
                     $.ajax({
-                        url: '/sales_sa/product_list',
+                        url: '/sales_sa/getProductData',
                         method: 'POST',
                         // data: { isbool: "false" },
                         success: function (response) {
                             let dataProduct = "";
                             var datashowProduct = document.getElementById("product_down");
                             dataProduct += "<option value=''>Select Product</option>";
-                            for (let index = 0; index <= response.product_list.length - 1; index++) {
-                                const element = response.product_list[index];
-                                if(element.product_stock > 0){
-                                    dataProduct += "<option value="+element._id+">"+ element.product_name +  "</option>";
-                                }
+                            // for (let index = 0; index <= response.product_list.length - 1; index++) {
+                            //     const element = response.product_list[index];
+                            //     if(element.product_stock > 0){
+                            //         dataProduct += "<option value="+element._id+">"+ element.product_name +  "</option>";
+                            //     }
                                 
+                            // }
+
+                            for (let index = 0; index <= response.length - 1; index++) {
+                                const element = response[index];
+                                // console.log(element)
+
+                                dataProduct += "<option value="+element._id+">"+ element.name + "</option>";
                             }
                         
                             datashowProduct.innerHTML = dataProduct;
@@ -614,14 +653,359 @@
 
                 
                 var x = 0;
+                // $('#product_down').on('change', function(data) {
+                //     var selectedValue = $(this).val();
+                //     // $.ajax({
+                //     //     url: '/sales_sa/product_data',
+                //     //     method: 'POST',
+                //     //     data: { id_data : selectedValue },
+                //     //     success: function (response) {
+                //     //         if(response.length > 0){
+
+                //     //             var existingIds = [];
+
+                //     //             // Iterate through existing rows to collect id_transaction values
+                //     //             $('#tblPage_NewOut tr').each(function() {
+                //     //                 var existingId = $(this).find('input[name="id_transaction"]').val();
+                //     //                 existingIds.push(existingId);
+                //     //             });
+
+                //     //             $.each(response, function(index, data) {
+                                
+                //     //                 if (existingIds.indexOf(data.product_list._id) === -1) {
+                //     //                     var row = $('<tr id="trtable'+x+'">');
+                //     //                     row.append($('<td>').html('<input type="checkbox" class="form-check-input" name="is_fg" id="is_fg'+x+'" onclick="checkFG('+x+')">'));
+                //     //                     row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_code" value="' + data.product_list.product_code + '" readonly>'));
+                //     //                     row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_name" value="' + data.product_list.product_name + '" readonly>'));
+                //     //                     // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="primary_code" value="' + data.product_list.primary_code + '" readonly>'));
+                //     //                     // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="batch_code" value="' + data.product_list.batch_code + '" readonly>'));
+                //     //                     // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="production_date" value="' + data.product_list.production_date + '" readonly>'));
+                //     //                     // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="expiry_date" value="' + data.product_list.expiry_date + '" readonly>'));
+                //     //                     row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="' + data.product_list.product_stock + '" readonly>'));
+                //     //                     row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+'); computePerPrice('+x+'); volume_general(); " id="quantity'+x+'" value="" required>'));
+                //     //                     row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + data.product_list.unit + '" readonly>'));
+                //     //                     row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="'+data.product_list.gross_price+'" readonly>'));
+                //     //                     row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
+                //     //                     row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="adj_dicount_price" id="adj_dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
+                //     //                     row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
+                //     //                     row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
+                //     //                     $('<input>').attr({
+                //     //                         type: 'hidden',
+                //     //                         id: 'tmpisFG'+x,
+                //     //                         name: 'tmpisFG',
+                //     //                         value: "false"
+                //     //                     }).appendTo(row);
+
+                //     //                     $('<input>').attr({
+                //     //                         type: 'hidden',
+                //     //                         id: 'tmpPrice'+x,
+                //     //                         name: 'tmpPrice',
+                //     //                         value: data.product_list.gross_price
+                //     //                     }).appendTo(row);
+
+                //     //                     $('<input>').attr({
+                //     //                         type: 'hidden',
+                //     //                         id: 'expiry_date',
+                //     //                         name: 'expiry_date',
+                //     //                         value: data.product_list.expiry_date
+                //     //                     }).appendTo(row);
+
+
+                //     //                     $('<input>').attr({
+                //     //                         type: 'hidden',
+                //     //                         id: 'production_date',
+                //     //                         name: 'production_date',
+                //     //                         value: data.product_list.production_date
+                //     //                     }).appendTo(row);
+
+
+                //     //                     $('<input>').attr({
+                //     //                         type: 'hidden',
+                //     //                         id: 'batch_code',
+                //     //                         name: 'batch_code',
+                //     //                         value: data.product_list.batch_code
+                //     //                     }).appendTo(row);
+
+                //     //                     $('<input>').attr({
+                //     //                         type: 'hidden',
+                //     //                         id: 'primary_code',
+                //     //                         name: 'primary_code',
+                //     //                         value: data.product_list.primary_code
+                //     //                     }).appendTo(row);
+
+                //     //                     $('<input>').attr({
+                //     //                         type: 'hidden',
+                //     //                         id: 'id_transaction',
+                //     //                         name: 'id_transaction',
+                //     //                         value: data.product_list._id
+                //     //                     }).appendTo(row);
+
+                                        
+                                        
+                //     //                     $('#tblPage_NewOut').append(row);
+                //     //                     data_grossprice();
+                //     //                     volume_general();
+                //     //                     // checkExpiration(data.product_list.expiry_date, x);
+                //     //                     x++;
+                //     //                 }else{
+                //     //                     Swal.fire(
+                //     //                     '',
+                //     //                     data.product_list.product_name + ' is already exist!',
+                //     //                     'info'
+                //     //                     )
+                //     //                 }
+                                    
+                //     //             })
+                //     //         }
+                //     //     },
+                //     //     error: function(xhr, status, error) {
+                //     //         Swal.fire(
+                //     //         '',
+                //     //         'We were unable to locate the barcode you entered. Please try scanning another barcode.',
+                //     //         'warning'
+                //     //         )
+                //     //     }
+                //     // })
+                
+
+
+                //     $.ajax({
+                //         url: '/sales_sa/product_data',
+                //         method: 'POST',
+                //         data: { id_data : selectedValue },
+                //         success: function (response) {
+                //             if(response.length > 0){
+
+                //                 var existingIds = [];
+
+                //                 // Iterate through existing rows to collect id_transaction values
+                //                 $('#tblPage_NewOut tr').each(function() {
+                //                     var existingId = $(this).find('input[name="id_transaction"]').val();
+                //                     existingIds.push(existingId);
+                //                 });
+
+                //                 $.each(response, function(index, data) {
+                                
+                //                     if (existingIds.indexOf(data.product_list._id) === -1) {
+                //                         var row = $('<tr id="trtable'+x+'">');
+                //                         row.append($('<td>').html('<input type="checkbox" class="form-check-input" name="is_fg" id="is_fg'+x+'" onclick="checkFG('+x+')">'));
+                //                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_code" value="' + data.product_list.product_code + '" readonly>'));
+                //                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_name" value="' + data.product_list.product_name + '" readonly>'));
+                //                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="' + data.product_list.product_stock + '" readonly>'));
+                //                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+'); computePerPrice('+x+'); volume_general(); " id="quantity'+x+'" value="" required>'));
+                //                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + data.product_list.unit + '" readonly>'));
+                //                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="'+data.product_list.gross_price+'" readonly>'));
+                //                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
+                //                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="adj_dicount_price" id="adj_dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
+                //                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
+                //                         row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
+                //                         $('<input>').attr({
+                //                             type: 'hidden',
+                //                             id: 'tmpisFG'+x,
+                //                             name: 'tmpisFG',
+                //                             value: "false"
+                //                         }).appendTo(row);
+
+                //                         $('<input>').attr({
+                //                             type: 'hidden',
+                //                             id: 'tmpPrice'+x,
+                //                             name: 'tmpPrice',
+                //                             value: data.product_list.gross_price
+                //                         }).appendTo(row);
+
+                //                         $('<input>').attr({
+                //                             type: 'hidden',
+                //                             id: 'expiry_date',
+                //                             name: 'expiry_date',
+                //                             value: data.product_list.expiry_date
+                //                         }).appendTo(row);
+
+
+                //                         $('<input>').attr({
+                //                             type: 'hidden',
+                //                             id: 'production_date',
+                //                             name: 'production_date',
+                //                             value: data.product_list.production_date
+                //                         }).appendTo(row);
+
+
+                //                         $('<input>').attr({
+                //                             type: 'hidden',
+                //                             id: 'batch_code',
+                //                             name: 'batch_code',
+                //                             value: data.product_list.batch_code
+                //                         }).appendTo(row);
+
+                //                         $('<input>').attr({
+                //                             type: 'hidden',
+                //                             id: 'primary_code',
+                //                             name: 'primary_code',
+                //                             value: data.product_list.primary_code
+                //                         }).appendTo(row);
+
+                //                         $('<input>').attr({
+                //                             type: 'hidden',
+                //                             id: 'id_transaction',
+                //                             name: 'id_transaction',
+                //                             value: data.product_list._id
+                //                         }).appendTo(row);
+
+                                        
+                                        
+                //                         $('#tblPage_NewOut').append(row);
+                //                         data_grossprice();
+                //                         volume_general();
+                //                         // checkExpiration(data.product_list.expiry_date, x);
+                //                         x++;
+                //                     }else{
+                //                         Swal.fire(
+                //                         '',
+                //                         data.product_list.product_name + ' is already exist!',
+                //                         'info'
+                //                         )
+                //                     }
+                                    
+                //                 })
+                //             }
+                //         },
+                //         error: function(xhr, status, error) {
+                //             Swal.fire(
+                //             '',
+                //             'We were unable to locate the barcode you entered. Please try scanning another barcode.',
+                //             'warning'
+                //             )
+                //         }
+                //     })
+                // })
+            
+                $('#purchase_submit').on('click', function(data) {
+                    confirm_saved();
+                })
+
+
                 $('#product_down').on('change', function(data) {
                     var selectedValue = $(this).val();
+                    // $.ajax({
+                    //     url: '/sales_sa/product_data',
+                    //     method: 'POST',
+                    //     data: { id_data : selectedValue },
+                    //     success: function (response) {
+                    //         if(response.length > 0){
+
+                    //             var existingIds = [];
+
+                    //             // Iterate through existing rows to collect id_transaction values
+                    //             $('#tblPage_NewOut tr').each(function() {
+                    //                 var existingId = $(this).find('input[name="id_transaction"]').val();
+                    //                 existingIds.push(existingId);
+                    //             });
+
+                    //             $.each(response, function(index, data) {
+                                
+                    //                 if (existingIds.indexOf(data.product_list._id) === -1) {
+                    //                     var row = $('<tr id="trtable'+x+'">');
+                    //                     row.append($('<td>').html('<input type="checkbox" class="form-check-input" name="is_fg" id="is_fg'+x+'" onclick="checkFG('+x+')">'));
+                    //                     row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_code" value="' + data.product_list.product_code + '" readonly>'));
+                    //                     row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_name" value="' + data.product_list.product_name + '" readonly>'));
+                    //                     // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="primary_code" value="' + data.product_list.primary_code + '" readonly>'));
+                    //                     // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="batch_code" value="' + data.product_list.batch_code + '" readonly>'));
+                    //                     // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="production_date" value="' + data.product_list.production_date + '" readonly>'));
+                    //                     // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="expiry_date" value="' + data.product_list.expiry_date + '" readonly>'));
+                    //                     row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="' + data.product_list.product_stock + '" readonly>'));
+                    //                     row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+'); computePerPrice('+x+'); volume_general(); " id="quantity'+x+'" value="" required>'));
+                    //                     row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + data.product_list.unit + '" readonly>'));
+                    //                     row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="'+data.product_list.gross_price+'" readonly>'));
+                    //                     row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
+                    //                     row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="adj_dicount_price" id="adj_dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
+                    //                     row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
+                    //                     row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
+                    //                     $('<input>').attr({
+                    //                         type: 'hidden',
+                    //                         id: 'tmpisFG'+x,
+                    //                         name: 'tmpisFG',
+                    //                         value: "false"
+                    //                     }).appendTo(row);
+
+                    //                     $('<input>').attr({
+                    //                         type: 'hidden',
+                    //                         id: 'tmpPrice'+x,
+                    //                         name: 'tmpPrice',
+                    //                         value: data.product_list.gross_price
+                    //                     }).appendTo(row);
+
+                    //                     $('<input>').attr({
+                    //                         type: 'hidden',
+                    //                         id: 'expiry_date',
+                    //                         name: 'expiry_date',
+                    //                         value: data.product_list.expiry_date
+                    //                     }).appendTo(row);
+
+
+                    //                     $('<input>').attr({
+                    //                         type: 'hidden',
+                    //                         id: 'production_date',
+                    //                         name: 'production_date',
+                    //                         value: data.product_list.production_date
+                    //                     }).appendTo(row);
+
+
+                    //                     $('<input>').attr({
+                    //                         type: 'hidden',
+                    //                         id: 'batch_code',
+                    //                         name: 'batch_code',
+                    //                         value: data.product_list.batch_code
+                    //                     }).appendTo(row);
+
+                    //                     $('<input>').attr({
+                    //                         type: 'hidden',
+                    //                         id: 'primary_code',
+                    //                         name: 'primary_code',
+                    //                         value: data.product_list.primary_code
+                    //                     }).appendTo(row);
+
+                    //                     $('<input>').attr({
+                    //                         type: 'hidden',
+                    //                         id: 'id_transaction',
+                    //                         name: 'id_transaction',
+                    //                         value: data.product_list._id
+                    //                     }).appendTo(row);
+
+                                        
+                                        
+                    //                     $('#tblPage_NewOut').append(row);
+                    //                     data_grossprice();
+                    //                     volume_general();
+                    //                     // checkExpiration(data.product_list.expiry_date, x);
+                    //                     x++;
+                    //                 }else{
+                    //                     Swal.fire(
+                    //                     '',
+                    //                     data.product_list.product_name + ' is already exist!',
+                    //                     'info'
+                    //                     )
+                    //                 }
+                                    
+                    //             })
+                    //         }
+                    //     },
+                    //     error: function(xhr, status, error) {
+                    //         Swal.fire(
+                    //         '',
+                    //         'We were unable to locate the barcode you entered. Please try scanning another barcode.',
+                    //         'warning'
+                    //         )
+                    //     }
+                    // })
+                
+
+
                     $.ajax({
-                        url: '/sales_sa/product_data',
+                        url: '/sales_sa/product_data_id',
                         method: 'POST',
                         data: { id_data : selectedValue },
                         success: function (response) {
-                            if(response.length > 0){
+                            // console.log(response.length)
+                           
 
                                 var existingIds = [];
 
@@ -631,21 +1015,19 @@
                                     existingIds.push(existingId);
                                 });
 
-                                $.each(response, function(index, data) {
                                 
-                                    if (existingIds.indexOf(data.product_list._id) === -1) {
+                                console.log(response._id)
+                                    
+                                    if (existingIds.indexOf(response._id) === -1) {
                                         var row = $('<tr id="trtable'+x+'">');
                                         row.append($('<td>').html('<input type="checkbox" class="form-check-input" name="is_fg" id="is_fg'+x+'" onclick="checkFG('+x+')">'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_code" value="' + data.product_list.product_code + '" readonly>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_name" value="' + data.product_list.product_name + '" readonly>'));
-                                        // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="primary_code" value="' + data.product_list.primary_code + '" readonly>'));
-                                        // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="batch_code" value="' + data.product_list.batch_code + '" readonly>'));
-                                        // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="production_date" value="' + data.product_list.production_date + '" readonly>'));
-                                        // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="expiry_date" value="' + data.product_list.expiry_date + '" readonly>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="' + data.product_list.product_stock + '" readonly>'));
-                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+'); computePerPrice('+x+'); volume_general(); " id="quantity'+x+'" value="" required>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + data.product_list.unit + '" readonly>'));
-                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="'+data.product_list.gross_price+'" readonly>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_code" value="' + response.product_code + '" readonly>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_name" value="' + response.name + '" readonly>'));
+                                        // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="" readonly>'));
+                                        // row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+'); computePerPrice('+x+'); volume_general(); " id="quantity'+x+'" value="" required>'));
+                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="computePerPrice('+x+'); volume_general(); " id="quantity'+x+'" value="" required>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + response.unit + '" readonly>'));
+                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="'+response.gross_price+'" readonly>'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="adj_dicount_price" id="adj_dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
@@ -661,44 +1043,44 @@
                                             type: 'hidden',
                                             id: 'tmpPrice'+x,
                                             name: 'tmpPrice',
-                                            value: data.product_list.gross_price
+                                            value: response.gross_price
                                         }).appendTo(row);
 
-                                        $('<input>').attr({
-                                            type: 'hidden',
-                                            id: 'expiry_date',
-                                            name: 'expiry_date',
-                                            value: data.product_list.expiry_date
-                                        }).appendTo(row);
+                                        // $('<input>').attr({
+                                        //     type: 'hidden',
+                                        //     id: 'expiry_date',
+                                        //     name: 'expiry_date',
+                                        //     value: data.product_list.expiry_date
+                                        // }).appendTo(row);
 
 
-                                        $('<input>').attr({
-                                            type: 'hidden',
-                                            id: 'production_date',
-                                            name: 'production_date',
-                                            value: data.product_list.production_date
-                                        }).appendTo(row);
+                                        // $('<input>').attr({
+                                        //     type: 'hidden',
+                                        //     id: 'production_date',
+                                        //     name: 'production_date',
+                                        //     value: data.product_list.production_date
+                                        // }).appendTo(row);
 
 
-                                        $('<input>').attr({
-                                            type: 'hidden',
-                                            id: 'batch_code',
-                                            name: 'batch_code',
-                                            value: data.product_list.batch_code
-                                        }).appendTo(row);
+                                        // $('<input>').attr({
+                                        //     type: 'hidden',
+                                        //     id: 'batch_code',
+                                        //     name: 'batch_code',
+                                        //     value: data.product_list.batch_code
+                                        // }).appendTo(row);
 
                                         $('<input>').attr({
                                             type: 'hidden',
                                             id: 'primary_code',
                                             name: 'primary_code',
-                                            value: data.product_list.primary_code
+                                            value: response.primary_code
                                         }).appendTo(row);
 
                                         $('<input>').attr({
                                             type: 'hidden',
                                             id: 'id_transaction',
                                             name: 'id_transaction',
-                                            value: data.product_list._id
+                                            value: response._id
                                         }).appendTo(row);
 
                                         
@@ -711,13 +1093,13 @@
                                     }else{
                                         Swal.fire(
                                         '',
-                                        data.product_list.product_name + ' is already exist!',
+                                        response.name + ' is already exist!',
                                         'info'
                                         )
                                     }
                                     
-                                })
-                            }
+                             
+                       
                         },
                         error: function(xhr, status, error) {
                             Swal.fire(
@@ -729,9 +1111,6 @@
                     })
                 })
             
-                $('#purchase_submit').on('click', function(data) {
-                    confirm_saved();
-                })
             })
         
         

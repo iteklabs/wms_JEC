@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+
+    <style>
+        body {font-family: Arial, Helvetica, sans-serif;}
+        
+        /* The Modal (background) */
+        .modal {
+          display: none; /* Hidden by default */
+          position: fixed; /* Stay in place */
+          z-index: 3; /* Sit on top */
+          padding-top: 100px; /* Location of the box */
+          left: 0;
+          top: 0;
+          width: 100%; /* Full width */
+          height: 100%; /* Full height */
+          overflow: auto; /* Enable scroll if needed */
+          background-color: rgb(0,0,0); /* Fallback color */
+          background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+        }
+        
+        /* Modal Content */
+        .modal-content {
+          position: relative;
+          background-color: #fefefe;
+          margin: auto;
+          padding: 0;
+          border: 1px solid #888;
+          width: 50%;
+          box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+          -webkit-animation-name: animatetop;
+          -webkit-animation-duration: 0.4s;
+          animation-name: animatetop;
+          animation-duration: 0.4s
+        }
+        
+        /* Add Animation */
+        @-webkit-keyframes animatetop {
+          from {top:-300px; opacity:0} 
+          to {top:0; opacity:1}
+        }
+        
+        @keyframes animatetop {
+          from {top:-300px; opacity:0}
+          to {top:0; opacity:1}
+        }
+        
+        /* The Close Button */
+        .close {
+          color: white;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+        }
+        
+        .close:hover,
+        .close:focus {
+          color: #000;
+          text-decoration: none;
+          cursor: pointer;
+        }
+        
+        .modal-header {
+          padding: 2px 16px;
+          background-color: rgba(34, 34, 51, 0.705);
+          color: white;
+        }
+        
+        .modal-body {padding: 2px 16px;}
+        
+        .modal-footer {
+          padding: 2px 16px;
+          background-color: rgba(34, 34, 51, 0.705);
+          color: white;
+          display: flex;
+          justify-content: center;
+          display: grid;
+            place-items: center;
+        }
+    </style>
+
+</head>
+
+<body onload="" >
+    <!--*******************
+        Preloader start
+    ********************-->
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <!--*******************
+        Preloader end
+    ********************-->
+
+    <!--**********************************
+        Main wrapper start
+    ***********************************-->
+    <div id="main-wrapper">
+
+        <!--**********************************
+            Nav header start
+        ***********************************-->
+        <%- include('./partials/header_logo'); -%>
+
+            <!--**********************************
+            Nav header end
+        ***********************************-->
+
+            <!--**********************************
+            Header start
+        ***********************************-->
+            <%- include('./partials/header',{titel: "Warehouse Checker"}); -%>
+
+                <!--**********************************
+            Header end ti-comment-alt
+        ***********************************-->
+
+                <!--**********************************
+            Sidebar start
+        ***********************************-->
+                <%- include('./partials/sidebar'); -%>
+
+                    <!--**********************************
+            Sidebar end
+        ***********************************-->
+
+                    <!--**********************************
+            Content body start
+        ***********************************-->
+                    <div class="content-body">
+                        <div class="container-fluid">
+
+                            <!-- row -->
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title"> Checkers</h4>
+                                            <button type="button" class="btn btn-rounded btn-outline-info"
+                                                onclick="history.back()"><i class="la la-undo"></i> <%= language.go_back %> </button>
+                                        </div>
+                                        <div class="card-body" style="display: block;" >
+                                            <div class="form-validation">
+
+                                                <form class="needs-validation" action="/all_purchases_finished/process/<%= //purchases_data._id %>" method="post" id="form">
+                                                    <div class="row">
+                                                        <div class="form-group">
+                                                            
+                                                            <a class="btn btn-primary" type="submit" id="scan_button"  >Scan now</a>
+                                                            <input type="hidden" name="product_code" style="position: absolute; left: -9999px;" class="form-control" id="product_code" value="">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--**********************************
+            Content body end
+        ***********************************-->
+
+                    <!--**********************************
+            Footer start
+        ***********************************-->
+                    <%- include('./partials/footer'); -%>
+
+                        <!--**********************************
+            Footer end
+        ***********************************-->
+
+    </div>
+    <!--**********************************
+        Main wrapper end
+    ***********************************-->
+
+    <!-- start Toastr -->
+    <%- include('./partials/toastr'); -%>
+        <!-- End Toastr -->
+
+        <!--**********************************
+        Scripts
+    ***********************************-->
+
+       
+        <%- include('./partials/script'); -%>
+
+            <!--**********************************
+        Scripts end
+    ***********************************-->
+
+
+    <script>
+
+        function toggleButton() {
+            const buttonData = $('#scan_button');
+            const options = {
+                timeZone: 'Asia/Manila',
+                hour12: false, // Use 24-hour format (military time)
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const manilaTime = new Intl.DateTimeFormat('en-US', options).format(new Date());
+            if (buttonData.hasClass('btn-primary')) {
+                buttonData.removeClass('btn-primary').addClass('btn-danger');
+                buttonData.text('Stop Barcode');
+                const barcodeInput = document.getElementById('product_code');
+               
+                barcodeInput.type = 'text';
+                barcodeInput.focus()
+                var x=1;
+                var lastIncre = 0;
+                $('#product_code').on('input', function() {
+                    var productCode = $(this).val(); 
+
+                    console.log(productCode)
+
+                    $.ajax({
+                    url: '/all_purchases_finished/barcode_scanner', 
+                    method: 'POST',
+                    data: { product_code: productCode }, 
+                    success: function(response) {
+                        $.each(response, function(index, data) {
+                            console.log(data)
+                            if(data.product_cat == "P"){
+                                var row = $('<tr>');
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="prod_code" value="' + data.product_code + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 380px;" name="prod_name" id="prod_name'+ lastIncre +'" value="' + data.name + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 190px;" name="primary_code" value="' + data.primary_code + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="batch_code" value="">'));
+                                row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="product_date" value="" required>'));
+                                row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="expiry_date" id="expiry_date'+lastIncre+'" value="" required>'));
+                                row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" name="prod_qty" id="prod_qty'+ lastIncre +'" onchange="ValidationForMaxQTY('+ lastIncre +')" onkeyup="ConversionKit('+lastIncre+', '+data.maxProdPerUnit+')" value="" >'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="prod_unit" id="prod_unit'+lastIncre+'" value="' + data.unit + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+lastIncre+'" value="" readonly>'));
+                                row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+                                
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'sales_data_cateory',
+                                    name: 'sales_data_cateory',
+                                    value: data.sales_category
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_secondunit',
+                                    name: 'prod_secondunit',
+                                    value: data.secondary_unit
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'uuid',
+                                    name: 'uuid',
+                                    value: uuidv4()
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_primunit',
+                                    name: 'prod_primunit',
+                                    value: data.unit
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'secondary_code',
+                                    name: 'secondary_code',
+                                    value: data.secondary_code
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'MaxStocks_data'+lastIncre,
+                                    name: 'MaxStocks_data',
+                                    value: ""
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'MaxStocks_data2'+lastIncre,
+                                    name: 'MaxStocks_data2',
+                                    value: ""
+                                }).appendTo(row);
+
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'max_product_unit',
+                                    name: 'max_product_unit',
+                                    value: data.maxProdPerUnit
+                                }).appendTo(row);
+
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_cat'+lastIncre,
+                                    name: 'prod_cat',
+                                    value: data.product_cat
+                                }).appendTo(row);
+
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_othUnit'+lastIncre,
+                                    name: 'prod_othUnit',
+                                    value: data.otherUnit
+                                }).appendTo(row);
+
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_Qty'+lastIncre,
+                                    name: 'prod_Qty',
+                                    value: ""
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'id_transaction_from'+lastIncre,
+                                    name: 'id_transaction_from',
+                                    value: data._id
+                                }).appendTo(row);
+
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'gross_price'+lastIncre,
+                                    name: 'gross_price',
+                                    value: data.gross_price
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'product_id'+lastIncre,
+                                    name: 'product_id',
+                                    value: data._id
+                                }).appendTo(row);
+
+                                $('#tblPage_new').append(row);
+                                lastIncre++;
+
+                            }
+
+                        })
+                    document.getElementById("product_code").value='';
+                    }
+                    
+                    })
+                    // document.getElementById("product_code").value='';
+
+                    // alert(productCode)
+                })
+
+            } else {
+                buttonData.removeClass('btn-danger').addClass('btn-primary');
+                buttonData.text('Scan Barcode');
+                const barcodeInput = document.getElementById('product_code');
+                barcodeInput.type = 'hidden';
+                barcodeInput.blur();
+            }
+        }
+
+        $(document).ready(function() {
+            $('#scan_button').click(function () {
+                toggleButton();
+            })
+        })
+    </script>
+</body>
+
+</html>

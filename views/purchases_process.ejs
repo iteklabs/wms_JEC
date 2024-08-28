@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+
+    <style>
+        body {font-family: Arial, Helvetica, sans-serif;}
+        
+        /* The Modal (background) */
+        .modal {
+          display: none; /* Hidden by default */
+          position: fixed; /* Stay in place */
+          z-index: 3; /* Sit on top */
+          padding-top: 100px; /* Location of the box */
+          left: 0;
+          top: 0;
+          width: 100%; /* Full width */
+          height: 100%; /* Full height */
+          overflow: auto; /* Enable scroll if needed */
+          background-color: rgb(0,0,0); /* Fallback color */
+          background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+        }
+        
+        /* Modal Content */
+        .modal-content {
+          position: relative;
+          background-color: #fefefe;
+          margin: auto;
+          padding: 0;
+          border: 1px solid #888;
+          width: 50%;
+          box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+          -webkit-animation-name: animatetop;
+          -webkit-animation-duration: 0.4s;
+          animation-name: animatetop;
+          animation-duration: 0.4s
+        }
+        
+        /* Add Animation */
+        @-webkit-keyframes animatetop {
+          from {top:-300px; opacity:0} 
+          to {top:0; opacity:1}
+        }
+        
+        @keyframes animatetop {
+          from {top:-300px; opacity:0}
+          to {top:0; opacity:1}
+        }
+        
+        /* The Close Button */
+        .close {
+          color: white;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+        }
+        
+        .close:hover,
+        .close:focus {
+          color: #000;
+          text-decoration: none;
+          cursor: pointer;
+        }
+        
+        .modal-header {
+          padding: 2px 16px;
+          background-color: rgba(34, 34, 51, 0.705);
+          color: white;
+        }
+        
+        .modal-body {padding: 2px 16px;}
+        
+        .modal-footer {
+          padding: 2px 16px;
+          background-color: rgba(34, 34, 51, 0.705);
+          color: white;
+          display: flex;
+          justify-content: center;
+          display: grid;
+            place-items: center;
+        }
+    </style>
+
+</head>
+
+<body onload="" >
+    <!--*******************
+        Preloader start
+    ********************-->
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <!--*******************
+        Preloader end
+    ********************-->
+
+    <!--**********************************
+        Main wrapper start
+    ***********************************-->
+    <div id="main-wrapper">
+
+        <!--**********************************
+            Nav header start
+        ***********************************-->
+        <%- include('./partials/header_logo'); -%>
+
+            <!--**********************************
+            Nav header end
+        ***********************************-->
+
+            <!--**********************************
+            Header start
+        ***********************************-->
+            <%- include('./partials/header',{titel: language.purchase + " (Own Stocks)"}); -%>
+
+                <!--**********************************
+            Header end ti-comment-alt
+        ***********************************-->
+
+                <!--**********************************
+            Sidebar start
+        ***********************************-->
+                <%- include('./partials/sidebar'); -%>
+
+                    <!--**********************************
+            Sidebar end
+        ***********************************-->
+
+                    <!--**********************************
+            Content body start
+        ***********************************-->
+                    <div class="content-body">
+                        <div class="container-fluid">
+
+                            <!-- row -->
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title"><%= language.add_purchases %> </h4>
+                                            <button type="button" class="btn btn-rounded btn-outline-info"
+                                                onclick="history.back()"><i class="la la-undo"></i> <%= language.go_back %> </button>
+                                        </div>
+                                        <div class="card-body" style="display: block;" >
+                                            <div class="form-validation">
+
+                                                <form class="needs-validation" action="/all_purchases_finished/process/<%= purchases_data._id %>" method="post" id="form">
+
+                                                    <div class="row">
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Document Number</label>
+                                                                <input type="text" class="form-control" name="invoice" id="invoice" value="<%= purchases_data.invoice %>">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">D.R. / S.I Number</label>
+                                                                <input type="text" class="form-control" name="DRSI" id="DRSI" value="<%= purchases_data.DRSI %>">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no"> Supplier/Client Ref Number <span
+                                                                        class="text-red"> *</span></label>
+                                                                <input type="text" name="SCRN" class="form-control"
+                                                                    id="SCRN" value="<%= purchases_data.SCRN %>" readonly>
+                                                                    <input type="hidden" name="type_of_products" id="type_of_products" value="own">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Requested By</label>
+                                                                <input type="text" class="form-control" name="ReqBy" id="ReqBy" value="<%= purchases_data.ReqBy %>" readonly>
+                                                            </div>
+                                                        </div>
+                                                        
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Date of Request</label>
+                                                                <input type="date" class="form-control" name="dateofreq" id="dateofreq" value="<%= purchases_data.dateofreq %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">STO Number</label>
+                                                                <input type="text" class="form-control" name="PO_number" id="PO_number" value="<%= purchases_data.POnumber %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Date received  <span
+                                                                        class="text-red">*</span></label>
+                                                                <input type="date" name="date" class="form-control"
+                                                                    id="date" value="<%= purchases_data.date %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no"><%= language.warehouse %>  <span
+                                                                        class="text-red">*</span></label>
+                                                                <input class="form-control" name="warehouse_name" id="warehouse_name" value="<%= purchases_data.warehouse_name %>" readonly>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                    </div>
+
+                                                    <div class="row mb-3">
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no">Type of Vehicle  <span
+                                                                        class="text-red">*</span></label>
+                                                                <select class="form-control" name="typevehicle"
+                                                                    id="typevehicle" readonly>
+                                                                    <option value="4WH" <%=purchases_data.typevehicle=="4WH" ? "selected" : "" %>>4 WHEELER</option>
+                                                                    <option value="6WH" <%=purchases_data.typevehicle=="6WH" ? "selected" : "" %>>6 WHEELER</option>
+                                                                    <option value="FWD" <%=purchases_data.typevehicle=="FWD" ? "selected" : "" %>>FORWARD</option>
+                                                                    <option value="10WH" <%=purchases_data.typevehicle=="10WH" ? "selected" : "" %>>10 WHEELER</option>
+                                                                    <option value="10FT" <%=purchases_data.typevehicle=="10FT" ? "selected" : "" %>>10 FOOTER</option>
+                                                                    <option value="20FT" <%=purchases_data.typevehicle=="20FT" ? "selected" : "" %>>20 FOOTER</option>
+                                                                    <option value="40FT" <%=purchases_data.typevehicle=="40FT" ? "selected" : "" %>>40 FOOTER</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Name of trucker/Driver</label>
+                                                                <input type="text" class="form-control" name="driver" id="driver" value="<%= purchases_data.driver %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Plate Number</label>
+                                                                <input type="text" class="form-control" name="plate" id="plate" value="<%= purchases_data.plate %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Van/Seal Number</label>
+                                                                <input type="text" class="form-control" name="van" id="can" value="<%= purchases_data.van %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">TIME START UNLOADING</label>
+                                                                <input type="time" class="form-control" name="TSU" id="TSU" value="<%= purchases_data.TSU %>" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">TIME FINISH UNLOADING</label>
+                                                                <input type="time" class="form-control" name="TFU" id="TFU" value="<%= purchases_data.TFU %>" readonly>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-xl-12">
+                                                        <div class="table-responsive">
+                                                            <table class="table primary-table-bordered" id="purchases_tbl_new">
+                                                                <thead class="thead-primary">
+                                                                    <tr>
+                                                                        <th scope="col">Item Code </th>
+                                                                        <th scope="col">Item Description </th>
+                                                                        <th scope="col">Primary Barcode </th>
+                                                                        <th scope="col">Batch Code </th>
+                                                                        <th scope="col">Production date </th>
+                                                                        <th scope="col">Expiry date </th>
+                                                                        <th scope="col"><%= language.quantity %> </th>
+                                                                        <th scope="col">Unit of Measure </th>
+                                                                        <th scope="col">Level</th>
+                                                                        <th scope="col">Bin Location </th>
+                                                                        <!-- <th scope="col">Action</th> -->
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="tblPage_new">
+                                                                    <% purchases_data.product.forEach(element => { %>
+                                                                        <tr>
+                                                                            <td><input type="text" class="form-control" name="product_code" id="product_code" value="<%= element.product_code %>" readonly></td>
+                                                                            <td><input type="text" class="form-control" name="product_name" id="product_name" value="<%= element.product_name %>" readonly></td>
+                                                                            <td><input type="text" class="form-control" name="primary_code" id="primary_code" value="<%= element.primary_code %>" readonly></td>
+                                                                            <td><input type="text" class="form-control" name="batch_code" id="batch_code" value="<%= element.batch_code %>" readonly></td>
+                                                                            <td><input type="text" class="form-control" name="production_date" id="production_date" value="<%= element.production_date %>" readonly></td>
+                                                                            <td><input type="text" class="form-control" name="expiry_date" id="expiry_date" value="<%= element.expiry_date %>" readonly></td>
+                                                                            <td><input type="text" class="form-control" name="quantity" id="quantity" value="<%= element.quantity %>" readonly></td>
+                                                                            <td><input type="text" class="form-control" name="standard_unit" id="standard_unit" value="<%= element.standard_unit %>" readonly></td>
+                                                                            <td><input type="text" class="form-control" name="level" id="level" value="<%= element.room_name %>" readonly></td>
+                                                                            <td><input type="text" class="form-control" name="bin" id="bin" value="<%= element.level+element.bay %>" readonly></td>
+
+                                                                            <input type="hidden" name="product_id" id="product_id" value="<%= element.product_id %>">
+                                                                            <input type="hidden" name="date_recieved" id="date_recieved" value="<%= element.date_recieved %>">
+                                                                        </tr>
+                                                                
+                                                                    <% }) %>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    
+
+                                                    <div class="row">
+                                                        <div class="col-md-8 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="note"><%= language.note %> </label>
+                                                                <input type="text" class="form-control"
+                                                                    placeholder="note" id="note" name="note">
+                                                            </div>
+                                                            
+                                                        </div>
+                                                        
+                                                    
+                                                    </div>
+                                                    <div class="row">
+
+                                                        <% if (purchases_data.isProcess == "false") { %>
+                                                            <button class="btn btn-primary" type="submit" id="purchase_submit"  ><%= language.submit %> </button>
+                                                        <% } %>
+                                                        
+                                                    </div>
+                                                </form>
+
+                                                
+                                                    
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--**********************************
+            Content body end
+        ***********************************-->
+
+                    <!--**********************************
+            Footer start
+        ***********************************-->
+                    <%- include('./partials/footer'); -%>
+
+                        <!--**********************************
+            Footer end
+        ***********************************-->
+
+    </div>
+    <!--**********************************
+        Main wrapper end
+    ***********************************-->
+
+    <!-- start Toastr -->
+    <%- include('./partials/toastr'); -%>
+        <!-- End Toastr -->
+
+        <!--**********************************
+        Scripts
+    ***********************************-->
+
+       
+        <%- include('./partials/script'); -%>
+
+            <!--**********************************
+        Scripts end
+    ***********************************-->
+
+
+    <script>
+
+
+        $(document).ready(function() {
+            
+        })
+    </script>
+</body>
+
+</html>

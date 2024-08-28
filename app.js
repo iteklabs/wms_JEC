@@ -204,6 +204,11 @@ app.use("/warehouse_approval", approval_wm_router);
 const approval_so_setup = require("./routers/so_approver");
 app.use("/so_approvers", approval_so_setup)
 
+
+//warehouse_validation
+const warehouse_checking = require("./routers/warehouse_checking");
+app.use("/warehouse_checker", warehouse_checking)
+
 app.listen(port, () => {
   console.log(`server running on port ${port}`);
 });

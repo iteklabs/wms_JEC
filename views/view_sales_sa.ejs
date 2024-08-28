@@ -120,7 +120,7 @@
                                                                         <th scope="col">Batch Code</th>
                                                                         <th scope="col">Production date </th>
                                                                         <th scope="col">Expiry date </th> -->
-                                                                        <th scope="col"><%= language.in_stock %> </th>
+                                                                        <!-- <th scope="col"><%= language.in_stock %> </th> -->
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">Unit of Measure </th>
                                                                         <th scope="col">Price </th>
@@ -152,7 +152,7 @@
                                                                             <td><%= data.batch_code %></td>
                                                                             <td><%= data.production_date %></td>
                                                                             <td><%= data.expiry_date %></td> -->
-                                                                            <td><%= nFormat.format(data.stock) %></td>
+                                                                            <!-- <td><%= nFormat.format(data.stock) %></td> -->
                                                                             <td><%= nFormat.format(data.quantity) %></td>
                                                                             <td><%= data.unit %></td>
                                                                             <td><%= nFormat.format(data.price) %></td>
@@ -170,7 +170,7 @@
 
 
                                                                     <tr>
-                                                                        <td colspan="3"></td>
+                                                                        <td colspan="2"></td>
                                                                         <td><b>TOTAL: </b></td>
                                                                         <td><b><%= nFormat.format(totalqty) %></b></td>
                                                                         <td></td>

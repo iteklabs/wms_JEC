@@ -162,16 +162,15 @@ router.get("/view_sales/:id", auth,  async(req, res) => {
 router.post("/add_sales", auth,  async(req, res) => {
     try {
         const {customer, date, prod_code, note, paid_status,DSI} = req.body
-        // res.json(req.body);
-        // return;
+        
         if(typeof prod_code == "string"){
             var prod_code_array = [req.body.prod_code];
             var prod_name_array = [req.body.prod_name];
             var primary_code_array = [req.body.primary_code];
-            var batch_code_array = [req.body.batch_code];
-            var production_date_array = [req.body.production_date];
-            var expiry_date_array = [req.body.expiry_date];
-            var stock_qty_array = [req.body.stock_qty];
+            // var batch_code_array = [req.body.batch_code];
+            // var production_date_array = [req.body.production_date];
+            // var expiry_date_array = [req.body.expiry_date];
+            // var stock_qty_array = [req.body.stock_qty];
             var quantity_array = [req.body.quantity];
             var UOM_array = [req.body.UOM];
             var price_array = [req.body.price];
@@ -184,10 +183,10 @@ router.post("/add_sales", auth,  async(req, res) => {
             var prod_code_array = [...req.body.prod_code];
             var prod_name_array = [...req.body.prod_name];
             var primary_code_array = [...req.body.primary_code];
-            var batch_code_array = [...req.body.batch_code];
-            var production_date_array = [...req.body.production_date];
-            var expiry_date_array = [...req.body.expiry_date];
-            var stock_qty_array = [...req.body.stock_qty];
+            // var batch_code_array = [...req.body.batch_code];
+            // var production_date_array = [...req.body.production_date];
+            // var expiry_date_array = [...req.body.expiry_date];
+            // var stock_qty_array = [...req.body.stock_qty];
             var quantity_array = [...req.body.quantity];
             var UOM_array = [...req.body.UOM];
             var price_array = [...req.body.price];
@@ -209,18 +208,18 @@ router.post("/add_sales", auth,  async(req, res) => {
         primary_code_array.forEach((value,i) => {
             newproduct[i].primary_code = value
         });
-        batch_code_array.forEach((value,i) => {
-            newproduct[i].batch_code = value
-        });
-        production_date_array.forEach((value,i) => {
-            newproduct[i].production_date = value
-        });
-        expiry_date_array.forEach((value,i) => {
-            newproduct[i].expiry_date = value
-        });
-        stock_qty_array.forEach((value,i) => {
-            newproduct[i].stock = value
-        });
+        // batch_code_array.forEach((value,i) => {
+        //     newproduct[i].batch_code = value
+        // });
+        // production_date_array.forEach((value,i) => {
+        //     newproduct[i].production_date = value
+        // });
+        // expiry_date_array.forEach((value,i) => {
+        //     newproduct[i].expiry_date = value
+        // });
+        // stock_qty_array.forEach((value,i) => {
+        //     newproduct[i].stock = value
+        // });
         quantity_array.forEach((value,i) => {
             newproduct[i].quantity = value
         });
@@ -266,34 +265,34 @@ router.post("/add_sales", auth,  async(req, res) => {
         console.log('Invoice created with incremented start value:', invoice.invoice_starts.toString().padStart(8, '0'));
         const ObjectId = mongoose.Types.ObjectId;
         
-        for(let x= 0; x <= sales_data.sale_product.length - 1; x++){
-            var dataDetl = sales_data.sale_product[x];
-            var totalstock = 0;
-            for (let index = 0; index <= staff_data.product_list.length - 1; index++) {
-                const element =  staff_data.product_list[index];
-                console.log(dataDetl.id_transaction_from + " == " + element._id.valueOf())
-                if(dataDetl.id_transaction_from == element._id.valueOf()){
-                    totalstock = Math.max(0, Math.abs(element.product_stock) - Math.abs(dataDetl.quantity));
-                    await staff.updateOne(
-                        { 
-                            _id:  ObjectId(staff_data._id.valueOf()),
-                            "product_list._id": ObjectId(dataDetl.id_transaction_from)
-                        },
-                        { 
-                            $set: { 
-                                "product_list.$.product_stock": totalstock 
-                            } 
-                        }
-                    );
-                    console.log(staff_data._id.valueOf() + " <> " + dataDetl.id_transaction_from)
-                }
-            }
-        }
+        // for(let x= 0; x <= sales_data.sale_product.length - 1; x++){
+        //     var dataDetl = sales_data.sale_product[x];
+        //     var totalstock = 0;
+        //     for (let index = 0; index <= staff_data.product_list.length - 1; index++) {
+        //         const element =  staff_data.product_list[index];
+        //         console.log(dataDetl.id_transaction_from + " == " + element._id.valueOf())
+        //         if(dataDetl.id_transaction_from == element._id.valueOf()){
+        //             totalstock = Math.max(0, Math.abs(element.product_stock) - Math.abs(dataDetl.quantity));
+        //             await staff.updateOne(
+        //                 { 
+        //                     _id:  ObjectId(staff_data._id.valueOf()),
+        //                     "product_list._id": ObjectId(dataDetl.id_transaction_from)
+        //                 },
+        //                 { 
+        //                     $set: { 
+        //                         "product_list.$.product_stock": totalstock 
+        //                     } 
+        //                 }
+        //             );
+        //             console.log(staff_data._id.valueOf() + " <> " + dataDetl.id_transaction_from)
+        //         }
+        //     }
+        // }
         req.flash("success", `Sales add successfully`)
         res.redirect("/sales_sa/view_sales/"+sales_data._id)
 
     } catch (error) {
-        
+        console.log(error)
     }
 })
 
@@ -385,6 +384,30 @@ router.post("/volume_setup", auth, async(req, res) => {
         
     }
 })
+
+
+router.post("/getProductData", auth, async(req, res) => {
+    try {
+        const the_volume = await product.find();
+        res.json(the_volume);
+    } catch (error) {
+        
+    }
+})
+
+
+router.post("/product_data_id", auth, async(req, res) => {
+    try {
+        const { id_data } = req.body
+        const the_volume = await product.findById(id_data);
+        res.json(the_volume);
+    } catch (error) {
+        
+    }
+})
+
+
+
 
 
 

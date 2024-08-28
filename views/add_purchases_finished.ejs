@@ -286,7 +286,7 @@
         var batch_code = document.getElementsByName("batch_code");
         var product_date = document.getElementsByName("product_date");
         var expiry_date = document.getElementsByName("expiry_date");
-        var prod_level = document.getElementsByName("prod_level");
+        // var prod_level = document.getElementsByName("prod_level");
         var Conver = document.getElementsByName("test");
 
         var nodeVal = '';
@@ -296,7 +296,7 @@
         var valbatch_code = '';
         var valproduct_date = '';
         var valexpiry_date = '';
-        var valprod_level = '';
+        // var valprod_level = '';
         var valConver = '';
 
         for (var x = 0; x < NodeList.length; x++) {
@@ -309,9 +309,9 @@
             valexpiry_date = expiry_date[x].value;
             valConver = Conver[x].value;
 
-            const selectedIndex = prod_level[x].selectedIndex;
-            const selectedValue = prod_level[x].value;
-            valprod_level = prod_level[x].options[selectedIndex].text;
+            // const selectedIndex = prod_level[x].selectedIndex;
+            // const selectedValue = prod_level[x].value;
+            // valprod_level = prod_level[x].options[selectedIndex].text;
             
             html += '<tr>';
             html += '<td>';
@@ -346,9 +346,9 @@
             html += valConver;
             html += '</td>';
 
-            html += '<td>';
-            html += valprod_level;
-            html += '</td>';
+            // html += '<td>';
+            // html += valprod_level;
+            // html += '</td>';
 
             html += '</tr>';
         }
@@ -476,12 +476,21 @@
                                             <button type="button" class="btn btn-rounded btn-outline-info"
                                                 onclick="history.back()"><i class="la la-undo"></i> <%= language.go_back %> </button>
                                         </div>
-                                        <div class="card-body">
+                                        <div class="card-body" style="display: block;" >
                                             <div class="form-validation">
 
                                                 <form class="needs-validation" action="/all_purchases_finished/view/add_purchases" method="post" id="form">
 
-                                                    <div class="row mb-3">
+                                                    <div class="row">
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">D.R. / S.I Number</label>
+                                                                <input type="text" class="form-control" name="DRSI" id="DRSI">
+                                                            </div>
+                                                        </div>
+
+
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"> Supplier/Client Ref Number <span
@@ -503,13 +512,13 @@
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label class="form-label">Date of Request</label>
-                                                                <input type="date" class="form-control" name="dateofreq" id="dateofreq">
+                                                                <input type="date" class="form-control" name="dateofreq" id="dateofreq" value="<%= formattedDate %>" readonly>
                                                             </div>
                                                         </div>
 
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
-                                                                <label class="form-label">PO number</label>
+                                                                <label class="form-label">STO Number</label>
                                                                 <input type="text" class="form-control" name="PO_number" id="PO_number">
                                                             </div>
                                                         </div>
@@ -519,11 +528,11 @@
                                                                 <label for="invoice_no">Date received  <span
                                                                         class="text-red">*</span></label>
                                                                 <input type="date" name="date" class="form-control"
-                                                                    id="date" required>
+                                                                    id="date" value="<%= formattedDate %>" readonly>
                                                             </div>
                                                         </div>
 
-                                                        <div class="col-xl-3 col-sm-6">
+                                                        <!-- <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"><%= language.supplier %>  <span
                                                                         class="text-red">*</span></label>
@@ -537,7 +546,7 @@
                                                                         <% }) %>
                                                                 </select>
                                                             </div>
-                                                        </div>
+                                                        </div> -->
 
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
@@ -554,55 +563,10 @@
                                                                 </select>
                                                             </div>
                                                         </div>
-                                                       
-                                                        <div class="col-xl-3 col-sm-6">
-                                                            <div class="form-group">
-                                                                <label for="invoice_no">Room  <span
-                                                                        class="text-red">*</span></label>
-                                                                <div id="showRoom">
-
-                                                                </div>
-                                                            </div>
-                                                        </div>
-    
-                                                        
-
-
                                                         
                                                     </div>
 
                                                     <div class="row mb-3">
-
-                                                        <div class="col-xl-3 col-sm-6">
-                                                            <div class="form-group">
-                                                                <label for="invoice_no">Type of Services  </label><br>
-
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Freight">
-                                                                <label for="Freight"> Freight</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Handling In">
-                                                                <label for="HandlingIn"> Handling In</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Handling Out">
-                                                                <label for="HandlingOut"> Handling Out</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stripping">
-                                                                <label for="Stripping"> Stripping</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stuffing">
-                                                                <label for="Stuffing"> Stuffing</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Barcoding">
-                                                                <label for="Barcoding"> Barcoding</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Repacking">
-                                                                <label for="Repacking"> Repacking</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Reprocessing">
-                                                                <label for="Reprocessing"> Reprocessing</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Stickering">
-                                                                <label for="Stickering"> Stickering</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" onclick="datahceck()" value="Sorting">
-                                                                <label for="Sorting"> Sorting</label><br>
-
-                                                                <input type="hidden" class="form-check-input" id="typeservicesData" name="typeservicesData">
-                                                                
-                                                            </div>
-                                                        </div>
-
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label for="invoice_no">Type of Vehicle  <span
@@ -634,7 +598,6 @@
                                                             </div>
                                                         </div>
 
-
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label class="form-label">Van/Seal Number</label>
@@ -642,26 +605,19 @@
                                                             </div>
                                                         </div>
 
-                                                        <div class="col-xl-3 col-sm-6">
-                                                            <div class="form-group">
-                                                                <label class="form-label">D.R. / S.I Number</label>
-                                                                <input type="text" class="form-control" name="DRSI" id="DRSI">
-                                                            </div>
-                                                        </div>
-
+                                                        
 
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label class="form-label">TIME START UNLOADING</label>
-                                                                <input type="time" class="form-control" name="TSU" id="TSU">
+                                                                <input type="time" class="form-control" name="TSU" id="TSU" readonly>
                                                             </div>
                                                         </div>
-
 
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
                                                                 <label class="form-label">TIME FINISH UNLOADING</label>
-                                                                <input type="time" class="form-control" name="TFU" id="TFU">
+                                                                <input type="time" class="form-control" name="TFU" id="TFU" readonly>
                                                             </div>
                                                         </div>
 
@@ -672,17 +628,19 @@
                                                     </div>
 
                                                     <div class="row mb-3">
-                                                        <div class="col-xl-4 col-sm-6">
+                                                        <!-- <div class="col-xl-4 col-sm-6">
                                                             <select class="form-control" id="choice-dropdown" onchange="showTextbox()">
                                                                 <option value="Primary">Please Scan the Barcode...</option>
                                                             </select>
-                                                        </div>    
+                                                        </div>     -->
                                                             
-                                                        <div class="col-xl-12" id="primary-textbox" style="display: none;">
+                                                        <div class="col-xl-12" id="primary-textbox" style="display: block;">
                                                             <div class="form-group">
-                                                                <label for="invoice_no">Barcode  <span
-                                                                        class="text-red">*</span></label>
-                                                                <input type="text" name="product_code" class="form-control" id="product_code">
+                                                                <!-- <label for="invoice_no">Barcode  <span
+                                                                        class="text-red">*</span></label> -->
+                                                                
+                                                                <a class="btn btn-primary" type="submit" id="scan_button"  >Scan now</a>
+                                                                <input type="hidden" name="product_code" style="position: absolute; left: -9999px;" class="form-control" id="product_code" value="">
                                                             </div>
                                                         </div>
 
@@ -710,9 +668,8 @@
                                                                         <th scope="col"><%= language.quantity %> </th>
                                                                         <th scope="col">Unit of Measure </th>
                                                                         <th scope="col">Conversion</th>
-                                                                        <th scope="col">Room</th>
-                                                                        <th scope="col">Bin </th>
-                                                                   
+                                                                        <!-- <th scope="col">Room</th>
+                                                                        <th scope="col">Bin </th> -->
                                                                         <th scope="col">Action</th>
                                                                     </tr>
                                                                 </thead>
@@ -731,25 +688,13 @@
                                                                 <input type="text" class="form-control"
                                                                     placeholder="note" id="note" name="note">
                                                             </div>
-                                                        
-
-                                                            
-                                                                
-                                                            <!-- <div class="mb-3 col-md-6">
-                                                                <label class="form-label">Batch code</label>
-                                                                <input type="text" placeholder="Batch code" class="form-control" name="batch_code" required>
-                                                            </div> -->
-
                                                             
                                                         </div>
                                                         
                                                     
                                                     </div>
 
-                                                    <!-- <div class="row">
-                                                        <button class="btn btn-primary" type="submit"
-                                                            id="purchase_submit"><%= language.submit %> </button>
-                                                    </div> -->
+                                
                                                 </form>
 
                                                 <div class="row">
@@ -946,7 +891,183 @@
       }
     }
 
+    function toggleButton() {
+        // const barcodeInput = document.getElementById('product_code');
+        const buttonData = $('#scan_button');
+        const options = {
+            timeZone: 'Asia/Manila',
+            hour12: false, // Use 24-hour format (military time)
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        };
+        const manilaTime = new Intl.DateTimeFormat('en-US', options).format(new Date());
+        if (buttonData.hasClass('btn-primary')) {
+            buttonData.removeClass('btn-primary').addClass('btn-danger');
+            buttonData.text('Stop Barcode');
+            const barcodeInput = document.getElementById('product_code');
+            const TSU = document.getElementById("TSU").value = manilaTime;
+            barcodeInput.type = 'text';
+            barcodeInput.focus()
+            document.getElementById("purchase_submit").disabled = true
+            var x=1;
+            var lastIncre = 0;
+            $('#product_code').on('input', function() {
+                var productCode = $(this).val(); 
 
+                console.log(productCode)
+
+                $.ajax({
+                url: '/all_purchases_finished/barcode_scanner', 
+                method: 'POST',
+                data: { product_code: productCode }, 
+                success: function(response) {
+                    $.each(response, function(index, data) {
+                        console.log(data)
+                        if(data.product_cat == "P"){
+                            var row = $('<tr>');
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="prod_code" value="' + data.product_code + '" readonly>'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 380px;" name="prod_name" id="prod_name'+ lastIncre +'" value="' + data.name + '" readonly>'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 190px;" name="primary_code" value="' + data.primary_code + '" readonly>'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="batch_code" value="">'));
+                            row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="product_date" value="" required>'));
+                            row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="expiry_date" id="expiry_date'+lastIncre+'" value="" required>'));
+                            row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" name="prod_qty" id="prod_qty'+ lastIncre +'" onchange="ValidationForMaxQTY('+ lastIncre +')" onkeyup="ConversionKit('+lastIncre+', '+data.maxProdPerUnit+')" value="" >'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="prod_unit" id="prod_unit'+lastIncre+'" value="' + data.unit + '" readonly>'));
+                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+lastIncre+'" value="" readonly>'));
+                            row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+                            
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'sales_data_cateory',
+                                name: 'sales_data_cateory',
+                                value: data.sales_category
+                            }).appendTo(row);
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'prod_secondunit',
+                                name: 'prod_secondunit',
+                                value: data.secondary_unit
+                            }).appendTo(row);
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'uuid',
+                                name: 'uuid',
+                                value: uuidv4()
+                            }).appendTo(row);
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'prod_primunit',
+                                name: 'prod_primunit',
+                                value: data.unit
+                            }).appendTo(row);
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'secondary_code',
+                                name: 'secondary_code',
+                                value: data.secondary_code
+                            }).appendTo(row);
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'MaxStocks_data'+lastIncre,
+                                name: 'MaxStocks_data',
+                                value: ""
+                            }).appendTo(row);
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'MaxStocks_data2'+lastIncre,
+                                name: 'MaxStocks_data2',
+                                value: ""
+                            }).appendTo(row);
+
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'max_product_unit',
+                                name: 'max_product_unit',
+                                value: data.maxProdPerUnit
+                            }).appendTo(row);
+
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'prod_cat'+lastIncre,
+                                name: 'prod_cat',
+                                value: data.product_cat
+                            }).appendTo(row);
+
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'prod_othUnit'+lastIncre,
+                                name: 'prod_othUnit',
+                                value: data.otherUnit
+                            }).appendTo(row);
+
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'prod_Qty'+lastIncre,
+                                name: 'prod_Qty',
+                                value: ""
+                            }).appendTo(row);
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'id_transaction_from'+lastIncre,
+                                name: 'id_transaction_from',
+                                value: data._id
+                            }).appendTo(row);
+
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'gross_price'+lastIncre,
+                                name: 'gross_price',
+                                value: data.gross_price
+                            }).appendTo(row);
+
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'product_id'+lastIncre,
+                                name: 'product_id',
+                                value: data._id
+                            }).appendTo(row);
+
+                            $('#tblPage_new').append(row);
+                            lastIncre++;
+
+                        }
+
+                    })
+                document.getElementById("product_code").value='';
+                }
+                
+                })
+                // document.getElementById("product_code").value='';
+            
+                // alert(productCode)
+            })
+
+            
+            // console.log(barcodeInput)
+        } else {
+            buttonData.removeClass('btn-danger').addClass('btn-primary');
+            buttonData.text('Scan Barcode');
+            const barcodeInput = document.getElementById('product_code');
+            barcodeInput.type = 'hidden';
+            barcodeInput.blur();
+            const TFU = document.getElementById("TFU").value = manilaTime;
+            document.getElementById("purchase_submit").disabled = false
+            console.log("BLUR")
+        }
+    }
 
     function ValidationForMaxQTY(i){
         var prod_qty = document.getElementById("prod_qty"+i).value;
@@ -1575,345 +1696,12 @@
     }
 
     $(document).ready(function() {
+        $('#scan_button').click(function () {
+            toggleButton();
+        })
     
-    var x=1;
-    var lastIncre = 0;
-    $('#product_code').on('keydown', function(e) {
-        if (e.which === 13) {
-        e.preventDefault();
-        return false;
-        }
-    });
 
-    $('#product_code').on('input', function() {
-        var productCode = $(this).val(); 
-
-        var isProductExists = false;
-        $('#tblPage_new tr').each(function() {
-        var existingProductCode = $(this).find('td:nth-child(2)').text();
-        if (existingProductCode === productCode) {
-            isProductExists = true;
-            return false; 
-        }
-        });
-        
-        if (!isProductExists) {
-
-        $.ajax({
-            url: '/all_purchases_finished/barcode_scanner', 
-            method: 'POST',
-            data: { product_code: productCode }, 
-            success: function(response) {
-
-            $.each(response, function(index, data) {
-                var rooms_data = document.getElementsByName("room_name");
-                // var Invoice_num = document.getElementById("invoice").value;
-                
-
-                for (let index = 0; index < rooms_data.length; index++) {
-                    const element = rooms_data[index];
-
-                    if(element.checked == true){
-                        var RoomAssign = element.value;
-
-                        if(data.product_cat == "P"){
-                            var row = $('<tr>');
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="prod_code" value="' + data.product_code + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 380px;" name="prod_name" id="prod_name'+ lastIncre +'" value="' + data.name + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 190px;" name="primary_code" value="' + data.primary_code + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="batch_code" value="">'));
-                            row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="product_date" value="" required>'));
-                            row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="expiry_date" id="expiry_date'+lastIncre+'" value="" required>'));
-                            row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" name="prod_qty" id="prod_qty'+ lastIncre +'" onchange="ValidationForMaxQTY('+ lastIncre +')" onkeyup="ConversionKit('+lastIncre+', '+data.maxProdPerUnit+')" value="" >'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="prod_unit" id="prod_unit'+lastIncre+'" value="' + data.unit + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+lastIncre+'" value="" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="RoomAssign" id="RoomAssign'+lastIncre+'" value="'+RoomAssign+'" readonly>'));
-                            row.append($('<td>').html('<select class="form-control" name="prod_level" level="levelOslie'+lastIncre+'" id="prod_level' + lastIncre + '" style="width: 150px;"></select>'));
-                            row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
-                            
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'sales_data_cateory',
-                                name: 'sales_data_cateory',
-                                value: data.sales_category
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_secondunit',
-                                name: 'prod_secondunit',
-                                value: data.secondary_unit
-                            }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'uuid',
-                                name: 'uuid',
-                                value: uuidv4()
-                            }).appendTo(row);
-                            
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_primunit',
-                                name: 'prod_primunit',
-                                value: data.unit
-                            }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'secondary_code',
-                                name: 'secondary_code',
-                                value: data.secondary_code
-                            }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'MaxStocks_data'+lastIncre,
-                                name: 'MaxStocks_data',
-                                value: ""
-                            }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'MaxStocks_data2'+lastIncre,
-                                name: 'MaxStocks_data2',
-                                value: ""
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'storage',
-                                name: 'storage',
-                                value: ""
-                            }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'rak',
-                                name: 'rak',
-                                value: ""
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'max_product_unit',
-                                name: 'max_product_unit',
-                                value: data.maxProdPerUnit
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_cat'+lastIncre,
-                                name: 'prod_cat',
-                                value: data.product_cat
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_othUnit'+lastIncre,
-                                name: 'prod_othUnit',
-                                value: data.otherUnit
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_Qty'+lastIncre,
-                                name: 'prod_Qty',
-                                value: ""
-                            }).appendTo(row);
-
-
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'prod_invoice'+lastIncre,
-                            //     name: 'prod_invoice',
-                            //     value: Invoice_num
-                            // }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'id_transaction_from'+lastIncre,
-                                name: 'id_transaction_from',
-                                value: data._id
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'gross_price'+lastIncre,
-                                name: 'gross_price',
-                                value: data.gross_price
-                            }).appendTo(row);
-
-
-                            
-
-
-                            $('#tblPage_new').append(row);
-                            BayBin(lastIncre, RoomAssign)
-                            lastIncre++;
-
-                        }else if(data.product_cat == "S"){
-                            var row = $('<tr>');
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="prod_code" value="' + data.product_code + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 380px;" name="prod_name" id="prod_name'+ x +'" value="' + data.name + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="primary_code" value="' + data.primary_code + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="batch_code" value="">'));
-                            row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="product_date" value="" required>'));
-                            row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="expiry_date" id="expiry_date'+lastIncre+'" value="" required>'));
-                            row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" name="prod_qty" id="prod_qty'+ lastIncre +'" onchange="ValidationForMaxQTY('+ lastIncre +')" onkeyup="ConversionKit('+lastIncre+', '+data.maxProdPerUnit+')" value="" >'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="prod_unit" id="prod_unit'+lastIncre+'" value="' + data.secondary_unit + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+lastIncre+'" value="" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="RoomAssign" id="RoomAssign'+lastIncre+'" value="'+RoomAssign+'" readonly>'));
-                            row.append($('<td>').html('<select class="form-control" name="prod_level" level="levelOslie'+lastIncre+'" id="prod_level' + lastIncre + '" style="width: 150px;" onchange="checkingWarehouse('+lastIncre+','+ data.product_code +')"></select>'));
-                            row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
-                            
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'sales_data_cateory',
-                                name: 'sales_data_cateory',
-                                value: data.sales_category
-                            }).appendTo(row);
-                            
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_secondunit',
-                                name: 'prod_secondunit',
-                                value: data.secondary_unit
-                            }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_primunit',
-                                name: 'prod_primunit',
-                                value: data.unit
-                            }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'secondary_code',
-                                name: 'secondary_code',
-                                value: data.secondary_code
-                            }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'MaxStocks_data'+lastIncre,
-                                name: 'MaxStocks_data',
-                                value: ""
-                            }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'MaxStocks_data2'+lastIncre,
-                                name: 'MaxStocks_data2',
-                                value: ""
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'storage',
-                                name: 'storage',
-                                value: ""
-                            }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'rak',
-                                name: 'rak',
-                                value: ""
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'max_product_unit',
-                                name: 'max_product_unit',
-                                value: data.maxProdPerUnit
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_cat'+lastIncre,
-                                name: 'prod_cat',
-                                value: data.product_cat
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_othUnit'+lastIncre,
-                                name: 'prod_othUnit',
-                                value: data.unit
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_Qty'+lastIncre,
-                                name: 'prod_Qty',
-                                value: ""
-                            }).appendTo(row);
-
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'prod_invoice'+lastIncre,
-                            //     name: 'prod_invoice',
-                            //     value: Invoice_num
-                            // }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'id_transaction_from'+lastIncre,
-                                name: 'id_transaction_from',
-                                value: data._id
-                            }).appendTo(row);
-
-
-                            $('#tblPage_new').append(row);
-                            BayBin(lastIncre, RoomAssign)
-                            lastIncre++;
-                        }
-                    }
-
-                    
-                }
-                        
-
-                    
-
-
-                        // BayBin(x)
-                        // dateExpiry(x)
-                        x++;
-                
-            });
-            // Clear the product code input field
-            $("#product_code").val('');
-            },
-            error: function(xhr, status, error) {
-                $("#product_code").val('');
-                Swal.fire(
-                '',
-                'We were unable to locate the barcode you entered. Please try scanning another barcode.',
-                'warning'
-                )
-            }
-        });
-        }
-    });
-    });
+   });
     </script>
             <!--**********************************
         Scripts end
