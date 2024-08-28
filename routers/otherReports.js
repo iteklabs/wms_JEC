@@ -7,7 +7,7 @@ const { profile, master_shop, categories, brands, units, product, purchases, war
 const auth = require("../middleware/auth");
 const users = require("../public/language/languages.json");
 const excelJS = require("exceljs");
-const xlsx = require('xlsx');
+const XLSX = require('xlsx');
 const PDFDocument = require('pdfkit-table');
 const fs = require('fs');
 const blobStream  = require('blob-stream');
@@ -16,6 +16,7 @@ const { Canvas } = require("canvas");
 const pdf = require('html-pdf');
 const path = require('path');
 const mongoose = require("mongoose");
+const cheerio = require('cheerio');
 
 
 router.get("/balance/view", auth, async (req, res) => {
@@ -1065,7 +1066,7 @@ router.get("/agent_reports/view", auth, async (req, res) => {
     }
 })
 
-async function agentsdataDSICheck(from, to, staff_id){
+async function agentsdataDSICheck(from, to, staff_id, isExcel){
     const product_data = await product.aggregate([
         {
             $group: {
@@ -1405,7 +1406,6 @@ for (let a = 0; a < array_data["cat_brand"].length; a++) {
     // }
 
 
-console.log(arrdata["dataqty"])
     for (let z = 0; z < sales_sa_data.length; z++) {
         const sales_data_element = sales_sa_data[z];
         
@@ -1454,18 +1454,17 @@ console.log(arrdata["dataqty"])
     }
     
     
-    
     return htmlContent;
 }
 
 router.post('/agent_reports/pdf', auth, async (req, res) => {
 
-    const {from_date, to_date} = req.body
+    const {from_date, to_date, isExcel} = req.body
     const role_data = req.user
     const stff_data = await staff.findOne({ email: role_data.email })
     // console.log(stff_data._id.valueOf());
-    const datatest = await agentsdataDSICheck(from_date, to_date, stff_data._id.valueOf());
-    // res.send(datatest);
+    const datatest = await agentsdataDSICheck(from_date, to_date, stff_data._id.valueOf(), isExcel);
+    // res.send(req.body);
     // return;
 {/* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> */}
     let htmlContent = `
@@ -1525,7 +1524,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     htmlContent += `<p>SALES REPORTS - EXTRUCK</p>`;
     htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
     htmlContent += `<div class="row">`;
-    htmlContent += `<div class="col-sm-11">`;
+    htmlContent += `<div class="col-sm-11" id="table-conatainer">`;
     htmlContent += `<table>`;
     htmlContent += datatest;
     htmlContent += `</table>`;
@@ -1538,15 +1537,44 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
         format: 'Letter', // Set size to Letter
         orientation: 'landscape' // Set orientation to landscape
     };
+
+    if(isExcel == "on"){
+        const $ = cheerio.load(htmlContent);
+
+        let data = [];
+        $('table tr').each((i, row) => {
+            let rowData = [];
+            $(row).find('td, th').each((j, cell) => {
+                rowData.push($(cell).text().trim());
+            });
+            data.push(rowData);
+        });
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+        // Write the workbook to a buffer
+        const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+        // Send the file to the client as a download
+        res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.send(fileBuffer);
+        // res.json(data)
+        // return
+    }else{
+        pdf.create(htmlContent, options).toStream(function(err, stream) {
+            if (err) {
+                res.status(500).send('Error generating PDF');
+                return;
+            }
+            res.setHeader('Content-Type', 'application/pdf');
+            stream.pipe(res);
+        });
+    }
     
-    pdf.create(htmlContent, options).toStream(function(err, stream) {
-        if (err) {
-            res.status(500).send('Error generating PDF');
-            return;
-        }
-        res.setHeader('Content-Type', 'application/pdf');
-        stream.pipe(res);
-    });
+    
 });
 
 
@@ -1725,7 +1753,7 @@ async function dataSalesReports(from, to, staff_id){
 router.post("/total_sales_reports/pdf", auth, async(req, res) => {
     try {
 
-        const {from_date, to_date} = req.body
+        const {from_date, to_date, isExcel} = req.body
         const role_data = req.user
         const stff_data = await staff.findOne({ email: role_data.email })
 
@@ -1806,14 +1834,41 @@ router.post("/total_sales_reports/pdf", auth, async(req, res) => {
         orientation: 'landscape' // Set orientation to landscape
     };
     
-    pdf.create(htmlContent, options).toStream(function(err, stream) {
-        if (err) {
-            res.status(500).send('Error generating PDF');
-            return;
-        }
-        res.setHeader('Content-Type', 'application/pdf');
-        stream.pipe(res);
-    });
+    if(isExcel == "on"){
+        const $ = cheerio.load(htmlContent);
+
+        let data = [];
+        $('table tr').each((i, row) => {
+            let rowData = [];
+            $(row).find('td, th').each((j, cell) => {
+                rowData.push($(cell).text().trim());
+            });
+            data.push(rowData);
+        });
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+        // Write the workbook to a buffer
+        const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+        // Send the file to the client as a download
+        res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.send(fileBuffer);
+        // res.json(data)
+        // return
+    }else{
+        pdf.create(htmlContent, options).toStream(function(err, stream) {
+            if (err) {
+                res.status(500).send('Error generating PDF');
+                return;
+            }
+            res.setHeader('Content-Type', 'application/pdf');
+            stream.pipe(res);
+        });
+    }
         
     } catch (error) {
         
