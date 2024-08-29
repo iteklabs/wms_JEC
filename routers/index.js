@@ -13,7 +13,7 @@ router.get("/index", auth, async(req, res) => {
         const role_data = req.user
         const master = await master_shop.find()
         const profile_data = await profile.findOne({email : role_data.email})
-
+        // const staff_data = await staff.findOne({ email: role_data.email })
         if (master[0].language == "English (US)") {
             var lan_data = users.English
             // console.log(lan_data);
@@ -299,7 +299,8 @@ router.get("/index", auth, async(req, res) => {
                 cntPaid : paid_true,
                 cntNotPaid : paid_false,
                 avg_price: sales_sa_my_inventory[0],
-                my_stock: sales_sa_data_count[0]
+                my_stock: sales_sa_data_count[0],
+                staff_arr: staff_data
             })
         }else if(role_data.account_category == "acc"){
             const staff_data = await staff.findOne({ email: role_data.email });

@@ -118,7 +118,12 @@
                                 <% } else if (role.account_category == "wm") { %>
                                     <p class="fs-12 mb-0 text-capitalize">Super Admin</p>
                                 <% } else if (role.account_category == "sa") { %>
-                                    <p class="fs-12 mb-0 text-capitalize">Sales Accounting</p>
+                                    <% var Sales_category = " (Booking) "; %>
+                                    <% if (staff_arr.type_of_acc_cat == 1) { %>
+                                        <% Sales_category = " (Ex Truck) "; %>
+                                    <% } %>
+                                    <p class="fs-12 mb-0 text-capitalize">Sales <%= Sales_category %></p>
+                                    <% console.log(staff_arr.type_of_acc_cat) %>
                                 <% } else if (role.account_category == "acc") { %>
                                     <p class="fs-12 mb-0 text-capitalize">Accounting Account</p>
                                 <% } else if (role.account_category == "rsm") { %>
