@@ -91,6 +91,7 @@ router.get("/view", auth,  async(req, res) => {
             language : lan_data,
             agent_id:  staff_data._id,
             payment: payment_data,
+            staff_arr: staff_data
         })
     }catch(error){
         console.log(error);

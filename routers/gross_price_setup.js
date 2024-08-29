@@ -53,7 +53,8 @@ router.get("/", auth,  async(req, res) => {
             language : lan_data,
             product_list: staff_data.product_list,
             sales_mine: sales_data,
-            product_data: product_data
+            product_data: product_data,
+            staff_arr: staff_data
         })
     }catch(error){
         console.log(error);

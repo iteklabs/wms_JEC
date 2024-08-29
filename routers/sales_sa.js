@@ -51,7 +51,8 @@ router.get("/", auth,  async(req, res) => {
             role : role_data,
             language : lan_data,
             product_list: staff_data.product_list,
-            sales_mine: sales_data
+            sales_mine: sales_data,
+            staff_arr: staff_data
         })
     }catch(error){
         console.log(error);
@@ -99,7 +100,8 @@ router.get("/add_sales", auth,  async(req, res) => {
             profile : profile_data,
             role : role_data,
             language : lan_data,
-            customer: customer_data
+            customer: customer_data,
+            staff_arr: staff_data
         })
     }catch(error){
         console.log(error);
@@ -152,7 +154,8 @@ router.get("/view_sales/:id", auth,  async(req, res) => {
             role : role_data,
             language : lan_data,
             customer: customer_data,
-            sales_sa: sales_data
+            sales_sa: sales_data,
+            staff_arr: staff_data
         })
     }catch(error){
         console.log(error);

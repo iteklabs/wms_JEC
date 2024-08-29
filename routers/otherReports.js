@@ -988,7 +988,7 @@ router.get("/agent_reports/view", auth, async (req, res) => {
         const profile_data = await profile.findOne({email : role_data.email})
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         const master = await master_shop.find()
-
+        const staff_data = await staff.findOne({email: role_data.email})
         const find_data = await product.find();
 
 
@@ -1058,7 +1058,8 @@ router.get("/agent_reports/view", auth, async (req, res) => {
             master_shop : master,
             role : role_data,
             product_stock : warehouse_data,
-            language : lan_data
+            language : lan_data,
+            staff_arr: staff_data
 			
         })
     } catch (error) {
@@ -1623,7 +1624,7 @@ router.get("/total_sales_reports/view", auth, async(req, res) => {
         ])
 
 
-
+        const staff_data = await staff.findOne({email: role_data.email})
         if (master[0].language == "English (US)") {
             var lan_data = users.English
             
@@ -1657,7 +1658,8 @@ router.get("/total_sales_reports/view", auth, async(req, res) => {
             master_shop : master,
             role : role_data,
             product_stock : warehouse_data,
-            language : lan_data
+            language : lan_data,
+            staff_arr: staff_data
 			
         })
     } catch (error) {
