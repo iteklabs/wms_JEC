@@ -1554,7 +1554,9 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     // res.send(htmlContent);
     // return;
     const options = {
-        format: 'Letter', // Set size to Letter
+        // format: 'Letter', // Set size to Letter
+        width: '15in',  // Set custom width (e.g., 11 inches)
+        height: '8.5in', // Set custom height (e.g., 8.5 inches)
         orientation: 'landscape' // Set orientation to landscape
     };
 
