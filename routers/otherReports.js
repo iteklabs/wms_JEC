@@ -1230,11 +1230,15 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
                 products: {
                     $push: {
                         qty: "$sale_product.quantity",
+                        NetPrice: "$sale_product.totalprice",
+                        discount: "$sale_product.discount",
                         product_details: {
                             prod_name: "$product_info.name",
                             product_code: "$product_info.product_code",
                             category: "$product_info.category",
-                            brand: "$product_info.brand"
+                            brand: "$product_info.brand",
+                            gross_price: "$product_info.gross_price",
+                            
                         }
                     }
                 }
@@ -1253,6 +1257,9 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
                     brand: "$products.product_details.brand"
                 },
                 totalQty: { $sum: "$products.qty" },
+                totalGross: { $sum: "$products.product_details.gross_price" },
+                NetPrice: { $sum: "$products.NetPrice" },
+                discount: { $sum: "$products.discount"},
                 product_details: { $first: "$products.product_details" }
             }
         },
@@ -1264,6 +1271,9 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
                     customer: "$_id.customer"
                 },
                 totalQty: { $sum: "$totalQty" },
+                totalGross: { $sum: "$totalGross" },
+                NetPrice: { $sum: "$NetPrice" },
+                discount: { $sum: "$discount"},
                 products: {
                     $push: {
                         qty: "$totalQty",
@@ -1284,8 +1294,10 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
     ]);
     
     
-
-// console.log(sales_sa_data[0].products)
+// res.json(sales_sa_data);
+// return
+// console.log(sales_sa_data)
+// return
 let arrdata = {
     // name: [],
     dataqty: {}
@@ -1336,7 +1348,7 @@ for (let a = 0; a < array_data["cat_brand"].length; a++) {
 
     let htmlContent = "";
     htmlContent += `<tr>`;
-    htmlContent += `<td colspan="17" class="cat_data">QUANTITY SOLD</td>`;
+    htmlContent += `<td colspan="20" class="cat_data">QUANTITY SOLD</td>`;
     htmlContent += `</tr>`;
     htmlContent += `<tr>`;
     htmlContent += `<td class="cat_data" colspan="3"></td>`;
@@ -1352,7 +1364,7 @@ for (let a = 0; a < array_data["cat_brand"].length; a++) {
         }
     }
     
-    htmlContent += `<td class="cat_data"></td>`;
+    htmlContent += `<td class="cat_data" colspan="4"></td>`;
     htmlContent += `</tr>`;
     htmlContent += `<tr>`;
     htmlContent += `<td colspan="1" class="cat_data">DSI Number</td>`;
@@ -1372,6 +1384,9 @@ for (let a = 0; a < array_data["cat_brand"].length; a++) {
        
     }
     htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
+    htmlContent += `<td class="cat_data">GROSS SALES</td>`;
+    htmlContent += `<td class="cat_data">DISCOUNT</td>`;
+    htmlContent += `<td class="cat_data">NET SALES VALUE</td>`;
     htmlContent += `</tr>`;
 
 
@@ -1434,6 +1449,7 @@ for (let a = 0; a < array_data["cat_brand"].length; a++) {
         // Fill quantities with actual data
         for (let p = 0; p < sales_data_element.products.length; p++) {
             const data_final = sales_data_element.products[p];
+            // console.log(data_final)
             quantities[`${data_final.brand}-${data_final.category}`] = data_final.qty;
         }
     
@@ -1449,8 +1465,11 @@ for (let a = 0; a < array_data["cat_brand"].length; a++) {
         }
         // console.log(arrdata["dataqty"][])
 
-
+        console.log(sales_data_element)
         htmlContent += `<td class="row_data">${sales_data_element.totalQty}</td>`;
+        htmlContent += `<td class="row_data">${sales_data_element.totalGross}</td>`;
+        htmlContent += `<td class="row_data">${sales_data_element.discount}</td>`;
+        htmlContent += `<td class="row_data">${sales_data_element.NetPrice}</td>`;
         htmlContent += `</tr>`;
     }
     
