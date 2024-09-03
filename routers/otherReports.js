@@ -1499,7 +1499,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
             }
             table {
                 border-collapse: collapse;
-                width: 80%;
+           
                 margin-left: auto; 
                 margin-right: auto;
             }
