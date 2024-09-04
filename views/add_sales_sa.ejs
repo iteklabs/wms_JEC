@@ -635,13 +635,13 @@
                 var totalQTY = 0;
                 if(uom_data[1] == "S"){
                     totalQTY = parseFloat(quantity)/parseFloat(no_per_unit);
-                    conversion_unit.value = totalQTY.toFixed(3) + " " + unit;
+                    conversion_unit.value = totalQTY.toFixed(2) + " " + unit;
                     document.getElementById("prod_cat"+x).value=uom_data[1];
                     document.getElementById("getPrimUnitNo"+x).value = totalQTY
                     console.log(totalQTY)
                 }else{
                     totalQTY = parseFloat(quantity)*parseFloat(no_per_unit);
-                    conversion_unit.value = totalQTY.toFixed(3) + " " + secondary_unit;
+                    conversion_unit.value = totalQTY.toFixed(2) + " " + secondary_unit;
                     document.getElementById("prod_cat"+x).value=uom_data[1];
                     document.getElementById("getPrimUnitNo"+x).value = quantity
                 }
