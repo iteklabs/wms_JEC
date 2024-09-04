@@ -182,6 +182,7 @@
                                                                         <!-- <th scope="col"><%= language.in_stock %> </th> -->
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">Unit of Measure </th>
+                                                                        <th scope="col">Conversion </th>
                                                                         <th scope="col">Price </th>
                                                                         <th scope="col">Allowable Discount Price </th>
                                                                         <th scope="col">Discount Adjustment </th>
@@ -287,7 +288,8 @@
                 row.remove();
             }
             function computePerPrice(x) {
-                var qty = document.getElementById("quantity"+x);
+                compute_conversion(x); 
+                var qty = document.getElementById("getPrimUnitNo"+x);
                 var price = document.getElementById("price"+x);
                 var discount_price = document.getElementById("dicount_price"+x);
                 var totalPrice = document.getElementById("totalPrice"+x);
@@ -356,7 +358,7 @@
                                     var price = document.getElementsByName("price");
                                     for (let i = 0; i <= price.length - 1; i++) {
                                         const element_detl = price[i];
-                                        var theQTY = document.getElementById("quantity"+i).value;
+                                        var theQTY = document.getElementById("getPrimUnitNo"+i).value;
                                         for (let index = 0; index <= response.volume_discount.length - 1; index++) {
                                             const element = response.volume_discount[index];
                                             
@@ -374,7 +376,7 @@
                                     var price = document.getElementsByName("price");
                                     for (let i = 0; i <= price.length - 1; i++) {
                                         const element_detl = price[i];
-                                        var theQTY = document.getElementById("quantity"+i).value;
+                                        var theQTY = document.getElementById("getPrimUnitNo"+i).value;
                                         document.getElementById("dicount_price"+i).value = 0;
                                     }
                                 }
@@ -416,7 +418,7 @@
             }
 
             function computePerPriceDiscount(x){
-                var qty = document.getElementById("quantity"+x);
+                var qty = document.getElementById("getPrimUnitNo"+x);
                 var price = document.getElementById("price"+x);
                 var totalPrice = document.getElementById("totalPrice"+x);
                 var dicount_price = document.getElementById("dicount_price"+x);
@@ -609,6 +611,41 @@
                 
             }
 
+            function getUOM(x,prim_unit, second_unit){
+         
+                var UOM_data =  document.getElementById("UOM"+x);
+                let option = "";
+                option += "<option value="+prim_unit+"~P"+">"+prim_unit+"</option>";
+                option += "<option value="+second_unit+"~S"+">"+second_unit+"</option>";
+                UOM_data.innerHTML = option;
+            }
+
+            function compute_conversion(x){
+                var quantity = document.getElementById("quantity"+x).value;
+                var UOM = document.getElementById("UOM"+x).value;
+                var conversion_unit = document.getElementById("conversion_unit"+x);
+                var no_per_unit = document.getElementById("no_per_unit"+x).value;
+                
+
+                var unit = document.getElementById("unit"+x).value;
+                var secondary_unit = document.getElementById("secondary_unit"+x).value;
+
+
+                let uom_data = UOM.split("~");
+                var totalQTY = 0;
+                if(uom_data[1] == "S"){
+                    totalQTY = parseFloat(quantity)/parseFloat(no_per_unit);
+                    conversion_unit.value = totalQTY.toFixed(3) + " " + unit;
+                    document.getElementById("prod_cat"+x).value=uom_data[1];
+                    document.getElementById("getPrimUnitNo"+x).value = totalQTY
+                    console.log(totalQTY)
+                }else{
+                    totalQTY = parseFloat(quantity)*parseFloat(no_per_unit);
+                    conversion_unit.value = totalQTY.toFixed(3) + " " + secondary_unit;
+                    document.getElementById("prod_cat"+x).value=uom_data[1];
+                    document.getElementById("getPrimUnitNo"+x).value = quantity
+                }
+            }
 
             $(document).on('click', 'button#remove', function(event) {
                     removeSelfRow(event);
@@ -1016,7 +1053,7 @@
                                 });
 
                                 
-                                console.log(response._id)
+                                console.log(response)
                                     
                                     if (existingIds.indexOf(response._id) === -1) {
                                         var row = $('<tr id="trtable'+x+'">');
@@ -1025,13 +1062,47 @@
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="prod_name" value="' + response.name + '" readonly>'));
                                         // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="stock_qty" id="stock_qty'+x+'" value="" readonly>'));
                                         // row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="checkingQuantityStocks('+x+'); computePerPrice('+x+'); volume_general(); " id="quantity'+x+'" value="" required>'));
-                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="computePerPrice('+x+'); volume_general(); " id="quantity'+x+'" value="" required>'));
-                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + response.unit + '" readonly>'));
+                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="quantity" onclick="computePerPrice('+x+');" oninput="computePerPrice('+x+'); volume_general(); compute_conversion('+x+'); " id="quantity'+x+'" value="" required>'));
+                                        // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="UOM" value="' + response.unit + '" readonly>'));
+                                        row.append($('<td>').html('<select class="form-control" style="width: 150px;" name="UOM" id="UOM'+x+'" onchange="computePerPrice('+x+'); compute_conversion('+x+');"></select>'));
+                                        row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="conversion_unit" id="conversion_unit'+x+'" readonly>'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="'+response.gross_price+'" readonly>'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="adj_dicount_price" id="adj_dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
                                         row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
+
+                                            $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'unit'+x,
+                                            name: 'unit',
+                                            value: response.unit
+                                        }).appendTo(row);
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'secondary_unit'+x,
+                                            name: 'secondary_unit',
+                                            value:  response.second_unit
+                                        }).appendTo(row);
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'prod_cat'+x,
+                                            name: 'prod_cat',
+                                            value:  ""
+                                        }).appendTo(row);
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'getPrimUnitNo'+x,
+                                            name: 'getPrimUnitNo',
+                                            value:  ""
+                                        }).appendTo(row);
+
+                                        
+
+
                                         $('<input>').attr({
                                             type: 'hidden',
                                             id: 'tmpisFG'+x,
@@ -1076,6 +1147,14 @@
                                             value: response.primary_code
                                         }).appendTo(row);
 
+
+                                        $('<input>').attr({
+                                            type: 'hidden',
+                                            id: 'no_per_unit'+x,
+                                            name: 'no_per_unit',
+                                            value: response.maxProdPerUnit
+                                        }).appendTo(row);
+
                                         $('<input>').attr({
                                             type: 'hidden',
                                             id: 'id_transaction',
@@ -1088,6 +1167,7 @@
                                         $('#tblPage_NewOut').append(row);
                                         data_grossprice();
                                         volume_general();
+                                        getUOM(x, response.unit,  response.second_unit);
                                         // checkExpiration(data.product_list.expiry_date, x);
                                         x++;
                                     }else{

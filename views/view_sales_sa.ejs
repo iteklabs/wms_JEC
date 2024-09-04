@@ -123,6 +123,7 @@
                                                                         <!-- <th scope="col"><%= language.in_stock %> </th> -->
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">Unit of Measure </th>
+                                                                        <th scope="col">Conversion </th>
                                                                         <th scope="col">Price </th>
                                                                         <th scope="col">Discount Price </th>
                                                                         <th scope="col">Discount Adjustment </th>
@@ -146,6 +147,7 @@
                                                                             <% }else{ %>
                                                                                 <input type="checkbox" class="form-check-input" name="is_fg" id="is_fg" disabled readonly>
                                                                             <% } %></td>
+                                                                            <% console.log(data) %>
                                                                             <td><%= data.product_code %></td>
                                                                             <td><%= data.product_name %></td>
                                                                             <!-- <td><%= data.primary_code %></td>
@@ -154,10 +156,16 @@
                                                                             <td><%= data.expiry_date %></td> -->
                                                                             <!-- <td><%= nFormat.format(data.stock) %></td> -->
                                                                             <td><%= nFormat.format(data.quantity) %></td>
-                                                                            <td><%= data.unit %></td>
+                                                                            <% if (data.prod_cat == "S") { %>
+                                                                                <td><%= data.secondary_unit %></td>
+                                                                            <% }else{ %>
+                                                                                <td><%= data.unit %></td>
+                                                                            <% } %>
+                                                                            
+                                                                            <td><%= data.conversion_data %></td>
                                                                             <td><%= nFormat.format(data.price) %></td>
                                                                             <td><%= nFormat.format(data.discount) %></td>
-                                                                            <td><%= (nFormat.format(data.adj_discount) != null && !isNaN(nFormat.format(data.adj_discount))) ? nFormat.format(data.adj_discount) : 0 %></td>
+                                                                            <td><%= nFormat.format(data.adj_discount) %></td>
                                                                             <td><%= nFormat.format(data.totalprice)  %></td>
                                                                             <% total += parseInt(data.totalprice)  %>
                                                                             <% totalqty += parseInt(data.quantity)  %>
@@ -173,6 +181,7 @@
                                                                         <td colspan="2"></td>
                                                                         <td><b>TOTAL: </b></td>
                                                                         <td><b><%= nFormat.format(totalqty) %></b></td>
+                                                                        <td></td>
                                                                         <td></td>
                                                                         <td><b><%= nFormat.format(totalprices) %></b></td>
                                                                         <td><b><%= (totaldiscprice != null && !isNaN(totaldiscprice)) ? nFormat.format(totaldiscprice) : 0 %></b></td>

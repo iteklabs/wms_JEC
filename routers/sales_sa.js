@@ -175,13 +175,18 @@ router.post("/add_sales", auth,  async(req, res) => {
             // var expiry_date_array = [req.body.expiry_date];
             // var stock_qty_array = [req.body.stock_qty];
             var quantity_array = [req.body.quantity];
-            var UOM_array = [req.body.UOM];
+            var UOM_array = [req.body.unit];
             var price_array = [req.body.price];
             var totalPrice_array = [req.body.totalPrice];
             var id_transaction_array = [req.body.id_transaction];
             var dicount_price_array = [req.body.dicount_price];
             var adj_dicount_price_array = [req.body.adj_dicount_price];
             var tmpisFG_array = [req.body.tmpisFG];
+            var no_per_unit_array = [req.body.no_per_unit];
+            var realQTY_prim_unit = [req.body.getPrimUnitNo];
+            var prod_cat_array = [req.body.prod_cat];
+            var secondary_unit_array = [req.body.secondary_unit];
+            var conversion_unit_array = [req.body.conversion_unit];
         }else{
             var prod_code_array = [...req.body.prod_code];
             var prod_name_array = [...req.body.prod_name];
@@ -191,13 +196,18 @@ router.post("/add_sales", auth,  async(req, res) => {
             // var expiry_date_array = [...req.body.expiry_date];
             // var stock_qty_array = [...req.body.stock_qty];
             var quantity_array = [...req.body.quantity];
-            var UOM_array = [...req.body.UOM];
+            var UOM_array = [...req.body.unit];
             var price_array = [...req.body.price];
             var totalPrice_array = [...req.body.totalPrice];
             var id_transaction_array = [...req.body.id_transaction];
             var dicount_price_array = [...req.body.dicount_price];
             var adj_dicount_price_array = [...req.body.adj_dicount_price];
             var tmpisFG_array = [...req.body.tmpisFG];
+            var no_per_unit_array = [...req.body.no_per_unit];
+            var realQTY_prim_unit = [...req.body.getPrimUnitNo];
+            var prod_cat_array = [...req.body.prod_cat];
+            var secondary_unit_array = [...req.body.secondary_unit];
+            var conversion_unit_array = [...req.body.conversion_unit];
         }
         const newproduct = prod_code_array.map((value)=>{
             
@@ -210,6 +220,11 @@ router.post("/add_sales", auth,  async(req, res) => {
         });
         primary_code_array.forEach((value,i) => {
             newproduct[i].primary_code = value
+        });
+
+
+        no_per_unit_array.forEach((value,i) => {
+            newproduct[i].no_per_unit = value
         });
         // batch_code_array.forEach((value,i) => {
         //     newproduct[i].batch_code = value
@@ -250,6 +265,23 @@ router.post("/add_sales", auth,  async(req, res) => {
         tmpisFG_array.forEach((value, i) => {
             newproduct[i].isFG = value
         });
+
+        secondary_unit_array.forEach((value, i) => {
+            newproduct[i].secondary_unit = value
+        });
+
+        realQTY_prim_unit.forEach((value, i) => {
+            newproduct[i].real_qty_unit_val = value
+        });
+
+        prod_cat_array.forEach((value, i) => {
+            newproduct[i].prod_cat = value
+        })
+
+        conversion_unit_array.forEach((value, i) => {
+            newproduct[i].conversion_data = value
+        })
+        
 
 
         // res.json(newproduct);
