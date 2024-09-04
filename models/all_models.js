@@ -2735,6 +2735,9 @@ const sales_order_data = new mongoose.Schema({
         quantity: {
             type: Number
         },
+        real_qty_unit_val: {
+            type: Number
+        },
         stock: {
             type: Number
         },
@@ -2763,6 +2766,9 @@ const sales_order_data = new mongoose.Schema({
             type: String
         },
         prod_cat:{
+            type: String
+        },
+        conversion_data:{
             type: String
         },
         discount:{
@@ -2807,6 +2813,9 @@ const sales_order_data = new mongoose.Schema({
             type: String
         },
         bo_disc:{
+            type: String
+        },
+        no_per_unit: {
             type: String
         }
     }],
