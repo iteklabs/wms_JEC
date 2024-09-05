@@ -1395,9 +1395,9 @@ let rows = [];
 for (let z = 0; z <= sales_sa_data.length -1; z++) {
     const sales_data_element = sales_sa_data[z];
     let row = `<tr>`;
-    row += `<td class="row_data">${sales_data_element._id.dsi}</td>`;
-    row += `<td class="row_data">${sales_data_element._id.date}</td>`;
-    row += `<td class="row_data">${sales_data_element._id.customer}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.dsi}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.date}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.customer}</td>`;
     
     let quantities = {};
     for (let p = 0; p <= sales_data_element.products.length -1; p++) {
@@ -1425,7 +1425,7 @@ function paginateRows(rows, rowsPerPage) {
     return pages;
 }
 
-const rowsPerPage = 10;
+const rowsPerPage = 7;
 const pages = paginateRows(rows, rowsPerPage);
 // console.log(pages)
 let htmlContent = "";
