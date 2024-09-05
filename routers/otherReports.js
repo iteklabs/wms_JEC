@@ -1067,7 +1067,7 @@ router.get("/agent_reports/view", auth, async (req, res) => {
     }
 })
 
-function formatNumber(number, locale = 'en-US', options = {}) {
+function formatNumber(number, locale = 'en-US', options = { minimumFractionDigits: 2 }) {
     // Create a NumberFormat object with the provided locale and options
     const formatter = new Intl.NumberFormat(locale, options);
 
@@ -1407,7 +1407,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
         const data_brand = array_data["cat_brand"][a];
         const key = `${data_brand._id.brand}-${data_brand._id.category}`;
-        row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : 0}</td>`;
+        row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
     }
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${sales_data_element.totalQty.toFixed(2)}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.totalGross.toFixed(2))}</td>`;
