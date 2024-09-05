@@ -1148,52 +1148,6 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
         }
     ]);
 
-
-    // const sales_sa_data =  await sales_sa.aggregate([
-    //     {
-    //         $match:{
-    //             date: {
-    //                 $gte: from,
-    //                 $lte: to
-    //             }
-    //         }
-    //     },
-    //     {
-    //         $unwind: "$sale_product"
-    //     },
-    //     {
-    //         $lookup: {
-    //             from: "products",
-    //             localField: "sale_product.product_code",
-    //             foreignField: "product_code",
-    //             as: "product_info"
-    //         }
-    //     },
-    //     {
-    //         $unwind: "$product_info"
-    //     },
-    //     {
-    //         $group: {
-    //             _id:{
-    //                 dsi: "$dsi",
-    //                 date: "$date",
-    //                 customer: "$customer"
-    //             },
-    //             totalQty: { $sum: "$sale_product.quantity" }, 
-    //             products:{
-    //                 $push:{
-    //                     qty: "$sale_product.quantity",
-    //                     product_details: {
-    //                         prod_name: "$product_info.name",
-    //                         product_code: "$product_info.product_code",
-    //                         category: "$product_info.category",
-    //                         brand: "$product_info.brand",
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // ])
    
     const sales_sa_data = await sales_sa.aggregate([
         {
@@ -1298,184 +1252,229 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
 // return
 // console.log(sales_sa_data)
 // return
-let arrdata = {
-    // name: [],
-    dataqty: {}
-};
+// let arrdata = {
+//     dataqty: {}
+// };
 
-for (let a = 0; a < array_data["cat_brand"].length; a++) {
-    const element = array_data["cat_brand"][a];
-    const brand = element._id.brand;
-    const category = element._id.category;
-    // console.log(element)
-    if (!arrdata["dataqty"][brand]) {
-        arrdata["dataqty"][brand] = {};
-    }
+// for (let a = 0; a < array_data["cat_brand"].length; a++) {
+//     const element = array_data["cat_brand"][a];
+//     const brand = element._id.brand;
+//     const category = element._id.category;
+//     // console.log(element)
+//     if (!arrdata["dataqty"][brand]) {
+//         arrdata["dataqty"][brand] = {};
+//     }
     
-    if (!arrdata["dataqty"][brand][category]) {
-        arrdata["dataqty"][brand][category] = [];
-    }
+//     if (!arrdata["dataqty"][brand][category]) {
+//         arrdata["dataqty"][brand][category] = [];
+//     }
 
-    for (let b = 0; b <= sales_sa_data.length-1; b++) {
-        const thedata = sales_sa_data[b];
+//     for (let b = 0; b <= sales_sa_data.length-1; b++) {
+//         const thedata = sales_sa_data[b];
 
-        for(let l = 0; l <= thedata.products.length - 1; l++ ){
-            const data_detl = thedata.products[l];
+//         for(let l = 0; l <= thedata.products.length - 1; l++ ){
+//             const data_detl = thedata.products[l];
             
-            // console.log(data_detl.qty)
-            if (brand == data_detl.brand && category == data_detl.category) {
-                // console.log(data_detl.qty)
-                if (!arrdata["dataqty"][brand][category][thedata._id.dsi]) {
-                    arrdata["dataqty"][brand][category][thedata._id.dsi] = [];
-                }
+//             // console.log(data_detl.qty)
+//             if (brand == data_detl.brand && category == data_detl.category) {
+//                 // console.log(data_detl.qty)
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi] = [];
+//                 }
 
-                if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date]) {
-                    arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date] = [];
-                }
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date] = [];
+//                 }
 
-                if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer]) {
-                    arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer] = [];
-                }
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer] = [];
+//                 }
 
-                arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer].push(data_detl.qty);
-            }
-        }
+//                 arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer].push(data_detl.qty);
+//             }
+//         }
         
         
+//     }
+// }
+
+
+//     let htmlContent = "";
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td colspan="20" class="cat_data">QUANTITY SOLD</td>`;
+//     htmlContent += `</tr>`;
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td class="cat_data" colspan="3"></td>`;
+  
+//     for(let a = 0; a <= product_cat.length -1; a++){
+//         const thdata = product_cat[a];
+//         for (let b = 0; b < product_cnt.length; b++) {
+//             const element2 = product_cnt[b];
+//             if(element2._id == thdata._id.category){
+//                 htmlContent += `<td colspan="`+element2.brandCount+`" class="cat_data">`+thdata._id.category+`</td>`;
+//             }
+//         }
+//     }
+    
+//     htmlContent += `<td class="cat_data" colspan="4"></td>`;
+//     htmlContent += `</tr>`;
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td colspan="1" class="cat_data">DSI Number</td>`;
+//     htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Date</td>`;
+//     htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Customer</td>`;
+//     for(let a = 0; a <= product_cat.length -1; a++){
+//         const thdata = product_cat[a];
+
+//         for (let b = 0; b < array_data["cat_brand"].length; b++) {
+//             const element = array_data["cat_brand"][b];
+
+//             if(element._id.category == thdata._id.category){
+//                 htmlContent += `<td class="cat_data">`+element._id.brand+`</td>`;
+//             }
+//         }
+        
+       
+//     }
+//     htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
+//     htmlContent += `<td class="cat_data">GROSS SALES</td>`;
+//     htmlContent += `<td class="cat_data">DISCOUNT</td>`;
+//     htmlContent += `<td class="cat_data">NET SALES VALUE</td>`;
+//     htmlContent += `</tr>`;
+
+
+
+
+
+//     for (let z = 0; z < sales_sa_data.length; z++) {
+//         const sales_data_element = sales_sa_data[z];
+        
+//         htmlContent += `<tr>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.dsi}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.date}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.customer}</td>`;
+    
+//         // Initialize an object to keep track of quantities for each brand-category pair
+//         let quantities = {};
+    
+//         // Fill quantities with actual data
+//         for (let p = 0; p < sales_data_element.products.length; p++) {
+//             const data_final = sales_data_element.products[p];
+//             // console.log(data_final)
+//             quantities[`${data_final.brand}-${data_final.category}`] = data_final.qty;
+//         }
+    
+//         // Iterate over all possible brand-category pairs
+//         for (let a = 0; a < array_data["cat_brand"].length; a++) {
+//             const data_brand = array_data["cat_brand"][a];
+//             const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+//             if (quantities[key] !== undefined) {
+//                 htmlContent += `<td class="row_data">${quantities[key]}</td>`;
+//             } else {
+//                 htmlContent += `<td class="row_data">0</td>`;
+//             }
+//         }
+//         htmlContent += `<td class="row_data">${sales_data_element.totalQty}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.totalGross}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.discount}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.NetPrice.toFixed(2)}</td>`;
+//         htmlContent += `</tr>`;
+//     }
+    
+    
+//     return htmlContent;
+
+let rows = [];
+for (let z = 0; z <= sales_sa_data.length -1; z++) {
+    const sales_data_element = sales_sa_data[z];
+    let row = `<tr>`;
+    row += `<td class="row_data">${sales_data_element._id.dsi}</td>`;
+    row += `<td class="row_data">${sales_data_element._id.date}</td>`;
+    row += `<td class="row_data">${sales_data_element._id.customer}</td>`;
+    
+    let quantities = {};
+    for (let p = 0; p <= sales_data_element.products.length -1; p++) {
+        const data_final = sales_data_element.products[p];
+        quantities[`${data_final.brand}-${data_final.category}`] = data_final.qty;
     }
+    for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
+        const data_brand = array_data["cat_brand"][a];
+        const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+        row += `<td class="row_data">${quantities[key] !== undefined ? quantities[key] : 0}</td>`;
+    }
+    row += `<td class="row_data">${sales_data_element.totalQty}</td>`;
+    row += `<td class="row_data">${sales_data_element.totalGross}</td>`;
+    row += `<td class="row_data">${sales_data_element.discount}</td>`;
+    row += `<td class="row_data">${sales_data_element.NetPrice.toFixed(2)}</td>`;
+    row += `</tr>`;
+    rows.push(row);
+}
+console.log(rows.length)
+function paginateRows(rows, rowsPerPage) {
+    const pages = [];
+    for (let i = 0; i <= rows.length -1; i += rowsPerPage) {
+        pages.push(rows.slice(i, i + rowsPerPage));
+    }
+    return pages;
 }
 
-
-    let htmlContent = "";
+const rowsPerPage = 5;
+const pages = paginateRows(rows, rowsPerPage);
+// console.log(pages)
+let htmlContent = "";
+pages.forEach((page, pageIndex) => {
+    if (pageIndex > 0) {
+        htmlContent += `<div style="page-break-before: always;"></div>`;
+    }
+    htmlContent += `<table>`;
+    htmlContent += `<thead>`;
     htmlContent += `<tr>`;
     htmlContent += `<td colspan="20" class="cat_data">QUANTITY SOLD</td>`;
     htmlContent += `</tr>`;
     htmlContent += `<tr>`;
     htmlContent += `<td class="cat_data" colspan="3"></td>`;
-    // htmlContent += `<td class="cat_data"></td>`;
-    // htmlContent += `<td class="cat_data"></td>`;
-    for(let a = 0; a <= product_cat.length -1; a++){
+    for (let a = 0; a <= product_cat.length -1; a++) {
         const thdata = product_cat[a];
         for (let b = 0; b < product_cnt.length; b++) {
             const element2 = product_cnt[b];
-            if(element2._id == thdata._id.category){
-                htmlContent += `<td colspan="`+element2.brandCount+`" class="cat_data">`+thdata._id.category+`</td>`;
+            if (element2._id === thdata._id.category) {
+                htmlContent += `<td colspan="${element2.brandCount}" class="cat_data">${thdata._id.category}</td>`;
             }
         }
     }
-    
     htmlContent += `<td class="cat_data" colspan="4"></td>`;
     htmlContent += `</tr>`;
     htmlContent += `<tr>`;
     htmlContent += `<td colspan="1" class="cat_data">DSI Number</td>`;
     htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Date</td>`;
     htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Customer</td>`;
-    for(let a = 0; a <= product_cat.length -1; a++){
+    for (let a = 0; a <= product_cat.length -1; a++) {
         const thdata = product_cat[a];
-
         for (let b = 0; b < array_data["cat_brand"].length; b++) {
             const element = array_data["cat_brand"][b];
-
-            if(element._id.category == thdata._id.category){
-                htmlContent += `<td class="cat_data">`+element._id.brand+`</td>`;
+            if (element._id.category === thdata._id.category) {
+                htmlContent += `<td class="cat_data">${element._id.brand}</td>`;
             }
         }
-        
-       
     }
     htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
     htmlContent += `<td class="cat_data">GROSS SALES</td>`;
     htmlContent += `<td class="cat_data">DISCOUNT</td>`;
-    htmlContent += `<td class="cat_data">NET SALES VALUE</td>`;
+    htmlContent += `<td class="cat_data">NET SALES</td>`;
     htmlContent += `</tr>`;
+    htmlContent += `</thead>`;
+    htmlContent += `<tbody>`;
+    page.forEach(row => {
+        htmlContent += row;
+    });
+    htmlContent += `</tbody>`;
+    htmlContent += `</table>`;
+    // htmlContent += `<div style="page-break-after:always;"></div>`;
+});
 
-
-// console.log(sales_sa_data);
-
-// console.log(arrdata['dataqty'])
-    // for (let z = 0; z <= sales_sa_data.length - 1; z++) {
-    //     const sales_data_element = sales_sa_data[z];
-    //     htmlContent += `<tr>`;
-    //     htmlContent += `<td class="row_data">${sales_data_element._id.dsi}</td>`;
-    //     htmlContent += `<td class="row_data">${sales_data_element._id.date}</td>`;
-    //     htmlContent += `<td class="row_data">${sales_data_element._id.customer}</td>`;
-       
-    //     for(let p = 0; p <= sales_data_element.products.length -1; p++){
-    //         const data_final = sales_data_element.products[p];
-    //         // console.log(array_data["cat_brand"].length)
-    //         for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
-    //             const data_brand = array_data["cat_brand"][a];
-    //             if(data_brand._id.brand == data_final.brand && data_brand._id.category == data_final.category){
-    //                 htmlContent += `<td class="row_data">${data_final.qty}</td>`;
-
-    //                 console.log(data_brand._id.brand +" == " + data_final.brand + " && " + data_brand._id.category + " == " + data_final.category)
-    //             }else{
-    //                 htmlContent += `<td class="row_data">0</td>`;
-    //             }
-    //         }
-    //         // console.log(data_brand._id)
-    //     }
-    //     // htmlContent += `<td class="row_data">${sales_data_element.totalQty}</td>`;
-    //     htmlContent += `</tr>`;
-    //     // console.log(sales_data_element)
-        
-    // }
-
-
-    for (let z = 0; z < sales_sa_data.length; z++) {
-        const sales_data_element = sales_sa_data[z];
-        
-        htmlContent += `<tr>`;
-        htmlContent += `<td class="row_data">${sales_data_element._id.dsi}</td>`;
-        htmlContent += `<td class="row_data">${sales_data_element._id.date}</td>`;
-        htmlContent += `<td class="row_data">${sales_data_element._id.customer}</td>`;
-        // for (let p = 0; p < sales_data_element.products.length; p++) {
-        //     const data_final = sales_data_element.products[p];
-        //     // console.log(data_final.category)
-        //     var totalqty = 0;
-        //     if(arrdata["dataqty"][data_final.brand][data_final.category][sales_data_element._id.dsi][sales_data_element._id.date][sales_data_element._id.customer][0] > 0){
-        //         totalqty = arrdata["dataqty"][data_final.brand][data_final.category][sales_data_element._id.dsi][sales_data_element._id.date][sales_data_element._id.customer][0];
-        //         htmlContent += `<td class="row_data">${totalqty}</td>`;
-        //     }else{
-        //         htmlContent += `<td class="row_data">${totalqty}</td>`;
-        //         console.log(totalqty)
-        //     }
-             
-            
-        // }
-        // Initialize an object to keep track of quantities for each brand-category pair
-        let quantities = {};
-    
-        // Fill quantities with actual data
-        for (let p = 0; p < sales_data_element.products.length; p++) {
-            const data_final = sales_data_element.products[p];
-            // console.log(data_final)
-            quantities[`${data_final.brand}-${data_final.category}`] = data_final.qty;
-        }
-    
-        // Iterate over all possible brand-category pairs
-        for (let a = 0; a < array_data["cat_brand"].length; a++) {
-            const data_brand = array_data["cat_brand"][a];
-            const key = `${data_brand._id.brand}-${data_brand._id.category}`;
-            if (quantities[key] !== undefined) {
-                htmlContent += `<td class="row_data">${quantities[key]}</td>`;
-            } else {
-                htmlContent += `<td class="row_data">0</td>`;
-            }
-        }
-        // console.log(arrdata["dataqty"][])
-
-        console.log(sales_data_element)
-        htmlContent += `<td class="row_data">${sales_data_element.totalQty}</td>`;
-        htmlContent += `<td class="row_data">${sales_data_element.totalGross}</td>`;
-        htmlContent += `<td class="row_data">${sales_data_element.discount}</td>`;
-        htmlContent += `<td class="row_data">${sales_data_element.NetPrice.toFixed(2)}</td>`;
-        htmlContent += `</tr>`;
-    }
-    
-    
-    return htmlContent;
+return htmlContent;
 }
+
+// }
 
 router.post('/agent_reports/pdf', auth, async (req, res) => {
 
