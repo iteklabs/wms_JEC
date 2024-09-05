@@ -1407,12 +1407,12 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
         const data_brand = array_data["cat_brand"][a];
         const key = `${data_brand._id.brand}-${data_brand._id.category}`;
-        row += `<td class="row_data">${quantities[key] !== undefined ? quantities[key] : 0}</td>`;
+        row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key] : 0}</td>`;
     }
-    row += `<td class="row_data">${sales_data_element.totalQty}</td>`;
-    row += `<td class="row_data">${formatNumber(sales_data_element.totalGross)}</td>`;
-    row += `<td class="row_data">${formatNumber(sales_data_element.discount)}</td>`;
-    row += `<td class="row_data">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${sales_data_element.totalQty}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.totalGross)}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.discount)}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
     row += `</tr>`;
     rows.push(row);
 }
@@ -1558,6 +1558,8 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
                 overflow-x: auto;
             }
         }
+
+        
             
     </style>
 `;
