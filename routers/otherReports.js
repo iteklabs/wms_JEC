@@ -1502,6 +1502,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
 
             .cat_data {
                 border: 1px solid black;
+                padding: 8px;
                 text-align: center;
             }
 
