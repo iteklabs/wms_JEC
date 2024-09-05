@@ -1486,7 +1486,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     const datatest = await agentsdataDSICheck(from_date, to_date, stff_data._id.valueOf(), isExcel);
     // res.send(req.body);
     // return;
-{/* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> */}
+
     // let htmlContent = `
     
     //     <style>
@@ -1529,6 +1529,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
         }
         th {
             background-color: #d0cece;
+            padding: 8px;
             color: black;
         }
         @media print {
@@ -1542,6 +1543,31 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
             font-family: 'Roboto', sans-serif;
             font-size: 12pt;
         }
+
+        @media (max-width: 1024px) {
+    h1 {
+        font-size: 18px;
+    }
+    p {
+        font-size: 14px;
+    }
+    th, td {
+        padding: 6px;
+    }
+}
+
+@media (min-width: 1025px) {
+    h1 {
+        font-size: 24px;
+    }
+    p {
+        font-size: 16px;
+    }
+    th, td {
+        padding: 10px;
+    }
+}
+
     </style>
 `;
 
