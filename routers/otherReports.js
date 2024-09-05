@@ -1490,10 +1490,8 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     let htmlContent = `
     
         <style>
-           
             table {
                 border-collapse: collapse;
-           
             }
             th {
                 border: 1px solid black;
@@ -1504,13 +1502,11 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
 
             .cat_data {
                 border: 1px solid black;
-                padding: 8px;
                 text-align: center;
             }
 
             .row_data {
                 border: 1px solid black;
-                padding: 8px;
                 text-align: center;
             }
             th {
@@ -1536,7 +1532,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     htmlContent += `<p>SALES REPORTS - EXTRUCK</p>`;
     htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
     htmlContent += `<div class="row">`;
-    htmlContent += `<div class="col-sm-11" id="table-conatainer">`;
+    htmlContent += `<div  id="table-conatainer">`;
     htmlContent += `<table>`;
     htmlContent += datatest;
     htmlContent += `</table>`;
