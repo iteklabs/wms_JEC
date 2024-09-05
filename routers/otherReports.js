@@ -1417,7 +1417,7 @@ function paginateRows(rows, rowsPerPage) {
     return pages;
 }
 
-const rowsPerPage = 9;
+const rowsPerPage = 5;
 const pages = paginateRows(rows, rowsPerPage);
 // console.log(pages)
 let htmlContent = "";
