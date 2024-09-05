@@ -1599,7 +1599,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
                 default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>' // Page number
             }
         },
-        dpi: 96,  // Set DPI for consistency
+        dpi: 5,  // Set DPI for consistency
         zoomFactor: '1' // Ensure the same zoom level
     };
     
