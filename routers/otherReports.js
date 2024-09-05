@@ -13,7 +13,7 @@ const fs = require('fs');
 const blobStream  = require('blob-stream');
 const JsBarcode = require('jsbarcode');
 const { Canvas } = require("canvas");
-const pdf = require('html-pdf');
+const pdf = require('html-pdf-node');
 const path = require('path');
 const mongoose = require("mongoose");
 const cheerio = require('cheerio');
@@ -1540,6 +1540,8 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     htmlContent += `</div>`;
     htmlContent += `</div>`;
 
+    let file = { content: htmlContent };
+
     // res.send(htmlContent);
     // return;
     const options = {
@@ -1575,13 +1577,13 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
         // res.json(data)
         // return
     }else{
-        pdf.create(htmlContent, options).toStream(function(err, stream) {
-            if (err) {
-                res.status(500).send('Error generating PDF');
-                return;
-            }
+        pdf.generatePdf(file, options).then(pdfBuffer => {
+            res.setHeader('Content-Disposition', 'inline; filename="sales_report.pdf"');
             res.setHeader('Content-Type', 'application/pdf');
-            stream.pipe(res);
+            return res.send(pdfBuffer);
+          }).catch(error => {
+            console.error("Error generating PDF:", error);
+            return res.status(500).send("Error generating PDF.");
         });
     }
     
