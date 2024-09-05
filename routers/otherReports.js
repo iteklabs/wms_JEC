@@ -1589,7 +1589,8 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
 
 
     const options = {
-        format: 'Letter',  // You can also use 'Letter' or other sizes
+        width: '15in',  // Set custom width (e.g., 11 inches)
+        height: '8.5in',
         orientation: 'landscape', // Landscape mode
         border: {
             top: "0.1in",
