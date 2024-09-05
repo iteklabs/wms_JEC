@@ -1525,7 +1525,6 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
         }
         th, td {
             border: 1px solid black;
-            padding: 8px;
             text-align: center;
         }
         th {
@@ -1581,7 +1580,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
 
 
     const options = {
-        format: 'A4',  // You can also use 'Letter' or other sizes
+        format: 'Letter',  // You can also use 'Letter' or other sizes
         orientation: 'landscape', // Landscape mode
         border: {
             top: "0.1in",
