@@ -13,7 +13,7 @@ const fs = require('fs');
 const blobStream  = require('blob-stream');
 const JsBarcode = require('jsbarcode');
 const { Canvas } = require("canvas");
-const pdf = require('html-pdf-node');
+const pdf = require('html-pdf');
 const path = require('path');
 const mongoose = require("mongoose");
 const cheerio = require('cheerio');
@@ -1487,36 +1487,60 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     // res.send(req.body);
     // return;
 {/* <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> */}
-    let htmlContent = `
+    // let htmlContent = `
     
-        <style>
-            table {
-                border-collapse: collapse;
-            }
-            th {
-                border: 1px solid black;
-                padding: 8px;
-                text-align: center;
-            }
+    //     <style>
+    //         table {
+    //             border-collapse: collapse;
+    //         }
+    //         th {
+    //             border: 1px solid black;
+    //             padding: 8px;
+    //             text-align: center;
+    //         }
             
 
-            .cat_data {
-                border: 1px solid black;
-                padding: 8px;
-                text-align: center;
-            }
+    //         .cat_data {
+    //             border: 1px solid black;
+    //             padding: 8px;
+    //             text-align: center;
+    //         }
 
-            .row_data {
-                border: 1px solid black;
-                text-align: center;
-            }
-            th {
-                background-color: #d0cece;
-                color: black;
-            }
+    //         .row_data {
+    //             border: 1px solid black;
+    //             text-align: center;
+    //         }
+    //         th {
+    //             background-color: #d0cece;
+    //             color: black;
+    //         }
             
-        </style>
-    `;
+    //     </style>
+    // `;
+    let htmlContent = `
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%; /* Ensure table uses the full width */
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #d0cece;
+            color: black;
+        }
+        @media print {
+            thead { display: table-header-group; }
+            tfoot { display: table-footer-group; }
+            tr { page-break-inside: avoid; }
+        }
+    </style>
+`;
+
+    
     var from_string_date = new Date(from_date);
     var to_string_date = new Date(to_date);
 
@@ -1529,9 +1553,9 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
     const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
       
-    htmlContent += `<h1>JAKA EQUITIES CORP</h1>`;
-    htmlContent += `<p>SALES REPORTS - EXTRUCK</p>`;
-    htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
+    // htmlContent += `<h1>JAKA EQUITIES CORP</h1>`;
+    // htmlContent += `<p>SALES REPORTS - EXTRUCK</p>`;
+    // htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
     htmlContent += `<div class="row">`;
     htmlContent += `<div  id="table-conatainer">`;
     htmlContent += `<table>`;
@@ -1540,17 +1564,37 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     htmlContent += `</div>`;
     htmlContent += `</div>`;
 
-    let file = { content: htmlContent };
-
     // res.send(htmlContent);
     // return;
+    // const options = {
+    //     // format: 'Letter', // Set size to Letter
+    //     width: '15in',  // Set custom width (e.g., 11 inches)
+    //     height: '8.5in', // Set custom height (e.g., 8.5 inches)
+    //     orientation: 'landscape' // Set orientation to landscape
+    // };
+
+
     const options = {
-        // format: 'Letter', // Set size to Letter
-        width: '15in',  // Set custom width (e.g., 11 inches)
-        height: '8.5in', // Set custom height (e.g., 8.5 inches)
-        orientation: 'landscape', // Set orientation to landscape,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+        format: 'A4',  // You can also use 'Letter' or other sizes
+        orientation: 'landscape', // Landscape mode
+        border: {
+            top: "0.1in",
+            right: "0.1in",
+            bottom: "0.1in",
+            left: "0.1in"
+        },
+        header: {
+            height: "50mm", // Adjust header height
+            contents: `<h1>JAKA EQUITIES CORP</h1><p>SALES REPORTS - EXTRUCK</p><p>${from_formattedDate} - ${to_formattedDate}</p></br></br></br></br></br></br></br></br></br></br>`
+        },
+        footer: {
+            height: "20mm", // Adjust footer height
+            contents: {
+                default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>' // Page number
+            }
+        }
     };
+    
 
     if(isExcel == "on"){
         const $ = cheerio.load(htmlContent);
@@ -1578,13 +1622,13 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
         // res.json(data)
         // return
     }else{
-        pdf.generatePdf(file, options).then(pdfBuffer => {
-            res.setHeader('Content-Disposition', 'inline; filename="sales_report.pdf"');
+        pdf.create(htmlContent, options).toStream(function(err, stream) {
+            if (err) {
+                res.status(500).send('Error generating PDF');
+                return;
+            }
             res.setHeader('Content-Type', 'application/pdf');
-            return res.send(pdfBuffer);
-          }).catch(error => {
-            console.error("Error generating PDF:", error);
-            return res.status(500).send("Error generating PDF.");
+            stream.pipe(res);
         });
     }
     
