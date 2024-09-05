@@ -1067,6 +1067,14 @@ router.get("/agent_reports/view", auth, async (req, res) => {
     }
 })
 
+function formatNumber(number, locale = 'en-US', options = {}) {
+    // Create a NumberFormat object with the provided locale and options
+    const formatter = new Intl.NumberFormat(locale, options);
+
+    // Use the formatter to format the number
+    return formatter.format(number);
+}
+
 async function agentsdataDSICheck(from, to, staff_id, isExcel){
     const product_data = await product.aggregate([
         {
@@ -1402,9 +1410,9 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         row += `<td class="row_data">${quantities[key] !== undefined ? quantities[key] : 0}</td>`;
     }
     row += `<td class="row_data">${sales_data_element.totalQty}</td>`;
-    row += `<td class="row_data">${sales_data_element.totalGross}</td>`;
-    row += `<td class="row_data">${sales_data_element.discount}</td>`;
-    row += `<td class="row_data">${sales_data_element.NetPrice.toFixed(2)}</td>`;
+    row += `<td class="row_data">${formatNumber(sales_data_element.totalGross)}</td>`;
+    row += `<td class="row_data">${formatNumber(sales_data_element.discount)}</td>`;
+    row += `<td class="row_data">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
     row += `</tr>`;
     rows.push(row);
 }
