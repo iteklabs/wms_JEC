@@ -1469,7 +1469,7 @@ for (let a = 0; a < array_data["cat_brand"].length; a++) {
         htmlContent += `<td class="row_data">${sales_data_element.totalQty}</td>`;
         htmlContent += `<td class="row_data">${sales_data_element.totalGross}</td>`;
         htmlContent += `<td class="row_data">${sales_data_element.discount}</td>`;
-        htmlContent += `<td class="row_data">${sales_data_element.NetPrice}</td>`;
+        htmlContent += `<td class="row_data">${sales_data_element.NetPrice.toFixed(2)}</td>`;
         htmlContent += `</tr>`;
     }
     
@@ -1490,18 +1490,10 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     let htmlContent = `
     
         <style>
-            body {
-                font-family: Arial, sans-serif;
-            }
-            p {
-                font-size: 14px;
-                margin-bottom: 10px;
-            }
+           
             table {
                 border-collapse: collapse;
            
-                margin-left: auto; 
-                margin-right: auto;
             }
             th {
                 border: 1px solid black;
