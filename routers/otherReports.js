@@ -1533,9 +1533,15 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
             color: black;
         }
         @media print {
-            thead { display: table-header-group; }
-            tfoot { display: table-footer-group; }
-            tr { page-break-inside: avoid; }
+           table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            th { page-break-inside: avoid; page-break-after: auto; }
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 12pt;
         }
     </style>
 `;
