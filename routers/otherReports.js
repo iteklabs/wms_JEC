@@ -1545,29 +1545,12 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
         }
 
         @media (max-width: 1024px) {
-    h1 {
-        font-size: 18px;
-    }
-    p {
-        font-size: 14px;
-    }
-    th, td {
-        padding: 6px;
-    }
-}
-
-@media (min-width: 1025px) {
-    h1 {
-        font-size: 24px;
-    }
-    p {
-        font-size: 16px;
-    }
-    th, td {
-        padding: 10px;
-    }
-}
-
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+            
     </style>
 `;
 
