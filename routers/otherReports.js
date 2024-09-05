@@ -1416,7 +1416,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     row += `</tr>`;
     rows.push(row);
 }
-console.log(rows.length)
+
 function paginateRows(rows, rowsPerPage) {
     const pages = [];
     for (let i = 0; i <= rows.length -1; i += rowsPerPage) {
@@ -1425,7 +1425,7 @@ function paginateRows(rows, rowsPerPage) {
     return pages;
 }
 
-const rowsPerPage = 5;
+const rowsPerPage = 10;
 const pages = paginateRows(rows, rowsPerPage);
 // console.log(pages)
 let htmlContent = "";
