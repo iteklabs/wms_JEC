@@ -1489,7 +1489,8 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     const {from_date, to_date, isExcel} = req.body
     const role_data = req.user
     const stff_data = await staff.findOne({ email: role_data.email })
-    // console.log(stff_data._id.valueOf());
+    const image = await master_shop.find();
+    console.log(image[0].image);
     const datatest = await agentsdataDSICheck(from_date, to_date, stff_data._id.valueOf(), isExcel);
     // res.send(req.body);
     // return;
@@ -1594,7 +1595,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     //     orientation: 'landscape' // Set orientation to landscape
     // };
 
-
+    let dataImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxYxAAACD0S0HV4xFoAAAAAElFTkSuQmCC';
     const options = {
         width: '15in',  // Set custom width (e.g., 11 inches)
         height: '8.5in',
@@ -1606,8 +1607,16 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
             left: "0.1in"
         },
         header: {
-            height: "50mm", // Adjust header height
-            contents: `<h1>JAKA EQUITIES CORP</h1><p>SALES REPORTS - EXTRUCK</p><p>${from_formattedDate} - ${to_formattedDate}</p></br></br></br></br></br></br></br></br></br></br>`
+            height: "60mm", // Adjust header height
+            contents: `
+            <div style="text-align: center;">
+                <img src="${dataImage}" style="max-width: 100%; height: auto;" />
+                <h1>JAKA EQUITIES CORP</h1>
+                <p>SALES REPORTS - EXTRUCK</p>
+                <p>${from_formattedDate} - ${to_formattedDate}</p>
+                <br><br><br><br><br><br><br><br><br><br>
+            </div>
+        `
         },
         footer: {
             height: "20mm", // Adjust footer height
