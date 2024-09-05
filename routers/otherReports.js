@@ -1409,7 +1409,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         const key = `${data_brand._id.brand}-${data_brand._id.category}`;
         row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
     }
-    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${sales_data_element.totalQty.toFixed(2)}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${parseFloat(sales_data_element.totalQty, 2).toFixed(2)}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.totalGross.toFixed(2))}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.discount.toFixed(2))}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
@@ -1638,7 +1638,15 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
         $('table tr').each((i, row) => {
             let rowData = [];
             $(row).find('td, th').each((j, cell) => {
-                rowData.push($(cell).text().trim());
+                // rowData.push($(cell).text().trim());
+                let cellText = $(cell).text().trim();
+                let cellValue = parseFloat(cellText);
+
+                if (!isNaN(cellValue)) {
+                    rowData.push(cellValue);
+                } else {
+                    rowData.push(cellText);
+                }
             });
             data.push(rowData);
         });
