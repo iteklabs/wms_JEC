@@ -50,7 +50,7 @@
                                         <div class="card-body">
                                             <div class="form-validation">
                                                 <form class="needs-validation" action="/sales_sa/add_sales"
-                                                    method="post" id="form">
+                                                    method="post" id="form" enctype="multipart/form-data">
                                                     <div class="row mb-3">
                                                         <div class="col-xl-4 col-sm-4">
                                                             <div class="form-group">
@@ -117,6 +117,16 @@
                                                                     id="DSI" required>
                                                             </div>
                                                         </div>
+
+                                                        <div class="col-6">
+                                                            <div class="form-group">
+                                                                <label for="form-label" class="col-form-label">Upload File </label>
+                                                                <input type="file" placeholder="photo" class="form-control" name="image" value="" id="file_image">
+
+                                                                <input type="hidden" placeholder="photo" class="form-control" name="hidden" value="0" id="file_image_hidden">
+                                                            </div>
+                                                        </div>
+
                                                             
                                                     </div>
                                                     <div class="row mb-3">

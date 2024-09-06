@@ -7,7 +7,20 @@ const users = require("../public/language/languages.json");
 const excelJS = require("exceljs");
 const xlsx = require('xlsx');
 const mongoose = require("mongoose");
+const multer  = require('multer');
 
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "./public/sales_invoice")
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + "~" + file.originalname)
+
+    }
+})
+
+const upload = multer({storage : storage});
 
 router.get("/", auth,  async(req, res) => {
     try{
@@ -162,10 +175,12 @@ router.get("/view_sales/:id", auth,  async(req, res) => {
     }
 })
 
-router.post("/add_sales", auth,  async(req, res) => {
+router.post("/add_sales", auth, upload.single("image"), async(req, res) => {
     try {
         const {customer, date, prod_code, note, paid_status,DSI} = req.body
-        
+        const image = req.file.filename;
+        // res.json(image);
+        // return
         if(typeof prod_code == "string"){
             var prod_code_array = [req.body.prod_code];
             var prod_name_array = [req.body.prod_name];
@@ -294,7 +309,7 @@ router.post("/add_sales", auth,  async(req, res) => {
         const staff_data = await staff.findOne({email: role_data.email});
 
 
-        const data = new sales_sa({ invoice: invoice.invoice_starts.toString().padStart(8, '0'), customer: customer, date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf(), paid: paid_status, dsi:DSI });
+        const data = new sales_sa({ invoice: invoice.invoice_starts.toString().padStart(8, '0'), customer: customer, file : image, date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf(), paid: paid_status, dsi:DSI });
         const sales_data = await data.save()
 
         console.log('Invoice created with incremented start value:', invoice.invoice_starts.toString().padStart(8, '0'));

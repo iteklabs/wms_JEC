@@ -2410,6 +2410,9 @@ const sales_sa_data = new mongoose.Schema({
     dsi:{
         type: String
     },
+    file:{
+        type: String
+    },
     sale_product:[{
         product_name: {
             type: String
