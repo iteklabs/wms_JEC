@@ -55,7 +55,8 @@
                                                         <div class="col-xl-4 col-sm-4">
                                                             <div class="form-group">
                                                                 <label for="invoice_no"><%= language.customer %>  <span class="text-red">*</span></label>
-                                                                <select class="form-control" name="customer"
+                                                                <input type="text" name="customer" class="form-control" id="customer" required>
+                                                                <!-- <select class="form-control" name="customer"
                                                                     id="customer" required>
                                                                     <option value selected disabled>Select One</option>
                                                                     <% customer.forEach((customer)=> { %>
@@ -63,11 +64,11 @@
                                                                             <%= customer.name %>
                                                                         </option>
                                                                         <% }) %>
-                                                                </select>
+                                                                </select> -->
                                                             </div>
                                                         </div>
 
-                                                        <div class="col-xl-4 col-sm-4">
+                                                        <!-- <div class="col-xl-4 col-sm-4">
                                                             <div class="form-group">
                                                                 <label for="invoice_no">Type Of Discount  <span class="text-red">*</span></label>
                                                                 <select class="form-control" name="type_discount" id="type_discount" onchange="toggleVolumeDeals()" required>
@@ -76,7 +77,7 @@
                                                                     <option value="vol_deals">Volume Deals</option>
                                                                 </select>
                                                             </div>
-                                                        </div>
+                                                        </div> -->
 
 
                                                         <div class="col-xl-4 col-sm-4" id="volume_deals" style="display: none;">
@@ -194,7 +195,7 @@
                                                                         <th scope="col">Unit of Measure </th>
                                                                         <th scope="col">Conversion </th>
                                                                         <th scope="col">Price </th>
-                                                                        <th scope="col">Allowable Discount Price </th>
+                                                                        <!-- <th scope="col">Allowable Discount Price </th> -->
                                                                         <th scope="col">Discount Adjustment </th>
                                                                         <th scope="col">Total Price </th>
                                                                         <th scope="col">Action</th>
@@ -301,12 +302,13 @@
                 compute_conversion(x); 
                 var qty = document.getElementById("getPrimUnitNo"+x);
                 var price = document.getElementById("price"+x);
-                var discount_price = document.getElementById("dicount_price"+x);
+                // var discount_price = document.getElementById("dicount_price"+x);
                 var totalPrice = document.getElementById("totalPrice"+x);
 
                 var totalAll = 0;
-                console.log(qty.value+ " <> " +price.value + " <> " + discount_price.value)
-                totalAll = qty.value*(price.value-discount_price.value);
+                // console.log(qty.value+ " <> " +price.value + " <> " + discount_price.value)
+                // totalAll = qty.value*(price.value-discount_price.value);
+                totalAll = qty.value*price.value;
                 totalPrice.value = totalAll;
             }
 
@@ -375,8 +377,8 @@
 
                                             if(element.min_car <= theQTY && element.max_car >= theQTY){
                                                 // console.log(element.min_car + " <> " + element.max_car + " <> " + element.discount_price)
-                                                document.getElementById("dicount_price"+i).value = element.discount_price;
-                                                document.getElementById("dicount_price"+i).readOnly = true;
+                                                // document.getElementById("dicount_price"+i).value = element.discount_price;
+                                                // document.getElementById("dicount_price"+i).readOnly = true;
                                                 computePerPrice(i)
                                             }
                                         }
@@ -387,7 +389,7 @@
                                     for (let i = 0; i <= price.length - 1; i++) {
                                         const element_detl = price[i];
                                         var theQTY = document.getElementById("getPrimUnitNo"+i).value;
-                                        document.getElementById("dicount_price"+i).value = 0;
+                                        // document.getElementById("dicount_price"+i).value = 0;
                                     }
                                 }
                                 // console.log()
@@ -417,10 +419,10 @@
                                 gross_price -= discount_amount;
                                 total_discount += discount_amount;
                         }
-                        document.getElementById("dicount_price"+i).value = total_discount.toFixed(2);
+                        // document.getElementById("dicount_price"+i).value = total_discount.toFixed(2);
                         // document.getElementById("totalPrice"+i).value = gross_price.toFixed(2);
                         computePerPrice(i);
-                        document.getElementById("dicount_price"+i).readOnly = true;
+                        // document.getElementById("dicount_price"+i).readOnly = true;
                         
                     }
 
@@ -431,12 +433,12 @@
                 var qty = document.getElementById("getPrimUnitNo"+x);
                 var price = document.getElementById("price"+x);
                 var totalPrice = document.getElementById("totalPrice"+x);
-                var dicount_price = document.getElementById("dicount_price"+x);
+                // var dicount_price = document.getElementById("dicount_price"+x);
                 var adj_dicount_price = document.getElementById("adj_dicount_price"+x);
 
                 var totalAll = 0;
                 totalAll = qty.value*price.value;
-                totalAll = totalAll- dicount_price.value ;
+                // totalAll = totalAll- dicount_price.value ;
                 totalAll = totalAll- adj_dicount_price.value;
 
 
@@ -477,23 +479,23 @@
             function checkFG(x){
                 var is_fg = document.getElementById("is_fg"+x);
                 var price = document.getElementById("price"+x).value;
-                var dicount_price = document.getElementById("dicount_price"+x);
+                // var dicount_price = document.getElementById("dicount_price"+x);
                 var adj_dicount_price = document.getElementById("adj_dicount_price"+x);
                 var totalPrice = document.getElementById("totalPrice"+x);
                 var tmpPrice = price;
                 if(is_fg.checked == true){
                     document.getElementById("price"+x).value = 0;
-                    document.getElementById("dicount_price"+x).value = 0;
+                    // document.getElementById("dicount_price"+x).value = 0;
                     document.getElementById("adj_dicount_price"+x).value = 0;
                     document.getElementById("totalPrice"+x).value = 0;
                     document.getElementById("tmpisFG"+x).value = "true";
 
-                    document.getElementById("dicount_price"+x).readOnly = true;
+                    // document.getElementById("dicount_price"+x).readOnly = true;
                     document.getElementById("adj_dicount_price"+x).readOnly = true;
                     document.getElementById("totalPrice"+x).readOnly = true;
                 }else{
                     document.getElementById("price"+x).value = document.getElementById("tmpPrice"+x).value;
-                    document.getElementById("dicount_price"+x).readOnly = false;
+                    // document.getElementById("dicount_price"+x).readOnly = false;
                     document.getElementById("adj_dicount_price"+x).readOnly = false;
                     document.getElementById("totalPrice"+x).readOnly = false;
                     document.getElementById("tmpisFG"+x).value = "false";
@@ -1077,7 +1079,7 @@
                                         row.append($('<td>').html('<select class="form-control" style="width: 150px;" name="UOM" id="UOM'+x+'" onchange="computePerPrice('+x+'); compute_conversion('+x+');"></select>'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="conversion_unit" id="conversion_unit'+x+'" readonly>'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="price" id="price'+x+'" onkeyup="computePerPrice('+x+'); computePerPriceDiscount('+x+')" onclick="computePerPrice('+x+'); computePerPriceDiscount('+x+')" value="'+response.gross_price+'" readonly>'));
-                                        row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
+                                        // row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="dicount_price" id="dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" style="width: 150px;" name="adj_dicount_price" id="adj_dicount_price'+x+'" onkeyup="computePerPriceDiscount('+x+')" value="">'));
                                         row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" style="width: 150px;" name="totalPrice" id="totalPrice'+x+'" value="" readonly>'));
                                         row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-warning" id="remove">Remove</button>'));
