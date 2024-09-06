@@ -1876,12 +1876,17 @@ async function dataSalesReports(from, to, staff_id){
             $unwind: "$sale_product"
         },
         {
+            $match: {
+                "sale_product.isFG": "false"
+            }
+        },
+        {
             $group:{
                 _id:{
                     product_name: "$sale_product.product_name",
                     product_code: "$sale_product.product_code",
                 },
-                sumqty: { $sum:"$sale_product.quantity" },
+                sumqty: { $sum:"$sale_product.real_qty_unit_val" },
                 totalPrice: { $sum:"$sale_product.totalprice" }
             }
         },
@@ -1912,8 +1917,8 @@ async function dataSalesReports(from, to, staff_id){
         htmlContent += `<tr>`;
         htmlContent += `<td class="row_data">${element._id.product_code}</td>`;
         htmlContent += `<td class="row_data">${element._id.product_name}</td>`;
-        htmlContent += `<td class="row_data">${sumqtyfixed}</td>`;
-        htmlContent += `<td class="row_data">${totalPriceFixed}</td>`;
+        htmlContent += `<td class="row_data">${formatNumber(element.sumqty.toFixed(2))}</td>`;
+        htmlContent += `<td class="row_data">${formatNumber(element.totalPrice.toFixed(2))}</td>`;
         htmlContent += `</tr>`;
 
         qtytotal += parseInt(element.sumqty);
@@ -2003,10 +2008,7 @@ router.post("/total_sales_reports/pdf", auth, async(req, res) => {
     const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
     const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
     var fataset = await dataSalesReports(from_date, to_date, stff_data._id.valueOf());
-    htmlContent += `<h1>JAKA EQUITIES CORP</h1>`;
-    htmlContent += `<p>TOTAL SALES REPORTS - EXTRUCK</p>`;
-    htmlContent += `<p><b>${stff_data.name}</b></p>`;
-    htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
+
     htmlContent += `<div class="row">`;
     htmlContent += `<div class="col-sm-11">`;
     htmlContent += `<table>`;
@@ -2023,9 +2025,37 @@ router.post("/total_sales_reports/pdf", auth, async(req, res) => {
 
     // res.send(htmlContent);
     // return;
+    let dataImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxYxAAACD0S0HV4xFoAAAAAElFTkSuQmCC';
     const options = {
-        format: 'Letter', // Set size to Letter
-        orientation: 'landscape' // Set orientation to landscape
+        width: '15in',  // Set custom width (e.g., 11 inches)
+        height: '8.5in',
+        orientation: 'landscape', // Landscape mode
+        border: {
+            top: "0.1in",
+            right: "0.1in",
+            bottom: "0.1in",
+            left: "0.1in"
+        },
+        header: {
+            height: "60mm", // Adjust header height
+            contents: `
+            <div style="text-align: center;">
+                <img src="${dataImage}" style="max-width: 100%; height: auto;" />
+                <h1>JAKA EQUITIES CORP</h1>
+                <p><b>${stff_data.name}</b></p>
+                <p>${from_formattedDate} - ${to_formattedDate}</p>
+                <br><br><br><br><br><br><br><br><br><br>
+            </div>
+        `
+        },
+        footer: {
+            height: "20mm", // Adjust footer height
+            contents: {
+                default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>' // Page number
+            }
+        },
+        dpi: 5,  // Set DPI for consistency
+        zoomFactor: '1' // Ensure the same zoom level
     };
     
     if(isExcel == "on"){
