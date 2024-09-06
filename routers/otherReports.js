@@ -1164,11 +1164,17 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
                     $gte: from,
                     $lte: to
                 },
-                sales_staff_id: staff_id
+                sales_staff_id: staff_id,
+                 "sale_product.isFG": "false"
             }
         },
         {
             $unwind: "$sale_product"
+        },
+        {
+            $match: {
+                "sale_product.isFG": "false"
+            }
         },
         {
             $lookup: {
@@ -1194,6 +1200,7 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
                         qty: "$sale_product.real_qty_unit_val",
                         NetPrice: "$sale_product.totalprice",
                         discount: "$sale_product.discount",
+                        adj_discount: "$sale_product.adj_discount",
                         product_details: {
                             prod_name: "$product_info.name",
                             product_code: "$product_info.product_code",
@@ -1222,6 +1229,7 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
                 totalGross: { $sum: "$products.product_details.gross_price" },
                 NetPrice: { $sum: "$products.NetPrice" },
                 discount: { $sum: "$products.discount"},
+                adj_discount: { $sum: "$products.adj_discount"},
                 product_details: { $first: "$products.product_details" }
             }
         },
@@ -1236,6 +1244,7 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
                 totalGross: { $sum: "$totalGross" },
                 NetPrice: { $sum: "$NetPrice" },
                 discount: { $sum: "$discount"},
+                adj_discount: { $sum: "$adj_discount"},
                 products: {
                     $push: {
                         qty: "$totalQty",
@@ -1397,6 +1406,9 @@ let merged_totals = {};
 let data_totals = {}
 var sum = 0;
 var netPay = 0;
+var discountAll = 0
+var discounttotal = 0;
+var totalGrossAll = 0;
 const rowsPerPage = 7;
 for (let z = 0; z <= sales_sa_data.length -1; z++) {
     const sales_data_element = sales_sa_data[z];
@@ -1437,20 +1449,23 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     }
 
     
-
+    console.log(sales_data_element)
 
     for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
         const data_brand = array_data["cat_brand"][a];
         const key = `${data_brand._id.brand}-${data_brand._id.category}`;
         row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
     }
+    discountAll = sales_data_element.discount + sales_data_element.adj_discount
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${parseFloat(sales_data_element.totalQty, 2).toFixed(2)}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.totalGross.toFixed(2))}</td>`;
-    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.discount.toFixed(2))}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(discountAll)}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
     row += `</tr>`;
     sum += parseFloat(sales_data_element.totalQty.toFixed(2));
     netPay += parseFloat(sales_data_element.NetPrice.toFixed(2));
+    discounttotal += discountAll;
+    totalGrossAll += parseFloat(sales_data_element.totalGross.toFixed(2));
     if(z == (sales_sa_data.length -1)){
         row += `<tr>`;
         row += `<td colspan="3"><b>TOTAL<b>`;
@@ -1473,8 +1488,9 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         // row += `<td></td>`;
         // row += `<td></td>`;
         // row += `<td></td>`;
-        row += `<td style="border: 1px solid black; text-align: right;"><b>${ sum }</b></td>`;
-        row += `<td colspan="2"></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ sum.toFixed(2) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(totalGrossAll) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(discounttotal) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(netPay) }</b></td>`;
         row += `</tr>`;
     }
