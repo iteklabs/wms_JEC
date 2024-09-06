@@ -1623,7 +1623,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     <style>
         table {
             border-collapse: collapse;
-            width: 80%; /* Ensure table uses the full width */
+            width: 100%; /* Ensure table uses the full width */
         }
         th, td {
             border: 1px solid black;
