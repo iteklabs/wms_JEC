@@ -300,6 +300,7 @@ async function dataCheck(from, to){
             $match:{
                 "sales_info.account_category" : "sa",
                 "sales_info.type_of_acc_cat" : "1",
+                "sales_info.isFG" : "false",
             }
         },
         {
@@ -308,7 +309,7 @@ async function dataCheck(from, to){
                     product_name: "$sale_product.product_name",
                     product_code: "$sale_product.product_code",
                 },
-                totalQTY: { $sum: "$sale_product.quantity"}
+                totalQTY: { $sum: "$sale_product.real_qty_unit_val"}
             }
         }
         
@@ -366,7 +367,7 @@ async function dataCheck(from, to){
                         if(x_data._id.product_name == detlt.name && x_data._id.product_code == detlt.product_code){
                             // console.log(beg_data._id.product_name)
 
-                            xtotalqty += parseInt(x_data.totalQTY,10);
+                            xtotalqty += parseFloat(x_data.totalQTY,10).toFixed(2);
                             
                         }
                          
