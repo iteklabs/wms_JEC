@@ -1392,6 +1392,12 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
 //     return htmlContent;
 
 let rows = [];
+let totals = {};
+let merged_totals = {};
+let data_totals = {}
+var sum = 0;
+var netPay = 0;
+const rowsPerPage = 7;
 for (let z = 0; z <= sales_sa_data.length -1; z++) {
     const sales_data_element = sales_sa_data[z];
     let row = `<tr>`;
@@ -1400,10 +1406,39 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.customer}</td>`;
     
     let quantities = {};
+    
+    
+    var x = 0;
     for (let p = 0; p <= sales_data_element.products.length -1; p++) {
         const data_final = sales_data_element.products[p];
         quantities[`${data_final.brand}-${data_final.category}`] = data_final.qty;
+        const key = `${data_final.brand}-${data_final.category}`;
+
+        if (!totals[key]) {
+            totals[key] = 0;
+        }
+
+        if (!Array.isArray(data_totals[key])) {
+            data_totals[key]= [];
+        }
+
+        if (!Array.isArray(data_totals[key])) {
+            data_totals[key] = [];
+        }
+
+     
+
+        totals[key] += data_final.qty;
+        // data_totals[key] += data_final.qty ;
+
+        
+        data_totals[key].push(data_final.qty);
+        x++;
     }
+
+    
+
+
     for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
         const data_brand = array_data["cat_brand"][a];
         const key = `${data_brand._id.brand}-${data_brand._id.category}`;
@@ -1414,9 +1449,42 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.discount.toFixed(2))}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
     row += `</tr>`;
+    sum += parseFloat(sales_data_element.totalQty.toFixed(2));
+    netPay += parseFloat(sales_data_element.NetPrice.toFixed(2));
+    if(z == (sales_sa_data.length -1)){
+        row += `<tr>`;
+        row += `<td colspan="3"><b>TOTAL<b>`;
+        row += `</td>`;
+
+        for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
+            const data_brand = array_data["cat_brand"][a];
+            const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+            const sum = data_totals[key].reduce((partialSum, a) => partialSum + a, 0)
+            row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? sum.toFixed(2) : ""}</b></td>`;
+
+            console.log(data_totals[key].reduce((partialSum, a) => partialSum + a, 0))
+        }
+       
+
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ sum }</b></td>`;
+        row += `<td colspan="2"></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(netPay) }</b></td>`;
+        row += `</tr>`;
+    }
+   
+    
     rows.push(row);
 }
 
+
+    
 function paginateRows(rows, rowsPerPage) {
     const pages = [];
     for (let i = 0; i <= rows.length -1; i += rowsPerPage) {
@@ -1425,7 +1493,7 @@ function paginateRows(rows, rowsPerPage) {
     return pages;
 }
 
-const rowsPerPage = 7;
+
 const pages = paginateRows(rows, rowsPerPage);
 // console.log(pages)
 let htmlContent = "";
@@ -1473,11 +1541,19 @@ pages.forEach((page, pageIndex) => {
     htmlContent += `<tbody>`;
     page.forEach(row => {
         htmlContent += row;
+        
+
     });
+
+
+    console.log(data_totals);
+
+    
     htmlContent += `</tbody>`;
     htmlContent += `</table>`;
     // htmlContent += `<div style="page-break-after:always;"></div>`;
 });
+
 
 return htmlContent;
 }
@@ -1640,7 +1716,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
             $(row).find('td, th').each((j, cell) => {
                 // rowData.push($(cell).text().trim());
                 let cellText = $(cell).text().trim();
-                let cellValue = parseFloat(cellText);
+                let cellValue = parseFloat(cellText.replace(/,/g, ''));
 
                 if (!isNaN(cellValue)) {
                     rowData.push(cellValue);
