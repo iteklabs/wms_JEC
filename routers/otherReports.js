@@ -300,7 +300,7 @@ async function dataCheck(from, to){
             $match:{
                 "sales_info.account_category" : "sa",
                 "sales_info.type_of_acc_cat" : "1",
-                "sales_info.isFG" : "false",
+                "sale_product.isFG" : "false",
             }
         },
         {
