@@ -1921,9 +1921,9 @@ async function dataSalesReports(from, to, staff_id){
         htmlContent += `<td class="row_data">${formatNumber(element.totalPrice.toFixed(2))}</td>`;
         htmlContent += `</tr>`;
 
-        qtytotal += parseInt(element.sumqty);
-        pricetotal += parseInt(element.totalPrice);
-        console.log(element)
+        qtytotal += parseFloat(element.sumqty);
+        pricetotal += parseFloat(element.totalPrice);
+        // console.log(element)
         
     }
 
@@ -1943,8 +1943,8 @@ async function dataSalesReports(from, to, staff_id){
 
     htmlContent += `<tr>`;
     htmlContent += `<td class="row_data" colspan="2"><b>Total: </b></td>`;
-    htmlContent += `<td class="row_data">${sumqtyfixedAll}</td>`;
-    htmlContent += `<td class="row_data">${totalPriceFixedAll}</td>`;
+    htmlContent += `<td class="row_data">${formatNumber(qtytotal.toFixed(2))}</td>`;
+    htmlContent += `<td class="row_data">${formatNumber(pricetotal.toFixed(2))}</td>`;
     htmlContent += `</tr>`;
     
     return htmlContent;
