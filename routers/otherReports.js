@@ -731,6 +731,7 @@ async function agentsdataCheck(from, to){
         {
             $match:{
                 "sales_info.account_category" : "sa",
+                "sale_product.isFG" : "false",
             }
         },
         {
@@ -754,10 +755,10 @@ async function agentsdataCheck(from, to){
                     // product_code: "$product_info.product_code",
                 },
                 salesman_data:{ $first: "$sales_info.name"},
-                totalQTY: { $sum: "$sale_product.quantity"},
+                totalQTY: { $sum: "$sale_product.real_qty_unit_val"},
                 products:{
                     $push:{
-                        qty: "$sale_product.quantity",
+                        qty: "$sale_product.real_qty_unit_val",
                         product_details: {
                             prod_name: "$product_info.name",
                             product_code: "$product_info.product_code",
@@ -862,7 +863,7 @@ async function agentsdataCheck(from, to){
             if(arrdata["dataqty"][element1._id.brand][element1._id.category][element]){
                 // console.log(element1._id.brand + " <> " + element1._id.category)
                 totalData = arrdata["dataqty"][element1._id.brand][element1._id.category][element][0];
-                htmlContent += `<td class="row_data">${totalData}</td>`;
+                htmlContent += `<td class="row_data">${totalData.toFixed(2)}</td>`;
             }else{
                 totalData = 0;
                 htmlContent += `<td class="row_data">${totalData}</td>`;
@@ -1410,7 +1411,7 @@ var netPay = 0;
 var discountAll = 0
 var discounttotal = 0;
 var totalGrossAll = 0;
-const rowsPerPage = 7;
+const rowsPerPage = 6;
 for (let z = 0; z <= sales_sa_data.length -1; z++) {
     const sales_data_element = sales_sa_data[z];
     let row = `<tr>`;
