@@ -66,15 +66,24 @@
                                     <form action="./pdf_admin" method="post" target="_blank">
                                         <div class="card-body">
                                             <div class="row">
-                                                <div class="mb-3 col-md-6">
+                                                <div class="mb-3 col-md-4">
                                                     <label for="warrehouse">From <span class="text-red">*</span> </label>
                                                     <input type="date" class="form-control" name="from_date" id="from_date">
                                                 </div>
     
     
-                                                <div class="mb-3 col-md-6">
+                                                <div class="mb-3 col-md-4">
                                                     <label for="warrehouse">To <span class="text-red">*</span> </label>
                                                     <input type="date" class="form-control" name="to_date" id="to_date">
+                                                </div>
+
+                                                <div class="mb-3 col-md-4">
+                                                    <label for="warrehouse">Agents <span class="text-red">*</span> </label>
+                                                    <select name="agent_id" id="agent_id" class="form-control">
+                                                        <% staff_data_all.forEach(element => { %>
+                                                            <option value="<%= element._id %>"><%= element.name %></option>
+                                                        <% }) %>
+                                                    </select>
                                                 </div>
                                             </div>
 

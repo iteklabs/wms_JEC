@@ -1020,8 +1020,9 @@ router.get("/agent_reports/sales_ad", auth, async (req, res) => {
                 }
             },
         ])
+        
 
-
+        const all_stff = await staff.find({ account_category: "sa", type_of_acc_cat : "1" });
 
         if (master[0].language == "English (US)") {
             var lan_data = users.English
@@ -1057,11 +1058,12 @@ router.get("/agent_reports/sales_ad", auth, async (req, res) => {
             role : role_data,
             product_stock : warehouse_data,
             language : lan_data,
-            staff_arr: staff_data
+            staff_arr: staff_data,
+            staff_data_all: all_stff
 			
         })
     } catch (error) {
-        
+        res.json(error)
     }
 })
 
@@ -1398,6 +1400,7 @@ const sales_sa_data = await sales_sa.aggregate([
                 $gte: from,
                 $lte: to
             },
+            sales_staff_id: staff_id,
             "sale_product.isFG": "false"
         }
     },
@@ -1570,6 +1573,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
             const data_brand = array_data["cat_brand"][a];
             const key = `${data_brand._id.brand}-${data_brand._id.category}`;
             const sum = data_totals[key].reduce((partialSum, a) => partialSum + a, 0)
+            console.log("test",key)
             row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? formatNumber(sum.toFixed(2)) : ""}</b></td>`;
 
             console.log(data_totals[key].reduce((partialSum, a) => partialSum + a, 0))
@@ -1672,12 +1676,12 @@ return htmlContent;
 
 router.post('/agent_reports/pdf_admin', auth, async (req, res) => {
 
-    const {from_date, to_date, isExcel} = req.body
+    const {from_date, to_date, isExcel, agent_id} = req.body
     const role_data = req.user
     const stff_data = await staff.findOne({ email: role_data.email })
     const image = await master_shop.find();
     // console.log(image[0].image);
-    const datatest = await agentsdataDSICheck_admin(from_date, to_date, stff_data._id.valueOf(), isExcel);
+    const datatest = await agentsdataDSICheck_admin(from_date, to_date, agent_id, isExcel);
     // res.send(req.body);
     // return;
 
