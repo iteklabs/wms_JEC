@@ -978,6 +978,892 @@ router.post('/agent/pdf', auth, async (req, res) => {
     });
 });
 
+router.get("/agent_reports/sales_ad", auth, async (req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const master = await master_shop.find()
+        const staff_data = await staff.findOne({email: role_data.email})
+        const find_data = await product.find();
+
+
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $unwind: "$product_details"
+            },
+            {
+                $lookup:
+                {
+                    from: "products",
+                    localField: "product_details.product_name",
+                    foreignField: "name",
+                    as: "product_docs"
+                }
+            },
+            {
+                $unwind: "$product_docs"
+            },
+            {
+                $project: 
+                {
+                    product_name: '$product_details.product_name',
+                    product_stock: '$product_details.product_stock',
+                }
+            },
+            {
+                $group: {
+                    _id: "$product_name",
+                    product_stock: { $sum: "$product_stock" }
+                }
+            },
+        ])
+
+
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+            
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("dsi_sales_admin", { 
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            alldata: find_data,
+            profile : profile_data,
+            master_shop : master,
+            role : role_data,
+            product_stock : warehouse_data,
+            language : lan_data,
+            staff_arr: staff_data
+			
+        })
+    } catch (error) {
+        
+    }
+})
+
+async function agentsdataDSICheck_admin(from, to, staff_id, isExcel){
+    const product_data = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    brand: "$brand",
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        name: "$name",
+                        product_code: "$product_code"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+                "_id.brand": 1,  // Sort by brand in ascending order
+            }
+        }
+    ])
+    var array_data = [];
+    array_data["cat_brand"] = [];
+    for (let index = 0; index <= product_data.length -1; index++) {
+        const element = product_data[index];
+        array_data["cat_brand"].push(element)
+        // array_data["cat_brand"].push(element)
+        
+        
+    }
+
+    const product_cat= await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        brand: "$brand",
+                        product_code: "$product_code",
+                        product_name: "$name"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+            }
+        }
+    ])
+
+    const product_cnt = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category",
+                    brand: "$brand"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "$_id.category",
+                brandCount: { $sum: 1 }
+            }
+        },
+        {
+            $sort: {
+                _id: -1 // Sort by category in descending order (use 1 for ascending order)
+            }
+        }
+    ]);
+
+   
+    // const sales_sa_data = await sales_sa.aggregate([
+    //     {
+    //         $match: {
+    //             date: {
+    //                 $gte: from,
+    //                 $lte: to
+    //             },
+    //             sales_staff_id: staff_id,
+    //              "sale_product.isFG": "false"
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$sale_product"
+    //     },
+    //     {
+    //         $match: {
+    //             "sale_product.isFG": "false"
+    //         }
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: "products",
+    //             localField: "sale_product.product_code",
+    //             foreignField: "product_code",
+    //             as: "product_info"
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$product_info"
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$dsi",
+    //                 date: "$date",
+    //                 customer: "$customer"
+    //             },
+    //             totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+    //             products: {
+    //                 $push: {
+    //                     qty: "$sale_product.real_qty_unit_val",
+    //                     NetPrice: "$sale_product.totalprice",
+    //                     discount: "$sale_product.discount",
+    //                     adj_discount: "$sale_product.adj_discount",
+    //                     product_details: {
+    //                         prod_name: "$product_info.name",
+    //                         product_code: "$product_info.product_code",
+    //                         category: "$product_info.category",
+    //                         brand: "$product_info.brand",
+    //                         gross_price: "$product_info.gross_price",
+                            
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$products"
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$_id.dsi",
+    //                 date: "$_id.date",
+    //                 customer: "$_id.customer",
+    //                 category: "$products.product_details.category",
+    //                 brand: "$products.product_details.brand"
+    //             },
+    //             totalQty: { $sum: "$products.qty" },
+    //             totalGross: { $sum: "$products.product_details.gross_price" },
+    //             NetPrice: { $sum: "$products.NetPrice" },
+    //             discount: { $sum: "$products.discount"},
+    //             adj_discount: { $sum: "$products.adj_discount"},
+    //             product_details: { $first: "$products.product_details" }
+    //         }
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$_id.dsi",
+    //                 date: "$_id.date",
+    //                 customer: "$_id.customer"
+    //             },
+    //             totalQty: { $sum: "$totalQty" },
+    //             totalGross: { $multiply: [ "$totalQty","$totalGross"] },
+    //             NetPrice: { $sum: "$NetPrice" },
+    //             discount: { $sum: "$discount"},
+    //             adj_discount: { $sum: "$adj_discount"},
+    //             products: {
+    //                 $push: {
+    //                     qty: "$totalQty",
+    //                     category: "$_id.category",
+    //                     brand: "$_id.brand",
+    //                     product_details: "$product_details"
+    //                 }
+    //             }
+    //         }
+    //     },
+    //     {
+    //         $sort: {
+                
+    //             "_id.dsi": -1, // Sort by category in ascending order
+    //             "_id.date": 1,  // Sort by brand in ascending order
+    //         }
+    //     }
+    // ]);
+    
+    
+// res.json(sales_sa_data);
+// return
+// console.log(sales_sa_data)
+// return
+// let arrdata = {
+//     dataqty: {}
+// };
+
+// for (let a = 0; a < array_data["cat_brand"].length; a++) {
+//     const element = array_data["cat_brand"][a];
+//     const brand = element._id.brand;
+//     const category = element._id.category;
+//     // console.log(element)
+//     if (!arrdata["dataqty"][brand]) {
+//         arrdata["dataqty"][brand] = {};
+//     }
+    
+//     if (!arrdata["dataqty"][brand][category]) {
+//         arrdata["dataqty"][brand][category] = [];
+//     }
+
+//     for (let b = 0; b <= sales_sa_data.length-1; b++) {
+//         const thedata = sales_sa_data[b];
+
+//         for(let l = 0; l <= thedata.products.length - 1; l++ ){
+//             const data_detl = thedata.products[l];
+            
+//             // console.log(data_detl.qty)
+//             if (brand == data_detl.brand && category == data_detl.category) {
+//                 // console.log(data_detl.qty)
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi] = [];
+//                 }
+
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date] = [];
+//                 }
+
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer] = [];
+//                 }
+
+//                 arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer].push(data_detl.qty);
+//             }
+//         }
+        
+        
+//     }
+// }
+
+
+//     let htmlContent = "";
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td colspan="20" class="cat_data">QUANTITY SOLD</td>`;
+//     htmlContent += `</tr>`;
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td class="cat_data" colspan="3"></td>`;
+  
+//     for(let a = 0; a <= product_cat.length -1; a++){
+//         const thdata = product_cat[a];
+//         for (let b = 0; b < product_cnt.length; b++) {
+//             const element2 = product_cnt[b];
+//             if(element2._id == thdata._id.category){
+//                 htmlContent += `<td colspan="`+element2.brandCount+`" class="cat_data">`+thdata._id.category+`</td>`;
+//             }
+//         }
+//     }
+    
+//     htmlContent += `<td class="cat_data" colspan="4"></td>`;
+//     htmlContent += `</tr>`;
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td colspan="1" class="cat_data">DSI Number</td>`;
+//     htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Date</td>`;
+//     htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Customer</td>`;
+//     for(let a = 0; a <= product_cat.length -1; a++){
+//         const thdata = product_cat[a];
+
+//         for (let b = 0; b < array_data["cat_brand"].length; b++) {
+//             const element = array_data["cat_brand"][b];
+
+//             if(element._id.category == thdata._id.category){
+//                 htmlContent += `<td class="cat_data">`+element._id.brand+`</td>`;
+//             }
+//         }
+        
+       
+//     }
+//     htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
+//     htmlContent += `<td class="cat_data">GROSS SALES</td>`;
+//     htmlContent += `<td class="cat_data">DISCOUNT</td>`;
+//     htmlContent += `<td class="cat_data">NET SALES VALUE</td>`;
+//     htmlContent += `</tr>`;
+
+
+
+
+
+//     for (let z = 0; z < sales_sa_data.length; z++) {
+//         const sales_data_element = sales_sa_data[z];
+        
+//         htmlContent += `<tr>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.dsi}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.date}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.customer}</td>`;
+    
+//         // Initialize an object to keep track of quantities for each brand-category pair
+//         let quantities = {};
+    
+//         // Fill quantities with actual data
+//         for (let p = 0; p < sales_data_element.products.length; p++) {
+//             const data_final = sales_data_element.products[p];
+//             // console.log(data_final)
+//             quantities[`${data_final.brand}-${data_final.category}`] = data_final.qty;
+//         }
+    
+//         // Iterate over all possible brand-category pairs
+//         for (let a = 0; a < array_data["cat_brand"].length; a++) {
+//             const data_brand = array_data["cat_brand"][a];
+//             const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+//             if (quantities[key] !== undefined) {
+//                 htmlContent += `<td class="row_data">${quantities[key]}</td>`;
+//             } else {
+//                 htmlContent += `<td class="row_data">0</td>`;
+//             }
+//         }
+//         htmlContent += `<td class="row_data">${sales_data_element.totalQty}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.totalGross}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.discount}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.NetPrice.toFixed(2)}</td>`;
+//         htmlContent += `</tr>`;
+//     }
+    
+    
+//     return htmlContent;
+
+
+const sales_sa_data = await sales_sa.aggregate([
+    {
+        $match: {
+            date: {
+                $gte: from,
+                $lte: to
+            },
+            "sale_product.isFG": "false"
+        }
+    },
+    {
+        $unwind: "$sale_product"
+    },
+    {
+        $match: {
+            "sale_product.isFG": "false"
+        }
+    },
+    {
+        $lookup: {
+            from: "products",
+            localField: "sale_product.product_code",
+            foreignField: "product_code",
+            as: "product_info"
+        }
+    },
+    {
+        $unwind: "$product_info"
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$dsi",
+                date: "$date",
+                customer: "$customer"
+            },
+            totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+            products: {
+                $push: {
+                    qty: "$sale_product.real_qty_unit_val",
+                    NetPrice: "$sale_product.totalprice",
+                    discount: "$sale_product.discount",
+                    adj_discount: "$sale_product.adj_discount",
+                    product_details: {
+                        prod_name: "$product_info.name",
+                        product_code: "$product_info.product_code",
+                        category: "$product_info.category",
+                        brand: "$product_info.brand",
+                        gross_price: "$product_info.gross_price",
+                    }
+                }
+            }
+        }
+    },
+    {
+        $unwind: "$products"
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$_id.dsi",
+                date: "$_id.date",
+                customer: "$_id.customer",
+                category: "$products.product_details.category",
+                brand: "$products.product_details.brand"
+            },
+            totalQty: { $sum: "$products.qty" },
+            totalGross: { $sum: { $multiply: ["$products.qty", "$products.product_details.gross_price"] } },
+            NetPrice: { $sum: "$products.NetPrice" },
+            discount: { $sum: "$products.discount" },
+            adj_discount: { $sum: "$products.adj_discount" },
+            product_details: { $first: "$products.product_details" }
+        }
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$_id.dsi",
+                date: "$_id.date",
+                customer: "$_id.customer"
+            },
+            totalQty: { $sum: "$totalQty" },
+            totalGross: { $sum: "$totalGross" },
+            NetPrice: { $sum: "$NetPrice" },
+            discount: { $sum: "$discount" },
+            adj_discount: { $sum: "$adj_discount" },
+            products: {
+                $push: {
+                    qty: "$totalQty",
+                    category: "$_id.category",
+                    brand: "$_id.brand",
+                    product_details: "$product_details"
+                }
+            }
+        }
+    },
+    {
+        $sort: {
+            "_id.dsi": -1, // Sort by category in ascending order
+            "_id.date": 1,  // Sort by brand in ascending order
+        }
+    }
+]);
+
+let rows = [];
+let totals = {};
+let merged_totals = {};
+let data_totals = {}
+var sum = 0;
+var netPay = 0;
+var discountAll = 0
+var discounttotal = 0;
+var totalGrossAll = 0;
+const rowsPerPage = 6;
+for (let z = 0; z <= sales_sa_data.length -1; z++) {
+    const sales_data_element = sales_sa_data[z];
+    let row = `<tr>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.dsi}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.date}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.customer}</td>`;
+    
+    let quantities = {};
+    
+    
+    var x = 0;
+    for (let p = 0; p <= sales_data_element.products.length -1; p++) {
+        const data_final = sales_data_element.products[p];
+        quantities[`${data_final.brand}-${data_final.category}`] = data_final.qty;
+        const key = `${data_final.brand}-${data_final.category}`;
+
+        if (!totals[key]) {
+            totals[key] = 0;
+        }
+
+        if (!Array.isArray(data_totals[key])) {
+            data_totals[key]= [];
+        }
+
+        if (!Array.isArray(data_totals[key])) {
+            data_totals[key] = [];
+        }
+
+     
+
+        totals[key] += data_final.qty;
+        // data_totals[key] += data_final.qty ;
+
+        
+        data_totals[key].push(data_final.qty);
+        x++;
+    }
+
+    
+    console.log(sales_data_element)
+
+    for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
+        const data_brand = array_data["cat_brand"][a];
+        const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+        row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
+    }
+    discountAll = sales_data_element.discount + sales_data_element.adj_discount
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(parseFloat(sales_data_element.totalQty, 2).toFixed(2))}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.totalGross.toFixed(2))}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(discountAll)}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
+    row += `</tr>`;
+    sum += parseFloat(sales_data_element.totalQty.toFixed(2));
+    netPay += parseFloat(sales_data_element.NetPrice.toFixed(2));
+    discounttotal += discountAll;
+    totalGrossAll += parseFloat(sales_data_element.totalGross.toFixed(2));
+    if(z == (sales_sa_data.length -1)){
+        row += `<tr>`;
+        row += `<td colspan="3"><b>TOTAL<b>`;
+        row += `</td>`;
+
+        for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
+            const data_brand = array_data["cat_brand"][a];
+            const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+            const sum = data_totals[key].reduce((partialSum, a) => partialSum + a, 0)
+            row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? formatNumber(sum.toFixed(2)) : ""}</b></td>`;
+
+            console.log(data_totals[key].reduce((partialSum, a) => partialSum + a, 0))
+        }
+       
+
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(sum.toFixed(2)) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(totalGrossAll) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(discounttotal) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(netPay) }</b></td>`;
+        row += `</tr>`;
+    }
+   
+    
+    rows.push(row);
+}
+
+
+    
+function paginateRows(rows, rowsPerPage) {
+    const pages = [];
+    for (let i = 0; i <= rows.length -1; i += rowsPerPage) {
+        pages.push(rows.slice(i, i + rowsPerPage));
+    }
+    return pages;
+}
+
+
+const pages = paginateRows(rows, rowsPerPage);
+// console.log(pages)
+let htmlContent = "";
+pages.forEach((page, pageIndex) => {
+    if (pageIndex > 0) {
+        htmlContent += `<div style="page-break-before: always;"></div>`;
+    }
+    htmlContent += `<table>`;
+    htmlContent += `<thead>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="20" class="cat_data">QUANTITY SOLD</td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="cat_data" colspan="3"></td>`;
+    for (let a = 0; a <= product_cat.length -1; a++) {
+        const thdata = product_cat[a];
+        for (let b = 0; b < product_cnt.length; b++) {
+            const element2 = product_cnt[b];
+            if (element2._id === thdata._id.category) {
+                htmlContent += `<td colspan="${element2.brandCount}" class="cat_data">${thdata._id.category}</td>`;
+            }
+        }
+    }
+    htmlContent += `<td class="cat_data" colspan="4"></td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="1" class="cat_data">DSI Number</td>`;
+    htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Date</td>`;
+    htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Customer</td>`;
+    for (let a = 0; a <= product_cat.length -1; a++) {
+        const thdata = product_cat[a];
+        for (let b = 0; b < array_data["cat_brand"].length; b++) {
+            const element = array_data["cat_brand"][b];
+            if (element._id.category === thdata._id.category) {
+                htmlContent += `<td class="cat_data">${element._id.brand}</td>`;
+            }
+        }
+    }
+    htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
+    htmlContent += `<td class="cat_data">GROSS SALES</td>`;
+    htmlContent += `<td class="cat_data">DISCOUNT</td>`;
+    htmlContent += `<td class="cat_data">NET SALES</td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `</thead>`;
+    htmlContent += `<tbody>`;
+    page.forEach(row => {
+        htmlContent += row;
+        
+
+    });
+
+
+    console.log(data_totals);
+
+    
+    htmlContent += `</tbody>`;
+    htmlContent += `</table>`;
+    // htmlContent += `<div style="page-break-after:always;"></div>`;
+});
+
+
+return htmlContent;
+}
+
+
+router.post('/agent_reports/pdf_admin', auth, async (req, res) => {
+
+    const {from_date, to_date, isExcel} = req.body
+    const role_data = req.user
+    const stff_data = await staff.findOne({ email: role_data.email })
+    const image = await master_shop.find();
+    // console.log(image[0].image);
+    const datatest = await agentsdataDSICheck_admin(from_date, to_date, stff_data._id.valueOf(), isExcel);
+    // res.send(req.body);
+    // return;
+
+    // let htmlContent = `
+    
+    //     <style>
+    //         table {
+    //             border-collapse: collapse;
+    //         }
+    //         th {
+    //             border: 1px solid black;
+    //             padding: 8px;
+    //             text-align: center;
+    //         }
+            
+
+    //         .cat_data {
+    //             border: 1px solid black;
+    //             padding: 8px;
+    //             text-align: center;
+    //         }
+
+    //         .row_data {
+    //             border: 1px solid black;
+    //             text-align: center;
+    //         }
+    //         th {
+    //             background-color: #d0cece;
+    //             color: black;
+    //         }
+            
+    //     </style>
+    // `;
+    let htmlContent = `
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%; /* Ensure table uses the full width */
+        }
+        th, td {
+            border: 1px solid black;
+            text-align: center;
+        }
+        th {
+            background-color: #d0cece;
+            padding: 8px;
+            color: black;
+        }
+        @media print {
+           table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            th { page-break-inside: avoid; page-break-after: auto; }
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 12pt;
+        }
+
+        @media (max-width: 1024px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        
+            
+    </style>
+`;
+
+    
+    var from_string_date = new Date(from_date);
+    var to_string_date = new Date(to_date);
+
+    const options3 = { 
+        // weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+    const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
+    const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
+      
+    // htmlContent += `<h1>JAKA EQUITIES CORP</h1>`;
+    // htmlContent += `<p>SALES REPORTS - EXTRUCK</p>`;
+    // htmlContent += `<p>${from_formattedDate} - ${to_formattedDate}</p>`;
+    htmlContent += `<div class="row">`;
+    htmlContent += `<div  id="table-conatainer">`;
+    htmlContent += `<table>`;
+    htmlContent += datatest;
+    htmlContent += `</table>`;
+    htmlContent += `</div>`;
+    htmlContent += `</div>`;
+
+    // res.send(htmlContent);
+    // return;
+    // const options = {
+    //     // format: 'Letter', // Set size to Letter
+    //     width: '15in',  // Set custom width (e.g., 11 inches)
+    //     height: '8.5in', // Set custom height (e.g., 8.5 inches)
+    //     orientation: 'landscape' // Set orientation to landscape
+    // };
+
+    let dataImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxYxAAACD0S0HV4xFoAAAAAElFTkSuQmCC';
+    const options = {
+        width: '15in',  // Set custom width (e.g., 11 inches)
+        height: '8.5in',
+        orientation: 'landscape', // Landscape mode
+        border: {
+            top: "0.1in",
+            right: "0.1in",
+            bottom: "0.1in",
+            left: "0.1in"
+        },
+        header: {
+            height: "60mm", // Adjust header height
+            contents: `
+            <div style="text-align: center;">
+                <img src="${dataImage}" style="max-width: 100%; height: auto;" />
+                <h1>JAKA EQUITIES CORP</h1>
+                <p>SALES REPORTS - EXTRUCK</p>
+                <p>${from_formattedDate} - ${to_formattedDate}</p>
+                <br><br><br><br><br><br><br><br><br><br>
+            </div>
+        `
+        },
+        footer: {
+            height: "20mm", // Adjust footer height
+            contents: {
+                default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>' // Page number
+            }
+        },
+        dpi: 5,  // Set DPI for consistency
+        zoomFactor: '1' // Ensure the same zoom level
+    };
+    
+
+    if(isExcel == "on"){
+        const $ = cheerio.load(htmlContent);
+
+        let data = [];
+        $('table tr').each((i, row) => {
+            let rowData = [];
+            $(row).find('td, th').each((j, cell) => {
+                // rowData.push($(cell).text().trim());
+                let cellText = $(cell).text().trim();
+                let cellValue = parseFloat(cellText.replace(/,/g, ''));
+
+                if (!isNaN(cellValue)) {
+                    rowData.push(cellValue);
+                } else {
+                    rowData.push(cellText);
+                }
+            });
+            data.push(rowData);
+        });
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+        // Write the workbook to a buffer
+        const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+        // Send the file to the client as a download
+        res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.send(fileBuffer);
+        // res.json(data)
+        // return
+    }else{
+        pdf.create(htmlContent, options).toStream(function(err, stream) {
+            if (err) {
+                res.status(500).send('Error generating PDF');
+                return;
+            }
+            res.setHeader('Content-Type', 'application/pdf');
+            stream.pipe(res);
+        });
+    }
+    
+    
+});
+
 
 
 
@@ -1159,112 +2045,112 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
     ]);
 
    
-    const sales_sa_data = await sales_sa.aggregate([
-        {
-            $match: {
-                date: {
-                    $gte: from,
-                    $lte: to
-                },
-                sales_staff_id: staff_id,
-                 "sale_product.isFG": "false"
-            }
-        },
-        {
-            $unwind: "$sale_product"
-        },
-        {
-            $match: {
-                "sale_product.isFG": "false"
-            }
-        },
-        {
-            $lookup: {
-                from: "products",
-                localField: "sale_product.product_code",
-                foreignField: "product_code",
-                as: "product_info"
-            }
-        },
-        {
-            $unwind: "$product_info"
-        },
-        {
-            $group: {
-                _id: {
-                    dsi: "$dsi",
-                    date: "$date",
-                    customer: "$customer"
-                },
-                totalQty: { $sum: "$sale_product.real_qty_unit_val" },
-                products: {
-                    $push: {
-                        qty: "$sale_product.real_qty_unit_val",
-                        NetPrice: "$sale_product.totalprice",
-                        discount: "$sale_product.discount",
-                        adj_discount: "$sale_product.adj_discount",
-                        product_details: {
-                            prod_name: "$product_info.name",
-                            product_code: "$product_info.product_code",
-                            category: "$product_info.category",
-                            brand: "$product_info.brand",
-                            gross_price: "$product_info.gross_price",
+    // const sales_sa_data = await sales_sa.aggregate([
+    //     {
+    //         $match: {
+    //             date: {
+    //                 $gte: from,
+    //                 $lte: to
+    //             },
+    //             sales_staff_id: staff_id,
+    //              "sale_product.isFG": "false"
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$sale_product"
+    //     },
+    //     {
+    //         $match: {
+    //             "sale_product.isFG": "false"
+    //         }
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: "products",
+    //             localField: "sale_product.product_code",
+    //             foreignField: "product_code",
+    //             as: "product_info"
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$product_info"
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$dsi",
+    //                 date: "$date",
+    //                 customer: "$customer"
+    //             },
+    //             totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+    //             products: {
+    //                 $push: {
+    //                     qty: "$sale_product.real_qty_unit_val",
+    //                     NetPrice: "$sale_product.totalprice",
+    //                     discount: "$sale_product.discount",
+    //                     adj_discount: "$sale_product.adj_discount",
+    //                     product_details: {
+    //                         prod_name: "$product_info.name",
+    //                         product_code: "$product_info.product_code",
+    //                         category: "$product_info.category",
+    //                         brand: "$product_info.brand",
+    //                         gross_price: "$product_info.gross_price",
                             
-                        }
-                    }
-                }
-            }
-        },
-        {
-            $unwind: "$products"
-        },
-        {
-            $group: {
-                _id: {
-                    dsi: "$_id.dsi",
-                    date: "$_id.date",
-                    customer: "$_id.customer",
-                    category: "$products.product_details.category",
-                    brand: "$products.product_details.brand"
-                },
-                totalQty: { $sum: "$products.qty" },
-                totalGross: { $sum: "$products.product_details.gross_price" },
-                NetPrice: { $sum: "$products.NetPrice" },
-                discount: { $sum: "$products.discount"},
-                adj_discount: { $sum: "$products.adj_discount"},
-                product_details: { $first: "$products.product_details" }
-            }
-        },
-        {
-            $group: {
-                _id: {
-                    dsi: "$_id.dsi",
-                    date: "$_id.date",
-                    customer: "$_id.customer"
-                },
-                totalQty: { $sum: "$totalQty" },
-                totalGross: { $sum: "$totalGross" },
-                NetPrice: { $sum: "$NetPrice" },
-                discount: { $sum: "$discount"},
-                adj_discount: { $sum: "$adj_discount"},
-                products: {
-                    $push: {
-                        qty: "$totalQty",
-                        category: "$_id.category",
-                        brand: "$_id.brand",
-                        product_details: "$product_details"
-                    }
-                }
-            }
-        },
-        {
-            $sort: {
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$products"
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$_id.dsi",
+    //                 date: "$_id.date",
+    //                 customer: "$_id.customer",
+    //                 category: "$products.product_details.category",
+    //                 brand: "$products.product_details.brand"
+    //             },
+    //             totalQty: { $sum: "$products.qty" },
+    //             totalGross: { $sum: "$products.product_details.gross_price" },
+    //             NetPrice: { $sum: "$products.NetPrice" },
+    //             discount: { $sum: "$products.discount"},
+    //             adj_discount: { $sum: "$products.adj_discount"},
+    //             product_details: { $first: "$products.product_details" }
+    //         }
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$_id.dsi",
+    //                 date: "$_id.date",
+    //                 customer: "$_id.customer"
+    //             },
+    //             totalQty: { $sum: "$totalQty" },
+    //             totalGross: { $multiply: [ "$totalQty","$totalGross"] },
+    //             NetPrice: { $sum: "$NetPrice" },
+    //             discount: { $sum: "$discount"},
+    //             adj_discount: { $sum: "$adj_discount"},
+    //             products: {
+    //                 $push: {
+    //                     qty: "$totalQty",
+    //                     category: "$_id.category",
+    //                     brand: "$_id.brand",
+    //                     product_details: "$product_details"
+    //                 }
+    //             }
+    //         }
+    //     },
+    //     {
+    //         $sort: {
                 
-                "_id.dsi": -1, // Sort by category in ascending order
-                "_id.date": 1,  // Sort by brand in ascending order
-            }
-        }
-    ]);
+    //             "_id.dsi": -1, // Sort by category in ascending order
+    //             "_id.date": 1,  // Sort by brand in ascending order
+    //         }
+    //     }
+    // ]);
     
     
 // res.json(sales_sa_data);
@@ -1402,6 +2288,112 @@ async function agentsdataDSICheck(from, to, staff_id, isExcel){
     
 //     return htmlContent;
 
+
+const sales_sa_data = await sales_sa.aggregate([
+    {
+        $match: {
+            date: {
+                $gte: from,
+                $lte: to
+            },
+            sales_staff_id: staff_id,
+            "sale_product.isFG": "false"
+        }
+    },
+    {
+        $unwind: "$sale_product"
+    },
+    {
+        $match: {
+            "sale_product.isFG": "false"
+        }
+    },
+    {
+        $lookup: {
+            from: "products",
+            localField: "sale_product.product_code",
+            foreignField: "product_code",
+            as: "product_info"
+        }
+    },
+    {
+        $unwind: "$product_info"
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$dsi",
+                date: "$date",
+                customer: "$customer"
+            },
+            totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+            products: {
+                $push: {
+                    qty: "$sale_product.real_qty_unit_val",
+                    NetPrice: "$sale_product.totalprice",
+                    discount: "$sale_product.discount",
+                    adj_discount: "$sale_product.adj_discount",
+                    product_details: {
+                        prod_name: "$product_info.name",
+                        product_code: "$product_info.product_code",
+                        category: "$product_info.category",
+                        brand: "$product_info.brand",
+                        gross_price: "$product_info.gross_price",
+                    }
+                }
+            }
+        }
+    },
+    {
+        $unwind: "$products"
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$_id.dsi",
+                date: "$_id.date",
+                customer: "$_id.customer",
+                category: "$products.product_details.category",
+                brand: "$products.product_details.brand"
+            },
+            totalQty: { $sum: "$products.qty" },
+            totalGross: { $sum: { $multiply: ["$products.qty", "$products.product_details.gross_price"] } },
+            NetPrice: { $sum: "$products.NetPrice" },
+            discount: { $sum: "$products.discount" },
+            adj_discount: { $sum: "$products.adj_discount" },
+            product_details: { $first: "$products.product_details" }
+        }
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$_id.dsi",
+                date: "$_id.date",
+                customer: "$_id.customer"
+            },
+            totalQty: { $sum: "$totalQty" },
+            totalGross: { $sum: "$totalGross" },
+            NetPrice: { $sum: "$NetPrice" },
+            discount: { $sum: "$discount" },
+            adj_discount: { $sum: "$adj_discount" },
+            products: {
+                $push: {
+                    qty: "$totalQty",
+                    category: "$_id.category",
+                    brand: "$_id.brand",
+                    product_details: "$product_details"
+                }
+            }
+        }
+    },
+    {
+        $sort: {
+            "_id.dsi": -1, // Sort by category in ascending order
+            "_id.date": 1,  // Sort by brand in ascending order
+        }
+    }
+]);
+
 let rows = [];
 let totals = {};
 let merged_totals = {};
@@ -1459,7 +2451,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
     }
     discountAll = sales_data_element.discount + sales_data_element.adj_discount
-    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${parseFloat(sales_data_element.totalQty, 2).toFixed(2)}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(parseFloat(sales_data_element.totalQty, 2).toFixed(2))}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.totalGross.toFixed(2))}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(discountAll)}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
@@ -1477,7 +2469,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
             const data_brand = array_data["cat_brand"][a];
             const key = `${data_brand._id.brand}-${data_brand._id.category}`;
             const sum = data_totals[key].reduce((partialSum, a) => partialSum + a, 0)
-            row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? sum.toFixed(2) : ""}</b></td>`;
+            row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? formatNumber(sum.toFixed(2)) : ""}</b></td>`;
 
             console.log(data_totals[key].reduce((partialSum, a) => partialSum + a, 0))
         }
@@ -1490,7 +2482,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         // row += `<td></td>`;
         // row += `<td></td>`;
         // row += `<td></td>`;
-        row += `<td style="border: 1px solid black; text-align: right;"><b>${ sum.toFixed(2) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(sum.toFixed(2)) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(totalGrossAll) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(discounttotal) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(netPay) }</b></td>`;

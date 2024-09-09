@@ -38,7 +38,7 @@
             <!--**********************************
         Header start
     ***********************************-->
-            <%- include('./partials/header',{titel: "Agents Reports"}); -%>
+            <%- include('./partials/header',{titel: "Sales Report per Salesman"}); -%>
 
                 <!--**********************************
         Header end ti-comment-alt
@@ -60,10 +60,10 @@
                             <div >
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4 class="card-title col-6 ">Agents Reports</h4>
+                                        <h4 class="card-title col-6 ">Sales Report per Salesman</h4>
                                     </div>
                                     
-                                    <form action="./pdf" method="post">
+                                    <form action="./pdf_admin" method="post" target="_blank">
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="mb-3 col-md-6">
@@ -77,10 +77,17 @@
                                                     <input type="date" class="form-control" name="to_date" id="to_date">
                                                 </div>
                                             </div>
+
+                                            <div class="row">
+                                                <div class="mb-3 col-md-3">
+                                                    <label for="warrehouse">Export to Excel</label>
+                                                    <input type="checkbox" class="form-check-input" name="isExcel" id="isExcel">
+                                                </div>
+                                            </div>
     
                                             <div class="col-xl-12 mt-3">
                                                 <div class="form-group">
-                                                    <button type="submit" class="btn btn-primary h-45 w-100" id="filter">
+                                                    <button type="submit" class="btn btn-primary h-45 w-100"  id="filter">
                                                         <i class="la la-filter"></i>View
                                                     </button>
                                                 </div>

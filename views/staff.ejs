@@ -216,6 +216,7 @@
                                                     <option value="ad">Super Admin</option>
                                                     <option value="wm">Warehouse Account</option>
                                                     <option value="sa">Sales Account</option>
+                                                    <option value="sad">Sales Admin Account</option>
                                                     <option value="acc">Accounting Account</option>
                                                     <option value="rsm">RSM</option>
                                                     <option value="fss">FSS</option>
@@ -375,6 +376,7 @@
                                                 <option value="wm" <%= user.account_category == "ad" ? "selected" : "" %> >Super Admin</option>
                                                 <option value="wm" <%= user.account_category == "wm" ? "selected" : "" %> >Warehouse Account</option>
                                                 <option value="sa" <%= user.account_category == "fg" ? "selected" : "" %> >Sales Account</option>
+                                                <option value="sad" <%= user.account_category == "sad" ? "selected" : "" %>>Sales Admin Account</option>
                                                 <option value="acc" <%= user.account_category == "acc" ? "selected" : "" %> >Accounting Account</option>
                                                 <option value="rsm" <%= user.account_category == "rsm" ? "selected" : "" %> >RSM</option>
                                                 <option value="fss" <%= user.account_category == "fss" ? "selected" : "" %>>FSS</option>

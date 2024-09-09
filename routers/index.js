@@ -316,6 +316,21 @@ router.get("/index", auth, async(req, res) => {
             })
 
             res.json(staff_data)
+        }else if(role_data.account_category == "sad"){
+
+            const staff_data = await staff.findOne({ email: role_data.email });
+
+
+            res.render("index_asd", {
+                success: req.flash('success'),
+                errors: req.flash('errors'),
+                role : role_data,
+                profile : profile_data,
+                master_shop : master,
+                language : lan_data,
+            })
+
+
         }else{
             var cnt;
             if(role_data.warehouse_category == "Raw Materials"){
