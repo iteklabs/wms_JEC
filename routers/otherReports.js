@@ -1825,36 +1825,83 @@ router.post('/agent_reports/pdf_admin', auth, async (req, res) => {
     if(isExcel == "on"){
         const $ = cheerio.load(htmlContent);
 
-        let data = [];
-        $('table tr').each((i, row) => {
-            let rowData = [];
-            $(row).find('td, th').each((j, cell) => {
-                // rowData.push($(cell).text().trim());
-                let cellText = $(cell).text().trim();
-                let cellValue = parseFloat(cellText.replace(/,/g, ''));
+let data = [];
+let merges = [];
+let colSpans = []; // To track active column spans
 
-                if (!isNaN(cellValue)) {
-                    rowData.push(cellValue);
-                } else {
-                    rowData.push(cellText);
-                }
+$('table tr').each((i, row) => {
+    let rowData = [];
+    let colIndex = 0;
+
+    // Adjust colIndex for any ongoing colspans from previous rows
+    while (colSpans[colIndex]) {
+        colSpans[colIndex]--;
+        colIndex++;
+    }
+
+    $(row).find('td, th').each((j, cell) => {
+        let cellText = $(cell).text().trim();
+
+        // Attempt to convert cell text to a number if possible
+        let cellValue = parseFloat(cellText.replace(/,/g, ''));
+
+        // Use the cell text if it's not a valid number
+        if (isNaN(cellValue)) {
+            cellValue = cellText;
+        }
+
+        // Parse colspan and rowspan
+        let colspan = parseInt($(cell).attr('colspan')) || 1;
+        let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+
+        // Add the cell value to the rowData array at the correct column index
+        rowData[colIndex] = cellValue;
+
+        // Add merge information if colspan or rowspan is greater than 1
+        if (colspan > 1 || rowspan > 1) {
+            merges.push({
+                s: { r: i, c: colIndex }, // start position
+                e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
             });
-            data.push(rowData);
-        });
+        }
 
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+        // Track colspans across rows (for correct placement in the next row)
+        for (let k = 0; k < colspan; k++) {
+            if (rowspan > 1) {
+                colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+            }
+        }
 
-        // Write the workbook to a buffer
-        const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+        // Move to the next column index, considering colspan
+        colIndex += colspan;
+    });
 
-        // Send the file to the client as a download
-        res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.send(fileBuffer);
-        // res.json(data)
-        // return
+    data.push(rowData);
+});
+
+// Create the worksheet and add merge information
+const wb = XLSX.utils.book_new();
+const ws = XLSX.utils.aoa_to_sheet(data);
+
+// Apply merges to the worksheet
+if (merges.length > 0) {
+    ws['!merges'] = merges;
+}
+
+// Optionally, set column widths or other formatting
+ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
+
+// Append the worksheet to the workbook
+XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+// Write the workbook to a buffer
+const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+// Send the file to the client as a download (if using Express.js)
+res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+res.send(fileBuffer);
+
     }else{
         pdf.create(htmlContent, options).toStream(function(err, stream) {
             if (err) {
