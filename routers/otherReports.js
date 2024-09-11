@@ -863,7 +863,7 @@ async function agentsdataCheck(from, to){
             if(arrdata["dataqty"][element1._id.brand][element1._id.category][element]){
                 // console.log(element1._id.brand + " <> " + element1._id.category)
                 totalData = arrdata["dataqty"][element1._id.brand][element1._id.category][element][0];
-                htmlContent += `<td class="row_data">${totalData.toFixed(2)}</td>`;
+                htmlContent += `<td class="row_data">${formatNumber(totalData.toFixed(2))}</td>`;
             }else{
                 totalData = 0;
                 htmlContent += `<td class="row_data">${totalData}</td>`;
