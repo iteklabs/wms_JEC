@@ -1724,6 +1724,7 @@ router.post('/agent_reports/pdf_admin', auth, async (req, res) => {
         th, td {
             border: 1px solid black;
             text-align: center;
+            font-size: 9pt;
         }
         th {
             background-color: #d0cece;
