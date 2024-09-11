@@ -177,9 +177,9 @@ router.get("/view_sales/:id", auth,  async(req, res) => {
 
 router.post("/add_sales", auth, upload.single("image"), async(req, res) => {
     try {
-        const {customer, date, prod_code, note, paid_status,DSI} = req.body
+        const { customer, date, prod_code, note, paid_status,DSI, cash_amount, amount_data, bank_data, check_no, due_date } = req.body
         const image = req.file.filename;
-        // res.json(image);
+        // res.json(req.body);
         // return
         if(typeof prod_code == "string"){
             var prod_code_array = [req.body.prod_code];
@@ -309,7 +309,7 @@ router.post("/add_sales", auth, upload.single("image"), async(req, res) => {
         const staff_data = await staff.findOne({email: role_data.email});
 
 
-        const data = new sales_sa({ invoice: invoice.invoice_starts.toString().padStart(8, '0'), customer: customer, file : image, date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf(), paid: paid_status, dsi:DSI });
+        const data = new sales_sa({ invoice: invoice.invoice_starts.toString().padStart(8, '0'), customer: customer, file : image, date, sale_product:newproduct, note, sales_staff_id: staff_data._id.valueOf(), paid: paid_status, dsi:DSI, cash: cash_amount , amount: amount_data, bank: bank_data, check_no: check_no, due_date: due_date });
         const sales_data = await data.save()
 
         console.log('Invoice created with incremented start value:', invoice.invoice_starts.toString().padStart(8, '0'));

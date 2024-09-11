@@ -3967,6 +3967,11 @@ const sales_sa_data = await sales_sa.aggregate([
                 customer: "$customer"
             },
             totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+            cash: { $first: "$cash"  },
+            amount: { $first: "$amount"  },
+            bank: { $first: "$bank"  },
+            check_no: { $first: "$check_no"  },
+            due_date: { $first: "$due_date"  },
             products: {
                 $push: {
                     qty: "$sale_product.real_qty_unit_val",
@@ -3982,6 +3987,7 @@ const sales_sa_data = await sales_sa.aggregate([
                         gross_price: "$product_info.gross_price",
                         isFG: "$sale_product.isFG",
                         prod_cat: "$sale_product.prod_cat",
+                        prod_id: "$sale_product._id",
                         
                     }
                 }
@@ -3998,15 +4004,19 @@ const sales_sa_data = await sales_sa.aggregate([
                 date: "$_id.date",
                 customer: "$_id.customer",
                 category: "$products.product_details.category",
-                brand: "$products.product_details.brand"
+                brand: "$products.product_details.brand",
+                prod_id: "$products.product_details.prod_id",
             },
             totalQty: { $sum: "$products.qty" },
             totalGross: { $sum: { $multiply: ["$products.qty", "$products.product_details.gross_price"] } },
             NetPrice: { $sum: "$products.NetPrice" },
             discount: { $sum: "$products.discount" },
             adj_discount: { $sum: "$products.adj_discount" },
-            // isFG: { $first: "$products.isFG"},
-            // prod_cat: { $first: "$products.prod_cat"},
+            cash: { $first: "$cash"  },
+            amount: { $first: "$amount"  },
+            bank: { $first: "$bank"  },
+            check_no: { $first: "$check_no"  },
+            due_date: { $first: "$due_date"  },
             product_details: { $first: "$products.product_details" }
         }
     },
@@ -4022,8 +4032,11 @@ const sales_sa_data = await sales_sa.aggregate([
             NetPrice: { $sum: "$NetPrice" },
             discount: { $sum: "$discount" },
             adj_discount: { $sum: "$adj_discount" },
-            // isFG: { $first: "$isFG" },
-            // prod_cat: { $first: "$prod_cat" },
+            cash: { $first: "$cash"  },
+            amount: { $first: "$amount"  },
+            bank: { $first: "$bank"  },
+            check_no: { $first: "$check_no"  },
+            due_date: { $first: "$due_date"  },
             products: {
                 $push: {
                     qty: "$totalQty",
@@ -4078,6 +4091,11 @@ const sales_sa_data_kahapon = await sales_sa.aggregate([
                 customer: "$customer"
             },
             totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+            cash: { $first: "$cash"  },
+            amount: { $first: "$amount"  },
+            bank: { $first: "$bank"  },
+            check_no: { $first: "$check_no"  },
+            due_date: { $first: "$due_date"  },
             products: {
                 $push: {
                     qty: "$sale_product.real_qty_unit_val",
@@ -4093,6 +4111,7 @@ const sales_sa_data_kahapon = await sales_sa.aggregate([
                         gross_price: "$product_info.gross_price",
                         isFG: "$sale_product.isFG",
                         prod_cat: "$sale_product.prod_cat",
+                        prod_id: "$sale_product._id",
                         
                     }
                 }
@@ -4109,9 +4128,15 @@ const sales_sa_data_kahapon = await sales_sa.aggregate([
                 date: "$_id.date",
                 customer: "$_id.customer",
                 category: "$products.product_details.category",
-                brand: "$products.product_details.brand"
+                brand: "$products.product_details.brand",
+                prod_id: "$products.product_details.prod_id",
             },
             totalQty: { $sum: "$products.qty" },
+            cash: { $first: "$cash"  },
+            amount: { $first: "$amount"  },
+            bank: { $first: "$bank"  },
+            check_no: { $first: "$check_no"  },
+            due_date: { $first: "$due_date"  },
             totalGross: { $sum: { $multiply: ["$products.qty", "$products.product_details.gross_price"] } },
             NetPrice: { $sum: "$products.NetPrice" },
             discount: { $sum: "$products.discount" },
@@ -4129,6 +4154,11 @@ const sales_sa_data_kahapon = await sales_sa.aggregate([
                 customer: "$_id.customer"
             },
             totalQty: { $sum: "$totalQty" },
+            cash: { $first: "$cash"  },
+            amount: { $first: "$amount"  },
+            bank: { $first: "$bank"  },
+            check_no: { $first: "$check_no"  },
+            due_date: { $first: "$due_date"  },
             totalGross: { $sum: "$totalGross" },
             NetPrice: { $sum: "$NetPrice" },
             discount: { $sum: "$discount" },
@@ -4155,6 +4185,9 @@ const sales_sa_data_kahapon = await sales_sa.aggregate([
 
 // console.log(sales_sa_data_kahapon);
 
+
+const stafff_data = await staff.findById(staff_id);
+// console.log(stafff_data.name)
 let rows = [];
 
 let merged_totals = {};
@@ -4165,6 +4198,8 @@ var discountAll = 0
 var discounttotal = 0;
 var totalGrossAll = 0;
 const rowsPerPage = 6;
+var totalCashAll = 0;
+var totalAmountAll = 0;
 // let isProdCat2 = {};
 for (let z = 0; z <= sales_sa_data.length -1; z++) {
     const sales_data_element = sales_sa_data[z];
@@ -4178,9 +4213,9 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     let quantities = {};
     let isFGdata = {};
     let isProdCat = {};
-    var totalPrimUnit = 0;
-    var totalSecUnit = 0;
-    var totalFG= 0;
+    var totalPrimUnit = {};
+    var totalSecUnit = {};
+    var totalFG= {};
 
   
     
@@ -4202,6 +4237,42 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
             data_totals[key] = [];
         }
         data_totals[key].push(data_final.qty);
+
+
+
+        if(data_final.product_details.prod_cat == "P"){
+            if(data_final.product_details.isFG == "true"){
+
+                if (!totalFG[key]) {
+                    totalFG[key] = 0;
+                }
+    
+                totalFG[key] = data_final.qty;
+                
+            }else{
+                if (!totalPrimUnit[key]) {
+                    totalPrimUnit[key] =0;
+                }
+                totalPrimUnit[key] = data_final.qty;
+            }
+        }else if(data_final.product_details.prod_cat == "S"){
+            if(data_final.product_details.isFG == "true"){
+
+                if (!totalFG[key]) {
+                    totalFG[key] = 0;
+                }
+    
+                totalFG[key]  = data_final.qty;
+
+            }else{
+                if (!totalSecUnit[key]) {
+                    totalSecUnit[key] =0;
+                }
+                totalSecUnit[key]  = data_final.qty;
+
+                
+            }
+        }
         x++;
     }
 
@@ -4210,77 +4281,80 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         const key = `${data_brand._id.brand}-${data_brand._id.category}`;
         const dataisProdCat = isProdCat[key] !== undefined ? isProdCat[key] : "NA";
         // console.log(isProdCat)
-        if(dataisProdCat == "P"){
-            const dataisFGdata = isFGdata[key] !== undefined ? isFGdata[key] : "NA";
-            // console.log(dataisFGdata)
-            if(dataisFGdata == "true"){
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;" >${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
+        // if(dataisProdCat == "P"){
+        //     const dataisFGdata = isFGdata[key] !== undefined ? isFGdata[key] : "NA";
+        //     // console.log(dataisFGdata)
+        //     if(dataisFGdata == "true"){
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;" >${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
 
 
-                row += `<input type="hidden" name="inCar" value="${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}">`;
+        //         row += `<input type="hidden" name="inCar" value="${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}">`;
                 
-                totalFG += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
-            }else {
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+        //         totalFG += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
+        //     }else {
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
 
-                totalPrimUnit += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
+        //         totalPrimUnit += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
 
                 
-            }
+        //     }
             
-        }else if(dataisProdCat == "S"){
-            // row += `<td class="row_data" style="border: 1px solid black; text-align: right;">0</td>`;
-            // row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
-            // row += `<td class="row_data" style="border: 1px solid black; text-align: right;">0</td>`;
-            const dataisFGdata = isFGdata[key] !== undefined ? isFGdata[key] : "NA";
-            if(dataisFGdata == "true"){
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
+        // }else if(dataisProdCat == "S"){
+      
+        //     const dataisFGdata = isFGdata[key] !== undefined ? isFGdata[key] : "NA";
+        //     if(dataisFGdata == "true"){
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
 
-                totalFG += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
-            }else {
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
-                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-                totalSecUnit += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
+        //         totalFG += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
+        //     }else {
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
+        //         row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+        //         totalSecUnit += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
 
-            }
-        }else{
-            row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`; 
-            row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-            row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-        }
+        //     }
+        // }else{
+        //     row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`; 
+        //     row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+        //     row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+        // }
+        var thePrime = totalPrimUnit[key] !== undefined ? totalPrimUnit[key].toFixed(2) : "";
+        var theSec = totalSecUnit[key] !== undefined ? totalSecUnit[key].toFixed(2) : "";
+        var theFGdata = totalFG[key] !== undefined ? totalFG[key].toFixed(2) : "";
+
+        row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${thePrime}</td>`; 
+        row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${theSec}</td>`;
+        row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${theFGdata}</td>`;
     }
-    row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-    row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-    row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-    row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
-    row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+    var cash = formatNumber(parseFloat(sales_data_element.cash));
+    var amount = formatNumber(parseFloat(sales_data_element.amount));
+
+    if(isNaN(amount)){
+        amount = 0;
+    }
+    // if(isNaN(cash)){
+    //     cash = 0;
+    // }
+    row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${cash}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${amount}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element.bank}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element.check_no}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element.due_date}</td>`;
     discountAll = sales_data_element.discount + sales_data_element.adj_discount
 
-
+    totalCashAll += parseFloat(sales_data_element.cash)
 
     
-   
-    
+    totalAmountAll += parseFloat(amount)
     rows.push(row);
 }
 
-
-
-
-
-
-
-
-
-
-    
 function paginateRows(rows, rowsPerPage) {
     const pages = [];
     for (let i = 0; i <= rows.length -1; i += rowsPerPage) {
@@ -4299,6 +4373,47 @@ pages.forEach((page, pageIndex) => {
     }
     htmlContent += `<table>`;
     htmlContent += `<thead>`;
+    const dateUSed = new Date(from);
+    const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        timeZone: 'Asia/Manila' 
+    };
+    const dateInWords = dateUSed.toLocaleDateString('en-US', options);
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="5.5" class="cat_data" style="border: 1px solid black; text-align: left;" ><b>NAME:</b>  ${stafff_data.name}</td>`;
+    htmlContent += `<td colspan="6" class="cat_data" style="border: 1px solid black; text-align: left;" ><b>DISTRICT NO: </b></td>`;
+    htmlContent += `<td colspan="6" class="cat_data" style="border: 1px solid black; text-align: left;" ><b>KM RDG BEG: </b></td>`;
+    htmlContent += `<td colspan="3" rowspan="3" style="border: 1px solid black; text-align: left;" ><b>TOTAL KMS <br> TRAVELLED  FOR THIS <br> MONTH ________ KMS</br></td>`;
+    htmlContent += `<td colspan="1" rowspan="1" style="border: 1px solid black; text-align: left;" ></td>`;
+    htmlContent += `<td colspan="1" rowspan="1" style="border: 1px solid black; text-align: left;" ><b>TODAY</b></td>`;
+    htmlContent += `<td colspan="1" rowspan="1" style="border: 1px solid black; text-align: left;" ><b>TO DATE</b></td>`;
+    htmlContent += `<td colspan="5" rowspan="3" style="border: 1px solid black; text-align: left;" ><b>NO OF WORKING DAYS <br> FOR THE MONTH _________ <br> <br> NO OF DAYS WORKED <br> TO DATE _________  </br></td>`;
+    htmlContent += `<td colspan="1" rowspan="3" style="border: 1px solid black; text-align: left;" ><b>REPORT NO</b></td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="5.5" class="cat_data" style="border: 1px solid black; text-align: left;"><b>SIGNATURE: </b></td>`;
+    htmlContent += `<td colspan="6" class="cat_data" style="border: 1px solid black; text-align: left;" ><b>DATE: </b> ${dateInWords}</td>`;
+    htmlContent += `<td colspan="6" class="cat_data" style="border: 1px solid black; text-align: left;" ><b>KM RDG END: </b></td>`;
+    htmlContent += `<td colspan="1" rowspan="1" style="border: 1px solid black; text-align: left;" ><b>TOTAL <br> CALLS</b></td>`;
+    htmlContent += `<td colspan="1" rowspan="1" style="border: 1px solid black; text-align: left;" ><b></b></td>`;
+    htmlContent += `<td colspan="1" rowspan="1" style="border: 1px solid black; text-align: left;" ><b></b></td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="11.5" class="cat_data" style="border: 1px solid black; text-align: left;"><b>AREA COVERED: </b></td>`;
+    htmlContent += `<td colspan="6" class="cat_data" style="border: 1px solid black; text-align: left;" ><b>KM TRAVELLED: </b></td>`;
+    htmlContent += `<td colspan="1" rowspan="1" style="border: 1px solid black; text-align: left;" ><b>TOTAL <BR> PRODUCTIVE</b></td>`;
+    htmlContent += `<td colspan="1" rowspan="1" style="border: 1px solid black; text-align: left;" ><b></b></td>`;
+    htmlContent += `<td colspan="1" rowspan="1" style="border: 1px solid black; text-align: left;" ><b></b></td>`;
+    
+    htmlContent += `</tr>`;
+
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td height="20px" colspan="29" class="cat_data" style="width:100px"><b></b></td>`;
+    htmlContent += `</tr>`;
     htmlContent += `<tr>`;
     htmlContent += `<td colspan="24" class="cat_data" style="width:100px"><b></b></td>`;
     htmlContent += `<td colspan="5" class="cat_data" style="width:200px"><b>MODE OF PAYMENT</b></td>`;
@@ -4354,95 +4469,17 @@ pages.forEach((page, pageIndex) => {
     page.forEach(row => {
         htmlContent += row;
     });
-    // htmlContent += `<tr>`;
-    // htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;" colspan="`+ ((array_data["cat_brand"].length*3) + 9) +`"><b>************ NOTHING TO FOLLOWS ************</b></td>`;
-    // htmlContent += `</tr>`;
-// console.log(totals)
 
-
-    // row += `<tr>`;
-    // row += `<td colspan="3"><b>TOTAL<b>`;
-    // row += `</td>`;
-    let isProdCat2 = {};
-    let isFGdata2 = {};
-    let totals = {};
-
-    let isProdCat3 = {};
-    let isFGdata3 = {};
     let totalsP = {};
     let totalsS = {};
     let totalsFG = {};
     for (let n = 0; n <= sales_sa_data.length -1; n++) {
         const sales_data_element2 = sales_sa_data[n];
-        // console.log(sales_data_element2._id.dsi)
         var x = 0;
-        // isProdCat2[x] = {}
         for (let a = 0; a <= sales_data_element2.products.length -1; a++) {
             const data_final = sales_data_element2.products[a];
-            
-            
             const key = `${data_final.brand}-${data_final.category}`;
-
-            if (!isProdCat2[n]) {
-                isProdCat2[n] = {};
-            }
-
-            if (!isProdCat2[n][key]) {
-                isProdCat2[n][key]= {};
-            }
-            isProdCat2[n][key] = data_final.product_details.prod_cat;
-
-            
-
-            if (!isFGdata2[n]) {
-                isFGdata2[n] = {};
-            }
-
-            if (!isFGdata2[n][key]) {
-                isFGdata2[n][key]= {};
-            }
-            isFGdata2[n][key] = data_final.product_details.isFG ;
-            // console.log(data_final.product_details.isFG + " <> " + data_final.product_details.prod_cat)
-            // console.log(key)
-            if (!totals[key]) {
-                totals[key] = {};
-            }
-    
-            if (!totals[key][data_final.product_details.prod_cat]) {
-                totals[key][data_final.product_details.prod_cat] = {};
-            }
-    
-            if (!totals[key][data_final.product_details.prod_cat][data_final.product_details.isFG]) {
-                totals[key][data_final.product_details.prod_cat][data_final.product_details.isFG] = 0;
-            }
-
-
-            
-            totals[key][data_final.product_details.prod_cat][data_final.product_details.isFG] += data_final.qty;
-
-
-            if (!isProdCat3[key]) {
-                isProdCat3[key] = {};
-            }
-
-            if (!isProdCat3[key][sales_data_element2._id.dsi]) {
-                isProdCat3[key][sales_data_element2._id.dsi] = 0;
-            }
-
-            isProdCat3[key][sales_data_element2._id.dsi] = data_final.product_details.prod_cat;
-
-
-            if (!isFGdata3[key]) {
-                isFGdata3[key] = {};
-            }
-
-            if (!isFGdata3[key][sales_data_element2._id.dsi]) {
-                isFGdata3[key][sales_data_element2._id.dsi] = {};
-            }
-            isFGdata3[key][sales_data_element2._id.dsi] = data_final.product_details.isFG ;
-
             if(data_final.product_details.prod_cat == "P"){
-
                 if(data_final.product_details.isFG == "true"){
 
                     if (!totalsFG[key]) {
@@ -4457,7 +4494,6 @@ pages.forEach((page, pageIndex) => {
                     }
                     totalsP[key]  += data_final.qty;
                 }
-               
             }else if(data_final.product_details.prod_cat == "S"){
                 if(data_final.product_details.isFG == "true"){
 
@@ -4466,24 +4502,26 @@ pages.forEach((page, pageIndex) => {
                     }
         
                     totalsFG[key]  += data_final.qty;
-                    
+                    console.log(data_final.qty)
                 }else{
                     if (!totalsS[key]) {
                         totalsS[key] =0;
                     }
                     totalsS[key]  += data_final.qty;
+
+                    
                 }
             }
             x++;
         }
-     
     }
 
 
     let totalsPK = {};
     let totalsSK = {};
     let totalsFGK = {};
-
+    var TotalPrevCash = 0;
+    var TotalPrevAmount = 0;
     for (let o = 0; o <= sales_sa_data_kahapon.length -1; o++) {
         const sales_data_element2 = sales_sa_data_kahapon[o];
 
@@ -4491,7 +4529,7 @@ pages.forEach((page, pageIndex) => {
         // isProdCat2[x] = {}
         for (let a = 0; a <= sales_data_element2.products.length -1; a++) {
             const data_final = sales_data_element2.products[a];
-            console.log(sales_data_element2)
+            // console.log(sales_data_element2)
             
             const key = `${data_final.brand}-${data_final.category}`;
 
@@ -4530,12 +4568,21 @@ pages.forEach((page, pageIndex) => {
             }
             x++;
         }
+        var cashtotal = parseFloat(sales_data_element2.cash);
+        var amounttotal = parseFloat(sales_data_element2.amount);
+
+        if(isNaN(amounttotal)){
+            amounttotal = 0;
+        }
+        TotalPrevCash += cashtotal;
+        TotalPrevAmount += amounttotal
+        // console.log(TotalPrevAmount)
      
     }
 
 
     
-//    console.log(totalsFGK)
+//    console.log(totalsS)
 
 
     
@@ -4555,8 +4602,8 @@ pages.forEach((page, pageIndex) => {
         htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${secondaryData}</b></td>`;
         htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${FGData}</b></td>`;
     }
-    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
-    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${formatNumber(totalCashAll)}</b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${formatNumber(totalAmountAll)}</b></td>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
@@ -4567,9 +4614,6 @@ pages.forEach((page, pageIndex) => {
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"><b>ADD: PREVIOUS</b></td>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
     // date used minus 1
-    // let totalsPK = {};
-    // let totalsSK = {};
-    // let totalsFGK = {};
     for (let m = 0; m <= array_data["cat_brand"].length-1; m++) {
         const data_brand = array_data["cat_brand"][m];
         const key1 = `${data_brand._id.brand}-${data_brand._id.category}`;
@@ -4580,8 +4624,8 @@ pages.forEach((page, pageIndex) => {
         htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${secondaryData}</b></td>`;
         htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${FGData}</b></td>`
     }
-    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
-    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${formatNumber(TotalPrevCash)}</b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${formatNumber(TotalPrevAmount)}</b></td>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
@@ -4617,10 +4661,11 @@ pages.forEach((page, pageIndex) => {
         htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${formatNumber(SecTotalAllData.toFixed(2))}</b></td>`;
         htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${formatNumber(FGTotalAllData.toFixed(2))}</b></td>`;
     }
-
+    var CashAlltotal = formatNumber(totalCashAll+TotalPrevCash);
+    var AmountAlltotal = formatNumber(totalAmountAll+TotalPrevAmount);
     /// the total All
-    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
-    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${CashAlltotal}</b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${AmountAlltotal}</b></td>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
@@ -4915,8 +4960,8 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
         dpi: 5,  // Set DPI for consistency
         zoomFactor: '1' // Ensure the same zoom level
     };
-    res.send(htmlContent);
-    return
+    // res.send(htmlContent);
+    // return
    var isExcel = "on";
     if(isExcel == "on"){
         // const $ = cheerio.load(htmlContent);

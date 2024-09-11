@@ -2530,6 +2530,21 @@ const sales_sa_data = new mongoose.Schema({
     },
     typeofprocess: {
         type: String
+    },
+    cash: {
+        type: String
+    },
+    amount: {
+        type: String
+    },
+    bank: {
+        type: String
+    },
+    check_no: {
+        type: String
+    },
+    due_date: {
+        type: String
     }
 })
 const sales_sa = new mongoose.model("sales_sas", sales_sa_data);
