@@ -4371,6 +4371,7 @@ pages.forEach((page, pageIndex) => {
     if (pageIndex > 0) {
         htmlContent += `<div style="page-break-before: always;"></div>`;
     }
+    // htmlContent += `<h1>JENNY JOY AMBRE</h1>`;
     htmlContent += `<table>`;
     htmlContent += `<thead>`;
     const dateUSed = new Date(from);
@@ -4381,7 +4382,9 @@ pages.forEach((page, pageIndex) => {
         timeZone: 'Asia/Manila' 
     };
     const dateInWords = dateUSed.toLocaleDateString('en-US', options);
-
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="29" class="cat_data" style="border: 1px solid black; text-align: right;" ><b>NO: </b></td>`;
+    htmlContent += `</tr>`;
     htmlContent += `<tr>`;
     htmlContent += `<td colspan="5.5" class="cat_data" style="border: 1px solid black; text-align: left;" ><b>NAME:</b>  ${stafff_data.name}</td>`;
     htmlContent += `<td colspan="6" class="cat_data" style="border: 1px solid black; text-align: left;" ><b>DISTRICT NO: </b></td>`;
@@ -4960,8 +4963,8 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
         dpi: 5,  // Set DPI for consistency
         zoomFactor: '1' // Ensure the same zoom level
     };
-    // res.send(htmlContent);
-    // return
+    res.send(htmlContent);
+    return
    var isExcel = "on";
     if(isExcel == "on"){
         // const $ = cheerio.load(htmlContent);
