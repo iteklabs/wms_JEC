@@ -316,7 +316,7 @@ router.get("/index", auth, async(req, res) => {
             })
 
             res.json(staff_data)
-        }else if(role_data.account_category == "sad" || role_data.account_category == "rsm"){
+        }else if(role_data.account_category == "sad" || role_data.account_category == "rsm" || role_data.account_category == "fss"){
 
             const staff_data = await staff.findOne({ email: role_data.email });
 
