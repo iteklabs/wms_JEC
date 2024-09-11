@@ -194,7 +194,7 @@ router.post("/add_sales", auth, upload.single("image"), async(req, res) => {
             var price_array = [req.body.price];
             var totalPrice_array = [req.body.totalPrice];
             var id_transaction_array = [req.body.id_transaction];
-            var dicount_price_array = [req.body.dicount_price];
+            // var dicount_price_array = [req.body.dicount_price];
             var adj_dicount_price_array = [req.body.adj_dicount_price];
             var tmpisFG_array = [req.body.tmpisFG];
             var no_per_unit_array = [req.body.no_per_unit];
@@ -215,7 +215,7 @@ router.post("/add_sales", auth, upload.single("image"), async(req, res) => {
             var price_array = [...req.body.price];
             var totalPrice_array = [...req.body.totalPrice];
             var id_transaction_array = [...req.body.id_transaction];
-            var dicount_price_array = [...req.body.dicount_price];
+            // var dicount_price_array = [...req.body.dicount_price];
             var adj_dicount_price_array = [...req.body.adj_dicount_price];
             var tmpisFG_array = [...req.body.tmpisFG];
             var no_per_unit_array = [...req.body.no_per_unit];
@@ -269,9 +269,9 @@ router.post("/add_sales", auth, upload.single("image"), async(req, res) => {
             newproduct[i].id_transaction_from = value
         });
         
-        dicount_price_array.forEach((value, i) => {
-            newproduct[i].discount = value
-        });
+        // dicount_price_array.forEach((value, i) => {
+        //     newproduct[i].discount = value
+        // });
 
         adj_dicount_price_array.forEach((value, i) => {
             newproduct[i].adj_discount = value

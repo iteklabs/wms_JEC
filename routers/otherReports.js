@@ -1868,10 +1868,6 @@ router.post('/agent_reports/pdf_admin', auth, async (req, res) => {
     
 });
 
-
-
-
-
 router.get("/agent_reports/view", auth, async (req, res) => {
     try {
         const {username, email, role} = req.user
@@ -2572,8 +2568,6 @@ pages.forEach((page, pageIndex) => {
 return htmlContent;
 }
 
-// }
-
 router.post('/agent_reports/pdf', auth, async (req, res) => {
 
     const {from_date, to_date, isExcel} = req.body
@@ -2767,8 +2761,6 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     
     
 });
-
-
 
 router.get("/total_sales_reports/view", auth, async(req, res) => {
     try {
@@ -3505,5 +3497,1607 @@ router.post("/inventory_sum/pdf", auth, async(req, res) => {
         
     }
 })
+
+
+router.get("/dsrr/view", auth, async (req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const master = await master_shop.find()
+        console.log("Products master" , master);
+
+        const find_data = await product.find();
+        console.log("Products find_data", find_data);
+
+
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $unwind: "$product_details"
+            },
+            {
+                $lookup:
+                {
+                    from: "products",
+                    localField: "product_details.product_name",
+                    foreignField: "name",
+                    as: "product_docs"
+                }
+            },
+            {
+                $unwind: "$product_docs"
+            },
+            {
+                $project: 
+                {
+                    product_name: '$product_details.product_name',
+                    product_stock: '$product_details.product_stock',
+                }
+            },
+            {
+                $group: {
+                    _id: "$product_name",
+                    product_stock: { $sum: "$product_stock" }
+                }
+            },
+        ])
+        console.log("Products warehouse_data", warehouse_data);
+
+
+        warehouse_data.forEach(product_details => {
+
+            const match_data = find_data.map((data) => {
+
+                if (data.name == product_details._id) {
+                    data.stock = parseInt(data.stock) + parseInt(product_details.product_stock)
+                    
+                }
+
+            })
+        })
+
+        const staff_data = await staff.findOne({email: role_data.email})
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+            
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("dssr_view", { 
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            alldata: find_data,
+            profile : profile_data,
+            master_shop : master,
+            role : role_data,
+            product_stock : warehouse_data,
+            language : lan_data,
+            staff_arr: staff_data,
+			
+        })
+    } catch (error) {
+        
+    }
+})
+
+async function agentsdataDSICheck_DSRR(from, staff_id, isExcel){
+    let date = new Date(from);
+    date.setDate(date.getDate() - 1);
+    let formattedDate = date.toISOString().split('T')[0];
+    // console.log(formattedDate)
+    const product_data = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    brand: "$brand",
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        name: "$name",
+                        product_code: "$product_code"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+                "_id.brand": 1,  // Sort by brand in ascending order
+            }
+        }
+    ])
+    var array_data = [];
+    array_data["cat_brand"] = [];
+    for (let index = 0; index <= product_data.length -1; index++) {
+        const element = product_data[index];
+        array_data["cat_brand"].push(element)
+        // array_data["cat_brand"].push(element)
+        
+        
+    }
+
+    const product_cat= await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        brand: "$brand",
+                        product_code: "$product_code",
+                        product_name: "$name"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+            }
+        }
+    ])
+
+    const product_cnt = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category",
+                    brand: "$brand"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "$_id.category",
+                brandCount: { $sum: 1 }
+            }
+        },
+        {
+            $sort: {
+                _id: -1 // Sort by category in descending order (use 1 for ascending order)
+            }
+        }
+    ]);
+
+   
+    // const sales_sa_data = await sales_sa.aggregate([
+    //     {
+    //         $match: {
+    //             date: {
+    //                 $gte: from,
+    //                 $lte: to
+    //             },
+    //             sales_staff_id: staff_id,
+    //              "sale_product.isFG": "false"
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$sale_product"
+    //     },
+    //     {
+    //         $match: {
+    //             "sale_product.isFG": "false"
+    //         }
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: "products",
+    //             localField: "sale_product.product_code",
+    //             foreignField: "product_code",
+    //             as: "product_info"
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$product_info"
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$dsi",
+    //                 date: "$date",
+    //                 customer: "$customer"
+    //             },
+    //             totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+    //             products: {
+    //                 $push: {
+    //                     qty: "$sale_product.real_qty_unit_val",
+    //                     NetPrice: "$sale_product.totalprice",
+    //                     discount: "$sale_product.discount",
+    //                     adj_discount: "$sale_product.adj_discount",
+    //                     product_details: {
+    //                         prod_name: "$product_info.name",
+    //                         product_code: "$product_info.product_code",
+    //                         category: "$product_info.category",
+    //                         brand: "$product_info.brand",
+    //                         gross_price: "$product_info.gross_price",
+                            
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$products"
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$_id.dsi",
+    //                 date: "$_id.date",
+    //                 customer: "$_id.customer",
+    //                 category: "$products.product_details.category",
+    //                 brand: "$products.product_details.brand"
+    //             },
+    //             totalQty: { $sum: "$products.qty" },
+    //             totalGross: { $sum: "$products.product_details.gross_price" },
+    //             NetPrice: { $sum: "$products.NetPrice" },
+    //             discount: { $sum: "$products.discount"},
+    //             adj_discount: { $sum: "$products.adj_discount"},
+    //             product_details: { $first: "$products.product_details" }
+    //         }
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$_id.dsi",
+    //                 date: "$_id.date",
+    //                 customer: "$_id.customer"
+    //             },
+    //             totalQty: { $sum: "$totalQty" },
+    //             totalGross: { $multiply: [ "$totalQty","$totalGross"] },
+    //             NetPrice: { $sum: "$NetPrice" },
+    //             discount: { $sum: "$discount"},
+    //             adj_discount: { $sum: "$adj_discount"},
+    //             products: {
+    //                 $push: {
+    //                     qty: "$totalQty",
+    //                     category: "$_id.category",
+    //                     brand: "$_id.brand",
+    //                     product_details: "$product_details"
+    //                 }
+    //             }
+    //         }
+    //     },
+    //     {
+    //         $sort: {
+                
+    //             "_id.dsi": -1, // Sort by category in ascending order
+    //             "_id.date": 1,  // Sort by brand in ascending order
+    //         }
+    //     }
+    // ]);
+    
+    
+// res.json(sales_sa_data);
+// return
+// console.log(sales_sa_data)
+// return
+// let arrdata = {
+//     dataqty: {}
+// };
+
+// for (let a = 0; a < array_data["cat_brand"].length; a++) {
+//     const element = array_data["cat_brand"][a];
+//     const brand = element._id.brand;
+//     const category = element._id.category;
+//     // console.log(element)
+//     if (!arrdata["dataqty"][brand]) {
+//         arrdata["dataqty"][brand] = {};
+//     }
+    
+//     if (!arrdata["dataqty"][brand][category]) {
+//         arrdata["dataqty"][brand][category] = [];
+//     }
+
+//     for (let b = 0; b <= sales_sa_data.length-1; b++) {
+//         const thedata = sales_sa_data[b];
+
+//         for(let l = 0; l <= thedata.products.length - 1; l++ ){
+//             const data_detl = thedata.products[l];
+            
+//             // console.log(data_detl.qty)
+//             if (brand == data_detl.brand && category == data_detl.category) {
+//                 // console.log(data_detl.qty)
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi] = [];
+//                 }
+
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date] = [];
+//                 }
+
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer] = [];
+//                 }
+
+//                 arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer].push(data_detl.qty);
+//             }
+//         }
+        
+        
+//     }
+// }
+
+
+//     let htmlContent = "";
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td colspan="20" class="cat_data">QUANTITY SOLD</td>`;
+//     htmlContent += `</tr>`;
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td class="cat_data" colspan="3"></td>`;
+  
+//     for(let a = 0; a <= product_cat.length -1; a++){
+//         const thdata = product_cat[a];
+//         for (let b = 0; b < product_cnt.length; b++) {
+//             const element2 = product_cnt[b];
+//             if(element2._id == thdata._id.category){
+//                 htmlContent += `<td colspan="`+element2.brandCount+`" class="cat_data">`+thdata._id.category+`</td>`;
+//             }
+//         }
+//     }
+    
+//     htmlContent += `<td class="cat_data" colspan="4"></td>`;
+//     htmlContent += `</tr>`;
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td colspan="1" class="cat_data">DSI Number</td>`;
+//     htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Date</td>`;
+//     htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Customer</td>`;
+//     for(let a = 0; a <= product_cat.length -1; a++){
+//         const thdata = product_cat[a];
+
+//         for (let b = 0; b < array_data["cat_brand"].length; b++) {
+//             const element = array_data["cat_brand"][b];
+
+//             if(element._id.category == thdata._id.category){
+//                 htmlContent += `<td class="cat_data">`+element._id.brand+`</td>`;
+//             }
+//         }
+        
+       
+//     }
+//     htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
+//     htmlContent += `<td class="cat_data">GROSS SALES</td>`;
+//     htmlContent += `<td class="cat_data">DISCOUNT</td>`;
+//     htmlContent += `<td class="cat_data">NET SALES VALUE</td>`;
+//     htmlContent += `</tr>`;
+
+
+
+
+
+//     for (let z = 0; z < sales_sa_data.length; z++) {
+//         const sales_data_element = sales_sa_data[z];
+        
+//         htmlContent += `<tr>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.dsi}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.date}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.customer}</td>`;
+    
+//         // Initialize an object to keep track of quantities for each brand-category pair
+//         let quantities = {};
+    
+//         // Fill quantities with actual data
+//         for (let p = 0; p < sales_data_element.products.length; p++) {
+//             const data_final = sales_data_element.products[p];
+//             // console.log(data_final)
+//             quantities[`${data_final.brand}-${data_final.category}`] = data_final.qty;
+//         }
+    
+//         // Iterate over all possible brand-category pairs
+//         for (let a = 0; a < array_data["cat_brand"].length; a++) {
+//             const data_brand = array_data["cat_brand"][a];
+//             const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+//             if (quantities[key] !== undefined) {
+//                 htmlContent += `<td class="row_data">${quantities[key]}</td>`;
+//             } else {
+//                 htmlContent += `<td class="row_data">0</td>`;
+//             }
+//         }
+//         htmlContent += `<td class="row_data">${sales_data_element.totalQty}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.totalGross}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.discount}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.NetPrice.toFixed(2)}</td>`;
+//         htmlContent += `</tr>`;
+//     }
+    
+    
+//     return htmlContent;
+
+
+const sales_sa_data = await sales_sa.aggregate([
+    {
+        $match: {
+            date: from,
+            sales_staff_id: staff_id,
+            "sale_product.isFG": "false"
+        }
+    },
+    {
+        $unwind: "$sale_product"
+    },
+    // {
+    //     $match: {
+    //         "sale_product.isFG": "false"
+    //     }
+    // },
+    {
+        $lookup: {
+            from: "products",
+            localField: "sale_product.product_code",
+            foreignField: "product_code",
+            as: "product_info"
+        }
+    },
+    {
+        $unwind: "$product_info"
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$dsi",
+                date: "$date",
+                customer: "$customer"
+            },
+            totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+            products: {
+                $push: {
+                    qty: "$sale_product.real_qty_unit_val",
+                    NetPrice: "$sale_product.totalprice",
+                    discount: "$sale_product.discount",
+                    adj_discount: "$sale_product.adj_discount",
+                    
+                    product_details: {
+                        prod_name: "$product_info.name",
+                        product_code: "$product_info.product_code",
+                        category: "$product_info.category",
+                        brand: "$product_info.brand",
+                        gross_price: "$product_info.gross_price",
+                        isFG: "$sale_product.isFG",
+                        prod_cat: "$sale_product.prod_cat",
+                        
+                    }
+                }
+            }
+        }
+    },
+    {
+        $unwind: "$products"
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$_id.dsi",
+                date: "$_id.date",
+                customer: "$_id.customer",
+                category: "$products.product_details.category",
+                brand: "$products.product_details.brand"
+            },
+            totalQty: { $sum: "$products.qty" },
+            totalGross: { $sum: { $multiply: ["$products.qty", "$products.product_details.gross_price"] } },
+            NetPrice: { $sum: "$products.NetPrice" },
+            discount: { $sum: "$products.discount" },
+            adj_discount: { $sum: "$products.adj_discount" },
+            // isFG: { $first: "$products.isFG"},
+            // prod_cat: { $first: "$products.prod_cat"},
+            product_details: { $first: "$products.product_details" }
+        }
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$_id.dsi",
+                date: "$_id.date",
+                customer: "$_id.customer"
+            },
+            totalQty: { $sum: "$totalQty" },
+            totalGross: { $sum: "$totalGross" },
+            NetPrice: { $sum: "$NetPrice" },
+            discount: { $sum: "$discount" },
+            adj_discount: { $sum: "$adj_discount" },
+            // isFG: { $first: "$isFG" },
+            // prod_cat: { $first: "$prod_cat" },
+            products: {
+                $push: {
+                    qty: "$totalQty",
+                    category: "$_id.category",
+                    brand: "$_id.brand",
+                    product_details: "$product_details"
+                }
+            }
+        }
+    },
+    {
+        $sort: {
+            "_id.dsi": -1, // Sort by category in ascending order
+            "_id.date": 1,  // Sort by brand in ascending order
+        }
+    }
+]);
+
+
+const sales_sa_data_kahapon = await sales_sa.aggregate([
+    {
+        $match: {
+            date: formattedDate,
+            sales_staff_id: staff_id,
+            "sale_product.isFG": "false"
+        }
+    },
+    {
+        $unwind: "$sale_product"
+    },
+    // {
+    //     $match: {
+    //         "sale_product.isFG": "false"
+    //     }
+    // },
+    {
+        $lookup: {
+            from: "products",
+            localField: "sale_product.product_code",
+            foreignField: "product_code",
+            as: "product_info"
+        }
+    },
+    {
+        $unwind: "$product_info"
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$dsi",
+                date: "$date",
+                customer: "$customer"
+            },
+            totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+            products: {
+                $push: {
+                    qty: "$sale_product.real_qty_unit_val",
+                    NetPrice: "$sale_product.totalprice",
+                    discount: "$sale_product.discount",
+                    adj_discount: "$sale_product.adj_discount",
+                    
+                    product_details: {
+                        prod_name: "$product_info.name",
+                        product_code: "$product_info.product_code",
+                        category: "$product_info.category",
+                        brand: "$product_info.brand",
+                        gross_price: "$product_info.gross_price",
+                        isFG: "$sale_product.isFG",
+                        prod_cat: "$sale_product.prod_cat",
+                        
+                    }
+                }
+            }
+        }
+    },
+    {
+        $unwind: "$products"
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$_id.dsi",
+                date: "$_id.date",
+                customer: "$_id.customer",
+                category: "$products.product_details.category",
+                brand: "$products.product_details.brand"
+            },
+            totalQty: { $sum: "$products.qty" },
+            totalGross: { $sum: { $multiply: ["$products.qty", "$products.product_details.gross_price"] } },
+            NetPrice: { $sum: "$products.NetPrice" },
+            discount: { $sum: "$products.discount" },
+            adj_discount: { $sum: "$products.adj_discount" },
+            // isFG: { $first: "$products.isFG"},
+            // prod_cat: { $first: "$products.prod_cat"},
+            product_details: { $first: "$products.product_details" }
+        }
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$_id.dsi",
+                date: "$_id.date",
+                customer: "$_id.customer"
+            },
+            totalQty: { $sum: "$totalQty" },
+            totalGross: { $sum: "$totalGross" },
+            NetPrice: { $sum: "$NetPrice" },
+            discount: { $sum: "$discount" },
+            adj_discount: { $sum: "$adj_discount" },
+            // isFG: { $first: "$isFG" },
+            // prod_cat: { $first: "$prod_cat" },
+            products: {
+                $push: {
+                    qty: "$totalQty",
+                    category: "$_id.category",
+                    brand: "$_id.brand",
+                    product_details: "$product_details"
+                }
+            }
+        }
+    },
+    {
+        $sort: {
+            "_id.dsi": -1, // Sort by category in ascending order
+            "_id.date": 1,  // Sort by brand in ascending order
+        }
+    }
+]);
+
+// console.log(sales_sa_data_kahapon);
+
+let rows = [];
+
+let merged_totals = {};
+let data_totals = {}
+var sum = 0;
+var netPay = 0;
+var discountAll = 0
+var discounttotal = 0;
+var totalGrossAll = 0;
+const rowsPerPage = 6;
+// let isProdCat2 = {};
+for (let z = 0; z <= sales_sa_data.length -1; z++) {
+    const sales_data_element = sales_sa_data[z];
+    let row = `<tr>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.customer}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.dsi}</td>`;
+    
+    
+    
+    let quantities = {};
+    let isFGdata = {};
+    let isProdCat = {};
+    var totalPrimUnit = 0;
+    var totalSecUnit = 0;
+    var totalFG= 0;
+
+  
+    
+    var x = 0;
+    for (let p = 0; p <= sales_data_element.products.length -1; p++) {
+        const data_final = sales_data_element.products[p];
+        quantities[`${data_final.brand}-${data_final.category}`] = data_final.qty;
+        isFGdata[[`${data_final.brand}-${data_final.category}`]] = data_final.product_details.isFG ;
+        isProdCat[[`${data_final.brand}-${data_final.category}`]] = data_final.product_details.prod_cat;
+        // isProdCat2[[`${data_final.brand}-${data_final.category}`]] = data_final.product_details.prod_cat;
+        const key = `${data_final.brand}-${data_final.category}`;
+
+
+        if (!Array.isArray(data_totals[key])) {
+            data_totals[key]= [];
+        }
+
+        if (!Array.isArray(data_totals[key])) {
+            data_totals[key] = [];
+        }
+        data_totals[key].push(data_final.qty);
+        x++;
+    }
+
+    for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
+        const data_brand = array_data["cat_brand"][a];
+        const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+        const dataisProdCat = isProdCat[key] !== undefined ? isProdCat[key] : "NA";
+        // console.log(isProdCat)
+        if(dataisProdCat == "P"){
+            const dataisFGdata = isFGdata[key] !== undefined ? isFGdata[key] : "NA";
+            // console.log(dataisFGdata)
+            if(dataisFGdata == "true"){
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;" >${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
+
+
+                row += `<input type="hidden" name="inCar" value="${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}">`;
+                
+                totalFG += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
+            }else {
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+
+                totalPrimUnit += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
+
+                
+            }
+            
+        }else if(dataisProdCat == "S"){
+            // row += `<td class="row_data" style="border: 1px solid black; text-align: right;">0</td>`;
+            // row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
+            // row += `<td class="row_data" style="border: 1px solid black; text-align: right;">0</td>`;
+            const dataisFGdata = isFGdata[key] !== undefined ? isFGdata[key] : "NA";
+            if(dataisFGdata == "true"){
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
+
+                totalFG += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
+            }else {
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
+                row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+                totalSecUnit += quantities[key] !== undefined ? quantities[key].toFixed(2) : ""
+
+            }
+        }else{
+            row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`; 
+            row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+            row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+        }
+    }
+    row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: right;"></td>`;
+    discountAll = sales_data_element.discount + sales_data_element.adj_discount
+
+
+
+    
+   
+    
+    rows.push(row);
+}
+
+
+
+
+
+
+
+
+
+
+    
+function paginateRows(rows, rowsPerPage) {
+    const pages = [];
+    for (let i = 0; i <= rows.length -1; i += rowsPerPage) {
+        pages.push(rows.slice(i, i + rowsPerPage));
+    }
+    return pages;
+}
+
+
+const pages = paginateRows(rows, rowsPerPage);
+// console.log(pages)
+let htmlContent = "";
+pages.forEach((page, pageIndex) => {
+    if (pageIndex > 0) {
+        htmlContent += `<div style="page-break-before: always;"></div>`;
+    }
+    htmlContent += `<table>`;
+    htmlContent += `<thead>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="24" class="cat_data" style="width:100px"><b></b></td>`;
+    htmlContent += `<td colspan="5" class="cat_data" style="width:200px"><b>MODE OF PAYMENT</b></td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="1" class="cat_data" style="width:20px"><b>#</b></td>`;
+    htmlContent += `<td colspan="1" class="cat_data" style="width:200px"><b>CUSTOMER ADDRESS</b></td>`;
+    htmlContent += `<td colspan="1" class="cat_data"><b>DSI#PR#</b></td>`;
+    
+    
+    for (let a = 0; a <= product_cat.length -1; a++) {
+        const thdata = product_cat[a];
+        for (let b = 0; b < array_data["cat_brand"].length; b++) {
+            const element = array_data["cat_brand"][b];
+            if (element._id.category === thdata._id.category) {
+                var theTitle = ""
+                switch(thdata._id.category){
+                    case "Standard":
+                        theTitle = element._id.brand + " - STD"
+                    break;
+                    case "Household":
+                        theTitle = element._id.brand + " - HH"
+                    break;
+                    default:
+                        theTitle = element._id.brand
+                    break;
+                }
+                htmlContent += `<td class="cat_data" colspan="3"><b>${theTitle}</b></td>`;
+            }
+        }
+    }
+    htmlContent += `<td colspan="1" rowspan="2" class="cat_data"><b>CASH</b></td>`;
+    htmlContent += `<td colspan="1" rowspan="2" class="cat_data"><b>AMOUNT</b></td>`
+    htmlContent += `<td colspan="3" rowspan="1" class="cat_data"><b>CHECK</b></td>`;
+    htmlContent += `</tr>`;
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="cat_data" colspan="3"></td>`;
+    for (let index = 0; index <= array_data["cat_brand"].length -1 ; index++) {
+        const element = array_data[index];
+        htmlContent += `<td class="cat_data"><b>IN CAR</b></td>`;
+        htmlContent += `<td class="cat_data"><b>IN PC</b></td>`;
+        htmlContent += `<td class="cat_data"><b>FG</b></td>`;
+        
+    }
+
+    htmlContent += `<td class="cat_data" colspan="1"><b>BANK</b></td>`;
+    htmlContent += `<td class="cat_data" colspan="1"><b>CHECK #</b></td>`;
+    htmlContent += `<td class="cat_data" colspan="1"><b>DUE DATE</b></td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `</thead>`;
+    htmlContent += `<tbody>`;
+    page.forEach(row => {
+        htmlContent += row;
+    });
+    // htmlContent += `<tr>`;
+    // htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;" colspan="`+ ((array_data["cat_brand"].length*3) + 9) +`"><b>************ NOTHING TO FOLLOWS ************</b></td>`;
+    // htmlContent += `</tr>`;
+// console.log(totals)
+
+
+    // row += `<tr>`;
+    // row += `<td colspan="3"><b>TOTAL<b>`;
+    // row += `</td>`;
+    let isProdCat2 = {};
+    let isFGdata2 = {};
+    let totals = {};
+
+    let isProdCat3 = {};
+    let isFGdata3 = {};
+    let totalsP = {};
+    let totalsS = {};
+    let totalsFG = {};
+    for (let n = 0; n <= sales_sa_data.length -1; n++) {
+        const sales_data_element2 = sales_sa_data[n];
+        // console.log(sales_data_element2._id.dsi)
+        var x = 0;
+        // isProdCat2[x] = {}
+        for (let a = 0; a <= sales_data_element2.products.length -1; a++) {
+            const data_final = sales_data_element2.products[a];
+            
+            
+            const key = `${data_final.brand}-${data_final.category}`;
+
+            if (!isProdCat2[n]) {
+                isProdCat2[n] = {};
+            }
+
+            if (!isProdCat2[n][key]) {
+                isProdCat2[n][key]= {};
+            }
+            isProdCat2[n][key] = data_final.product_details.prod_cat;
+
+            
+
+            if (!isFGdata2[n]) {
+                isFGdata2[n] = {};
+            }
+
+            if (!isFGdata2[n][key]) {
+                isFGdata2[n][key]= {};
+            }
+            isFGdata2[n][key] = data_final.product_details.isFG ;
+            // console.log(data_final.product_details.isFG + " <> " + data_final.product_details.prod_cat)
+            // console.log(key)
+            if (!totals[key]) {
+                totals[key] = {};
+            }
+    
+            if (!totals[key][data_final.product_details.prod_cat]) {
+                totals[key][data_final.product_details.prod_cat] = {};
+            }
+    
+            if (!totals[key][data_final.product_details.prod_cat][data_final.product_details.isFG]) {
+                totals[key][data_final.product_details.prod_cat][data_final.product_details.isFG] = 0;
+            }
+
+
+            
+            totals[key][data_final.product_details.prod_cat][data_final.product_details.isFG] += data_final.qty;
+
+
+            if (!isProdCat3[key]) {
+                isProdCat3[key] = {};
+            }
+
+            if (!isProdCat3[key][sales_data_element2._id.dsi]) {
+                isProdCat3[key][sales_data_element2._id.dsi] = 0;
+            }
+
+            isProdCat3[key][sales_data_element2._id.dsi] = data_final.product_details.prod_cat;
+
+
+            if (!isFGdata3[key]) {
+                isFGdata3[key] = {};
+            }
+
+            if (!isFGdata3[key][sales_data_element2._id.dsi]) {
+                isFGdata3[key][sales_data_element2._id.dsi] = {};
+            }
+            isFGdata3[key][sales_data_element2._id.dsi] = data_final.product_details.isFG ;
+
+            if(data_final.product_details.prod_cat == "P"){
+
+                if(data_final.product_details.isFG == "true"){
+
+                    if (!totalsFG[key]) {
+                        totalsFG[key] = 0;
+                    }
+        
+                    totalsFG[key]  += data_final.qty;
+                    
+                }else{
+                    if (!totalsP[key]) {
+                        totalsP[key] =0;
+                    }
+                    totalsP[key]  += data_final.qty;
+                }
+               
+            }else if(data_final.product_details.prod_cat == "S"){
+                if(data_final.product_details.isFG == "true"){
+
+                    if (!totalsFG[key]) {
+                        totalsFG[key] = 0;
+                    }
+        
+                    totalsFG[key]  += data_final.qty;
+                    
+                }else{
+                    if (!totalsS[key]) {
+                        totalsS[key] =0;
+                    }
+                    totalsS[key]  += data_final.qty;
+                }
+            }
+            x++;
+        }
+     
+    }
+
+
+    let totalsPK = {};
+    let totalsSK = {};
+    let totalsFGK = {};
+
+    for (let o = 0; o <= sales_sa_data_kahapon.length -1; o++) {
+        const sales_data_element2 = sales_sa_data_kahapon[o];
+
+        var x = 0;
+        // isProdCat2[x] = {}
+        for (let a = 0; a <= sales_data_element2.products.length -1; a++) {
+            const data_final = sales_data_element2.products[a];
+            console.log(sales_data_element2)
+            
+            const key = `${data_final.brand}-${data_final.category}`;
+
+            if(data_final.product_details.prod_cat == "P"){
+
+                if(data_final.product_details.isFG == "true"){
+
+                    if (!totalsFGK[key]) {
+                        totalsFGK[key] = 0;
+                    }
+        
+                    totalsFGK[key]  += data_final.qty;
+                    
+                }else{
+                    if (!totalsPK[key]) {
+                        totalsPK[key] =0;
+                    }
+                    totalsPK[key]  += data_final.qty;
+                }
+               
+            }else if(data_final.product_details.prod_cat == "S"){
+                if(data_final.product_details.isFG == "true"){
+
+                    if (!totalsFGK[key]) {
+                        totalsFGK[key] = 0;
+                    }
+        
+                    totalsFGK[key]  += data_final.qty;
+                    
+                }else{
+                    if (!totalsSK[key]) {
+                        totalsSK[key] =0;
+                    }
+                    totalsSK[key]  += data_final.qty;
+                }
+            }
+            x++;
+        }
+     
+    }
+
+
+    
+//    console.log(totalsFGK)
+
+
+    
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;"><b></b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"><b>SALES TODAY</b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+
+    for (let m = 0; m <= array_data["cat_brand"].length-1; m++) {
+        const data_brand = array_data["cat_brand"][m];
+        const key1 = `${data_brand._id.brand}-${data_brand._id.category}`;
+        var primaryData = totalsP[key1]!== undefined ? formatNumber(totalsP[key1].toFixed(2))  : "";
+        var FGData = totalsFG[key1]!== undefined ? formatNumber(totalsFG[key1].toFixed(2))  : "";
+        var secondaryData = totalsS[key1]!== undefined ? formatNumber(totalsS[key1].toFixed(2))  : "";
+            
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${primaryData}</b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${secondaryData}</b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${FGData}</b></td>`;
+    }
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `</tr>`;
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;"><b></b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"><b>ADD: PREVIOUS</b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    // date used minus 1
+    // let totalsPK = {};
+    // let totalsSK = {};
+    // let totalsFGK = {};
+    for (let m = 0; m <= array_data["cat_brand"].length-1; m++) {
+        const data_brand = array_data["cat_brand"][m];
+        const key1 = `${data_brand._id.brand}-${data_brand._id.category}`;
+        var primaryData = totalsPK[key1]!== undefined ? formatNumber(totalsPK[key1].toFixed(2))  : "";
+        var FGData = totalsFGK[key1]!== undefined ? formatNumber(totalsFGK[key1].toFixed(2))  : "";
+        var secondaryData = totalsSK[key1]!== undefined ? formatNumber(totalsSK[key1].toFixed(2))  : "";
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${primaryData}</b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${secondaryData}</b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${FGData}</b></td>`
+    }
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `</tr>`;
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;"><b></b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"><b>TOTAL SALES TO DATE</b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+
+    let PrimTotalAllData = 0
+    let SecTotalAllData = 0
+    let FGTotalAllData = 0
+
+    for (let m = 0; m <= array_data["cat_brand"].length-1; m++) {
+        const data_brand = array_data["cat_brand"][m];
+        const key1 = `${data_brand._id.brand}-${data_brand._id.category}`;
+        var primaryData5 = totalsP[key1]!== undefined ? totalsP[key1].toFixed(2)  : "0";
+        var FGData5 = totalsFG[key1]!== undefined ? totalsFG[key1].toFixed(2)  : "0";
+        var secondaryData5 = totalsS[key1]!== undefined ? totalsS[key1].toFixed(2)  : "0";
+
+
+
+        var primaryData4 = totalsPK[key1]!== undefined ? totalsPK[key1].toFixed(2)  : "0";
+        var FGData4 = totalsFGK[key1]!== undefined ? totalsFGK[key1].toFixed(2)  : "0";
+        var secondaryData4 = totalsSK[key1]!== undefined ? totalsSK[key1].toFixed(2)  : "0";
+
+        PrimTotalAllData = (parseFloat(primaryData5)+parseFloat(primaryData4));
+        SecTotalAllData = (parseFloat(secondaryData5)+parseFloat(secondaryData4));
+        FGTotalAllData = (parseFloat(FGData5)+parseFloat(FGData4));
+
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${formatNumber(PrimTotalAllData.toFixed(2))}</b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${formatNumber(SecTotalAllData.toFixed(2))}</b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${formatNumber(FGTotalAllData.toFixed(2))}</b></td>`;
+    }
+
+    /// the total All
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `</tr>`;
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td height="50px" class="row_data" style="border: 1px solid black; text-align: center;" colspan="`+ ((array_data["cat_brand"].length*3) + 9) +`"><b></b></td>`;
+    htmlContent += `</tr>`;
+    //another table
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;"><b></b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"><b>BEGINNING INVENTORY</b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+
+    for (let m = 0; m <= array_data["cat_brand"].length-1; m++) {
+        const data_brand = array_data["cat_brand"][m];
+        const key1 = `${data_brand._id.brand}-${data_brand._id.category}`;
+        var primaryData5 = totalsP[key1]!== undefined ? totalsP[key1].toFixed(2)  : "0";
+        var FGData5 = totalsFG[key1]!== undefined ? totalsFG[key1].toFixed(2)  : "0";
+        var secondaryData5 = totalsS[key1]!== undefined ? totalsS[key1].toFixed(2)  : "0";
+
+
+
+        var primaryData4 = totalsPK[key1]!== undefined ? totalsPK[key1].toFixed(2)  : "0";
+        var FGData4 = totalsFGK[key1]!== undefined ? totalsFGK[key1].toFixed(2)  : "0";
+        var secondaryData4 = totalsSK[key1]!== undefined ? totalsSK[key1].toFixed(2)  : "0";
+
+        PrimTotalAllData = (parseFloat(primaryData5)+parseFloat(primaryData4));
+        SecTotalAllData = (parseFloat(secondaryData5)+parseFloat(secondaryData4));
+        FGTotalAllData = (parseFloat(FGData5)+parseFloat(FGData4));
+
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+    }
+
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `</tr>`
+
+
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;"><b></b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"><b>ADDITIONAL/WITHDRAWAL</b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+
+    for (let m = 0; m <= array_data["cat_brand"].length-1; m++) {
+        const data_brand = array_data["cat_brand"][m];
+        const key1 = `${data_brand._id.brand}-${data_brand._id.category}`;
+        var primaryData5 = totalsP[key1]!== undefined ? totalsP[key1].toFixed(2)  : "0";
+        var FGData5 = totalsFG[key1]!== undefined ? totalsFG[key1].toFixed(2)  : "0";
+        var secondaryData5 = totalsS[key1]!== undefined ? totalsS[key1].toFixed(2)  : "0";
+
+
+
+        var primaryData4 = totalsPK[key1]!== undefined ? totalsPK[key1].toFixed(2)  : "0";
+        var FGData4 = totalsFGK[key1]!== undefined ? totalsFGK[key1].toFixed(2)  : "0";
+        var secondaryData4 = totalsSK[key1]!== undefined ? totalsSK[key1].toFixed(2)  : "0";
+
+        PrimTotalAllData = (parseFloat(primaryData5)+parseFloat(primaryData4));
+        SecTotalAllData = (parseFloat(secondaryData5)+parseFloat(secondaryData4));
+        FGTotalAllData = (parseFloat(FGData5)+parseFloat(FGData4));
+
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+    }
+
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `</tr>`
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;"><b></b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"><b>TOTAL STOCK ON HAND</b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+
+    for (let m = 0; m <= array_data["cat_brand"].length-1; m++) {
+        const data_brand = array_data["cat_brand"][m];
+        const key1 = `${data_brand._id.brand}-${data_brand._id.category}`;
+        var primaryData5 = totalsP[key1]!== undefined ? totalsP[key1].toFixed(2)  : "0";
+        var FGData5 = totalsFG[key1]!== undefined ? totalsFG[key1].toFixed(2)  : "0";
+        var secondaryData5 = totalsS[key1]!== undefined ? totalsS[key1].toFixed(2)  : "0";
+
+
+
+        var primaryData4 = totalsPK[key1]!== undefined ? totalsPK[key1].toFixed(2)  : "0";
+        var FGData4 = totalsFGK[key1]!== undefined ? totalsFGK[key1].toFixed(2)  : "0";
+        var secondaryData4 = totalsSK[key1]!== undefined ? totalsSK[key1].toFixed(2)  : "0";
+
+        PrimTotalAllData = (parseFloat(primaryData5)+parseFloat(primaryData4));
+        SecTotalAllData = (parseFloat(secondaryData5)+parseFloat(secondaryData4));
+        FGTotalAllData = (parseFloat(FGData5)+parseFloat(FGData4));
+
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+    }
+
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `</tr>`
+
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;"><b></b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"><b>SALES TODAY</b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+
+    for (let m = 0; m <= array_data["cat_brand"].length-1; m++) {
+        const data_brand = array_data["cat_brand"][m];
+        const key1 = `${data_brand._id.brand}-${data_brand._id.category}`;
+        var primaryData5 = totalsP[key1]!== undefined ? totalsP[key1].toFixed(2)  : "";
+        var FGData5 = totalsFG[key1]!== undefined ? totalsFG[key1].toFixed(2)  : "";
+        var secondaryData5 = totalsS[key1]!== undefined ? totalsS[key1].toFixed(2)  : "";
+
+
+
+        var primaryData4 = totalsPK[key1]!== undefined ? totalsPK[key1].toFixed(2)  : "";
+        var FGData4 = totalsFGK[key1]!== undefined ? totalsFGK[key1].toFixed(2)  : "";
+        var secondaryData4 = totalsSK[key1]!== undefined ? totalsSK[key1].toFixed(2)  : "";
+
+        PrimTotalAllData = formatNumber((parseFloat(primaryData5)+parseFloat(primaryData4)));
+        SecTotalAllData = formatNumber((parseFloat(secondaryData5)+parseFloat(secondaryData4)));
+        FGTotalAllData = formatNumber((parseFloat(FGData5)+parseFloat(FGData4)));
+
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${primaryData5}</b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${secondaryData5}</b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${FGData5}</b></td>`;
+    }
+
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `</tr>`
+
+
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;"><b></b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"><b>ENDING INVENTORY</b></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+
+    for (let m = 0; m <= array_data["cat_brand"].length-1; m++) {
+        const data_brand = array_data["cat_brand"][m];
+        const key1 = `${data_brand._id.brand}-${data_brand._id.category}`;
+        var primaryData5 = totalsP[key1]!== undefined ? totalsP[key1].toFixed(2)  : "0";
+        var FGData5 = totalsFG[key1]!== undefined ? totalsFG[key1].toFixed(2)  : "0";
+        var secondaryData5 = totalsS[key1]!== undefined ? totalsS[key1].toFixed(2)  : "0";
+
+
+
+        var primaryData4 = totalsPK[key1]!== undefined ? totalsPK[key1].toFixed(2)  : "0";
+        var FGData4 = totalsFGK[key1]!== undefined ? totalsFGK[key1].toFixed(2)  : "0";
+        var secondaryData4 = totalsSK[key1]!== undefined ? totalsSK[key1].toFixed(2)  : "0";
+
+        PrimTotalAllData = (parseFloat(primaryData5)+parseFloat(primaryData4));
+        SecTotalAllData = (parseFloat(secondaryData5)+parseFloat(secondaryData4));
+        FGTotalAllData = (parseFloat(FGData5)+parseFloat(FGData4));
+
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b></b></td>`;
+    }
+
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"></td>`;
+    htmlContent += `</tr>`
+
+
+    
+    
+    htmlContent += `</tbody>`;
+    htmlContent += `</table>`;
+    // htmlContent += `<div style="page-break-after:always;"></div>`;
+});
+
+
+return htmlContent;
+}
+
+router.post('/dsrr/pdf', auth, async (req, res) => {
+
+    const {from_date} = req.body
+    const role_data = req.user
+    const stff_data = await staff.findOne({ email: role_data.email })
+    const image = await master_shop.find();
+    const datatest = await agentsdataDSICheck_DSRR(from_date, stff_data._id.valueOf(), isExcel);
+    let htmlContent = `
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%; /* Ensure table uses the full width */
+        }
+        th, td {
+            border: 1px solid black;
+            text-align: center;
+        }
+        th {
+            background-color: #d0cece;
+            padding: 8px;
+            color: black;
+        }
+        @media print {
+           table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            th { page-break-inside: avoid; page-break-after: auto; }
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 12pt;
+        }
+
+        @media (max-width: 1024px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        
+            
+    </style>
+`;
+
+    
+    var from_string_date = new Date(from_date);
+    // var to_string_date = new Date(to_date);
+
+    const options3 = { 
+        // weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+    const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
+    // const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
+      
+    htmlContent += `<div class="row">`;
+    htmlContent += `<div  id="table-conatainer">`;
+    htmlContent += `<table>`;
+    htmlContent += datatest;
+    htmlContent += `</table>`;
+    htmlContent += `</div>`;
+    htmlContent += `</div>`;
+
+    let dataImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxYxAAACD0S0HV4xFoAAAAAElFTkSuQmCC';
+    const options = {
+        width: '15in',  // Set custom width (e.g., 11 inches)
+        height: '8.5in',
+        orientation: 'landscape', // Landscape mode
+        border: {
+            top: "0.1in",
+            right: "0.1in",
+            bottom: "0.1in",
+            left: "0.1in"
+        },
+        header: {
+            height: "60mm", // Adjust header height
+            contents: `
+            <div style="text-align: center;">
+                <img src="${dataImage}" style="max-width: 100%; height: auto;" />
+                <h1>JAKA EQUITIES CORP</h1>
+                <p>SALES REPORTS - EXTRUCK</p>
+                <p>${from_formattedDate}</p>
+                <br><br><br><br><br><br><br><br><br><br>
+            </div>
+        `
+        },
+        footer: {
+            height: "20mm", // Adjust footer height
+            contents: {
+                default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>' // Page number
+            }
+        },
+        dpi: 5,  // Set DPI for consistency
+        zoomFactor: '1' // Ensure the same zoom level
+    };
+    res.send(htmlContent);
+    return
+   var isExcel = "on";
+    if(isExcel == "on"){
+        // const $ = cheerio.load(htmlContent);
+
+        // let data = [];
+        // $('table tr').each((i, row) => {
+        //     let rowData = [];
+        //     $(row).find('td, th').each((j, cell) => {
+        //         // rowData.push($(cell).text().trim());
+        //         let cellText = $(cell).text().trim();
+        //         let cellValue = parseFloat(cellText.replace(/,/g, ''));
+
+        //         if (!isNaN(cellValue)) {
+        //             rowData.push(cellValue);
+        //         } else {
+        //             rowData.push(cellText);
+        //         }
+        //     });
+        //     data.push(rowData);
+        // });
+
+        // const wb = XLSX.utils.book_new();
+        // const ws = XLSX.utils.aoa_to_sheet(data);
+        // XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+        // // Write the workbook to a buffer
+        // const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+        // // Send the file to the client as a download
+        // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+        // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        // res.send(fileBuffer);
+       ///////////END ORIGINAL/////////////////////
+        // const $ = cheerio.load(htmlContent);
+        // let data = [];
+        // let merges = [];
+
+        // $('table tr').each((i, row) => {
+        //     let rowData = [];
+        //     let rowIndex = i;
+        //     let colIndex = 0;
+
+        //     $(row).find('td, th').each((j, cell) => {
+        //         let cellText = $(cell).text().trim();
+        //         let cellValue = parseFloat(cellText.replace(/,/g, ''));
+
+        //         // Parse colspan and rowspan
+        //         let colspan = parseInt($(cell).attr('colspan')) || 1;
+        //         let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+
+        //         // Add the cell value
+        //         if (!isNaN(cellValue)) {
+        //             rowData[colIndex] = cellValue;
+        //         } else {
+        //             rowData[colIndex] = cellText;
+        //         }
+
+        //         // Add merge information if colspan or rowspan is greater than 1
+        //         if (colspan > 1 || rowspan > 1) {
+        //             merges.push({
+        //                 s: { r: rowIndex, c: colIndex }, // start position
+        //                 e: { r: rowIndex + rowspan - 1, c: colIndex + colspan - 1 } // end position
+        //             });
+        //         }
+
+        //         // Move to the next column index considering colspan
+        //         colIndex += colspan;
+        //     });
+
+        //     data.push(rowData);
+        // });
+
+        // // Create the worksheet and add merge information
+        // const wb = XLSX.utils.book_new();
+        // const ws = XLSX.utils.aoa_to_sheet(data);
+
+        // // Apply merges to the worksheet
+        // ws['!merges'] = merges;
+
+        // XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+        // // Write the workbook to a buffer
+        // const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+        // // Send the file to the client as a download
+        // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+        // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        // res.send(fileBuffer);
+
+
+        const $ = cheerio.load(htmlContent);
+
+let data = [];
+let merges = [];
+let colSpans = []; // To track active column spans
+
+$('table tr').each((i, row) => {
+    let rowData = [];
+    let colIndex = 0;
+
+    // Adjust colIndex for any ongoing colspans from previous rows
+    while (colSpans[colIndex]) {
+        colSpans[colIndex]--;
+        colIndex++;
+    }
+
+    $(row).find('td, th').each((j, cell) => {
+        let cellText = $(cell).text().trim();
+
+        // Attempt to convert cell text to a number if possible
+        let cellValue = parseFloat(cellText.replace(/,/g, ''));
+
+        // Use the cell text if it's not a valid number
+        if (isNaN(cellValue)) {
+            cellValue = cellText;
+        }
+
+        // Parse colspan and rowspan
+        let colspan = parseInt($(cell).attr('colspan')) || 1;
+        let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+
+        // Add the cell value to the rowData array at the correct column index
+        rowData[colIndex] = cellValue;
+
+        // Add merge information if colspan or rowspan is greater than 1
+        if (colspan > 1 || rowspan > 1) {
+            merges.push({
+                s: { r: i, c: colIndex }, // start position
+                e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
+            });
+        }
+
+        // Track colspans across rows (for correct placement in the next row)
+        for (let k = 0; k < colspan; k++) {
+            if (rowspan > 1) {
+                colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+            }
+        }
+
+        // Move to the next column index, considering colspan
+        colIndex += colspan;
+    });
+
+    data.push(rowData);
+});
+
+// Create the worksheet and add merge information
+const wb = XLSX.utils.book_new();
+const ws = XLSX.utils.aoa_to_sheet(data);
+
+// Apply merges to the worksheet
+if (merges.length > 0) {
+    ws['!merges'] = merges;
+}
+
+// Optionally, set column widths or other formatting
+ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
+
+// Append the worksheet to the workbook
+XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+// Write the workbook to a buffer
+const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+// Send the file to the client as a download (if using Express.js)
+res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+res.send(fileBuffer);
+
+    }else{
+        pdf.create(htmlContent, options).toStream(function(err, stream) {
+            if (err) {
+                res.status(500).send('Error generating PDF');
+                return;
+            }
+            res.setHeader('Content-Type', 'application/pdf');
+            stream.pipe(res);
+        });
+    }
+    
+    
+});
 
 module.exports = router;

@@ -159,9 +159,13 @@
                                                         <div class="col-xl-4 col-sm-4">
                                                             <div class="form-group">
                                                                 <label for="invoice_no">File Attachment: <span class="text-red">*</span></label>
-                                                                <span><h3><%= sales_sa.file %></h3></span>
+                                                                <% const datafile = sales_sa.file.split("~") %>
+                                                                <a href="/sales_invoice/<%= sales_sa.file %>" class="btn btn-rounded btn-info text-white" target="_blank"><%= datafile[1] %></a>
 
-                                                                <img id="myImg" src="/sales_invoice/<%= sales_sa.file %>" alt="<%= sales_sa.file %>" style="width:100%;max-width:300px">
+                                                                <!-- <span><h3><%= sales_sa.file %></h3></span> -->
+
+                                                                <!-- <img id="myImg" src="/sales_invoice/<%= sales_sa.file %>" alt="<%= sales_sa.file %>" style="width:100%;max-width:300px"> -->
+                                                                <!-- <iframe id="myImg" src="/sales_invoice/<%= sales_sa.file %>" title="W3Schools Free Online Web Tutorials"></iframe> -->
                                                             </div>
                                                         </div>
                                                             
@@ -207,7 +211,7 @@
                                                                         <th scope="col">Unit of Measure </th>
                                                                         <th scope="col">Conversion </th>
                                                                         <th scope="col">Price </th>
-                                                                        <th scope="col">Discount Price </th>
+                                                                        <!-- <th scope="col">Discount Price </th> -->
                                                                         <th scope="col">Discount Adjustment </th>
                                                                         <th scope="col">Total Price </th>
                                                                     </tr>
@@ -246,7 +250,7 @@
                                                                             
                                                                             <td><%= data.conversion_data %></td>
                                                                             <td><%= nFormat.format(data.price) %></td>
-                                                                            <td><%= nFormat.format(data.discount) %></td>
+                                                                            <!-- <td><%= nFormat.format(data.discount) %></td> -->
                                                                             <td><%= nFormat.format(data.adj_discount) %></td>
                                                                             <td><%= nFormat.format(data.totalprice)  %></td>
                                                                             <% total += parseInt(data.totalprice)  %>
@@ -266,7 +270,7 @@
                                                                         <td></td>
                                                                         <td></td>
                                                                         <td><b><%= nFormat.format(totalprices) %></b></td>
-                                                                        <td><b><%= (totaldiscprice != null && !isNaN(totaldiscprice)) ? nFormat.format(totaldiscprice) : 0 %></b></td>
+                                                                        <!-- <td><b><%= (totaldiscprice != null && !isNaN(totaldiscprice)) ? nFormat.format(totaldiscprice) : 0 %></b></td> -->
                                                                         <td><b><%= (totaladjdiscprice != null && !isNaN(totaladjdiscprice)) ? nFormat.format(totaladjdiscprice) : 0 %></b></td>
                                                                         <td><b><%= nFormat.format(total) %></b></td>
                                                                     </tr>
