@@ -5148,4 +5148,397 @@ res.send(fileBuffer);
     
 });
 
+
+
+router.get("/dsrr_admin/view", auth, async (req, res) => {
+    try {
+        const {username, email, role} = req.user
+        const role_data = req.user
+        
+        const profile_data = await profile.findOne({email : role_data.email})
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const master = await master_shop.find()
+        console.log("Products master" , master);
+
+        const find_data = await product.find();
+        console.log("Products find_data", find_data);
+
+
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $unwind: "$product_details"
+            },
+            {
+                $lookup:
+                {
+                    from: "products",
+                    localField: "product_details.product_name",
+                    foreignField: "name",
+                    as: "product_docs"
+                }
+            },
+            {
+                $unwind: "$product_docs"
+            },
+            {
+                $project: 
+                {
+                    product_name: '$product_details.product_name',
+                    product_stock: '$product_details.product_stock',
+                }
+            },
+            {
+                $group: {
+                    _id: "$product_name",
+                    product_stock: { $sum: "$product_stock" }
+                }
+            },
+        ])
+        console.log("Products warehouse_data", warehouse_data);
+
+
+        warehouse_data.forEach(product_details => {
+
+            const match_data = find_data.map((data) => {
+
+                if (data.name == product_details._id) {
+                    data.stock = parseInt(data.stock) + parseInt(product_details.product_stock)
+                    
+                }
+
+            })
+        })
+        const all_stff = await staff.find({ account_category: "sa", type_of_acc_cat : "1" });
+        const staff_data = await staff.findOne({email: role_data.email})
+
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+            
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("dssr_view_admin", { 
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            alldata: find_data,
+            profile : profile_data,
+            master_shop : master,
+            role : role_data,
+            product_stock : warehouse_data,
+            language : lan_data,
+            staff_arr: staff_data,
+			staff_data_all: all_stff
+        })
+    } catch (error) {
+        
+    }
+})
+
+
+router.post('/dsrr_admin/pdf_admin', auth, async (req, res) => {
+
+    const {from_date, agent_id} = req.body
+    // res.json(req.body);
+    // return;
+    const role_data = req.user
+    const stff_data = await staff.findOne({ email: role_data.email })
+    const image = await master_shop.find();
+    const datatest = await agentsdataDSICheck_DSRR(from_date, agent_id, isExcel);
+    let htmlContent = `
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%; /* Ensure table uses the full width */
+        }
+        th, td {
+            border: 1px solid black;
+            text-align: center;
+        }
+        th {
+            background-color: #d0cece;
+            padding: 8px;
+            color: black;
+        }
+        @media print {
+           table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            th { page-break-inside: avoid; page-break-after: auto; }
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 12pt;
+        }
+
+        @media (max-width: 1024px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        
+            
+    </style>
+`;
+
+    
+    var from_string_date = new Date(from_date);
+    // var to_string_date = new Date(to_date);
+
+    const options3 = { 
+        // weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+    const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
+    // const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
+      
+    htmlContent += `<div class="row">`;
+    htmlContent += `<div  id="table-conatainer">`;
+    htmlContent += `<table>`;
+    htmlContent += datatest;
+    htmlContent += `</table>`;
+    htmlContent += `</div>`;
+    htmlContent += `</div>`;
+
+    let dataImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxYxAAACD0S0HV4xFoAAAAAElFTkSuQmCC';
+    const options = {
+        width: '15in',  // Set custom width (e.g., 11 inches)
+        height: '8.5in',
+        orientation: 'landscape', // Landscape mode
+        border: {
+            top: "0.1in",
+            right: "0.1in",
+            bottom: "0.1in",
+            left: "0.1in"
+        },
+        header: {
+            height: "60mm", // Adjust header height
+            contents: `
+            <div style="text-align: center;">
+                <img src="${dataImage}" style="max-width: 100%; height: auto;" />
+                <h1>JAKA EQUITIES CORP</h1>
+                <p>SALES REPORTS - EXTRUCK</p>
+                <p>${from_formattedDate}</p>
+                <br><br><br><br><br><br><br><br><br><br>
+            </div>
+        `
+        },
+        footer: {
+            height: "20mm", // Adjust footer height
+            contents: {
+                default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>' // Page number
+            }
+        },
+        dpi: 5,  // Set DPI for consistency
+        zoomFactor: '1' // Ensure the same zoom level
+    };
+    res.send(htmlContent);
+    return
+   var isExcel = "on";
+    if(isExcel == "on"){
+        // const $ = cheerio.load(htmlContent);
+
+        // let data = [];
+        // $('table tr').each((i, row) => {
+        //     let rowData = [];
+        //     $(row).find('td, th').each((j, cell) => {
+        //         // rowData.push($(cell).text().trim());
+        //         let cellText = $(cell).text().trim();
+        //         let cellValue = parseFloat(cellText.replace(/,/g, ''));
+
+        //         if (!isNaN(cellValue)) {
+        //             rowData.push(cellValue);
+        //         } else {
+        //             rowData.push(cellText);
+        //         }
+        //     });
+        //     data.push(rowData);
+        // });
+
+        // const wb = XLSX.utils.book_new();
+        // const ws = XLSX.utils.aoa_to_sheet(data);
+        // XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+        // // Write the workbook to a buffer
+        // const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+        // // Send the file to the client as a download
+        // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+        // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        // res.send(fileBuffer);
+       ///////////END ORIGINAL/////////////////////
+        // const $ = cheerio.load(htmlContent);
+        // let data = [];
+        // let merges = [];
+
+        // $('table tr').each((i, row) => {
+        //     let rowData = [];
+        //     let rowIndex = i;
+        //     let colIndex = 0;
+
+        //     $(row).find('td, th').each((j, cell) => {
+        //         let cellText = $(cell).text().trim();
+        //         let cellValue = parseFloat(cellText.replace(/,/g, ''));
+
+        //         // Parse colspan and rowspan
+        //         let colspan = parseInt($(cell).attr('colspan')) || 1;
+        //         let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+
+        //         // Add the cell value
+        //         if (!isNaN(cellValue)) {
+        //             rowData[colIndex] = cellValue;
+        //         } else {
+        //             rowData[colIndex] = cellText;
+        //         }
+
+        //         // Add merge information if colspan or rowspan is greater than 1
+        //         if (colspan > 1 || rowspan > 1) {
+        //             merges.push({
+        //                 s: { r: rowIndex, c: colIndex }, // start position
+        //                 e: { r: rowIndex + rowspan - 1, c: colIndex + colspan - 1 } // end position
+        //             });
+        //         }
+
+        //         // Move to the next column index considering colspan
+        //         colIndex += colspan;
+        //     });
+
+        //     data.push(rowData);
+        // });
+
+        // // Create the worksheet and add merge information
+        // const wb = XLSX.utils.book_new();
+        // const ws = XLSX.utils.aoa_to_sheet(data);
+
+        // // Apply merges to the worksheet
+        // ws['!merges'] = merges;
+
+        // XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+        // // Write the workbook to a buffer
+        // const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+        // // Send the file to the client as a download
+        // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+        // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        // res.send(fileBuffer);
+
+
+        const $ = cheerio.load(htmlContent);
+
+let data = [];
+let merges = [];
+let colSpans = []; // To track active column spans
+
+$('table tr').each((i, row) => {
+    let rowData = [];
+    let colIndex = 0;
+
+    // Adjust colIndex for any ongoing colspans from previous rows
+    while (colSpans[colIndex]) {
+        colSpans[colIndex]--;
+        colIndex++;
+    }
+
+    $(row).find('td, th').each((j, cell) => {
+        let cellText = $(cell).text().trim();
+
+        // Attempt to convert cell text to a number if possible
+        let cellValue = parseFloat(cellText.replace(/,/g, ''));
+
+        // Use the cell text if it's not a valid number
+        if (isNaN(cellValue)) {
+            cellValue = cellText;
+        }
+
+        // Parse colspan and rowspan
+        let colspan = parseInt($(cell).attr('colspan')) || 1;
+        let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+
+        // Add the cell value to the rowData array at the correct column index
+        rowData[colIndex] = cellValue;
+
+        // Add merge information if colspan or rowspan is greater than 1
+        if (colspan > 1 || rowspan > 1) {
+            merges.push({
+                s: { r: i, c: colIndex }, // start position
+                e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
+            });
+        }
+
+        // Track colspans across rows (for correct placement in the next row)
+        for (let k = 0; k < colspan; k++) {
+            if (rowspan > 1) {
+                colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+            }
+        }
+
+        // Move to the next column index, considering colspan
+        colIndex += colspan;
+    });
+
+    data.push(rowData);
+});
+
+// Create the worksheet and add merge information
+const wb = XLSX.utils.book_new();
+const ws = XLSX.utils.aoa_to_sheet(data);
+
+// Apply merges to the worksheet
+if (merges.length > 0) {
+    ws['!merges'] = merges;
+}
+
+// Optionally, set column widths or other formatting
+ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
+
+// Append the worksheet to the workbook
+XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+// Write the workbook to a buffer
+const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+// Send the file to the client as a download (if using Express.js)
+res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+res.send(fileBuffer);
+
+    }else{
+        pdf.create(htmlContent, options).toStream(function(err, stream) {
+            if (err) {
+                res.status(500).send('Error generating PDF');
+                return;
+            }
+            res.setHeader('Content-Type', 'application/pdf');
+            stream.pipe(res);
+        });
+    }
+    
+    
+});
+
+
 module.exports = router;

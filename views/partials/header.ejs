@@ -113,6 +113,7 @@
 
                             <div class="header-info">
                                 <span class="text-black text-capitalize"><%= profile.firstname %> <%= profile.lastname %></span>
+
                                 <% if (role.account_category == "ad") { %>
                                     <p class="fs-12 mb-0 text-capitalize">Super Admin</p>
                                 <% } else if (role.account_category == "wm") { %>
@@ -132,6 +133,8 @@
                                     <p class="fs-12 mb-0 text-capitalize">FSS</p>
                                 <% } else if (role.account_category == "gm") { %>
                                     <p class="fs-12 mb-0 text-capitalize">General Manager</p>
+                                <% } else if (role.account_category == "sad") { %>
+                                    <p class="fs-12 mb-0 text-capitalize">Sales Admin</p>
                                 <% } %>
                                 
                             </div>
