@@ -4963,8 +4963,8 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
         dpi: 5,  // Set DPI for consistency
         zoomFactor: '1' // Ensure the same zoom level
     };
-    res.send(htmlContent);
-    return
+    // res.send(htmlContent);
+    // return
    var isExcel = "on";
     if(isExcel == "on"){
         // const $ = cheerio.load(htmlContent);
@@ -5355,8 +5355,8 @@ router.post('/dsrr_admin/pdf_admin', auth, async (req, res) => {
         dpi: 5,  // Set DPI for consistency
         zoomFactor: '1' // Ensure the same zoom level
     };
-    res.send(htmlContent);
-    return
+    // res.send(htmlContent);
+    // return
    var isExcel = "on";
     if(isExcel == "on"){
         // const $ = cheerio.load(htmlContent);
