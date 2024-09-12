@@ -3,7 +3,7 @@ const res = require("express/lib/response");
 const app = express();
 const router = express.Router();
 const multer = require('multer');
-const { profile, master_shop, categories, brands, units, product, purchases, warehouse, sales_finished, sales, transfers_finished, adjustment_finished, purchases_finished, sales_return_finished, adjustment, transfers, sales_sa, staff, sales_inv_data } = require("../models/all_models");
+const { profile, master_shop, categories, brands, units, product, purchases, warehouse, sales_finished, sales, transfers_finished, adjustment_finished, purchases_finished, sales_return_finished, adjustment, transfers, sales_sa, staff, sales_inv_data, Reference } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const users = require("../public/language/languages.json");
 const excelJS = require("exceljs");
@@ -3650,7 +3650,7 @@ router.get("/dsrr/view", auth, async (req, res) => {
     }
 })
 
-async function agentsdataDSICheck_DSRR(from, staff_id, isExcel){
+async function agentsdataDSICheck_DSRR(from, staff_id, isExcel, number_data){
     let date = new Date(from);
     date.setDate(date.getDate() - 1);
     let formattedDate = date.toISOString().split('T')[0];
@@ -4431,7 +4431,7 @@ pages.forEach((page, pageIndex) => {
     };
     const dateInWords = dateUSed.toLocaleDateString('en-US', options);
     htmlContent += `<tr>`;
-    htmlContent += `<td colspan="29" class="cat_data" style="border: 1px solid black; text-align: right;" ><b>NO: </b></td>`;
+    htmlContent += `<td colspan="29" class="cat_data" style="border: 1px solid black; text-align: right;" ><b>NO: ${number_data}</b></td>`;
     htmlContent += `</tr>`;
     htmlContent += `<tr>`;
     htmlContent += `<td colspan="5.5" class="cat_data" style="border: 1px solid black; text-align: left;" ><b>NAME:</b>  ${stafff_data.name}</td>`;
@@ -4912,286 +4912,745 @@ pages.forEach((page, pageIndex) => {
 return htmlContent;
 }
 
+async function generateReferenceNumber(date, staff_id) {
+    const currentYear = new Date(date).getFullYear();
+    const currentMonth = ('0' + (new Date(date).getMonth() + 1)).slice(-2); // Adds leading zero
+    const prefix = `${currentYear}${currentMonth}`; // YYYYMM format
+  
+    // Find the last inserted reference number for the current year and month
+    const lastRef = await Reference.findOne({ referenceNumber: new RegExp(`^${prefix}`) })
+      .sort({ createdAt: -1 });
+  
+    let sequenceNumber = '0001'; // Default starting sequence for a new month
+  
+    // If there is a reference for the current month, increment the sequence number
+    if (lastRef) {
+      const lastSequence = lastRef.referenceNumber.slice(-4); // Get the last 4 digits (XXXX)
+      sequenceNumber = ('0000' + (parseInt(lastSequence) + 1)).slice(-4); // Increment and pad with leading zeros
+    }
+  
+    const newReferenceNumber = `${prefix}${sequenceNumber}`;
+  
+    // Save the new reference number in the database
+    const newRef = new Reference({ referenceNumber: newReferenceNumber, staff_id: staff_id });
+    await newRef.save();
+  
+    return newReferenceNumber;
+  }
 router.post('/dsrr/pdf', auth, async (req, res) => {
 
     const {from_date} = req.body
     const role_data = req.user
     const stff_data = await staff.findOne({ email: role_data.email })
     const image = await master_shop.find();
-    const datatest = await agentsdataDSICheck_DSRR(from_date, stff_data._id.valueOf(), isExcel);
-    let htmlContent = `
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%; /* Ensure table uses the full width */
-        }
-        th, td {
-            border: 1px solid black;
-            text-align: center;
-        }
-        th {
-            background-color: #d0cece;
-            padding: 8px;
-            color: black;
-        }
-        @media print {
-           table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
-            th { page-break-inside: avoid; page-break-after: auto; }
-        }
+    const isExcel = "";
+//     const datatest = await agentsdataDSICheck_DSRR(from_date, stff_data._id.valueOf(), isExcel);
+//     let htmlContent = `
+//     <style>
+//         table {
+//             border-collapse: collapse;
+//             width: 100%; /* Ensure table uses the full width */
+//         }
+//         th, td {
+//             border: 1px solid black;
+//             text-align: center;
+//         }
+//         th {
+//             background-color: #d0cece;
+//             padding: 8px;
+//             color: black;
+//         }
+//         @media print {
+//            table { page-break-inside: auto; }
+//             tr { page-break-inside: avoid; page-break-after: auto; }
+//             th { page-break-inside: avoid; page-break-after: auto; }
+//         }
 
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-        body {
-            font-family: 'Roboto', sans-serif;
-            font-size: 12pt;
-        }
+//         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+//         body {
+//             font-family: 'Roboto', sans-serif;
+//             font-size: 12pt;
+//         }
 
-        @media (max-width: 1024px) {
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-        }
+//         @media (max-width: 1024px) {
+//             table {
+//                 display: block;
+//                 overflow-x: auto;
+//             }
+//         }
 
         
             
-    </style>
-`;
+//     </style>
+// `;
 
     
     var from_string_date = new Date(from_date);
-    // var to_string_date = new Date(to_date);
 
     const options3 = { 
-        // weekday: 'long', 
         year: 'numeric', 
         month: 'long', 
         day: 'numeric' 
-      };
+    };
     const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
     // const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
-      
-    htmlContent += `<div class="row">`;
-    htmlContent += `<div  id="table-conatainer">`;
-    htmlContent += `<table>`;
-    htmlContent += datatest;
-    htmlContent += `</table>`;
-    htmlContent += `</div>`;
-    htmlContent += `</div>`;
+    // htmlContent += `<div class="row">`;
+    // htmlContent += `<div  id="table-conatainer">`;
+    // htmlContent += `<table>`;
+    // htmlContent += datatest;
+    // htmlContent += `</table>`;
+    // htmlContent += `</div>`;
+    // htmlContent += `</div>`;
 
-    let dataImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxYxAAACD0S0HV4xFoAAAAAElFTkSuQmCC';
-    const options = {
-        width: '15in',  // Set custom width (e.g., 11 inches)
-        height: '8.5in',
-        orientation: 'landscape', // Landscape mode
-        border: {
-            top: "0.1in",
-            right: "0.1in",
-            bottom: "0.1in",
-            left: "0.1in"
-        },
-        header: {
-            height: "60mm", // Adjust header height
-            contents: `
-            <div style="text-align: center;">
-                <img src="${dataImage}" style="max-width: 100%; height: auto;" />
-                <h1>JAKA EQUITIES CORP</h1>
-                <p>SALES REPORTS - EXTRUCK</p>
-                <p>${from_formattedDate}</p>
-                <br><br><br><br><br><br><br><br><br><br>
-            </div>
-        `
-        },
-        footer: {
-            height: "20mm", // Adjust footer height
-            contents: {
-                default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>' // Page number
+    // let dataImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxYxAAACD0S0HV4xFoAAAAAElFTkSuQmCC';
+    // const options = {
+    //     width: '15in',  // Set custom width (e.g., 11 inches)
+    //     height: '8.5in',
+    //     orientation: 'landscape', // Landscape mode
+    //     border: {
+    //         top: "0.1in",
+    //         right: "0.1in",
+    //         bottom: "0.1in",
+    //         left: "0.1in"
+    //     },
+    //     header: {
+    //         height: "60mm", // Adjust header height
+    //         contents: `
+    //         <div style="text-align: center;">
+    //             <img src="${dataImage}" style="max-width: 100%; height: auto;" />
+    //             <h1>JAKA EQUITIES CORP</h1>
+    //             <p>SALES REPORTS - EXTRUCK</p>
+    //             <p>${from_formattedDate}</p>
+    //             <br><br><br><br><br><br><br><br><br><br>
+    //         </div>
+    //     `
+    //     },
+    //     footer: {
+    //         height: "20mm", // Adjust footer height
+    //         contents: {
+    //             default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>' // Page number
+    //         }
+    //     },
+    //     dpi: 5,  // Set DPI for consistency
+    //     zoomFactor: '1' // Ensure the same zoom level
+    // };
+    const checkingFile = await Reference.find({staff_id: stff_data._id.valueOf(), date_include: from_date});
+    // console.log(checkingFile[0].html)
+    // return
+    if(checkingFile.length > 0){
+        let htmldta = ``;
+        htmldta += checkingFile[0].html;
+       
+        const $ = cheerio.load(htmldta);
+ 
+        let data = [];
+        let merges = [];
+        let colSpans = []; // To track active column spans
+        
+        // Helper function to extract border styles from a cell's inline styles
+        const getBorderStyle = (style) => {
+            const borderStyle = {
+                top: { style: 'thick', color: { rgb: '000000' } },
+                bottom: { style: 'thick', color: { rgb: '000000' } },
+                left: { style: 'thick', color: { rgb: '000000' } },
+                right: { style: 'thick', color: { rgb: '000000' } }
+            };
+        
+            // Extract border values from the inline style attribute if available
+            if (style) {
+                const styleObj = style.split(';').reduce((acc, rule) => {
+                    const [property, value] = rule.split(':').map(str => str.trim());
+                    acc[property] = value;
+                    return acc;
+                }, {});
+        
+                // Extract individual border styles (top, bottom, left, right)
+                if (styleObj['border-top']) {
+                    borderStyle.top.style = styleObj['border-top'].includes('thin') ? 'thin' : 'medium';
+                }
+                if (styleObj['border-bottom']) {
+                    borderStyle.bottom.style = styleObj['border-bottom'].includes('thin') ? 'thin' : 'medium';
+                }
+                if (styleObj['border-left']) {
+                    borderStyle.left.style = styleObj['border-left'].includes('thin') ? 'thin' : 'medium';
+                }
+                if (styleObj['border-right']) {
+                    borderStyle.right.style = styleObj['border-right'].includes('thin') ? 'thin' : 'medium';
+                }
             }
-        },
-        dpi: 5,  // Set DPI for consistency
-        zoomFactor: '1' // Ensure the same zoom level
-    };
+        
+            return borderStyle;
+        };
+        
+        $('table tr').each((i, row) => {
+            let rowData = [];
+            let colIndex = 0;
+        
+            // Adjust colIndex for any ongoing colspans from previous rows
+            while (colSpans[colIndex]) {
+                colSpans[colIndex]--;
+                colIndex++;
+            }
+        
+            $(row).find('td, th').each((j, cell) => {
+                let cellText = $(cell).text().trim();
+        
+                // Attempt to convert cell text to a number if possible
+                let cellValue = parseFloat(cellText.replace(/,/g, ''));
+        
+                // Use the cell text if it's not a valid number
+                if (isNaN(cellValue)) {
+                    cellValue = cellText;
+                }
+        
+                // Parse colspan and rowspan
+                let colspan = parseInt($(cell).attr('colspan')) || 1;
+                let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+        
+                // Get border style from inline style attribute in HTML
+                const styleAttr = $(cell).attr('style');
+                const borderStyle = getBorderStyle(styleAttr); // Extract border style from HTML
+        
+                // Add the cell value to the rowData array at the correct column index
+                rowData[colIndex] = {
+                    v: cellValue,
+                    s: { border: borderStyle } // Apply the extracted border style
+                };
+        
+                // Add merge information if colspan or rowspan is greater than 1
+                if (colspan > 1 || rowspan > 1) {
+                    merges.push({
+                        s: { r: i, c: colIndex }, // start position
+                        e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
+                    });
+                }
+        
+                // Track colspans across rows (for correct placement in the next row)
+                for (let k = 0; k < colspan; k++) {
+                    if (rowspan > 1) {
+                        colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+                    }
+                }
+        
+                // Move to the next column index, considering colspan
+                colIndex += colspan;
+            });
+        
+            data.push(rowData);
+        });
+        
+        // Create the worksheet and add merge information
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        
+        // Apply merges to the worksheet
+        if (merges.length > 0) {
+            ws['!merges'] = merges;
+        }
+        
+        // Optionally, set column widths or other formatting
+        ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
+        
+        // Append the worksheet to the workbook
+        XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+        
+        // Write the workbook to a buffer
+        const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+        
+        // Send the file to the client as a download (if using Express.js)
+        res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.send(fileBuffer);
+    }else{
+        generateReferenceNumber(from_date, stff_data._id.valueOf()).then( async (element) => {
+            
+
+            const datatest = await agentsdataDSICheck_DSRR(from_date, stff_data._id.valueOf(), isExcel, element);
+            let htmlContent = `
+            <style>
+                table {
+                    border-collapse: collapse;
+                    width: 100%; /* Ensure table uses the full width */
+                }
+                th, td {
+                    border: 1px solid black;
+                    text-align: center;
+                }
+                th {
+                    background-color: #d0cece;
+                    padding: 8px;
+                    color: black;
+                }
+                @media print {
+                   table { page-break-inside: auto; }
+                    tr { page-break-inside: avoid; page-break-after: auto; }
+                    th { page-break-inside: avoid; page-break-after: auto; }
+                }
+        
+                @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+                body {
+                    font-family: 'Roboto', sans-serif;
+                    font-size: 12pt;
+                }
+        
+                @media (max-width: 1024px) {
+                    table {
+                        display: block;
+                        overflow-x: auto;
+                    }
+                }
+        
+                
+                    
+            </style>
+            `;
+
+            htmlContent += `<div class="row">`;
+            htmlContent += `<div  id="table-conatainer">`;
+            htmlContent += `<table>`;
+            htmlContent += datatest;
+            htmlContent += `</table>`;
+            htmlContent += `</div>`;
+            htmlContent += `</div>`;
+
+            const thecreatedFile = await Reference.findOne({staff_id: stff_data._id.valueOf(), referenceNumber: element});
+            thecreatedFile.html = htmlContent;
+            thecreatedFile.date_include = from_date
+            await thecreatedFile.save();
+
+
+            const $ = cheerio.load(htmlContent);
+ 
+            let data = [];
+            let merges = [];
+            let colSpans = []; // To track active column spans
+            
+            // Helper function to extract border styles from a cell's inline styles
+            const getBorderStyle = (style) => {
+                const borderStyle = {
+                    top: { style: 'thick', color: { rgb: '000000' } },
+                    bottom: { style: 'thick', color: { rgb: '000000' } },
+                    left: { style: 'thick', color: { rgb: '000000' } },
+                    right: { style: 'thick', color: { rgb: '000000' } }
+                };
+            
+                // Extract border values from the inline style attribute if available
+                if (style) {
+                    const styleObj = style.split(';').reduce((acc, rule) => {
+                        const [property, value] = rule.split(':').map(str => str.trim());
+                        acc[property] = value;
+                        return acc;
+                    }, {});
+            
+                    // Extract individual border styles (top, bottom, left, right)
+                    if (styleObj['border-top']) {
+                        borderStyle.top.style = styleObj['border-top'].includes('thin') ? 'thin' : 'medium';
+                    }
+                    if (styleObj['border-bottom']) {
+                        borderStyle.bottom.style = styleObj['border-bottom'].includes('thin') ? 'thin' : 'medium';
+                    }
+                    if (styleObj['border-left']) {
+                        borderStyle.left.style = styleObj['border-left'].includes('thin') ? 'thin' : 'medium';
+                    }
+                    if (styleObj['border-right']) {
+                        borderStyle.right.style = styleObj['border-right'].includes('thin') ? 'thin' : 'medium';
+                    }
+                }
+            
+                return borderStyle;
+            };
+            
+            $('table tr').each((i, row) => {
+                let rowData = [];
+                let colIndex = 0;
+            
+                // Adjust colIndex for any ongoing colspans from previous rows
+                while (colSpans[colIndex]) {
+                    colSpans[colIndex]--;
+                    colIndex++;
+                }
+            
+                $(row).find('td, th').each((j, cell) => {
+                    let cellText = $(cell).text().trim();
+            
+                    // Attempt to convert cell text to a number if possible
+                    let cellValue = parseFloat(cellText.replace(/,/g, ''));
+            
+                    // Use the cell text if it's not a valid number
+                    if (isNaN(cellValue)) {
+                        cellValue = cellText;
+                    }
+            
+                    // Parse colspan and rowspan
+                    let colspan = parseInt($(cell).attr('colspan')) || 1;
+                    let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+            
+                    // Get border style from inline style attribute in HTML
+                    const styleAttr = $(cell).attr('style');
+                    const borderStyle = getBorderStyle(styleAttr); // Extract border style from HTML
+            
+                    // Add the cell value to the rowData array at the correct column index
+                    rowData[colIndex] = {
+                        v: cellValue,
+                        s: { border: borderStyle } // Apply the extracted border style
+                    };
+            
+                    // Add merge information if colspan or rowspan is greater than 1
+                    if (colspan > 1 || rowspan > 1) {
+                        merges.push({
+                            s: { r: i, c: colIndex }, // start position
+                            e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
+                        });
+                    }
+            
+                    // Track colspans across rows (for correct placement in the next row)
+                    for (let k = 0; k < colspan; k++) {
+                        if (rowspan > 1) {
+                            colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+                        }
+                    }
+            
+                    // Move to the next column index, considering colspan
+                    colIndex += colspan;
+                });
+            
+                data.push(rowData);
+            });
+            
+            // Create the worksheet and add merge information
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            
+            // Apply merges to the worksheet
+            if (merges.length > 0) {
+                ws['!merges'] = merges;
+            }
+            
+            // Optionally, set column widths or other formatting
+            ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
+            
+            // Append the worksheet to the workbook
+            XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+            
+            // Write the workbook to a buffer
+            const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+            
+            // Send the file to the client as a download (if using Express.js)
+            res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.send(fileBuffer);
+        
+            // console.log(thecreatedFile)
+        }).catch(console.error);
+    }
+    
+   
+
+    // console.log()
     // res.send(htmlContent);
     // return
-   var isExcel = "on";
-    if(isExcel == "on"){
-        // const $ = cheerio.load(htmlContent);
+//    var isExcel = "on";
+//     if(isExcel == "on"){
+//         // const $ = cheerio.load(htmlContent);
 
-        // let data = [];
-        // $('table tr').each((i, row) => {
-        //     let rowData = [];
-        //     $(row).find('td, th').each((j, cell) => {
-        //         // rowData.push($(cell).text().trim());
-        //         let cellText = $(cell).text().trim();
-        //         let cellValue = parseFloat(cellText.replace(/,/g, ''));
+//         // let data = [];
+//         // $('table tr').each((i, row) => {
+//         //     let rowData = [];
+//         //     $(row).find('td, th').each((j, cell) => {
+//         //         // rowData.push($(cell).text().trim());
+//         //         let cellText = $(cell).text().trim();
+//         //         let cellValue = parseFloat(cellText.replace(/,/g, ''));
 
-        //         if (!isNaN(cellValue)) {
-        //             rowData.push(cellValue);
-        //         } else {
-        //             rowData.push(cellText);
-        //         }
-        //     });
-        //     data.push(rowData);
-        // });
+//         //         if (!isNaN(cellValue)) {
+//         //             rowData.push(cellValue);
+//         //         } else {
+//         //             rowData.push(cellText);
+//         //         }
+//         //     });
+//         //     data.push(rowData);
+//         // });
 
-        // const wb = XLSX.utils.book_new();
-        // const ws = XLSX.utils.aoa_to_sheet(data);
-        // XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+//         // const wb = XLSX.utils.book_new();
+//         // const ws = XLSX.utils.aoa_to_sheet(data);
+//         // XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
 
-        // // Write the workbook to a buffer
-        // const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+//         // // Write the workbook to a buffer
+//         // const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
 
-        // // Send the file to the client as a download
-        // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
-        // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        // res.send(fileBuffer);
-       ///////////END ORIGINAL/////////////////////
-        // const $ = cheerio.load(htmlContent);
-        // let data = [];
-        // let merges = [];
+//         // // Send the file to the client as a download
+//         // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+//         // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+//         // res.send(fileBuffer);
+//        ///////////END ORIGINAL/////////////////////
+//         // const $ = cheerio.load(htmlContent);
+//         // let data = [];
+//         // let merges = [];
 
-        // $('table tr').each((i, row) => {
-        //     let rowData = [];
-        //     let rowIndex = i;
-        //     let colIndex = 0;
+//         // $('table tr').each((i, row) => {
+//         //     let rowData = [];
+//         //     let rowIndex = i;
+//         //     let colIndex = 0;
 
-        //     $(row).find('td, th').each((j, cell) => {
-        //         let cellText = $(cell).text().trim();
-        //         let cellValue = parseFloat(cellText.replace(/,/g, ''));
+//         //     $(row).find('td, th').each((j, cell) => {
+//         //         let cellText = $(cell).text().trim();
+//         //         let cellValue = parseFloat(cellText.replace(/,/g, ''));
 
-        //         // Parse colspan and rowspan
-        //         let colspan = parseInt($(cell).attr('colspan')) || 1;
-        //         let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+//         //         // Parse colspan and rowspan
+//         //         let colspan = parseInt($(cell).attr('colspan')) || 1;
+//         //         let rowspan = parseInt($(cell).attr('rowspan')) || 1;
 
-        //         // Add the cell value
-        //         if (!isNaN(cellValue)) {
-        //             rowData[colIndex] = cellValue;
-        //         } else {
-        //             rowData[colIndex] = cellText;
-        //         }
+//         //         // Add the cell value
+//         //         if (!isNaN(cellValue)) {
+//         //             rowData[colIndex] = cellValue;
+//         //         } else {
+//         //             rowData[colIndex] = cellText;
+//         //         }
 
-        //         // Add merge information if colspan or rowspan is greater than 1
-        //         if (colspan > 1 || rowspan > 1) {
-        //             merges.push({
-        //                 s: { r: rowIndex, c: colIndex }, // start position
-        //                 e: { r: rowIndex + rowspan - 1, c: colIndex + colspan - 1 } // end position
-        //             });
-        //         }
+//         //         // Add merge information if colspan or rowspan is greater than 1
+//         //         if (colspan > 1 || rowspan > 1) {
+//         //             merges.push({
+//         //                 s: { r: rowIndex, c: colIndex }, // start position
+//         //                 e: { r: rowIndex + rowspan - 1, c: colIndex + colspan - 1 } // end position
+//         //             });
+//         //         }
 
-        //         // Move to the next column index considering colspan
-        //         colIndex += colspan;
-        //     });
+//         //         // Move to the next column index considering colspan
+//         //         colIndex += colspan;
+//         //     });
 
-        //     data.push(rowData);
-        // });
+//         //     data.push(rowData);
+//         // });
 
-        // // Create the worksheet and add merge information
-        // const wb = XLSX.utils.book_new();
-        // const ws = XLSX.utils.aoa_to_sheet(data);
+//         // // Create the worksheet and add merge information
+//         // const wb = XLSX.utils.book_new();
+//         // const ws = XLSX.utils.aoa_to_sheet(data);
 
-        // // Apply merges to the worksheet
-        // ws['!merges'] = merges;
+//         // // Apply merges to the worksheet
+//         // ws['!merges'] = merges;
 
-        // XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+//         // XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
 
-        // // Write the workbook to a buffer
-        // const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+//         // // Write the workbook to a buffer
+//         // const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
 
-        // // Send the file to the client as a download
-        // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
-        // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        // res.send(fileBuffer);
+//         // // Send the file to the client as a download
+//         // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+//         // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+//         // res.send(fileBuffer);
 
 
-        const $ = cheerio.load(htmlContent);
+//         // const $ = cheerio.load(htmlContent);
 
-let data = [];
-let merges = [];
-let colSpans = []; // To track active column spans
+//         // let data = [];
+//         // let merges = [];
+//         // let colSpans = []; // To track active column spans
 
-$('table tr').each((i, row) => {
-    let rowData = [];
-    let colIndex = 0;
+//         // $('table tr').each((i, row) => {
+//         //     let rowData = [];
+//         //     let colIndex = 0;
 
-    // Adjust colIndex for any ongoing colspans from previous rows
-    while (colSpans[colIndex]) {
-        colSpans[colIndex]--;
-        colIndex++;
-    }
+//         //     // Adjust colIndex for any ongoing colspans from previous rows
+//         //     while (colSpans[colIndex]) {
+//         //         colSpans[colIndex]--;
+//         //         colIndex++;
+//         //     }
 
-    $(row).find('td, th').each((j, cell) => {
-        let cellText = $(cell).text().trim();
+//         //     $(row).find('td, th').each((j, cell) => {
+//         //         let cellText = $(cell).text().trim();
 
-        // Attempt to convert cell text to a number if possible
-        let cellValue = parseFloat(cellText.replace(/,/g, ''));
+//         //         // Attempt to convert cell text to a number if possible
+//         //         let cellValue = parseFloat(cellText.replace(/,/g, ''));
 
-        // Use the cell text if it's not a valid number
-        if (isNaN(cellValue)) {
-            cellValue = cellText;
-        }
+//         //         // Use the cell text if it's not a valid number
+//         //         if (isNaN(cellValue)) {
+//         //             cellValue = cellText;
+//         //         }
 
-        // Parse colspan and rowspan
-        let colspan = parseInt($(cell).attr('colspan')) || 1;
-        let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+//         //         // Parse colspan and rowspan
+//         //         let colspan = parseInt($(cell).attr('colspan')) || 1;
+//         //         let rowspan = parseInt($(cell).attr('rowspan')) || 1;
 
-        // Add the cell value to the rowData array at the correct column index
-        rowData[colIndex] = cellValue;
+//         //         // Add the cell value to the rowData array at the correct column index
+//         //         rowData[colIndex] = cellValue;
 
-        // Add merge information if colspan or rowspan is greater than 1
-        if (colspan > 1 || rowspan > 1) {
-            merges.push({
-                s: { r: i, c: colIndex }, // start position
-                e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
-            });
-        }
+//         //         // Add merge information if colspan or rowspan is greater than 1
+//         //         if (colspan > 1 || rowspan > 1) {
+//         //             merges.push({
+//         //                 s: { r: i, c: colIndex }, // start position
+//         //                 e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
+//         //             });
+//         //         }
 
-        // Track colspans across rows (for correct placement in the next row)
-        for (let k = 0; k < colspan; k++) {
-            if (rowspan > 1) {
-                colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
-            }
-        }
+//         //         // Track colspans across rows (for correct placement in the next row)
+//         //         for (let k = 0; k < colspan; k++) {
+//         //             if (rowspan > 1) {
+//         //                 colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+//         //             }
+//         //         }
 
-        // Move to the next column index, considering colspan
-        colIndex += colspan;
-    });
+//         //         // Move to the next column index, considering colspan
+//         //         colIndex += colspan;
+//         //     });
 
-    data.push(rowData);
-});
+//         //     data.push(rowData);
+//         // });
 
-// Create the worksheet and add merge information
-const wb = XLSX.utils.book_new();
-const ws = XLSX.utils.aoa_to_sheet(data);
+//         // // Create the worksheet and add merge information
+//         // const wb = XLSX.utils.book_new();
+//         // const ws = XLSX.utils.aoa_to_sheet(data);
 
-// Apply merges to the worksheet
-if (merges.length > 0) {
-    ws['!merges'] = merges;
-}
+//         // // Apply merges to the worksheet
+//         // if (merges.length > 0) {
+//         //     ws['!merges'] = merges;
+//         // }
 
-// Optionally, set column widths or other formatting
-ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
+//         // // Optionally, set column widths or other formatting
+//         // ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
 
-// Append the worksheet to the workbook
-XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+//         // // Append the worksheet to the workbook
+//         // XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
 
-// Write the workbook to a buffer
-const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+//         // // Write the workbook to a buffer
+//         // const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
 
-// Send the file to the client as a download (if using Express.js)
-res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
-res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-res.send(fileBuffer);
+//         // // Send the file to the client as a download (if using Express.js)
+//         // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+//         // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+//         // res.send(fileBuffer);
 
-    }else{
-        pdf.create(htmlContent, options).toStream(function(err, stream) {
-            if (err) {
-                res.status(500).send('Error generating PDF');
-                return;
-            }
-            res.setHeader('Content-Type', 'application/pdf');
-            stream.pipe(res);
-        });
-    }
+
+// //         const $ = cheerio.load(htmlContent);
+
+// // let data = [];
+// // let merges = [];
+// // let colSpans = []; // To track active column spans
+
+// // // Helper function to extract border styles from a cell's inline styles
+// // const getBorderStyle = (style) => {
+// //     const borderStyle = {
+// //         top: { style: 'thick', color: { rgb: '000000' } },
+// //         bottom: { style: 'thick', color: { rgb: '000000' } },
+// //         left: { style: 'thick', color: { rgb: '000000' } },
+// //         right: { style: 'thick', color: { rgb: '000000' } }
+// //     };
+
+// //     // Extract border values from the inline style attribute if available
+// //     if (style) {
+// //         const styleObj = style.split(';').reduce((acc, rule) => {
+// //             const [property, value] = rule.split(':').map(str => str.trim());
+// //             acc[property] = value;
+// //             return acc;
+// //         }, {});
+
+// //         // Extract individual border styles (top, bottom, left, right)
+// //         if (styleObj['border-top']) {
+// //             borderStyle.top.style = styleObj['border-top'].includes('thin') ? 'thin' : 'medium';
+// //         }
+// //         if (styleObj['border-bottom']) {
+// //             borderStyle.bottom.style = styleObj['border-bottom'].includes('thin') ? 'thin' : 'medium';
+// //         }
+// //         if (styleObj['border-left']) {
+// //             borderStyle.left.style = styleObj['border-left'].includes('thin') ? 'thin' : 'medium';
+// //         }
+// //         if (styleObj['border-right']) {
+// //             borderStyle.right.style = styleObj['border-right'].includes('thin') ? 'thin' : 'medium';
+// //         }
+// //     }
+
+// //     return borderStyle;
+// // };
+
+// // $('table tr').each((i, row) => {
+// //     let rowData = [];
+// //     let colIndex = 0;
+
+// //     // Adjust colIndex for any ongoing colspans from previous rows
+// //     while (colSpans[colIndex]) {
+// //         colSpans[colIndex]--;
+// //         colIndex++;
+// //     }
+
+// //     $(row).find('td, th').each((j, cell) => {
+// //         let cellText = $(cell).text().trim();
+
+// //         // Attempt to convert cell text to a number if possible
+// //         let cellValue = parseFloat(cellText.replace(/,/g, ''));
+
+// //         // Use the cell text if it's not a valid number
+// //         if (isNaN(cellValue)) {
+// //             cellValue = cellText;
+// //         }
+
+// //         // Parse colspan and rowspan
+// //         let colspan = parseInt($(cell).attr('colspan')) || 1;
+// //         let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+
+// //         // Get border style from inline style attribute in HTML
+// //         const styleAttr = $(cell).attr('style');
+// //         const borderStyle = getBorderStyle(styleAttr); // Extract border style from HTML
+
+// //         // Add the cell value to the rowData array at the correct column index
+// //         rowData[colIndex] = {
+// //             v: cellValue,
+// //             s: { border: borderStyle } // Apply the extracted border style
+// //         };
+
+// //         // Add merge information if colspan or rowspan is greater than 1
+// //         if (colspan > 1 || rowspan > 1) {
+// //             merges.push({
+// //                 s: { r: i, c: colIndex }, // start position
+// //                 e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
+// //             });
+// //         }
+
+// //         // Track colspans across rows (for correct placement in the next row)
+// //         for (let k = 0; k < colspan; k++) {
+// //             if (rowspan > 1) {
+// //                 colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+// //             }
+// //         }
+
+// //         // Move to the next column index, considering colspan
+// //         colIndex += colspan;
+// //     });
+
+// //     data.push(rowData);
+// // });
+
+// // // Create the worksheet and add merge information
+// // const wb = XLSX.utils.book_new();
+// // const ws = XLSX.utils.aoa_to_sheet(data);
+
+// // // Apply merges to the worksheet
+// // if (merges.length > 0) {
+// //     ws['!merges'] = merges;
+// // }
+
+// // // Optionally, set column widths or other formatting
+// // ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
+
+// // // Append the worksheet to the workbook
+// // XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+// // // Write the workbook to a buffer
+// // const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+// // // Send the file to the client as a download (if using Express.js)
+// // res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+// // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+// // res.send(fileBuffer);
+
+
+//     }else{
+//         pdf.create(htmlContent, options).toStream(function(err, stream) {
+//             if (err) {
+//                 res.status(500).send('Error generating PDF');
+//                 return;
+//             }
+//             res.setHeader('Content-Type', 'application/pdf');
+//             stream.pipe(res);
+//         });
+//     }
     
     
 });

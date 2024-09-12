@@ -3378,9 +3378,22 @@ const warehouse_data_temporary = new mongoose.Schema({
 
 const warehouse_temporary = new mongoose.model("warehouse_temporaries", warehouse_data_temporary);
 
+const referenceSchema = new mongoose.Schema({
+    referenceNumber: String,
+    staff_id: String,
+    html: String,
+    date_include: String,
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  });
+
+  const Reference = mongoose.model('References', referenceSchema);
+
 module.exports = { sing_up, profile, categories, brands, units, product, warehouse, staff, customer, customer_sa, invoice_for_sales_order, approver_acct, discount_volume_db,  purchases_logs, sales_logs, adjustment_logs, transfers_logs, datalogs,
                     suppliers, suppliers_payment, s_payment_data, purchases, purchases_return, sales, sales_return, sales_sa, invoice_sa, purchases_incoming,
-                    invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer, invoice_for_inventory, sales_inv_data, sales_order, 
+                    invoice_for_incoming, invoice_for_outgoing, invoice_for_adjustment, invoice_for_transfer, invoice_for_inventory, sales_inv_data, sales_order, Reference, 
                     customer_payment, c_payment_data, transfers, expenses_type, all_expenses, adjustment, master_shop, email_settings, 
                     purchases_finished, sales_finished, adjustment_finished, transfers_finished, purchases_return_finished, sales_return_finished, 
                     supervisor_settings, warehouse_validation_setup, warehouse_temporary };
