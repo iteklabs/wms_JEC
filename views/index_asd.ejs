@@ -45,7 +45,18 @@
             <!--**********************************
             Header start
         ***********************************-->
-            <%- include('./partials/header',{titel: "Sales Admin - Dashboard"}); -%>
+            <% var category_data = ""; %>
+            <% if (role.account_category == "rsm") { %>
+                <%- include('./partials/header',{titel: "Regional Sales Manager - Dashboard"}); -%>
+            <% } else if (role.account_category == "fss") { %>
+                <%- include('./partials/header',{titel: "FSS - Dashboard"}); -%>
+            <% } else if (role.account_category == "sad") { %>
+                <%- include('./partials/header',{titel: "Sales Admin - Dashboard"}); -%>
+            <% } else { %>
+                <%- include('./partials/header',{titel: "Dashboard"}); -%>
+            <% } %>
+            <% console.log(role) %>
+            
 
                 <!--**********************************
             Header end ti-comment-alt
