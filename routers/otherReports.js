@@ -871,7 +871,7 @@ async function agentsdataCheck(from, to){
             totalQTY += totalData;
         }
 
-        htmlContent += `<td class="row_data">${formatNumber(totalQTY)}</td>`;
+        htmlContent += `<td class="row_data">${formatNumber(totalQTY.toFixed(2))}</td>`;
     }
     htmlContent += `</tr>`;
 
