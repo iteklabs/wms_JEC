@@ -2984,8 +2984,8 @@ async function dataSalesReports(from, to, staff_id){
 
     htmlContent += `<tr>`;
     htmlContent += `<td class="row_data" colspan="2"><b>Total: </b></td>`;
-    htmlContent += `<td class="row_data">${formatNumber(qtytotal.toFixed(2))}</td>`;
-    htmlContent += `<td class="row_data">${formatNumber(pricetotal.toFixed(2))}</td>`;
+    htmlContent += `<td class="row_data"><b>${formatNumber(qtytotal.toFixed(2))}</b></td>`;
+    htmlContent += `<td class="row_data"><b>${formatNumber(pricetotal.toFixed(2))}</b></td>`;
     htmlContent += `</tr>`;
     
     return htmlContent;
