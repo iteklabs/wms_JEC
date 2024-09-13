@@ -2662,10 +2662,13 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
         table {
             border-collapse: collapse;
             width: 100%; /* Ensure table uses the full width */
+            font-size: 9pt;
         }
         th, td {
             border: 1px solid black;
             text-align: center;
+            font-size: 9pt;
+            
         }
         th {
             background-color: #d0cece;
