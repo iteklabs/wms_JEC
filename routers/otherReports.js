@@ -3465,30 +3465,35 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
                 colIndex++;
             }
         
-            $(row).find('td, th').each((j, cell) => {
-                let cellText = $(cell).text().trim();
+            $(row).find('td, th').each((j, tableCell) => {
+                let cellText = $(tableCell).text().trim();
         
                 // Attempt to convert cell text to a number if possible
                 let cellValue = parseFloat(cellText.replace(/,/g, ''));
         
-                // Use the cell text if it's not a valid number
-                if (isNaN(cellValue)) {
-                    cellValue = cellText;
+                // Define a cell object to store the value and its properties
+                let cellData = {};
+                if (!isNaN(cellValue)) {
+                    cellData.v = cellValue;
+                    cellData.t = 'n'; // Explicitly set type as number
+                } else {
+                    cellData.v = cellText;
+                    cellData.t = 's'; // Set type as string for non-numeric values
                 }
         
-                // Parse colspan and rowspan
-                let colspan = parseInt($(cell).attr('colspan')) || 1;
-                let rowspan = parseInt($(cell).attr('rowspan')) || 1;
-        
                 // Get border style from inline style attribute in HTML
-                const styleAttr = $(cell).attr('style');
+                const styleAttr = $(tableCell).attr('style');
                 const borderStyle = getBorderStyle(styleAttr); // Extract border style from HTML
         
-                // Add the cell value to the rowData array at the correct column index
-                rowData[colIndex] = {
-                    v: cellValue,
-                    s: { border: borderStyle } // Apply the extracted border style
-                };
+                // Add the extracted border style
+                cellData.s = { border: borderStyle };
+        
+                // Add the cell data to the rowData array at the correct column index
+                rowData[colIndex] = cellData;
+        
+                // Parse colspan and rowspan
+                let colspan = parseInt($(tableCell).attr('colspan')) || 1;
+                let rowspan = parseInt($(tableCell).attr('rowspan')) || 1;
         
                 // Add merge information if colspan or rowspan is greater than 1
                 if (colspan > 1 || rowspan > 1) {
