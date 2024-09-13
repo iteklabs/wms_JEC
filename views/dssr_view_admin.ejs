@@ -3,7 +3,14 @@
 
 <head>
     <%- include('./partials/head'); -%>
-
+    <style>
+    .tdcheck {
+        border: 1px solid rgb(44, 16, 16);
+        border-collapse: collapse;
+        text-align: center;
+        
+    }
+    </style>
 </head>
 
 <body>
@@ -66,13 +73,18 @@
                                     <form action="./pdf_admin" method="post">
                                         <div class="card-body">
                                             <div class="row">
-                                                <div class="mb-3 col-md-6">
-                                                    <label for="warrehouse">Date <span class="text-red">*</span> </label>
+                                                <div class="mb-3 col-md-4">
+                                                    <label for="warrehouse">From Date <span class="text-red">*</span> </label>
                                                     <input type="date" class="form-control" name="from_date" id="from_date">
                                                 </div>
 
+                                                <div class="mb-3 col-md-4">
+                                                    <label for="warrehouse">To Date <span class="text-red">*</span> </label>
+                                                    <input type="date" class="form-control" name="to_date" id="to_date">
+                                                </div>
 
-                                                <div class="mb-3 col-md-6">
+
+                                                <div class="mb-3 col-md-4">
                                                     <label for="warrehouse">Agents <span class="text-red">*</span> </label>
                                                     <select name="agent_id" id="agent_id" class="form-control">
                                                         <% staff_data_all.forEach(element => { %>
@@ -88,16 +100,22 @@
                                                 </div> -->
                                             </div>
     
-                                            <div class="col-xl-12 mt-3">
-                                                <div class="form-group">
-                                                    <button type="submit" class="btn btn-primary h-45 w-100" id="filter">
-                                                        <i class="la la-filter"></i>View
-                                                    </button>
-                                                </div>
-                                            </div>
+                                            
                                         </div>
                                     </form>
+
+
+                                    <div class="col-xl-12 mt-3">
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-primary h-45 w-100" id="filter_dssr">
+                                                <i class="la la-filter"></i>View
+                                            </button>
+                                        </div>
+                                    </div>
                                     
+                                </div>
+
+                                <div class="card" id="tableShow">
                                 </div>
 
                             </div>
@@ -135,7 +153,162 @@
    
     <%- include('./partials/script'); -%>
 
+    <!-- use xlsx.full.min.js from version 0.20.3 -->
+    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
+
+        function dl_excel(){
+            var isCheck = document.getElementsByName("isCheck");
+            var id_data = document.getElementsByName("id_data");
+            var ref_id = document.getElementsByName("ref_id");
+            let arrayData = "";
+            for (let index = 0; index <= isCheck.length - 1; index++) {
+                const element = isCheck[index];
+                const id_element = id_data[index];
+                const ref_id_element =ref_id[index];
+                if(element.checked){
+                    console.log(ref_id_element)
+                    arrayData += ref_id_element.value + "~";
+                }
+                
+            }
+            // console.log(arrayData);
+
+            $.ajax({
+                url: '/reports/dl_excel',
+                method: 'POST',
+                data: { ref_data: arrayData },
+                xhrFields: {
+                    responseType: 'blob' // Set response type to blob to handle binary data
+                },
+                success: function (response) {
+                    const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'reports.xlsx'; // Specify the file name
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a); // Clean up the DOM
+                    window.URL.revokeObjectURL(url); // Release the blob URL
+
+                    Swal.fire({
+                        title: "Download Success!",
+                        // text: "You clicked the button!",
+                        icon: "success"
+                    });
+                }
+            })
+        }
+        $(document).ready(function() {
+            $('#filter_dssr').on('click', function() {
+                var from_date = document.getElementById("from_date").value;
+                var to_date = document.getElementById("to_date").value;
+                var staff_id = document.getElementById("agent_id").value;
+                var tableShow = document.getElementById("tableShow");
+
+                $.ajax({
+                        url: '/reports/getDSSR_no',
+                        method: 'POST',
+                        data: { from: from_date, to: to_date, staff_data: staff_id },
+                        success: function (response) {
+                            
+                            let dataRef = "";
+                            dataRef += "<div class='card-header'>";
+                            
+                            dataRef += "<input class='form-check-input' type='checkbox' value='' name='isCheckAll' id='isCheckAll'>";
+                            // dataRef += "<label for='isCheckAll'>Check ALL</label>";
+                            dataRef += "<h4 class='card-title'></h4>";
+                            dataRef += "<a class='btn btn-rounded btn-outline-info' id='dl_excel' onclick='dl_excel()'><i class='lar la-file-excel'></i>Download Excel </a>";
+                            dataRef += "</div>";
+                            dataRef += "<table class='table' >"
+                            dataRef += "<thead class='thead-primary'>"
+                            dataRef += "<tr>"
+                            dataRef += "<th scope='col' style='text-align: center;' ></th>"
+                            dataRef += "<th scope='col' style='text-align: center;'>Document Number</th>"
+                            dataRef += "<th scope='col' style='text-align: center;'>Date</th>"
+                            dataRef += "<th scope='col' style='text-align: center;'>Date Generated</th>"
+                            dataRef += "<th scope='col' style='text-align: center;'>View</th>"
+                            dataRef += "</tr>"
+                            dataRef += "</thead>"
+                            dataRef += "<tbody>"
+                            if (response.length > 0) {
+                                
+                                for (let index = 0; index <= response.length - 1; index++) {
+                                    
+                                    const element = response[index];
+                                    const dateObj = new Date(element.createdAt);
+                                    const dateObjInclude = new Date(element.date_include);
+                                    const options = {
+                                        weekday: 'long', // Full day name (e.g., Friday)
+                                        year: 'numeric', // Full year (e.g., 2024)
+                                        month: 'long',   // Full month name (e.g., September)
+                                        day: 'numeric',  // Day of the month (e.g., 13)
+                                        hour: 'numeric', // Hour in 12-hour format (e.g., 12 AM)
+                                        minute: 'numeric', // Minute
+                                        second: 'numeric', // Second
+                                        // timeZoneName: 'short' // Time zone (e.g., GMT)
+                                    };
+
+                                    const options2 = {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                    };
+                                    const readableDate = dateObj.toLocaleString('en-US', options);
+                                    const readableDateInclude = dateObjInclude.toLocaleString('en-US', options2);
+                                    dataRef += "<tr>"
+                                    dataRef += "<td  class='tdcheck'><input class='form-check-input' type='checkbox' value='' name='isCheck' id='isCheck'></td>";
+                                    dataRef += "<td  class='tdcheck'><b>" + element.referenceNumber + "</b></td>";
+                                    dataRef += "<td  class='tdcheck'><b>" + readableDateInclude + "</b></td>";
+                                    dataRef += "<td  class='tdcheck'><b>" + readableDate + "<b></td>";
+                                    dataRef += "<td  class='tdcheck'><a type='submit' class='btn btn-primary h-45 w-100' href='./view_data/"+element._id+"' id='filter_dssr' target='_blank'>View</a></td>";
+                                    dataRef += "<input type='hidden' id='ref_id' name='ref_id' value="+element.referenceNumber+">";
+                                    dataRef += "<input type='hidden' id='id_data' name='id_data' value="+element._id+">";
+                                    dataRef += "</tr>"
+                                }
+                            }else{
+                                dataRef += "<tr>"
+                                dataRef += "<td  style='text-align: center;' colspan='5' ><b> No Data Found</b></td>";
+                                dataRef += "</tr>"
+
+
+                                Swal.fire({
+                                    title: "No data was found!",
+                                    // text: "You clicked the button!",
+                                    icon: "warning"
+                                });
+                            }
+
+                            dataRef += "</tbody>"
+                            dataRef += "</table>"
+
+                            tableShow.innerHTML = dataRef
+                        }
+                })
+                
+            })
+        
+
+            $(document).on('click', '#isCheckAll', function() {
+                var disCheck = document.getElementsByName("isCheck");
+                for (let index = 0; index <= disCheck.length -1; index++) {
+                    const element = disCheck[index];
+                    var isChecked = $('#isCheckAll').is(':checked');
+                    console.log(isChecked)
+                    if(isChecked == true){
+                        element.checked = true;
+                    }else{
+                        element.checked = false;
+                    }
+                    
+                    
+                }
+            });
+        })
 
     </script>
 

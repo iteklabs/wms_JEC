@@ -5761,6 +5761,149 @@ router.get("/dsrr_admin/view", auth, async (req, res) => {
 })
 
 
+router.post("/getDSSR_no", auth, async (req, res) => {
+    try {
+        const { from, to, staff_data } = req.body
+        const thedataFilter =  await Reference.aggregate([
+            {
+                $match:{
+                    date_include: {
+                        $gte: from,
+                        $lte: to
+                    },
+                    staff_id: staff_data
+                }
+            },
+            {
+                $sort :{
+                    "date_include": 1,
+                }
+            }
+        ])
+        
+        res.json(thedataFilter)
+    } catch (error) {
+        res.json(error)
+    }
+})
+
+
+router.get("/dsrr_admin/view_data/:id", auth, async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const thedataFilter =  await Reference.findById(_id);
+        res.send(thedataFilter.html);
+        // res.json(thedataFilter.html)
+    } catch (error) {
+        res.json(error)
+    }
+})
+
+
+router.post("/dl_excel", auth, async (req, res) => {
+    try {
+        const { ref_data } = req.body;
+        const array_data = ref_data.split("~");
+        
+        
+        const cleanedArray = array_data.filter(item => item !== "");
+        // console.log(cleanedArray)
+        const dataref = await Reference.aggregate([
+            {
+                $match: {
+                    referenceNumber: { 
+                        $in: cleanedArray
+                    }
+                }
+            }
+        ]);
+
+        const wb = XLSX.utils.book_new();
+        dataref.forEach(ref => {
+            // Load HTML content and process it
+            const $ = cheerio.load(ref.html);
+
+            let data = [];
+            let merges = [];
+            let colSpans = []; // To track active column spans
+
+            $('table tr').each((i, row) => {
+                let rowData = [];
+                let colIndex = 0;
+
+                // Adjust colIndex for any ongoing colspans from previous rows
+                while (colSpans[colIndex]) {
+                    colSpans[colIndex]--;
+                    colIndex++;
+                }
+
+                $(row).find('td, th').each((j, cell) => {
+                    let cellText = $(cell).text().trim();
+
+                    // Attempt to convert cell text to a number if possible
+                    let cellValue = parseFloat(cellText.replace(/,/g, ''));
+
+                    // Use the cell text if it's not a valid number
+                    if (isNaN(cellValue)) {
+                        cellValue = cellText;
+                    }
+
+                    // Parse colspan and rowspan
+                    let colspan = parseInt($(cell).attr('colspan')) || 1;
+                    let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+
+                    // Add the cell value to the rowData array at the correct column index
+                    rowData[colIndex] = cellValue;
+
+                    // Add merge information if colspan or rowspan is greater than 1
+                    if (colspan > 1 || rowspan > 1) {
+                        merges.push({
+                            s: { r: i, c: colIndex }, // start position
+                            e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
+                        });
+                    }
+
+                    // Track colspans across rows (for correct placement in the next row)
+                    for (let k = 0; k < colspan; k++) {
+                        if (rowspan > 1) {
+                            colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+                        }
+                    }
+
+                    // Move to the next column index, considering colspan
+                    colIndex += colspan;
+                });
+
+                data.push(rowData);
+            });
+
+            // Create a worksheet from the processed data
+            const ws = XLSX.utils.aoa_to_sheet(data);
+
+            // Apply merges to the worksheet
+            if (merges.length > 0) {
+                ws['!merges'] = merges;
+            }
+
+            // Optionally, set column widths or other formatting
+            ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
+
+            // Append the worksheet to the workbook with the referenceNumber as sheet name
+            XLSX.utils.book_append_sheet(wb, ws, ref.referenceNumber);
+        });
+
+        // Write the workbook to a buffer
+        const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+        // Send the file to the client as a download
+        res.setHeader('Content-Disposition', 'attachment; filename="reports.xlsx"');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.send(fileBuffer);
+    } catch (error) {
+        res.json(error)
+    }
+})
+
 router.post('/dsrr_admin/pdf_admin', auth, async (req, res) => {
 
     const {from_date, agent_id} = req.body
@@ -5956,82 +6099,82 @@ router.post('/dsrr_admin/pdf_admin', auth, async (req, res) => {
 
         const $ = cheerio.load(htmlContent);
 
-let data = [];
-let merges = [];
-let colSpans = []; // To track active column spans
+        let data = [];
+        let merges = [];
+        let colSpans = []; // To track active column spans
 
-$('table tr').each((i, row) => {
-    let rowData = [];
-    let colIndex = 0;
+        $('table tr').each((i, row) => {
+            let rowData = [];
+            let colIndex = 0;
 
-    // Adjust colIndex for any ongoing colspans from previous rows
-    while (colSpans[colIndex]) {
-        colSpans[colIndex]--;
-        colIndex++;
-    }
-
-    $(row).find('td, th').each((j, cell) => {
-        let cellText = $(cell).text().trim();
-
-        // Attempt to convert cell text to a number if possible
-        let cellValue = parseFloat(cellText.replace(/,/g, ''));
-
-        // Use the cell text if it's not a valid number
-        if (isNaN(cellValue)) {
-            cellValue = cellText;
-        }
-
-        // Parse colspan and rowspan
-        let colspan = parseInt($(cell).attr('colspan')) || 1;
-        let rowspan = parseInt($(cell).attr('rowspan')) || 1;
-
-        // Add the cell value to the rowData array at the correct column index
-        rowData[colIndex] = cellValue;
-
-        // Add merge information if colspan or rowspan is greater than 1
-        if (colspan > 1 || rowspan > 1) {
-            merges.push({
-                s: { r: i, c: colIndex }, // start position
-                e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
-            });
-        }
-
-        // Track colspans across rows (for correct placement in the next row)
-        for (let k = 0; k < colspan; k++) {
-            if (rowspan > 1) {
-                colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+            // Adjust colIndex for any ongoing colspans from previous rows
+            while (colSpans[colIndex]) {
+                colSpans[colIndex]--;
+                colIndex++;
             }
+
+            $(row).find('td, th').each((j, cell) => {
+                let cellText = $(cell).text().trim();
+
+                // Attempt to convert cell text to a number if possible
+                let cellValue = parseFloat(cellText.replace(/,/g, ''));
+
+                // Use the cell text if it's not a valid number
+                if (isNaN(cellValue)) {
+                    cellValue = cellText;
+                }
+
+                // Parse colspan and rowspan
+                let colspan = parseInt($(cell).attr('colspan')) || 1;
+                let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+
+                // Add the cell value to the rowData array at the correct column index
+                rowData[colIndex] = cellValue;
+
+                // Add merge information if colspan or rowspan is greater than 1
+                if (colspan > 1 || rowspan > 1) {
+                    merges.push({
+                        s: { r: i, c: colIndex }, // start position
+                        e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
+                    });
+                }
+
+                // Track colspans across rows (for correct placement in the next row)
+                for (let k = 0; k < colspan; k++) {
+                    if (rowspan > 1) {
+                        colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+                    }
+                }
+
+                // Move to the next column index, considering colspan
+                colIndex += colspan;
+            });
+
+            data.push(rowData);
+        });
+
+        // Create the worksheet and add merge information
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(data);
+
+        // Apply merges to the worksheet
+        if (merges.length > 0) {
+            ws['!merges'] = merges;
         }
 
-        // Move to the next column index, considering colspan
-        colIndex += colspan;
-    });
+        // Optionally, set column widths or other formatting
+        ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
 
-    data.push(rowData);
-});
+        // Append the worksheet to the workbook
+        XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
 
-// Create the worksheet and add merge information
-const wb = XLSX.utils.book_new();
-const ws = XLSX.utils.aoa_to_sheet(data);
+        // Write the workbook to a buffer
+        const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
 
-// Apply merges to the worksheet
-if (merges.length > 0) {
-    ws['!merges'] = merges;
-}
-
-// Optionally, set column widths or other formatting
-ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
-
-// Append the worksheet to the workbook
-XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
-
-// Write the workbook to a buffer
-const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
-
-// Send the file to the client as a download (if using Express.js)
-res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
-res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-res.send(fileBuffer);
+        // Send the file to the client as a download (if using Express.js)
+        res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.send(fileBuffer);
 
     }else{
         pdf.create(htmlContent, options).toStream(function(err, stream) {
