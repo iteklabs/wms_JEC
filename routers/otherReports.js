@@ -2616,6 +2616,611 @@ pages.forEach((page, pageIndex) => {
 return htmlContent;
 }
 
+async function agentsdataDSICheck_excel(from, to, staff_id, isExcel){
+    const product_data = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    brand: "$brand",
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        name: "$name",
+                        product_code: "$product_code"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+                "_id.brand": 1,  // Sort by brand in ascending order
+            }
+        }
+    ])
+    var array_data = [];
+    array_data["cat_brand"] = [];
+    for (let index = 0; index <= product_data.length -1; index++) {
+        const element = product_data[index];
+        array_data["cat_brand"].push(element)
+        // array_data["cat_brand"].push(element)
+        
+        
+    }
+
+    const product_cat= await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category"
+                },
+                products:{
+                    $push: {
+                        brand: "$brand",
+                        product_code: "$product_code",
+                        product_name: "$name"
+                    }
+                }
+
+            }
+        },
+        {
+            $sort: {
+                
+                "_id.category": -1, // Sort by category in ascending order
+            }
+        }
+    ])
+
+    const product_cnt = await product.aggregate([
+        {
+            $group: {
+                _id: {
+                    category: "$category",
+                    brand: "$brand"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "$_id.category",
+                brandCount: { $sum: 1 }
+            }
+        },
+        {
+            $sort: {
+                _id: -1 // Sort by category in descending order (use 1 for ascending order)
+            }
+        }
+    ]);
+
+   
+    // const sales_sa_data = await sales_sa.aggregate([
+    //     {
+    //         $match: {
+    //             date: {
+    //                 $gte: from,
+    //                 $lte: to
+    //             },
+    //             sales_staff_id: staff_id,
+    //              "sale_product.isFG": "false"
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$sale_product"
+    //     },
+    //     {
+    //         $match: {
+    //             "sale_product.isFG": "false"
+    //         }
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: "products",
+    //             localField: "sale_product.product_code",
+    //             foreignField: "product_code",
+    //             as: "product_info"
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$product_info"
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$dsi",
+    //                 date: "$date",
+    //                 customer: "$customer"
+    //             },
+    //             totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+    //             products: {
+    //                 $push: {
+    //                     qty: "$sale_product.real_qty_unit_val",
+    //                     NetPrice: "$sale_product.totalprice",
+    //                     discount: "$sale_product.discount",
+    //                     adj_discount: "$sale_product.adj_discount",
+    //                     product_details: {
+    //                         prod_name: "$product_info.name",
+    //                         product_code: "$product_info.product_code",
+    //                         category: "$product_info.category",
+    //                         brand: "$product_info.brand",
+    //                         gross_price: "$product_info.gross_price",
+                            
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     },
+    //     {
+    //         $unwind: "$products"
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$_id.dsi",
+    //                 date: "$_id.date",
+    //                 customer: "$_id.customer",
+    //                 category: "$products.product_details.category",
+    //                 brand: "$products.product_details.brand"
+    //             },
+    //             totalQty: { $sum: "$products.qty" },
+    //             totalGross: { $sum: "$products.product_details.gross_price" },
+    //             NetPrice: { $sum: "$products.NetPrice" },
+    //             discount: { $sum: "$products.discount"},
+    //             adj_discount: { $sum: "$products.adj_discount"},
+    //             product_details: { $first: "$products.product_details" }
+    //         }
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 dsi: "$_id.dsi",
+    //                 date: "$_id.date",
+    //                 customer: "$_id.customer"
+    //             },
+    //             totalQty: { $sum: "$totalQty" },
+    //             totalGross: { $multiply: [ "$totalQty","$totalGross"] },
+    //             NetPrice: { $sum: "$NetPrice" },
+    //             discount: { $sum: "$discount"},
+    //             adj_discount: { $sum: "$adj_discount"},
+    //             products: {
+    //                 $push: {
+    //                     qty: "$totalQty",
+    //                     category: "$_id.category",
+    //                     brand: "$_id.brand",
+    //                     product_details: "$product_details"
+    //                 }
+    //             }
+    //         }
+    //     },
+    //     {
+    //         $sort: {
+                
+    //             "_id.dsi": -1, // Sort by category in ascending order
+    //             "_id.date": 1,  // Sort by brand in ascending order
+    //         }
+    //     }
+    // ]);
+    
+    
+// res.json(sales_sa_data);
+// return
+// console.log(sales_sa_data)
+// return
+// let arrdata = {
+//     dataqty: {}
+// };
+
+// for (let a = 0; a < array_data["cat_brand"].length; a++) {
+//     const element = array_data["cat_brand"][a];
+//     const brand = element._id.brand;
+//     const category = element._id.category;
+//     // console.log(element)
+//     if (!arrdata["dataqty"][brand]) {
+//         arrdata["dataqty"][brand] = {};
+//     }
+    
+//     if (!arrdata["dataqty"][brand][category]) {
+//         arrdata["dataqty"][brand][category] = [];
+//     }
+
+//     for (let b = 0; b <= sales_sa_data.length-1; b++) {
+//         const thedata = sales_sa_data[b];
+
+//         for(let l = 0; l <= thedata.products.length - 1; l++ ){
+//             const data_detl = thedata.products[l];
+            
+//             // console.log(data_detl.qty)
+//             if (brand == data_detl.brand && category == data_detl.category) {
+//                 // console.log(data_detl.qty)
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi] = [];
+//                 }
+
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date] = [];
+//                 }
+
+//                 if (!arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer]) {
+//                     arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer] = [];
+//                 }
+
+//                 arrdata["dataqty"][brand][category][thedata._id.dsi][thedata._id.date][thedata._id.customer].push(data_detl.qty);
+//             }
+//         }
+        
+        
+//     }
+// }
+
+
+//     let htmlContent = "";
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td colspan="20" class="cat_data">QUANTITY SOLD</td>`;
+//     htmlContent += `</tr>`;
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td class="cat_data" colspan="3"></td>`;
+  
+//     for(let a = 0; a <= product_cat.length -1; a++){
+//         const thdata = product_cat[a];
+//         for (let b = 0; b < product_cnt.length; b++) {
+//             const element2 = product_cnt[b];
+//             if(element2._id == thdata._id.category){
+//                 htmlContent += `<td colspan="`+element2.brandCount+`" class="cat_data">`+thdata._id.category+`</td>`;
+//             }
+//         }
+//     }
+    
+//     htmlContent += `<td class="cat_data" colspan="4"></td>`;
+//     htmlContent += `</tr>`;
+//     htmlContent += `<tr>`;
+//     htmlContent += `<td colspan="1" class="cat_data">DSI Number</td>`;
+//     htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Date</td>`;
+//     htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Customer</td>`;
+//     for(let a = 0; a <= product_cat.length -1; a++){
+//         const thdata = product_cat[a];
+
+//         for (let b = 0; b < array_data["cat_brand"].length; b++) {
+//             const element = array_data["cat_brand"][b];
+
+//             if(element._id.category == thdata._id.category){
+//                 htmlContent += `<td class="cat_data">`+element._id.brand+`</td>`;
+//             }
+//         }
+        
+       
+//     }
+//     htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
+//     htmlContent += `<td class="cat_data">GROSS SALES</td>`;
+//     htmlContent += `<td class="cat_data">DISCOUNT</td>`;
+//     htmlContent += `<td class="cat_data">NET SALES VALUE</td>`;
+//     htmlContent += `</tr>`;
+
+
+
+
+
+//     for (let z = 0; z < sales_sa_data.length; z++) {
+//         const sales_data_element = sales_sa_data[z];
+        
+//         htmlContent += `<tr>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.dsi}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.date}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element._id.customer}</td>`;
+    
+//         // Initialize an object to keep track of quantities for each brand-category pair
+//         let quantities = {};
+    
+//         // Fill quantities with actual data
+//         for (let p = 0; p < sales_data_element.products.length; p++) {
+//             const data_final = sales_data_element.products[p];
+//             // console.log(data_final)
+//             quantities[`${data_final.brand}-${data_final.category}`] = data_final.qty;
+//         }
+    
+//         // Iterate over all possible brand-category pairs
+//         for (let a = 0; a < array_data["cat_brand"].length; a++) {
+//             const data_brand = array_data["cat_brand"][a];
+//             const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+//             if (quantities[key] !== undefined) {
+//                 htmlContent += `<td class="row_data">${quantities[key]}</td>`;
+//             } else {
+//                 htmlContent += `<td class="row_data">0</td>`;
+//             }
+//         }
+//         htmlContent += `<td class="row_data">${sales_data_element.totalQty}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.totalGross}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.discount}</td>`;
+//         htmlContent += `<td class="row_data">${sales_data_element.NetPrice.toFixed(2)}</td>`;
+//         htmlContent += `</tr>`;
+//     }
+    
+    
+//     return htmlContent;
+
+
+const sales_sa_data = await sales_sa.aggregate([
+    {
+        $match: {
+            date: {
+                $gte: from,
+                $lte: to
+            },
+            sales_staff_id: staff_id,
+            "sale_product.isFG": "false"
+        }
+    },
+    {
+        $unwind: "$sale_product"
+    },
+    {
+        $match: {
+            "sale_product.isFG": "false"
+        }
+    },
+    {
+        $lookup: {
+            from: "products",
+            localField: "sale_product.product_code",
+            foreignField: "product_code",
+            as: "product_info"
+        }
+    },
+    {
+        $unwind: "$product_info"
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$dsi",
+                date: "$date",
+                customer: "$customer"
+            },
+            totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+            products: {
+                $push: {
+                    qty: "$sale_product.real_qty_unit_val",
+                    NetPrice: "$sale_product.totalprice",
+                    discount: "$sale_product.discount",
+                    adj_discount: "$sale_product.adj_discount",
+                    product_details: {
+                        prod_name: "$product_info.name",
+                        product_code: "$product_info.product_code",
+                        category: "$product_info.category",
+                        brand: "$product_info.brand",
+                        gross_price: "$product_info.gross_price",
+                    }
+                }
+            }
+        }
+    },
+    {
+        $unwind: "$products"
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$_id.dsi",
+                date: "$_id.date",
+                customer: "$_id.customer",
+                category: "$products.product_details.category",
+                brand: "$products.product_details.brand"
+            },
+            totalQty: { $sum: "$products.qty" },
+            totalGross: { $sum: { $multiply: ["$products.qty", "$products.product_details.gross_price"] } },
+            NetPrice: { $sum: "$products.NetPrice" },
+            discount: { $sum: "$products.discount" },
+            adj_discount: { $sum: "$products.adj_discount" },
+            product_details: { $first: "$products.product_details" }
+        }
+    },
+    {
+        $group: {
+            _id: {
+                dsi: "$_id.dsi",
+                date: "$_id.date",
+                customer: "$_id.customer"
+            },
+            totalQty: { $sum: "$totalQty" },
+            totalGross: { $sum: "$totalGross" },
+            NetPrice: { $sum: "$NetPrice" },
+            discount: { $sum: "$discount" },
+            adj_discount: { $sum: "$adj_discount" },
+            products: {
+                $push: {
+                    qty: "$totalQty",
+                    category: "$_id.category",
+                    brand: "$_id.brand",
+                    product_details: "$product_details"
+                }
+            }
+        }
+    },
+    {
+        $sort: {
+            "_id.dsi": -1, // Sort by category in ascending order
+            "_id.date": 1,  // Sort by brand in ascending order
+        }
+    }
+]);
+
+let rows = [];
+let totals = {};
+let merged_totals = {};
+let data_totals = {}
+var sum = 0;
+var netPay = 0;
+var discountAll = 0
+var discounttotal = 0;
+var totalGrossAll = 0;
+const rowsPerPage = 10000000000000;
+for (let z = 0; z <= sales_sa_data.length -1; z++) {
+    const sales_data_element = sales_sa_data[z];
+    let row = `<tr>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.dsi}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.date}</td>`;
+    row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element._id.customer}</td>`;
+    
+    let quantities = {};
+    
+    
+    var x = 0;
+    for (let p = 0; p <= sales_data_element.products.length -1; p++) {
+        const data_final = sales_data_element.products[p];
+        quantities[`${data_final.brand}-${data_final.category}`] = data_final.qty;
+        const key = `${data_final.brand}-${data_final.category}`;
+
+        if (!totals[key]) {
+            totals[key] = 0;
+        }
+
+        if (!Array.isArray(data_totals[key])) {
+            data_totals[key]= [];
+        }
+
+        if (!Array.isArray(data_totals[key])) {
+            data_totals[key] = [];
+        }
+
+     
+
+        totals[key] += data_final.qty;
+        // data_totals[key] += data_final.qty ;
+
+        
+        data_totals[key].push(data_final.qty);
+        x++;
+    }
+
+    
+    console.log(sales_data_element)
+
+    for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
+        const data_brand = array_data["cat_brand"][a];
+        const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+        row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${quantities[key] !== undefined ? quantities[key].toFixed(2) : ""}</td>`;
+    }
+    discountAll = sales_data_element.discount + sales_data_element.adj_discount
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(parseFloat(sales_data_element.totalQty, 2).toFixed(2))}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.totalGross.toFixed(2))}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(discountAll)}</td>`;
+    row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
+    row += `</tr>`;
+    sum += parseFloat(sales_data_element.totalQty.toFixed(2));
+    netPay += parseFloat(sales_data_element.NetPrice.toFixed(2));
+    discounttotal += discountAll;
+    totalGrossAll += parseFloat(sales_data_element.totalGross.toFixed(2));
+    if(z == (sales_sa_data.length -1)){
+        row += `<tr>`;
+        row += `<td colspan="3"><b>TOTAL<b>`;
+        row += `</td>`;
+
+        for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
+            const data_brand = array_data["cat_brand"][a];
+            const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+            const sum = data_totals[key].reduce((partialSum, a) => partialSum + a, 0)
+            row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? formatNumber(sum.toFixed(2)) : ""}</b></td>`;
+
+            console.log(data_totals[key].reduce((partialSum, a) => partialSum + a, 0))
+        }
+       
+
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        // row += `<td></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(sum.toFixed(2)) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(totalGrossAll) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(discounttotal) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(netPay) }</b></td>`;
+        row += `</tr>`;
+    }
+   
+    
+    rows.push(row);
+}
+
+
+    
+function paginateRows(rows, rowsPerPage) {
+    const pages = [];
+    for (let i = 0; i <= rows.length -1; i += rowsPerPage) {
+        pages.push(rows.slice(i, i + rowsPerPage));
+    }
+    return pages;
+}
+
+
+const pages = paginateRows(rows, rowsPerPage);
+// console.log(pages)
+let htmlContent = "";
+pages.forEach((page, pageIndex) => {
+    if (pageIndex > 0) {
+        htmlContent += `<div style="page-break-before: always;"></div>`;
+    }
+    htmlContent += `<table>`;
+    htmlContent += `<thead>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="20" class="cat_data">QUANTITY SOLD</td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td class="cat_data" colspan="3"></td>`;
+    for (let a = 0; a <= product_cat.length -1; a++) {
+        const thdata = product_cat[a];
+        for (let b = 0; b < product_cnt.length; b++) {
+            const element2 = product_cnt[b];
+            if (element2._id === thdata._id.category) {
+                htmlContent += `<td colspan="${element2.brandCount}" class="cat_data">${thdata._id.category}</td>`;
+            }
+        }
+    }
+    htmlContent += `<td class="cat_data" colspan="4"></td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `<tr>`;
+    htmlContent += `<td colspan="1" class="cat_data">DSI Number</td>`;
+    htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Date</td>`;
+    htmlContent += `<td colspan="1" class="cat_data" style="width:100px">Customer</td>`;
+    for (let a = 0; a <= product_cat.length -1; a++) {
+        const thdata = product_cat[a];
+        for (let b = 0; b < array_data["cat_brand"].length; b++) {
+            const element = array_data["cat_brand"][b];
+            if (element._id.category === thdata._id.category) {
+                htmlContent += `<td class="cat_data">${element._id.brand}</td>`;
+            }
+        }
+    }
+    htmlContent += `<td class="cat_data">TOTAL QTY</td>`;
+    htmlContent += `<td class="cat_data">GROSS SALES</td>`;
+    htmlContent += `<td class="cat_data">DISCOUNT</td>`;
+    htmlContent += `<td class="cat_data">NET SALES</td>`;
+    htmlContent += `</tr>`;
+    htmlContent += `</thead>`;
+    htmlContent += `<tbody>`;
+    page.forEach(row => {
+        htmlContent += row;
+        
+
+    });
+
+
+    console.log(data_totals);
+
+    
+    htmlContent += `</tbody>`;
+    htmlContent += `</table>`;
+    // htmlContent += `<div style="page-break-after:always;"></div>`;
+});
+
+
+return htmlContent;
+}
+
 router.post('/agent_reports/pdf', auth, async (req, res) => {
 
     const {from_date, to_date, isExcel} = req.body
@@ -2624,6 +3229,7 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     const image = await master_shop.find();
     console.log(image[0].image);
     const datatest = await agentsdataDSICheck(from_date, to_date, stff_data._id.valueOf(), isExcel);
+    const datatest_excel = await agentsdataDSICheck_excel(from_date, to_date, stff_data._id.valueOf(), isExcel);
     // res.send(req.body);
     // return;
 
@@ -2723,14 +3329,55 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     htmlContent += `</div>`;
     htmlContent += `</div>`;
 
-    // res.send(htmlContent);
-    // return;
-    // const options = {
-    //     // format: 'Letter', // Set size to Letter
-    //     width: '15in',  // Set custom width (e.g., 11 inches)
-    //     height: '8.5in', // Set custom height (e.g., 8.5 inches)
-    //     orientation: 'landscape' // Set orientation to landscape
-    // };
+    let htmlContent_excel = `
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%; /* Ensure table uses the full width */
+            font-size: 9pt;
+        }
+        th, td {
+            border: 1px solid black;
+            text-align: center;
+            font-size: 9pt;
+            
+        }
+        th {
+            background-color: #d0cece;
+            padding: 8px;
+            color: black;
+        }
+        @media print {
+           table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            th { page-break-inside: avoid; page-break-after: auto; }
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 12pt;
+        }
+
+        @media (max-width: 1024px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        
+            
+    </style>
+`;
+
+    htmlContent_excel += `<div class="row">`;
+    htmlContent_excel += `<div  id="table-conatainer">`;
+    htmlContent_excel += `<table>`;
+    htmlContent_excel += datatest_excel;
+    htmlContent_excel += `</table>`;
+    htmlContent_excel += `</div>`;
+    htmlContent_excel += `</div>`;
 
     let dataImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxYxAAACD0S0HV4xFoAAAAAElFTkSuQmCC';
     const options = {
@@ -2767,33 +3414,123 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     
 
     if(isExcel == "on"){
-        const $ = cheerio.load(htmlContent);
+        const $ = cheerio.load(htmlContent_excel);
 
         let data = [];
+        let merges = [];
+        let colSpans = []; // To track active column spans
+        
+        // Helper function to extract border styles from a cell's inline styles
+        const getBorderStyle = (style) => {
+            const borderStyle = {
+                top: { style: 'thick', color: { rgb: '000000' } },
+                bottom: { style: 'thick', color: { rgb: '000000' } },
+                left: { style: 'thick', color: { rgb: '000000' } },
+                right: { style: 'thick', color: { rgb: '000000' } }
+            };
+        
+            // Extract border values from the inline style attribute if available
+            if (style) {
+                const styleObj = style.split(';').reduce((acc, rule) => {
+                    const [property, value] = rule.split(':').map(str => str.trim());
+                    acc[property] = value;
+                    return acc;
+                }, {});
+        
+                // Extract individual border styles (top, bottom, left, right)
+                if (styleObj['border-top']) {
+                    borderStyle.top.style = styleObj['border-top'].includes('thin') ? 'thin' : 'medium';
+                }
+                if (styleObj['border-bottom']) {
+                    borderStyle.bottom.style = styleObj['border-bottom'].includes('thin') ? 'thin' : 'medium';
+                }
+                if (styleObj['border-left']) {
+                    borderStyle.left.style = styleObj['border-left'].includes('thin') ? 'thin' : 'medium';
+                }
+                if (styleObj['border-right']) {
+                    borderStyle.right.style = styleObj['border-right'].includes('thin') ? 'thin' : 'medium';
+                }
+            }
+        
+            return borderStyle;
+        };
+        
         $('table tr').each((i, row) => {
             let rowData = [];
+            let colIndex = 0;
+        
+            // Adjust colIndex for any ongoing colspans from previous rows
+            while (colSpans[colIndex]) {
+                colSpans[colIndex]--;
+                colIndex++;
+            }
+        
             $(row).find('td, th').each((j, cell) => {
-                // rowData.push($(cell).text().trim());
                 let cellText = $(cell).text().trim();
+        
+                // Attempt to convert cell text to a number if possible
                 let cellValue = parseFloat(cellText.replace(/,/g, ''));
-
-                if (!isNaN(cellValue)) {
-                    rowData.push(cellValue);
-                } else {
-                    rowData.push(cellText);
+        
+                // Use the cell text if it's not a valid number
+                if (isNaN(cellValue)) {
+                    cellValue = cellText;
                 }
+        
+                // Parse colspan and rowspan
+                let colspan = parseInt($(cell).attr('colspan')) || 1;
+                let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+        
+                // Get border style from inline style attribute in HTML
+                const styleAttr = $(cell).attr('style');
+                const borderStyle = getBorderStyle(styleAttr); // Extract border style from HTML
+        
+                // Add the cell value to the rowData array at the correct column index
+                rowData[colIndex] = {
+                    v: cellValue,
+                    s: { border: borderStyle } // Apply the extracted border style
+                };
+        
+                // Add merge information if colspan or rowspan is greater than 1
+                if (colspan > 1 || rowspan > 1) {
+                    merges.push({
+                        s: { r: i, c: colIndex }, // start position
+                        e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
+                    });
+                }
+        
+                // Track colspans across rows (for correct placement in the next row)
+                for (let k = 0; k < colspan; k++) {
+                    if (rowspan > 1) {
+                        colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+                    }
+                }
+        
+                // Move to the next column index, considering colspan
+                colIndex += colspan;
             });
+        
             data.push(rowData);
         });
-
+        
+        // Create the worksheet and add merge information
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(data);
+        
+        // Apply merges to the worksheet
+        if (merges.length > 0) {
+            ws['!merges'] = merges;
+        }
+        
+        // Optionally, set column widths or other formatting
+        ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
+        
+        // Append the worksheet to the workbook
         XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
-
+        
         // Write the workbook to a buffer
         const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
-
-        // Send the file to the client as a download
+        
+        // Send the file to the client as a download (if using Express.js)
         res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.send(fileBuffer);
