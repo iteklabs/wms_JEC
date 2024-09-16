@@ -6487,45 +6487,45 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
     const stff_data = await staff.findOne({ email: role_data.email })
     const image = await master_shop.find();
     const isExcel = "";
-    const datatest = await agentsdataDSICheck_DSRR(from_date, stff_data._id.valueOf(), isExcel);
-    let htmlContent = `
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%; /* Ensure table uses the full width */
-        }
-        th, td {
-            border: 1px solid black;
-            text-align: center;
-        }
-        th {
-            background-color: #d0cece;
-            padding: 8px;
-            color: black;
-        }
-        @media print {
-           table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
-            th { page-break-inside: avoid; page-break-after: auto; }
-        }
+    // const datatest = await agentsdataDSICheck_DSRR(from_date, stff_data._id.valueOf(), isExcel);
+//     let htmlContent = `
+//     <style>
+//         table {
+//             border-collapse: collapse;
+//             width: 100%; /* Ensure table uses the full width */
+//         }
+//         th, td {
+//             border: 1px solid black;
+//             text-align: center;
+//         }
+//         th {
+//             background-color: #d0cece;
+//             padding: 8px;
+//             color: black;
+//         }
+//         @media print {
+//            table { page-break-inside: auto; }
+//             tr { page-break-inside: avoid; page-break-after: auto; }
+//             th { page-break-inside: avoid; page-break-after: auto; }
+//         }
 
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-        body {
-            font-family: 'Roboto', sans-serif;
-            font-size: 12pt;
-        }
+//         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+//         body {
+//             font-family: 'Roboto', sans-serif;
+//             font-size: 12pt;
+//         }
 
-        @media (max-width: 1024px) {
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-        }
+//         @media (max-width: 1024px) {
+//             table {
+//                 display: block;
+//                 overflow-x: auto;
+//             }
+//         }
 
         
             
-    </style>
-`;
+//     </style>
+// `;
 
     
     var from_string_date = new Date(from_date);
@@ -6537,13 +6537,13 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
     };
     const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
     // const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
-    htmlContent += `<div class="row">`;
-    htmlContent += `<div  id="table-conatainer">`;
-    htmlContent += `<table>`;
-    htmlContent += datatest;
-    htmlContent += `</table>`;
-    htmlContent += `</div>`;
-    htmlContent += `</div>`;
+    // htmlContent += `<div class="row">`;
+    // htmlContent += `<div  id="table-conatainer">`;
+    // htmlContent += `<table>`;
+    // htmlContent += datatest;
+    // htmlContent += `</table>`;
+    // htmlContent += `</div>`;
+    // htmlContent += `</div>`;
 
     // let dataImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxYxAAACD0S0HV4xFoAAAAAElFTkSuQmCC';
     // const options = {
@@ -6578,8 +6578,8 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
     //     zoomFactor: '1' // Ensure the same zoom level
     // };
     const checkingFile = await Reference.find({staff_id: stff_data._id.valueOf(), date_include: from_date});
-    res.send(htmlContent);
-    return;
+    // res.send(htmlContent);
+    // return;
     // console.log(checkingFile[0].html)
     // return
     if(checkingFile.length > 0){
