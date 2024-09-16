@@ -3383,6 +3383,7 @@ const referenceSchema = new mongoose.Schema({
     staff_id: String,
     html: String,
     date_include: String,
+    salesman_code: String,
     createdAt: {
       type: Date,
       default: Date.now

@@ -6420,30 +6420,33 @@ pages.forEach((page, pageIndex) => {
 return htmlContent;
 }
 
-async function generateReferenceNumber(date, staff_id) {
+async function generateReferenceNumber(date, staff_id, role_data) {
     const currentYear = new Date(date).getFullYear();
     const currentMonth = ('0' + (new Date(date).getMonth() + 1)).slice(-2); // Adds leading zero
-    const prefix = `${currentYear}${currentMonth}`; // YYYYMM format
-  
-    // Find the last inserted reference number for the current year and month
-    const lastRef = await Reference.findOne({ referenceNumber: new RegExp(`^${prefix}`) })
-      .sort({ createdAt: -1 });
-  
-    let sequenceNumber = '0001'; // Default starting sequence for a new month
-  
-    // If there is a reference for the current month, increment the sequence number
+    // const currentDay= ('0' + (new Date(date).getDay() + 1)).slice(-2); // Adds leading zero
+    const currentDay = ('0' + (new Date(date).getDate())).slice(-2);
+    const staff_data =  await staff.findOne({ email : role_data.email });
+    const SalesManCode = staff_data.sales_man_code;
+    const prefix = `${SalesManCode}-${currentYear}${currentMonth}${currentDay}`; // YYYYMM format
+
+    // // Find the last inserted reference number for the current year and month
+    const lastRef = await Reference.findOne({ referenceNumber: new RegExp(`^${prefix}`), salesman_code: SalesManCode })
+    .sort({ createdAt: -1 });
+
+    // // If there is a reference for the current month, increment the sequence number
+    const refData = prefix;
     if (lastRef) {
-      const lastSequence = lastRef.referenceNumber.slice(-4); // Get the last 4 digits (XXXX)
-      sequenceNumber = ('0000' + (parseInt(lastSequence) + 1)).slice(-4); // Increment and pad with leading zeros
+        refData = lastRef.referenceNumber
     }
+    console.log(refData)
+    // const newReferenceNumber = `${prefix}${sequenceNumber}`;
   
-    const newReferenceNumber = `${prefix}${sequenceNumber}`;
-  
-    // Save the new reference number in the database
-    const newRef = new Reference({ referenceNumber: newReferenceNumber, staff_id: staff_id });
+    // // Save the new reference number in the database
+    const newRef = new Reference({ referenceNumber: refData, staff_id: staff_id, salesman_code: SalesManCode });
     await newRef.save();
   
-    return newReferenceNumber;
+    return refData;
+    // console.log(prefix)
   }
 router.post('/dsrr/pdf', auth, async (req, res) => {
 
@@ -6670,9 +6673,10 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.send(fileBuffer);
     }else{
-        generateReferenceNumber(from_date, stff_data._id.valueOf()).then( async (element) => {
-            
-
+        
+        generateReferenceNumber(from_date, stff_data._id.valueOf(), role_data).then( async (element) => {
+            // res.json("test")
+            // return;
             const datatest = await agentsdataDSICheck_DSRR(from_date, stff_data._id.valueOf(), isExcel, element);
             let htmlContent = `
             <style>
