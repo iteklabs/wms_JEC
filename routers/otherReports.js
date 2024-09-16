@@ -6758,133 +6758,140 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
             htmlContent += `</table>`;
             htmlContent += `</div>`;
             htmlContent += `</div>`;
-
-            const thecreatedFile = await Reference.findOne({staff_id: stff_data._id.valueOf(), referenceNumber: element});
-            thecreatedFile.html = htmlContent;
-            thecreatedFile.date_include = from_date
-            await thecreatedFile.save();
-
-
-            const $ = cheerio.load(htmlContent);
- 
-            let data = [];
-            let merges = [];
-            let colSpans = []; // To track active column spans
-            
-            // Helper function to extract border styles from a cell's inline styles
-            const getBorderStyle = (style) => {
-                const borderStyle = {
-                    top: { style: 'thick', color: { rgb: '000000' } },
-                    bottom: { style: 'thick', color: { rgb: '000000' } },
-                    left: { style: 'thick', color: { rgb: '000000' } },
-                    right: { style: 'thick', color: { rgb: '000000' } }
-                };
-            
-                // Extract border values from the inline style attribute if available
-                if (style) {
-                    const styleObj = style.split(';').reduce((acc, rule) => {
-                        const [property, value] = rule.split(':').map(str => str.trim());
-                        acc[property] = value;
-                        return acc;
-                    }, {});
-            
-                    // Extract individual border styles (top, bottom, left, right)
-                    if (styleObj['border-top']) {
-                        borderStyle.top.style = styleObj['border-top'].includes('thin') ? 'thin' : 'medium';
-                    }
-                    if (styleObj['border-bottom']) {
-                        borderStyle.bottom.style = styleObj['border-bottom'].includes('thin') ? 'thin' : 'medium';
-                    }
-                    if (styleObj['border-left']) {
-                        borderStyle.left.style = styleObj['border-left'].includes('thin') ? 'thin' : 'medium';
-                    }
-                    if (styleObj['border-right']) {
-                        borderStyle.right.style = styleObj['border-right'].includes('thin') ? 'thin' : 'medium';
-                    }
-                }
-            
-                return borderStyle;
-            };
-            
-            $('table tr').each((i, row) => {
-                let rowData = [];
-                let colIndex = 0;
-            
-                // Adjust colIndex for any ongoing colspans from previous rows
-                while (colSpans[colIndex]) {
-                    colSpans[colIndex]--;
-                    colIndex++;
-                }
-            
-                $(row).find('td, th').each((j, cell) => {
-                    let cellText = $(cell).text().trim();
-            
-                    // Attempt to convert cell text to a number if possible
-                    let cellValue = parseFloat(cellText.replace(/,/g, ''));
-            
-                    // Use the cell text if it's not a valid number
-                    if (isNaN(cellValue)) {
-                        cellValue = cellText;
-                    }
-            
-                    // Parse colspan and rowspan
-                    let colspan = parseInt($(cell).attr('colspan')) || 1;
-                    let rowspan = parseInt($(cell).attr('rowspan')) || 1;
-            
-                    // Get border style from inline style attribute in HTML
-                    const styleAttr = $(cell).attr('style');
-                    const borderStyle = getBorderStyle(styleAttr); // Extract border style from HTML
-            
-                    // Add the cell value to the rowData array at the correct column index
-                    rowData[colIndex] = {
-                        v: cellValue,
-                        s: { border: borderStyle } // Apply the extracted border style
+            // console.log(datatest.length)
+            if(datatest.length > 0){
+                const thecreatedFile = await Reference.findOne({staff_id: stff_data._id.valueOf(), referenceNumber: element});
+                thecreatedFile.html = htmlContent;
+                thecreatedFile.date_include = from_date
+                await thecreatedFile.save();
+    
+    
+                const $ = cheerio.load(htmlContent);
+     
+                let data = [];
+                let merges = [];
+                let colSpans = []; // To track active column spans
+                
+                // Helper function to extract border styles from a cell's inline styles
+                const getBorderStyle = (style) => {
+                    const borderStyle = {
+                        top: { style: 'thick', color: { rgb: '000000' } },
+                        bottom: { style: 'thick', color: { rgb: '000000' } },
+                        left: { style: 'thick', color: { rgb: '000000' } },
+                        right: { style: 'thick', color: { rgb: '000000' } }
                     };
-            
-                    // Add merge information if colspan or rowspan is greater than 1
-                    if (colspan > 1 || rowspan > 1) {
-                        merges.push({
-                            s: { r: i, c: colIndex }, // start position
-                            e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
-                        });
-                    }
-            
-                    // Track colspans across rows (for correct placement in the next row)
-                    for (let k = 0; k < colspan; k++) {
-                        if (rowspan > 1) {
-                            colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+                
+                    // Extract border values from the inline style attribute if available
+                    if (style) {
+                        const styleObj = style.split(';').reduce((acc, rule) => {
+                            const [property, value] = rule.split(':').map(str => str.trim());
+                            acc[property] = value;
+                            return acc;
+                        }, {});
+                
+                        // Extract individual border styles (top, bottom, left, right)
+                        if (styleObj['border-top']) {
+                            borderStyle.top.style = styleObj['border-top'].includes('thin') ? 'thin' : 'medium';
+                        }
+                        if (styleObj['border-bottom']) {
+                            borderStyle.bottom.style = styleObj['border-bottom'].includes('thin') ? 'thin' : 'medium';
+                        }
+                        if (styleObj['border-left']) {
+                            borderStyle.left.style = styleObj['border-left'].includes('thin') ? 'thin' : 'medium';
+                        }
+                        if (styleObj['border-right']) {
+                            borderStyle.right.style = styleObj['border-right'].includes('thin') ? 'thin' : 'medium';
                         }
                     }
-            
-                    // Move to the next column index, considering colspan
-                    colIndex += colspan;
+                
+                    return borderStyle;
+                };
+                
+                $('table tr').each((i, row) => {
+                    let rowData = [];
+                    let colIndex = 0;
+                
+                    // Adjust colIndex for any ongoing colspans from previous rows
+                    while (colSpans[colIndex]) {
+                        colSpans[colIndex]--;
+                        colIndex++;
+                    }
+                
+                    $(row).find('td, th').each((j, cell) => {
+                        let cellText = $(cell).text().trim();
+                
+                        // Attempt to convert cell text to a number if possible
+                        let cellValue = parseFloat(cellText.replace(/,/g, ''));
+                
+                        // Use the cell text if it's not a valid number
+                        if (isNaN(cellValue)) {
+                            cellValue = cellText;
+                        }
+                
+                        // Parse colspan and rowspan
+                        let colspan = parseInt($(cell).attr('colspan')) || 1;
+                        let rowspan = parseInt($(cell).attr('rowspan')) || 1;
+                
+                        // Get border style from inline style attribute in HTML
+                        const styleAttr = $(cell).attr('style');
+                        const borderStyle = getBorderStyle(styleAttr); // Extract border style from HTML
+                
+                        // Add the cell value to the rowData array at the correct column index
+                        rowData[colIndex] = {
+                            v: cellValue,
+                            s: { border: borderStyle } // Apply the extracted border style
+                        };
+                
+                        // Add merge information if colspan or rowspan is greater than 1
+                        if (colspan > 1 || rowspan > 1) {
+                            merges.push({
+                                s: { r: i, c: colIndex }, // start position
+                                e: { r: i + rowspan - 1, c: colIndex + colspan - 1 } // end position
+                            });
+                        }
+                
+                        // Track colspans across rows (for correct placement in the next row)
+                        for (let k = 0; k < colspan; k++) {
+                            if (rowspan > 1) {
+                                colSpans[colIndex + k] = rowspan - 1; // Track how many rows this colspan affects
+                            }
+                        }
+                
+                        // Move to the next column index, considering colspan
+                        colIndex += colspan;
+                    });
+                
+                    data.push(rowData);
                 });
-            
-                data.push(rowData);
-            });
-            
-            // Create the worksheet and add merge information
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(data);
-            
-            // Apply merges to the worksheet
-            if (merges.length > 0) {
-                ws['!merges'] = merges;
+                
+                // Create the worksheet and add merge information
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                
+                // Apply merges to the worksheet
+                if (merges.length > 0) {
+                    ws['!merges'] = merges;
+                }
+                
+                // Optionally, set column widths or other formatting
+                ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
+                
+                // Append the worksheet to the workbook
+                XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+                
+                // Write the workbook to a buffer
+                const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+                
+                // Send the file to the client as a download (if using Express.js)
+                res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+                res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                res.send(fileBuffer);
+            }else{
+                await Reference.deleteOne({referenceNumber: element});
+                req.flash("error", `No data was Found!`)
+                res.redirect("/reports/dsrr/view")
             }
-            
-            // Optionally, set column widths or other formatting
-            ws['!cols'] = data[0].map(() => ({ wpx: 100 })); // Set a fixed width of 100 pixels for all columns
-            
-            // Append the worksheet to the workbook
-            XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
-            
-            // Write the workbook to a buffer
-            const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
-            
-            // Send the file to the client as a download (if using Express.js)
-            res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
-            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            res.send(fileBuffer);
+           
         
             // console.log(thecreatedFile)
         }).catch(console.error);

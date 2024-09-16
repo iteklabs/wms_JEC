@@ -63,7 +63,7 @@
                                         <h4 class="card-title col-6 ">Daily Sales and Remittance Report</h4>
                                     </div>
                                     
-                                    <form action="./pdf" method="post">
+                                    <form action="./pdf" method="post" id="form">
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="mb-3 col-md-12">
@@ -79,14 +79,16 @@
                                             </div>
     
                                             <div class="col-xl-12 mt-3">
-                                                <div class="form-group">
-                                                    <button type="submit" class="btn btn-primary h-45 w-100" id="filter">
-                                                        <i class="la la-filter"></i>View
-                                                    </button>
-                                                </div>
+                                                
                                             </div>
                                         </div>
                                     </form>
+
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary h-45 w-100" id="filter" onclick="datawarning()">
+                                            <i class="la la-filter"></i>View
+                                        </button>
+                                    </div>
                                     
                                 </div>
 
@@ -126,7 +128,23 @@
     <%- include('./partials/script'); -%>
 
     <script>
-
+        function datawarning(){
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Confirm"
+                })
+                .then((result) => {
+                if (result.isConfirmed) {
+                    console.log("asd")
+                    document.getElementById("form").submit();
+                }
+            })
+        }
     </script>
 
         <!--**********************************
