@@ -5520,7 +5520,8 @@ const sales_sa_data = await sales_sa.aggregate([
             _id: {
                 dsi: "$dsi",
                 date: "$date",
-                customer: "$customer"
+                customer: "$customer",
+                status_data: "$status_data"
             },
             totalQty: { $sum: "$sale_product.real_qty_unit_val" },
             cash: { $first: "$cash"  },
@@ -5559,6 +5560,7 @@ const sales_sa_data = await sales_sa.aggregate([
                 dsi: "$_id.dsi",
                 date: "$_id.date",
                 customer: "$_id.customer",
+                status_data: "$_id.status_data",
                 category: "$products.product_details.category",
                 brand: "$products.product_details.brand",
                 prod_id: "$products.product_details.prod_id",
@@ -5581,7 +5583,8 @@ const sales_sa_data = await sales_sa.aggregate([
             _id: {
                 dsi: "$_id.dsi",
                 date: "$_id.date",
-                customer: "$_id.customer"
+                customer: "$_id.customer",
+                status_data: "$_id.status_data"
             },
             totalQty: { $sum: "$totalQty" },
             totalGross: { $sum: "$totalGross" },
@@ -5739,7 +5742,24 @@ const sales_sa_data_kahapon = await sales_sa.aggregate([
     }
 ]);
 
-// console.log(sales_sa_data_kahapon);
+
+const sales_sa_data_status = await sales_sa.aggregate([
+    {
+        $match: {
+            date: from,
+            sales_staff_id: staff_id,
+            status_data: "true"
+        }
+    },
+    {
+        $sort: {
+            "_id.dsi": -1, // Sort by category in ascending order
+            "_id.date": 1,  // Sort by brand in ascending order
+        }
+    }
+]);
+
+// console.log(sales_sa_data_status);
 
 
 const stafff_data = await staff.findById(staff_id);
@@ -5897,6 +5917,8 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     // if(isNaN(cash)){
     //     cash = 0;
     // }
+   
+   
     row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${cash}</td>`;
     row += `<td class="row_data" style="border: 1px solid black; text-align: right;">${amount}</td>`;
     row += `<td class="row_data" style="border: 1px solid black; text-align: left;">${sales_data_element.bank}</td>`;
@@ -6142,7 +6164,17 @@ pages.forEach((page, pageIndex) => {
 
     
 //    console.log(totalsS)
-
+if(sales_sa_data_status.length > 0){
+    
+    for (let index = 0; index <= sales_sa_data_status.length - 1; index++) {
+        const element = sales_sa_data_status[index];
+        console.log(element)
+        htmlContent += `<tr>`;
+        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;" height="100px" colspan="${(8+(7*3))}"><b>${element.note}</b></td>`;
+        htmlContent += `</tr>`;
+    }
+    
+}
 
     
     htmlContent += `<tr>`;
@@ -6455,45 +6487,45 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
     const stff_data = await staff.findOne({ email: role_data.email })
     const image = await master_shop.find();
     const isExcel = "";
-//     const datatest = await agentsdataDSICheck_DSRR(from_date, stff_data._id.valueOf(), isExcel);
-//     let htmlContent = `
-//     <style>
-//         table {
-//             border-collapse: collapse;
-//             width: 100%; /* Ensure table uses the full width */
-//         }
-//         th, td {
-//             border: 1px solid black;
-//             text-align: center;
-//         }
-//         th {
-//             background-color: #d0cece;
-//             padding: 8px;
-//             color: black;
-//         }
-//         @media print {
-//            table { page-break-inside: auto; }
-//             tr { page-break-inside: avoid; page-break-after: auto; }
-//             th { page-break-inside: avoid; page-break-after: auto; }
-//         }
+    const datatest = await agentsdataDSICheck_DSRR(from_date, stff_data._id.valueOf(), isExcel);
+    let htmlContent = `
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%; /* Ensure table uses the full width */
+        }
+        th, td {
+            border: 1px solid black;
+            text-align: center;
+        }
+        th {
+            background-color: #d0cece;
+            padding: 8px;
+            color: black;
+        }
+        @media print {
+           table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            th { page-break-inside: avoid; page-break-after: auto; }
+        }
 
-//         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-//         body {
-//             font-family: 'Roboto', sans-serif;
-//             font-size: 12pt;
-//         }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 12pt;
+        }
 
-//         @media (max-width: 1024px) {
-//             table {
-//                 display: block;
-//                 overflow-x: auto;
-//             }
-//         }
+        @media (max-width: 1024px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
 
         
             
-//     </style>
-// `;
+    </style>
+`;
 
     
     var from_string_date = new Date(from_date);
@@ -6505,13 +6537,13 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
     };
     const from_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(from_string_date);
     // const to_formattedDate = new Intl.DateTimeFormat('en-US', options3).format(to_string_date);
-    // htmlContent += `<div class="row">`;
-    // htmlContent += `<div  id="table-conatainer">`;
-    // htmlContent += `<table>`;
-    // htmlContent += datatest;
-    // htmlContent += `</table>`;
-    // htmlContent += `</div>`;
-    // htmlContent += `</div>`;
+    htmlContent += `<div class="row">`;
+    htmlContent += `<div  id="table-conatainer">`;
+    htmlContent += `<table>`;
+    htmlContent += datatest;
+    htmlContent += `</table>`;
+    htmlContent += `</div>`;
+    htmlContent += `</div>`;
 
     // let dataImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxYxAAACD0S0HV4xFoAAAAAElFTkSuQmCC';
     // const options = {
@@ -6546,6 +6578,8 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
     //     zoomFactor: '1' // Ensure the same zoom level
     // };
     const checkingFile = await Reference.find({staff_id: stff_data._id.valueOf(), date_include: from_date});
+    res.send(htmlContent);
+    return;
     // console.log(checkingFile[0].html)
     // return
     if(checkingFile.length > 0){
