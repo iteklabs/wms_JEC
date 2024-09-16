@@ -6888,7 +6888,7 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
                 res.send(fileBuffer);
             }else{
                 await Reference.deleteOne({referenceNumber: element});
-                req.flash("error", `No data was Found!`)
+                req.flash("errors", `No data was Found!`)
                 res.redirect("/reports/dsrr/view")
             }
            
