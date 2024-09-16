@@ -346,6 +346,43 @@ router.post("/add_sales", auth, upload.single("image"), async(req, res) => {
     }
 })
 
+
+
+router.post("/add_sales_notes", auth, async(req, res) => {
+    try {
+        const {  date_data, note_data, status_data } = req.body
+        // const image = req.file.filename;
+        // res.json(req.body);
+        // return;
+     
+
+
+        // res.json(newproduct);
+        // return;
+        const invoice = new invoice_sa();
+        await invoice.save();
+        // res.json(invoice);
+        // return
+        const role_data = req.user
+        const staff_data = await staff.findOne({email: role_data.email});
+
+
+        const data = new sales_sa({ invoice: invoice.invoice_starts.toString().padStart(8, '0'), status_data: status_data, date: date_data, note: note_data, sales_staff_id: staff_data._id.valueOf()});
+        const sales_data = await data.save()
+
+        console.log('Invoice created with incremented start value:', invoice.invoice_starts.toString().padStart(8, '0'));
+        const ObjectId = mongoose.Types.ObjectId;
+        
+
+        req.flash("success", `Sales add successfully`)
+        res.redirect("/sales_sa/view_sales/"+sales_data._id)
+
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+
 router.post("/product_list", auth, async(req, res) => {
     try {
         const role_data = req.user

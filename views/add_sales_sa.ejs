@@ -43,11 +43,16 @@
                                 <div class="col-lg-12">
                                     <div class="card">
                                         <div class="card-header">
-                                            <h4 class="card-title"></h4>
-                                            <button type="button" class="btn btn-rounded btn-outline-info"
-                                                onclick="history.back()"><i class="la la-undo"></i> <%= language.go_back %> </button>
+                                            <!-- <h4 class="card-title">adasd</h4> -->
+                                            <div class="form-group">
+                                                <label for="status_day"><b>Check this if you have other status today </b></label>
+                                                <input type="checkbox" class="form-check-input" id="status_day" name="status_day" onclick="show_transaction()" >
+                                            </div>
+                                                <button type="button" class="btn btn-rounded btn-outline-info"
+                                                    onclick="history.back()"><i class="la la-undo"></i> <%= language.go_back %> </button>
+                                            
                                         </div>
-                                        <div class="card-body">
+                                        <div class="card-body" id="invoice_transaction">
                                             <div class="form-validation">
                                                 <form class="needs-validation" action="/sales_sa/add_sales"
                                                     method="post" id="form" enctype="multipart/form-data">
@@ -259,6 +264,38 @@
                                                 </form>
                                                 <div class="row">
                                                     <button class="btn btn-primary" type="submit" id="purchase_submit"  >Submit </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="card-body" id="nothing_report">
+                                            <div class="form-validation">
+                                                <form class="needs-validation" action="/sales_sa/add_sales_notes"
+                                                    method="post" id="form_data">
+                                                    <div class="row mb-3">
+                                                        <div class="col-xl-4 col-sm-4">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no"><%= language.date %> <span class="text-red">*</span></label>
+                                                                <input type="date" name="date_data" class="form-control"
+                                                                    id="date_data" required>
+<!-- status_data -->
+                                                                    <input type="hidden" name="status_data" value="true">
+                                                            </div>
+                                                        </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12 col-sm-12">
+                                                            <div class="form-group">
+                                                                <label for="note"><%= language.note %> </label>
+                                                                <textarea type="text" class="form-control"
+                                                                    placeholder="note" id="note_data" name="note_data" rows="15"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                </form>
+                                                <div class="row">
+                                                    <button class="btn btn-primary" type="submit" id="purchase_submit_data"  >Submit </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -630,9 +667,6 @@
                 }
                 })
             }
-            
-            
-
 
             function ShowData(){
                 $.ajax({
@@ -697,6 +731,19 @@
                     document.getElementById("prod_cat"+x).value=uom_data[1];
                     document.getElementById("getPrimUnitNo"+x).value = quantity
                 }
+            }
+
+            function show_transaction(){
+                var status_data = document.getElementById("status_day");
+                if(status_data.checked){
+                    document.getElementById('invoice_transaction').style.display = 'none';
+                    document.getElementById('nothing_report').style.display = 'inline-block';
+                }else{
+                    document.getElementById('invoice_transaction').style.display = 'inline-block';
+                    document.getElementById('nothing_report').style.display = 'none';
+                }
+                // document.getElementById('invoice_transaction').style.display = 'none';
+                // console.log(status_data.checked)
             }
 
             $(document).on('click', 'button#remove', function(event) {
@@ -972,6 +1019,13 @@
                 })
 
 
+                $('#purchase_submit_data').on('click', function(data) {
+                    // confirm_saved();
+                    document.getElementById("form_data").submit();
+                })
+
+                
+
                 $('#product_down').on('change', function(data) {
                     var selectedValue = $(this).val();
                     // $.ajax({
@@ -1243,6 +1297,7 @@
                     })
                 })
             
+                
             })
         
         

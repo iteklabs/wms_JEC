@@ -2398,6 +2398,10 @@ const email_settings = new mongoose.model("email_settings", email_settings_data)
 
 
 const sales_sa_data = new mongoose.Schema({
+    status_data: {
+        type: String,
+        default: "false"
+    },
     invoice: {
         type: String,
     },
