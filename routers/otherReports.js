@@ -7342,7 +7342,15 @@ router.get("/dsrr_admin/view_data/:id", auth, async (req, res) => {
     try {
         const _id = req.params.id;
         const thedataFilter =  await Reference.findById(_id);
-        res.send(thedataFilter.html);
+
+        let htmlContent = '';
+        htmlContent += thedataFilter.html;
+        htmlContent += "<script>";
+        htmlContent += "window.onload = function() {";
+        htmlContent += "window.print();";
+        htmlContent += "};";
+        htmlContent += "</script>";
+        res.send(htmlContent);
         // res.json(thedataFilter.html)
     } catch (error) {
         res.json(error)
