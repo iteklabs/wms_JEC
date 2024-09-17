@@ -6666,6 +6666,8 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.send(fileBuffer);
         }else{
+            let htmlContent = '';
+            htmlContent += htmldta;
             htmlContent += "<script>";
             htmlContent += "window.onload = function() {";
             htmlContent += "window.print();";
