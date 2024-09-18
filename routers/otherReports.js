@@ -507,7 +507,12 @@ router.post('/balance/pdf', auth, async (req, res) => {
     // return;
     const options = {
         format: 'Letter', // Set size to Letter
-        orientation: 'landscape' // Set orientation to landscape
+        orientation: 'landscape', // Ensure the same zoom level
+        childProcessOptions: {
+            env: {
+              OPENSSL_CONF: '/dev/null',
+            },
+        } // Set orientation to landscape
     };
     
     pdf.create(htmlContent, options).toStream(function(err, stream) {
@@ -965,7 +970,12 @@ router.post('/agent/pdf', auth, async (req, res) => {
     // return;
     const options = {
         format: 'Letter', // Set size to Letter
-        orientation: 'landscape' // Set orientation to landscape
+        orientation: 'landscape', // Ensure the same zoom level
+        childProcessOptions: {
+            env: {
+              OPENSSL_CONF: '/dev/null',
+            },
+        } // Set orientation to landscape
     };
     
     pdf.create(htmlContent, options).toStream(function(err, stream) {
@@ -2475,7 +2485,12 @@ htmlContent_excel += `</div>`;
             }
         },
         dpi: 5,  // Set DPI for consistency
-        zoomFactor: '1' // Ensure the same zoom level
+        zoomFactor: '1', // Ensure the same zoom level
+        childProcessOptions: {
+            env: {
+              OPENSSL_CONF: '/dev/null',
+            },
+        } // Ensure the same zoom level
     };
     
 
@@ -4066,7 +4081,12 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
             }
         },
         dpi: 5,  // Set DPI for consistency
-        zoomFactor: '1' // Ensure the same zoom level
+        zoomFactor: '1', // Ensure the same zoom level
+        childProcessOptions: {
+            env: {
+              OPENSSL_CONF: '/dev/null',
+            },
+        }
     };
     
 
@@ -4201,7 +4221,8 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     }else{
         pdf.create(htmlContent, options).toStream(function(err, stream) {
             if (err) {
-                res.status(500).send('Error generating PDF');
+                console.error('PDF Generation Error:', err); // Log the error
+                res.status(500).send('Error generating PDF' + err);
                 return;
             }
             res.setHeader('Content-Type', 'application/pdf');
@@ -4495,7 +4516,12 @@ router.post("/total_sales_reports/pdf", auth, async(req, res) => {
             }
         },
         dpi: 5,  // Set DPI for consistency
-        zoomFactor: '1' // Ensure the same zoom level
+        zoomFactor: '1', // Ensure the same zoom level
+        childProcessOptions: {
+            env: {
+              OPENSSL_CONF: '/dev/null',
+            },
+        } 
     };
     
     if(isExcel == "on"){
@@ -5037,7 +5063,12 @@ router.post("/inventory_sum/pdf", auth, async(req, res) => {
     // return;
     const options = {
         format: 'Letter', // Set size to Letter
-        orientation: 'landscape' // Set orientation to landscape
+        orientation: 'landscape', // Ensure the same zoom level
+        childProcessOptions: {
+            env: {
+              OPENSSL_CONF: '/dev/null',
+            },
+        } // Set orientation to landscape
     };
     
     pdf.create(htmlContent, options).toStream(function(err, stream) {
@@ -7561,7 +7592,12 @@ router.post('/dsrr_admin/pdf_admin', auth, async (req, res) => {
             }
         },
         dpi: 5,  // Set DPI for consistency
-        zoomFactor: '1' // Ensure the same zoom level
+        zoomFactor: '1', // Ensure the same zoom level
+        childProcessOptions: {
+            env: {
+              OPENSSL_CONF: '/dev/null',
+            },
+        } // Ensure the same zoom level
     };
     // res.send(htmlContent);
     // return

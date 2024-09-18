@@ -82,7 +82,7 @@
                                             <div class="row">
                                                 <div class="mb-3 col-md-4">
                                                     <label for="warrehouse">Generate Via <span class="text-red">*</span> </label>
-                                                    <select class="form-control" id="dataview" name="dataview">
+                                                    <select class="form-control" id="dataview" name="dataview" required>
                                                         <option>Please Select</option>
                                                         <option value="excel">Excel</option>
                                                         <option value="pdf">PDF</option>
@@ -104,6 +104,54 @@
                                     
                                 </div>
 
+
+                                <div class="card">
+                                    <div class="card-header">
+
+                                        <div class="row">
+                                            <div class="mb-3 col-md-4">
+                                                <label for="warrehouse">From Date <span class="text-red">*</span> </label>
+                                                <input type="date" class="form-control" name="from_date" id="from_date">
+                                            </div>
+    
+                                            <div class="mb-3 col-md-4">
+                                                <label for="warrehouse">To Date <span class="text-red">*</span> </label>
+                                                <input type="date" class="form-control" name="to_date" id="to_date">
+                                            </div>
+    
+                                            <div class="mb-3 col-md-4">
+                                                <!-- <div class="form-group"> -->
+                                                    <button type="submit" class="btn btn-primary h-45 w-100" id="filter_dssr">
+                                                        <i class="la la-filter"></i>View
+                                                    </button>
+                                                <!-- </div> -->
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+
+
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-xl-12">
+                                                <table class="table primary-table-bordered" id="sales_tbl_new">
+                                                    <thead class="thead-primary">
+                                                        <tr>
+                                                            <th scope="col"></th>
+                                                            <th scope="col">Document Number</th>
+                                                            <th scope="col">Date </th>
+                                                            <th scope="col">Date Generated </th>
+                                                            <th scope="col">View</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tblPage_NewOut">
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -140,6 +188,9 @@
     <%- include('./partials/script'); -%>
 
     <script>
+
+
+        
         function datawarning(){
             Swal.fire({
                 title: "Are you sure?",
@@ -157,6 +208,15 @@
                 }
             })
         }
+    
+
+        function tableShow(){
+            
+        }
+        
+        $(document).ready(function() {
+
+        })
     </script>
 
         <!--**********************************
