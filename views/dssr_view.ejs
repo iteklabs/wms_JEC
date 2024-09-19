@@ -137,7 +137,7 @@
                                                 <table class="table primary-table-bordered" id="sales_tbl_new">
                                                     <thead class="thead-primary">
                                                         <tr>
-                                                            <th scope="col"></th>
+                                                            <!-- <th scope="col"></th> -->
                                                             <th scope="col">Document Number</th>
                                                             <th scope="col">Date </th>
                                                             <th scope="col">Date Generated </th>
@@ -215,7 +215,55 @@
         }
         
         $(document).ready(function() {
+            $('#filter_dssr').on('click', function() {
+                var from_date = document.getElementById("from_date").value;
+                var to_date = document.getElementById("to_date").value;
+                var tableShow = document.getElementById("tblPage_NewOut");
 
+                $.ajax({
+                        url: '/reports/getDSSR_no_sales',
+                        method: 'POST',
+                        data: { from: from_date, to: to_date},
+                        success: function (response) {
+                            let dataRef = "";
+                            for (let index = 0; index <= response.length - 1; index++) {
+                                    const element = response[index];
+                                    const dateObj = new Date(element.createdAt);
+                                    const dateObjInclude = new Date(element.date_include);
+                                    const options = {
+                                        weekday: 'long', // Full day name (e.g., Friday)
+                                        year: 'numeric', // Full year (e.g., 2024)
+                                        month: 'long',   // Full month name (e.g., September)
+                                        day: 'numeric',  // Day of the month (e.g., 13)
+                                        hour: 'numeric', // Hour in 12-hour format (e.g., 12 AM)
+                                        minute: 'numeric', // Minute
+                                        second: 'numeric', // Second
+                                        // timeZoneName: 'short' // Time zone (e.g., GMT)
+                                    };
+
+                                    const options2 = {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                    };
+                                    const readableDate = dateObj.toLocaleString('en-US', options);
+                                    const readableDateInclude = dateObjInclude.toLocaleString('en-US', options2);
+                                    dataRef += "<tr>"
+                                    // dataRef += "<td  class='tdcheck'><input class='form-check-input' type='checkbox' value='' name='isCheck' id='isCheck'></td>";
+                                    dataRef += "<td  class='tdcheck'><b>" + element.referenceNumber + "</b></td>";
+                                    dataRef += "<td  class='tdcheck'><b>" + readableDateInclude + "</b></td>";
+                                    dataRef += "<td  class='tdcheck'><b>" + readableDate + "<b></td>";
+                                    dataRef += "<td  class='tdcheck'><a type='submit' class='btn btn-primary h-45 w-100' href='../dsrr_admin/view_data/"+element._id+"' id='filter_dssr' target='_blank'>View</a></td>";
+                                    dataRef += "<input type='hidden' id='ref_id' name='ref_id' value="+element.referenceNumber+">";
+                                    dataRef += "<input type='hidden' id='id_data' name='id_data' value="+element._id+">";
+                                    dataRef += "</tr>"
+                            }
+                            tableShow.innerHTML = dataRef;
+                        }
+                })
+                
+            })
         })
     </script>
 

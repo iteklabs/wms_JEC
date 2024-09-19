@@ -7369,6 +7369,35 @@ router.post("/getDSSR_no", auth, async (req, res) => {
 })
 
 
+router.post("/getDSSR_no_sales", auth, async (req, res) => {
+    try {
+        const { from, to } = req.body
+        const { sttaff_id } = req.user
+        // res.json(sttaff_id)
+        const thedataFilter =  await Reference.aggregate([
+            {
+                $match:{
+                    date_include: {
+                        $gte: from,
+                        $lte: to
+                    },
+                    staff_id: sttaff_id
+                }
+            },
+            {
+                $sort :{
+                    "date_include": 1,
+                }
+            }
+        ])
+        
+        res.json(thedataFilter)
+    } catch (error) {
+        res.json(error)
+    }
+})
+
+
 router.get("/dsrr_admin/view_data/:id", auth, async (req, res) => {
     try {
         const _id = req.params.id;
