@@ -53,14 +53,14 @@ router.get("/view/", auth, async (req, res) => {
 
 router.post("/check_to_confirm", auth, async (req, res) => {
     try {
-        const { product_code } = req.body
+        const { product_code, type_of_process } = req.body
         var data_show = product_code.split("~");
         const warehouse_name = data_show[0];
         const rack = data_show[1];
         const bay = data_show[2];
         const bin = data_show[3];
-
-        const data_warehouse = await warehouse_temporary.find({ warehouse: warehouse_name, room_name : rack,  level: bay, bay : bin, data_type: "inc" });
+        // console.log("test")
+        const data_warehouse = await warehouse_temporary.find({ warehouse: warehouse_name, room_name : rack,  level: bay, bay : bin, data_type: type_of_process, isConfirm: "false" });
         res.json(data_warehouse)
     } catch (error) {
         console.log(error)
@@ -77,8 +77,9 @@ router.post("/confirm_data", auth, async (req, res) => {
         // var keyCount  = JSON.parse(data_warehouse).length;
         for (let index = 0; index <= data_warehouse.length - 1; index++) {
             const element = data_warehouse[index];
-            var warehouse_data = await warehouse.findOne({ name: element.warehouse_name, room: element.room_name });
+            var warehouse_data = await warehouse.findOne({ name: element.warehouse, room: element.room_name });
             var x = 0;
+
             const match_data = warehouse_data.product_details.map((data) => {
                 if (data.product_name == element.product_name && 
                     data.primary_code == element.primary_code && 
@@ -98,33 +99,38 @@ router.post("/confirm_data", auth, async (req, res) => {
             if (x == "0") {
                 warehouse_data.product_details = warehouse_data.product_details.concat({ 
                     product_name: element.product_name, 
-                    product_stock: element.quantity, 
+                    product_stock: element.product_stock, 
                     primary_code: element.primary_code, 
                     secondary_code: element.secondary_code, 
                     product_code: element.product_code,
-                    storage: element.storage, 
-                    rack: element.rack, 
                     bay: element.bay,  
-                    bin: element.bin, 
-                    type: element.type, 
-                    floorlevel: element.floorlevel, 
+                    level: element.level, 
                     maxProducts: element.maxStocks, 
                     unit: element.standard_unit, 
                     secondary_unit: element.secondary_unit, 
-                    expiry_date: element.expiry_date, 
                     maxPerUnit: element.maxperunit,
-                    batch_code: element.batch_code,
                     alertQTY: element.alertQTY,
                     production_date: element.production_date,
-                    delivery_date: element.delivery_date,
-                    delivery_code: element.delivery_code
+                    expiry_date: element.expiry_date, 
+                    batch_code: element.batch_code,
+                    invoice: element.invoice,
+                    product_cat: element.product_cat,
+                    uuid: element.uuid,
+                    gross_price: element.gross_price,
+                    date_recieved: element.date_recieved,
+
                 })
             }
-            console.log(warehouse_data)
-            
+            // console.log(warehouse_data)
+            data_warehouse[index].isConfirm = "true"
+
+            await data_warehouse[index].save();
+            await warehouse_data.save();
         }
+
+        
         // console.log(data_warehouse)
-        res.json(data_warehouse)
+        res.json({ data_main: data_warehouse, data_warehouse: warehouse_data})
     } catch (error) {
         console.log(error)
     }

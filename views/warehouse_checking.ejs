@@ -80,6 +80,8 @@
           display: grid;
             place-items: center;
         }
+
+        
     </style>
 
 </head>
@@ -171,7 +173,7 @@
                                         </div>
 
                                         <div class="card-body" style="display: block;" >
-                                            <div class="table-responsive">
+                                            <div >
                                                 <table class="table primary-table-bordered" id="purchases_tbl_new">
                                                     <thead class="thead-primary" style="text-align: center;">
                                                         <tr>
@@ -257,14 +259,14 @@
                     $.ajax({
                     url: '/warehouse_checker/check_to_confirm', 
                     method: 'POST',
-                    data: { product_code: productCode }, 
+                    data: { product_code: productCode, type_of_process }, 
                     success: function(response) {
                         $.each(response, function(index, data) {
-                            console.log(data)
+                            // console.log(data)
 
                                 Swal.fire({
                                         // title: 'Warehouse: TAGUIG \n Rack: 1',
-                                        width: "70%",
+                                        width: "100%",
                                         allowOutsideClick: false,
                                         html: `
                                         <div class="card-header">
@@ -272,29 +274,29 @@
                                         </div>
 
                                         <div class="card-body">
-                                            <div class="table-responsive">
-                                                <table id="example" class="table primary-table-bordered text-center">
+                                            <div>
+                                                <table id="example" class="table primary-table-bordered text-center" style="width: 1000px">
                                                     <thead class="thead-primary">
                                                         <tr>
-                                                            <th style="width: 150px">Warehouse</th>
-                                                            <th style="width: 150px">Rack</th>
-                                                            <th style="width: 150px">Location</th>
-                                                            <th style="width: 150px">Product Code </th>
-                                                            <th style="width: 150px">Item Description </th>
-                                                            <th style="width: 150px">Qty  </th>
-                                                            <th style="width: 150px" colspan="2">Action </th>
+                                                            <th>Warehouse</th>
+                                                            <th>Rack</th>
+                                                            <th>Location</th>
+                                                            <th>Product Code </th>
+                                                            <th>Item Description </th>
+                                                            <th>Qty  </th>
+                                                            <th colspan="2">Action </th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         <tr class="table-primary">
-                                                            <td style="width: 150px">`+data.warehouse+`</td>
-                                                            <td style="width: 150px">`+data.room_name+`</td>
-                                                            <td style="width: 150px">`+data.level+data.bay+`</td>
-                                                            <td style="width: 150px">`+data.product_code+`</td>
-                                                            <td style="width: 150px">`+data.product_name+`</td>
-                                                            <td style="width: 150px">`+data.product_stock+`</td>
-                                                            <td style="width: 150px"><a class="btn ml-2 btn-primary" type="submit" onclick="to_confirm('`+data._id+`')" id="confirm_data">Confirm</a></td>
-                                                            <td style="width: 150px"><a class="btn ml-2 btn-danger" type="submit" id="reject_data">Cancel</a></td>
+                                                            <td>`+data.warehouse+`</td>
+                                                            <td>`+data.room_name+`</td>
+                                                            <td>`+data.level+data.bay+`</td>
+                                                            <td>`+data.product_code+`</td>
+                                                            <td>`+data.product_name+`</td>
+                                                            <td>`+data.product_stock+`</td>
+                                                            <td><a class="btn ml-2 btn-primary" type="submit" onclick="to_confirm('`+data._id+`')" id="confirm_data">Confirm</a></td>
+                                                            <td><a class="btn ml-2 btn-danger" type="submit" id="reject_data">Cancel</a></td>
                                                         </tr>
                                                     </tbody>
                                                 </table>

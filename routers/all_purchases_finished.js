@@ -1231,9 +1231,73 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             },
         ])
 
+        
 
+        for (let one_check = 0; one_check <= findWarehouseValidation.length - 1; one_check++) {
+            const element = findWarehouseValidation[one_check];
+            // console.log(element.product_data.length);
+            for (let index_detl = 0; index_detl <= element.product_data.length -1; index_detl++) {
+                const element_detl = element.product_data[index_detl];
+                
+
+                const warehouse_data = await warehouse.aggregate([
+                    {
+                        $match: {
+                            name: element.warehouse_name,
+                            room: element.room
+                        }
+                    },
+                    {
+                        $unwind: "$product_details"
+                    },
+                    {
+                        $match: {
+                            "product_details.level": element_detl.bay,
+                            "product_details.bay": parseInt(element_detl.bin),
+                            "product_details.product_code": element_detl.product_code
+                        }
+                    }
+                ]);
+                for (let wew = 0; wew <= warehouse_data.length-1; wew++) {
+                    let warehouse_data_test = warehouse_data[wew];
+                    // console.log(warehouse_data_test.product_details)
+                    let a = 0;
+                    // console.log(warehouse_data_test.product_details.product_code + "==" + element_detl.product_code + "&&" +  warehouse_data_test.product_details.bay +"=="+ element_detl.bin +"&&"+ warehouse_data_test.product_details.level +"=="+ element_detl.bay)
+                    if(warehouse_data_test.product_details.product_code == element_detl.product_code && warehouse_data_test.product_details.bay == element_detl.bin && warehouse_data_test.product_details.level == element_detl.bay){
+                        element_detl.max = parseInt(element_detl.max) - parseInt(warehouse_data_test.product_details.product_stock);
+                        // console.log(element_detl.max)
+                        a++
+                    }
+                    // console.log(a)
+                    if (a == "0") {
+                        if (parseInt(element_detl.max) > 0) {
+ 
+
+                            findWarehouseValidation[one_check].product_data = findWarehouseValidation[one_check].product_data.concat({
+                                bay: element_detl.bay,
+                                bin: element_detl.bin,
+                                max: element_detl.max,
+                                min: element_detl.min,
+                                product_code: element_detl.product_code,
+                                product_id: element_detl.product_id,
+                                product_name: element_detl.product_name,
+                            });
+                        }
+                        
+                }
+                    
+                }
+                
+
+                // console.log(warehouse_data);
+                
+            }
+            findWarehouseValidation[one_check].product_data = findWarehouseValidation[one_check].product_data.filter(item => parseInt(item.max) > 0);
+        }
         
-        
+
+        // res.json(findWarehouseValidation);
+        // return;
 
         
         // for (let index3 = 0; index3 <= newproduct.length - 1; index3++) {
@@ -1276,7 +1340,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
         //     }
 
         // }
-
+        // console.log("findWarehouseValidation", findWarehouseValidation[0].product_data)
         let dataFix = [];
         for (let index3 = 0; index3 <= newproduct.length -1; index3++) {
             const element3 = newproduct[index3];
@@ -1289,9 +1353,8 @@ router.post("/view/add_purchases", auth, async (req, res) => {
         
                     // Check if the product code matches
                     if (element2.product_code === element3.product_code) {
-                        let remainingQuantity = element3.quantity; // Total quantity to distribute
-        
-                        // Fetch warehouse data (if needed)
+                        let remainingQuantity = element3.quantity;
+
                         const warehouse_data = await warehouse.aggregate([
                             {
                                 $match: {
@@ -1304,13 +1367,15 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                             },
                             {
                                 $match: {
-                                    level: element2.bay,
-                                    bay: element2.bin
+                                    "product_details.level": element2.bay,
+                                    "product_details.bay": parseInt(element2.bin)
                                 }
                             }
                         ]);
-        
-                        // If no data found in the warehouse, distribute the quantity to bins
+
+                        
+                        
+
                         if (warehouse_data.length == 0) {
                             // Distribute the quantity across bins until max is met
 
@@ -1372,13 +1437,15 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                             }
         
                             
+                        }else{
+                            console.log(element2.product_code + " <> " + element2.bay + " <> " + element2.bin)
                         }
                     }
                 }
             }
         }
 
-        console.log(dataFix)
+        // console.log(dataFix)
         // const cleanedDataFix = dataFix.filter((item, i) => {
         //     if(i > 0){
         //         return {item}
@@ -1813,7 +1880,7 @@ router.post("/process/:id", auth, async (req, res) => {
             datarequest[i].product_name = product_details.product_name
             datarequest[i].product_code = product_details.product_code
             datarequest[i].product_stock = product_details.quantity
-            datarequest[i].standard_unit = product_details.standard_unit
+            datarequest[i].unit = product_details.standard_unit
             datarequest[i].secondary_unit = product_details.secondary_unit
             datarequest[i].level = product_details.level
             datarequest[i].bay = product_details.bay
