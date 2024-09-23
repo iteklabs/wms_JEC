@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
-const { warehouse_validation_setup, master_shop, profile } = require("../models/all_models");
+const { warehouse_validation_setup, master_shop, profile, warehouse, warehouse_temporary } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const nodemailer = require('nodemailer');
 var ejs = require('ejs');
@@ -46,13 +46,92 @@ router.get("/view/", auth, async (req, res) => {
             role : role_data,
             language : lan_data,
         })
-
-
-        res.json(profile_data)
     } catch (error) {
         console.log(error)
     }
 })
+
+router.post("/check_to_confirm", auth, async (req, res) => {
+    try {
+        const { product_code } = req.body
+        var data_show = product_code.split("~");
+        const warehouse_name = data_show[0];
+        const rack = data_show[1];
+        const bay = data_show[2];
+        const bin = data_show[3];
+
+        const data_warehouse = await warehouse_temporary.find({ warehouse: warehouse_name, room_name : rack,  level: bay, bay : bin, data_type: "inc" });
+        res.json(data_warehouse)
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+
+router.post("/confirm_data", auth, async (req, res) => {
+    try {
+        const { id_data } = req.body
+        const data_warehouse = await warehouse_temporary.find({ _id: id_data});
+        // const warehouse_data = await warehouse.findOne({ name: data_warehouse.warehouse, room: data_warehouse.room_name });
+        // console.log(warehouse_data.product_details.length)   
+        // var keyCount  = JSON.parse(data_warehouse).length;
+        for (let index = 0; index <= data_warehouse.length - 1; index++) {
+            const element = data_warehouse[index];
+            var warehouse_data = await warehouse.findOne({ name: element.warehouse_name, room: element.room_name });
+            var x = 0;
+            const match_data = warehouse_data.product_details.map((data) => {
+                if (data.product_name == element.product_name && 
+                    data.primary_code == element.primary_code && 
+                    data.secondary_code == element.secondary_code && 
+                    data.product_code == element.product_code && 
+                    data.bay == element.bay && 
+                    data.level == element.level && 
+                    data.date_recieved == element.date_recieved
+                    ) {
+                    data.product_stock = parseInt(data.product_stock) + parseInt(element.product_stock)
+                    x++
+                }
+
+            })
+
+
+            if (x == "0") {
+                warehouse_data.product_details = warehouse_data.product_details.concat({ 
+                    product_name: element.product_name, 
+                    product_stock: element.quantity, 
+                    primary_code: element.primary_code, 
+                    secondary_code: element.secondary_code, 
+                    product_code: element.product_code,
+                    storage: element.storage, 
+                    rack: element.rack, 
+                    bay: element.bay,  
+                    bin: element.bin, 
+                    type: element.type, 
+                    floorlevel: element.floorlevel, 
+                    maxProducts: element.maxStocks, 
+                    unit: element.standard_unit, 
+                    secondary_unit: element.secondary_unit, 
+                    expiry_date: element.expiry_date, 
+                    maxPerUnit: element.maxperunit,
+                    batch_code: element.batch_code,
+                    alertQTY: element.alertQTY,
+                    production_date: element.production_date,
+                    delivery_date: element.delivery_date,
+                    delivery_code: element.delivery_code
+                })
+            }
+            console.log(warehouse_data)
+            
+        }
+        // console.log(data_warehouse)
+        res.json(data_warehouse)
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+
+
 
 
 module.exports = router;

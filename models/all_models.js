@@ -302,7 +302,11 @@ const warehouse_data = new mongoose.Schema({
             },
             type_products: {
                 type: String
+            },
+            date_recieved: {
+                type: String
             }
+            
         }
     ]
 })
@@ -3377,6 +3381,22 @@ const warehouse_data_temporary = new mongoose.Schema({
     createdDate: {
         type: Date,
         default: Date.now
+    },
+    isConfirm:{
+        type: String,
+        default: "false"
+    },
+    date_time:{
+        type: String
+    },
+    confirm_by:{
+        type: String
+    },
+    data_type: {
+        type: String
+    },
+    date_recieved:{
+        type: String
     }
 })
 

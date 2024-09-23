@@ -311,14 +311,41 @@
                                                                 </table>
                                                             </div>
                                                         </div>
-                                                        <!-- <div class="row">
-                                                            <div class="col-md-4 col-sm-6">
-                                                                <div class="form-group">
-                                                                    <label for="note">Total Invoice</label>
-                                                                    <span class="form-control text-center"><h2><%= nFormat.format(total) %></h2></span>
-                                                                </div>
+                                                        <div class="row d-flex justify-content-end">
+                                                            <div class="col-md-9 col-sm-9 table-responsive" >
+    
+                                                                <table class="table primary-table-bordered">
+                                                                    <thead class="thead-primary">
+                                                                        <tr style="text-align: center;">
+                                                                            <th scope="col" colspan="5">MODE OF PAYMENTS</th>
+                                                                        </tr>
+                                                                        <tr style="text-align: center;">
+                                                                            <th scope="col" style="text-align: center;" rowspan="2">CASH</th>
+                                                                            <th scope="col" style="text-align: center;" rowspan="2">AMOUNT</th>
+                                                                            <th scope="col" style="text-align: center;" colspan="3">CHECK</th>
+                                                                            
+                                                                        </tr>
+    
+                                                                        <tr style="text-align: center;">
+                                                                            <th scope="col" rowspan="1">BANK</th>
+                                                                            <th scope="col" rowspan="1">CHECK #</th>
+                                                                            <th scope="col" rowspan="1">DUE DATE</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody style="text-align: right;">
+                                                                        <tr>
+                                                                            <td><%= sales_sa.cash %></td>
+                                                                            <td><%= sales_sa.amount %></td>
+                                                                            <td><%= sales_sa.bank %></td>
+                                                                            <td><%= sales_sa.check_no %></td>
+                                                                            <td><%= sales_sa.due_date %></td>
+                                                                        </tr>
+                                                                        
+                                                                    </tbody>
+                                                                </table>
                                                             </div>
-                                                        </div> -->
+                                                            
+                                                        </div>
                                                         
                                                         <div class="row">
                                                             <div class="col-md-8 col-sm-6">

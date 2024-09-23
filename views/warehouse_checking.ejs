@@ -150,15 +150,42 @@
                                             <div class="form-validation">
 
                                                 <form class="needs-validation" action="/all_purchases_finished/process/<%= //purchases_data._id %>" method="post" id="form">
-                                                    <div class="row">
-                                                        <div class="form-group">
-                                                            
-                                                            <a class="btn btn-primary" type="submit" id="scan_button"  >Scan now</a>
+                                                    <!-- <div class="row"> -->
+                                                        <div class="form-group d-flex align-items-center">
+                                                            <select class="form-control" id="type_of_process" name="type_of_process" style="flex: 1;">
+                                                                <option value="inc">Incoming</option>
+                                                                <option value="out">Outgoing</option>
+                                                            </select>
+                                                            <a class="btn btn-primary ml-2" type="submit" id="scan_button"  >Scan now</a>
                                                             <input type="hidden" name="product_code" style="position: absolute; left: -9999px;" class="form-control" id="product_code" value="">
                                                         </div>
-                                                    </div>
+                                                    <!-- </div> -->
                                                     
                                                 </form>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="card-header">
+                                            <h4 class="card-title"> History </h4>
+                                        </div>
+
+                                        <div class="card-body" style="display: block;" >
+                                            <div class="table-responsive">
+                                                <table class="table primary-table-bordered" id="purchases_tbl_new">
+                                                    <thead class="thead-primary" style="text-align: center;">
+                                                        <tr>
+                                                            <th scope="col">Date </th>
+                                                            <th scope="col">Location</th>
+                                                            <th scope="col">Product </th>
+                                                            <th scope="col">Qty </th>
+                                                            <th scope="col">Confirm By </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tblPage_new">
+
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
@@ -192,7 +219,6 @@
         Scripts
     ***********************************-->
 
-       
         <%- include('./partials/script'); -%>
 
             <!--**********************************
@@ -221,141 +247,69 @@
                 barcodeInput.focus()
                 var x=1;
                 var lastIncre = 0;
+                // console.log(barcodeInput.value)
+           
                 $('#product_code').on('input', function() {
                     var productCode = $(this).val(); 
-
-                    console.log(productCode)
+                    var type_of_process = $("#type_of_process").val();
+                    console.log(type_of_process + " <> " +productCode)
 
                     $.ajax({
-                    url: '/all_purchases_finished/barcode_scanner', 
+                    url: '/warehouse_checker/check_to_confirm', 
                     method: 'POST',
                     data: { product_code: productCode }, 
                     success: function(response) {
                         $.each(response, function(index, data) {
                             console.log(data)
-                            if(data.product_cat == "P"){
-                                var row = $('<tr>');
-                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="prod_code" value="' + data.product_code + '" readonly>'));
-                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 380px;" name="prod_name" id="prod_name'+ lastIncre +'" value="' + data.name + '" readonly>'));
-                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 190px;" name="primary_code" value="' + data.primary_code + '" readonly>'));
-                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="batch_code" value="">'));
-                                row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="product_date" value="" required>'));
-                                row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="expiry_date" id="expiry_date'+lastIncre+'" value="" required>'));
-                                row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" name="prod_qty" id="prod_qty'+ lastIncre +'" onchange="ValidationForMaxQTY('+ lastIncre +')" onkeyup="ConversionKit('+lastIncre+', '+data.maxProdPerUnit+')" value="" >'));
-                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="prod_unit" id="prod_unit'+lastIncre+'" value="' + data.unit + '" readonly>'));
-                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+lastIncre+'" value="" readonly>'));
-                                row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
-                                
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'sales_data_cateory',
-                                    name: 'sales_data_cateory',
-                                    value: data.sales_category
-                                }).appendTo(row);
 
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'prod_secondunit',
-                                    name: 'prod_secondunit',
-                                    value: data.secondary_unit
-                                }).appendTo(row);
+                                Swal.fire({
+                                        // title: 'Warehouse: TAGUIG \n Rack: 1',
+                                        width: "70%",
+                                        allowOutsideClick: false,
+                                        html: `
+                                        <div class="card-header">
+                                            <h4 class="card-title col-6">Data Retrieved </h4>
+                                        </div>
 
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'uuid',
-                                    name: 'uuid',
-                                    value: uuidv4()
-                                }).appendTo(row);
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table id="example" class="table primary-table-bordered text-center">
+                                                    <thead class="thead-primary">
+                                                        <tr>
+                                                            <th style="width: 150px">Warehouse</th>
+                                                            <th style="width: 150px">Rack</th>
+                                                            <th style="width: 150px">Location</th>
+                                                            <th style="width: 150px">Product Code </th>
+                                                            <th style="width: 150px">Item Description </th>
+                                                            <th style="width: 150px">Qty  </th>
+                                                            <th style="width: 150px" colspan="2">Action </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="table-primary">
+                                                            <td style="width: 150px">`+data.warehouse+`</td>
+                                                            <td style="width: 150px">`+data.room_name+`</td>
+                                                            <td style="width: 150px">`+data.level+data.bay+`</td>
+                                                            <td style="width: 150px">`+data.product_code+`</td>
+                                                            <td style="width: 150px">`+data.product_name+`</td>
+                                                            <td style="width: 150px">`+data.product_stock+`</td>
+                                                            <td style="width: 150px"><a class="btn ml-2 btn-primary" type="submit" onclick="to_confirm('`+data._id+`')" id="confirm_data">Confirm</a></td>
+                                                            <td style="width: 150px"><a class="btn ml-2 btn-danger" type="submit" id="reject_data">Cancel</a></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
 
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'prod_primunit',
-                                    name: 'prod_primunit',
-                                    value: data.unit
-                                }).appendTo(row);
-
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'secondary_code',
-                                    name: 'secondary_code',
-                                    value: data.secondary_code
-                                }).appendTo(row);
-
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'MaxStocks_data'+lastIncre,
-                                    name: 'MaxStocks_data',
-                                    value: ""
-                                }).appendTo(row);
-
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'MaxStocks_data2'+lastIncre,
-                                    name: 'MaxStocks_data2',
-                                    value: ""
-                                }).appendTo(row);
-
-
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'max_product_unit',
-                                    name: 'max_product_unit',
-                                    value: data.maxProdPerUnit
-                                }).appendTo(row);
-
-
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'prod_cat'+lastIncre,
-                                    name: 'prod_cat',
-                                    value: data.product_cat
-                                }).appendTo(row);
-
-
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'prod_othUnit'+lastIncre,
-                                    name: 'prod_othUnit',
-                                    value: data.otherUnit
-                                }).appendTo(row);
-
-
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'prod_Qty'+lastIncre,
-                                    name: 'prod_Qty',
-                                    value: ""
-                                }).appendTo(row);
-
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'id_transaction_from'+lastIncre,
-                                    name: 'id_transaction_from',
-                                    value: data._id
-                                }).appendTo(row);
-
-
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'gross_price'+lastIncre,
-                                    name: 'gross_price',
-                                    value: data.gross_price
-                                }).appendTo(row);
-
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    id: 'product_id'+lastIncre,
-                                    name: 'product_id',
-                                    value: data._id
-                                }).appendTo(row);
-
-                                $('#tblPage_new').append(row);
-                                lastIncre++;
-
-                            }
-
-                        })
+                                        </div>
+                                        `,
+                                        icon: 'info',  
+                                        // confirmButtonText: 'OK'
+                                    });
+                            })
                     document.getElementById("product_code").value='';
+                    },
+                    error: function(error){
+                        document.getElementById("product_code").value='';
                     }
                     
                     })
@@ -373,10 +327,42 @@
             }
         }
 
+        function to_confirm(id){
+            Swal.fire({
+                allowOutsideClick: false,
+                title: "Do you want to save the changes?",
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonText: "Confirm",
+                denyButtonText: `No`
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+                    // Swal.fire("Saved!", id, "success").then(() => {
+                        
+                    // });
+                    $.ajax({
+                        url: '/warehouse_checker/confirm_data', 
+                        method: 'POST',
+                        data: { id_data: id }, 
+                        success: function(response) {
+                            console.log(id)
+                        }
+                    })
+
+
+                }
+            });
+        }
+
         $(document).ready(function() {
+
             $('#scan_button').click(function () {
                 toggleButton();
             })
+
+
+            
         })
     </script>
 </body>

@@ -1377,18 +1377,22 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                 }
             }
         }
-        const cleanedDataFix = dataFix.filter((item, i) => {
-            if(i > 0){
-                return {item}
-            }
+
+        console.log(dataFix)
+        // const cleanedDataFix = dataFix.filter((item, i) => {
+        //     if(i > 0){
+        //         return {item}
+        //     }
             
-        });
+        // });
+
+        
         // console.log(cleanedDataFix)
         // cleanedDataFix.forEach((value, i) => {
         //     console.log(value.product_name)
         // })
        
-        const Newnewproduct = cleanedDataFix.filter(obj => obj.quantity !== "0" && obj.quantity !== "");
+        const Newnewproduct = dataFix.filter(obj => obj.quantity !== "0" && obj.quantity !== "");
         // res.json(Newnewproduct);
         // return
 
@@ -1808,7 +1812,7 @@ router.post("/process/:id", auth, async (req, res) => {
             datarequest[i].product_id = product_details.product_id
             datarequest[i].product_name = product_details.product_name
             datarequest[i].product_code = product_details.product_code
-            datarequest[i].quantity = product_details.quantity
+            datarequest[i].product_stock = product_details.quantity
             datarequest[i].standard_unit = product_details.standard_unit
             datarequest[i].secondary_unit = product_details.secondary_unit
             datarequest[i].level = product_details.level
@@ -1828,6 +1832,7 @@ router.post("/process/:id", auth, async (req, res) => {
             datarequest[i].sales_category = product_details.sales_category
             datarequest[i].date_recieved = product_details.date_recieved
             datarequest[i].purchases_id = product_details._id.valueOf()
+            datarequest[i].data_type = "inc"
             
         })
         
