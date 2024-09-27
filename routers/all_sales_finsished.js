@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
-const { profile, master_shop, categories, brands, units, product, warehouse, staff, customer, suppliers, purchases, purchases_return, sales, sales_return, suppliers_payment, customer_payment, c_payment_data, email_settings, sales_finished, sales_return_finished, supervisor_settings, invoice_for_outgoing, sales_logs } = require("../models/all_models");
+const { profile, master_shop, product, warehouse, staff, customer, purchases, sales, customer_payment, c_payment_data, email_settings, sales_finished, sales_return_finished, supervisor_settings, invoice_for_outgoing, sales_logs, warehouse_validation_setup } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const nodemailer = require('nodemailer');
 const users = require("../public/language/languages.json");
@@ -848,7 +848,8 @@ router.post("/view/add_sale/product", auth, async (req, res) => {
 router.post("/view/add_sales", auth, async (req, res) => {
     try {
         const { invoice, date, warehouse_name, product_name, note, room, primary_code, secondary_code, prod_code,  SCRN, ReqBy, dateofreq, PO_number, typeservicesData,  typevehicle, destination, deliverydate, driver, plate, van, DRSI, TSU, TFU, mode_transpo, name_driver, pull_out_date, actual_delivery_date } = req.body
-       
+        res.json(req.body);
+        return;
         if(typeof product_name == "string"){
             var product_name_array = [req.body.product_name]
             var stock_array = [req.body.stock]
@@ -2827,4 +2828,293 @@ console.log( "log" + " <> " + product_code + " <> " + sales_category )
     res.json(results);
 });
 
+
+router.post("/barcode_scanner_auto_data", async (req, res) => {
+
+    try {
+        const { prduct_code, warehouse_data, qty_req } = req.body;
+            let product_data = prduct_code.split("~");
+            let req_qty = qty_req.split("~");
+            // console.log(product_data.length)
+            let dataFix = [];
+            let ab = 0;
+            for (let index = 0; index <= product_data.length-1; index++) {
+                const product_code = product_data[index];
+                const req_qty_data = req_qty[index];
+
+                const stock_data = await warehouse.aggregate([
+                {
+                    $match: { "name": warehouse_data }
+                },
+                {
+                    $unwind: "$product_details"
+                },
+                {
+                    $match: { 
+                        "product_details.product_code": product_code,
+                    }
+                },
+                {
+                    // Sort by date_received in ascending order to get FIFO
+                    $sort: { "product_details.date_received": 1 }
+                },
+                {
+                    $group: {
+                        _id: "$product_details._id",
+                        name: { $first: "$product_details.product_name" },
+                        product_stock: { $first: "$product_details.product_stock" },
+                        primary_code: { $first: "$product_details.primary_code" },
+                        secondary_code: {$first: "$product_details.secondary_code" },
+                        product_code: { $first: "$product_details.product_code" },
+                        level: { $first: "$product_details.level" },
+                        bay: { $first: "$product_details.bay" },
+                        type: { $first: "$product_details.type" },
+                        pallet: { $first: "$product_details.floorlevel" },
+                        unit: { $first: "$product_details.unit" },
+                        secondary_unit: { $first: "$product_details.secondary_unit" },
+                        storage: { $first: "$product_details.storage" },
+                        rack: { $first: "$product_details.rack" },
+                        expiry_date: { $first: "$product_details.expiry_date" },
+                        production_date: { $first: "$product_details.production_date" },
+                        maxPerUnit: { $first: "$product_details.maxPerUnit" },
+                        batch_code: { $first: "$product_details.batch_code" },
+                        product_cat:{ $first: "$product_details.product_cat" },
+                        computeUsed : { $first: "P" },
+                        roomNamed : { $first: "$room" },
+                        invoice : { $first: "$product_details.invoice" },
+                        uuid : { $first: "$product_details.uuid" },
+                        gross_price: { $first: "$product_details.gross_price" },
+                        sales_category: { $first: "$product_details.sales_category" },
+                        date_received: { $first: "$product_details.date_recieved" },
+                        warehouse_id: { $first: "$_id" }
+                    }
+                },
+                ]);
+                const sortedProducts = stock_data.sort((a, b) => new Date(a.date_received) - new Date(b.date_received));
+                // console.log(sortedProducts.length)
+                
+                let remainingQuantity = req_qty_data;
+                for (let index3 = 0; index3 <= sortedProducts.length -1 && remainingQuantity > 0; index3++) {
+                    const element3 = sortedProducts[index3];
+                    // console.log(element3)
+                    if(element3.product_code == product_code ){
+                        dataFix[ab] = {}
+                        const maxCapacity = parseInt(element3.product_stock);
+                        const minCapacity = 0;
+
+                        let availableSpace = maxCapacity - minCapacity;
+                        let toPlace = Math.min(remainingQuantity, availableSpace);
+
+                        console.log(`Distributing ${toPlace} units to warehouse: ${warehouse_data}, room: ${element3.roomNamed}, Location: ${element3.level+element3.bay} Date: ${element3.date_received} Name: ${element3.name}`);
+                        dataFix[ab].group_ids = element3.warehouse_id+"~"+element3._id+"~"+toPlace;
+                        dataFix[ab].product_name = element3.name;
+                        dataFix[ab].product_code = element3.product_code;
+                        dataFix[ab].product_id = element3.product_id;
+                        dataFix[ab].date_recieved = element3.date_recieved;
+                        dataFix[ab].sales_category = element3.sales_category;
+                        dataFix[ab].uuid = element3.uuid;
+                        dataFix[ab].quantity = toPlace;
+                        dataFix[ab].standard_unit = element3.standard_unit;
+                        dataFix[ab].secondary_unit = element3.secondary_unit;
+                        dataFix[ab].primary_code = element3.primary_code;
+                        dataFix[ab].secondary_code = element3.secondary_code;
+                        dataFix[ab].maxStocks = element3.maxStocks;
+                        dataFix[ab].batch_code = element3.batch_code;
+                        dataFix[ab].expiry_date = element3.expiry_date;
+                        dataFix[ab].production_date = element3.production_date;
+                        dataFix[ab].maxperunit = element3.maxperunit;
+                        dataFix[ab].product_cat = element3.product_cat;
+                        dataFix[ab].invoice = element3.invoice;
+                        dataFix[ab].gross_price = element3.gross_price;
+                        dataFix[ab].room_name = element3.roomNamed
+                        dataFix[ab].level = element3.level
+                        dataFix[ab].bay = element3.bay;
+                        dataFix[ab].status = "true";
+                        // console.log(remainingQuantity)
+
+                        console.log("1",ab)
+                        remainingQuantity -= toPlace;
+                        ab++;
+                        if (remainingQuantity <= 0) {
+                            break;
+                        }
+                        
+                        
+                    }
+                    
+                    
+                }
+                if (remainingQuantity > 0) {
+
+                    var theProduct_data = await product.findOne({ product_code: product_code});
+                    console.log("2",ab)
+                    dataFix[ab] = {}
+                    dataFix[ab].product_name = theProduct_data.name;
+                    dataFix[ab].product_code = product_code;
+                    dataFix[ab].product_id = theProduct_data._id.valueOf();
+                    dataFix[ab].quantity = remainingQuantity;
+                    dataFix[ab].standard_unit = theProduct_data.unit;
+                    dataFix[ab].secondary_unit = theProduct_data.second_unit;
+                    dataFix[ab].primary_code = theProduct_data.primary_code;
+                    dataFix[ab].secondary_code = theProduct_data.secondary_code;
+                    dataFix[ab].maxStocks = theProduct_data.maxStocks;
+                    dataFix[ab].maxperunit = theProduct_data.maxProdPerUnit;
+                    dataFix[ab].gross_price = theProduct_data.gross_price;
+                    dataFix[ab].status = "false";
+                    console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. <>  ${ab} <> ${product_code}`);
+                    ab++
+                }
+            
+            }
+        
+
+
+        // console.log(sortedProducts.length)
+        
+
+        // console.log(dataFix)
+        res.json(dataFix);
+    } catch (error) {
+        console.log(error)
+    }
+    
+});
+
+
+
+router.post("/barcode_scanner_auto", async (req, res) => {
+    const { product_code } = req.body
+    
+
+ var checkData;
+    const product_data1 = await product.aggregate([
+        {
+            $match:{
+                "primary_code": product_code,
+                // "product_category": "Finished Goods"
+            }
+        },
+        {
+            $group:{
+                _id: "$_id",
+                name: { $first: "$name" },
+                category:  { $first:  "$category" },
+                brand:  { $first: "$brand" },
+                unit:  { $first: "$unit" },
+                alertquantity:  { $first: "$alertquantity" },
+                product_code:  { $first: "$product_code" },
+                primary_code:  { $first: "$primary_code" },
+                secondary_code:  { $first: "$secondary_code" },
+                maxStocks:  { $first: "$maxStocks" },
+                maxProdPerUnit:  { $first: "$maxProdPerUnit" },
+                product_cat: { $first : "P" },
+                secondary_unit: { $first: "$secondary_unit" },
+                gross_price: { $first: "$gross_price"},
+                sales_category: { $first: "$sales_category" }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                category: 1,
+                brand: 1,
+                unit: 1,
+                alertquantity: 1,
+                product_code: 1,
+                primary_code: 1,
+                secondary_code: 1,
+                maxStocks: 1,
+                maxProdPerUnit: 1,
+                product_cat: 1,
+                secondary_unit: 1,
+                gross_price: 1,
+                sales_category: 1
+            }
+        }
+    ])
+
+
+    const product_data2 = await product.aggregate([
+        {
+            $match:{
+                "secondary_code": product_code
+            }
+        },
+        {
+            $group:{
+                _id: "$_id",
+                name: { $first: "$name" },
+                category:  { $first:  "$category" },
+                brand:  { $first: "$brand" },
+                unit:  { $first: "$unit" },
+                alertquantity:  { $first: "$alertquantity" },
+                product_code:  { $first: "$product_code" },
+                primary_code:  { $first: "$primary_code" },
+                secondary_code:  { $first: "$secondary_code" },
+                maxStocks:  { $first: "$maxStocks" },
+                maxProdPerUnit:  { $first: "$maxProdPerUnit" },
+                product_cat: { $first : "S" },
+                secondary_unit: { $first: "$secondary_unit" },
+                gross_price: { $first: "$gross_price"},
+                sales_category: { $first: "$sales_category" }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                category: 1,
+                brand: 1,
+                unit: 1,
+                alertquantity: 1,
+                product_code: 1,
+                primary_code: 1,
+                secondary_code: 1,
+                maxStocks: 1,
+                maxProdPerUnit: 1,
+                product_cat: 1,
+                secondary_unit: 1,
+                gross_price: 1,
+                sales_category: 1
+            }
+        }
+    ])
+
+
+    
+
+
+    if(product_data1.length > 0){
+        checkData = product_data1;
+    }else if(product_data2.length > 0){
+        checkData = product_data2;
+     
+    }
+    
+    res.json( checkData )
+    
+})
+
+
+
+router.post("/process/view", async (req, res) => {
+    try {
+        const { group_id, DRSI, dateofreq, PO_number, date, warehouse_name, typevehicle, deliverydate, driver, plate, van, TSU, actual_delivery_date, TFU, pull_out_date, sales, Customer_data, note} = req.body
+        console.log(typeof group_id)
+        for (let index = 0; index <= group_id.length-1; index++) {
+            const element = group_id[index];
+            let data_id = element.split("~");
+            var warehouse_id = data_id[0];
+            var product_detl = data_id[1];
+            var qty_req = data_id[2];
+            
+            
+            
+        }
+        res.json(req.body.group_id)
+    } catch (error) {
+        console.log(error)
+    }
+})
 module.exports = router;

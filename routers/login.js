@@ -109,29 +109,48 @@ router.get("/staff/:id", async(req, res) => {
         // console.log("abcd", _id);
 
         const staff_data = await staff.findById({_id})
-        // console.log("login staff", staff_data);
-
-        
-        if(staff_data.status == "Disabled"){
-            req.flash('errors', `Your account is currently disabled by the Admin.`)
-            res.redirect("/staff/view")
-        }
-
-
-        
+        console.log("login staff", staff_data);
+        const staff_data1 = await staff.findOne({email : staff_data.email})
         const  useremail = await sing_up.findOne({email : staff_data.email});
+        // if(staff_data.status == "Disabled"){
+        //     req.flash('errors', `Your account is currently disabled by the Admin.`)
+        //     res.redirect("/staff/view")
+        // }
 
-        // var user_warehouse_cat = "All" ;
-        var user_warehouse_cat = staff_data.warehouse_category ;
+        var user_account_cat = staff_data1.account_category ;
+        var sales_account_cat = staff_data1.type_of_acc_cat ;
+        var sttaf_id = staff_data1._id ;
+        var warehouse_data = staff_data1.warehouse
         if(useremail.role == "staff"){
-            const staff_data = await staff.findOne({name : useremail.name})
-            // console.log("staff_data", staff_data);
-            user_warehouse_cat = staff_data.warehouse_category ;
-
+            const staff_data = await staff.findOne({email : useremail.email})
+            if (staff_data.status == "Disabled") {
+                req.flash('errors', `Your account is currently disabled by the Admin.`)
+                return res.redirect("/staff/view")
+            }
+            user_account_cat = staff_data.account_category ;
+            sales_account_cat = staff_data.type_of_acc_cat ;
+            sttaf_id = staff_data._id ;
+            warehouse_data = staff_data.warehouse
         }
+
+
+        
+        // const  useremail = await sing_up.findOne({email : staff_data.email});
+
+        // // var user_warehouse_cat = "All" ;
+        // var user_warehouse_cat = staff_data.warehouse_category ;
+        // if(useremail.role == "staff"){
+        //     const staff_data = await staff.findOne({name : useremail.name})
+        //     // console.log("staff_data", staff_data);
+        //     user_warehouse_cat = staff_data.warehouse_category ;
+
+        // }
         // console.log(useremail);
 
-        const token = jwt.sign({username : useremail.username, email : useremail.email, role : useremail.role, warehouse_category: user_warehouse_cat }, process.env.secret_key)
+        // const token = jwt.sign({username : useremail.username, email : useremail.email, role : useremail.role, warehouse_category: user_warehouse_cat }, process.env.secret_key)
+
+        const token = jwt.sign({username : useremail.username, email : useremail.email, role : useremail.role, account_category: user_account_cat, sales_category: sales_account_cat, sttaff_id: sttaf_id, warehouse: warehouse_data}, process.env.secret_key)
+
         // console.log(token);
 
         // res.cookie("jwt", token, {expires : new Date(Date.now() + 60000 * 60)})

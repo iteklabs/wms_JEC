@@ -537,7 +537,10 @@ router.post("/Rooms_data2", async (req, res) => {
 
     try{
         const { typeofsales }  = req.body
-        const staff_sa = await staff.find({ account_category: "sa", type_of_acc_cat: typeofsales })
+        var staff_sa;
+        if(typeofsales == "1"){
+          staff_sa = await staff.find({ account_category: "sa", type_of_acc_cat: typeofsales })
+        }
   
         res.status(200).json(staff_sa)
     }catch(error){
