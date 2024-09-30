@@ -266,7 +266,7 @@
 
                                 Swal.fire({
                                         // title: 'Warehouse: TAGUIG \n Rack: 1',
-                                        width: "100%",
+                                        width: "50%",
                                         allowOutsideClick: false,
                                         html: `
                                         <div class="card-header">
@@ -315,11 +315,11 @@
                     }
                     
                     })
-                    // document.getElementById("product_code").value='';
+                   
 
                     // alert(productCode)
                 })
-
+                document.getElementById("product_code").value='';
             } else {
                 buttonData.removeClass('btn-danger').addClass('btn-primary');
                 buttonData.text('Scan Barcode');

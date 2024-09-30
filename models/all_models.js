@@ -305,6 +305,17 @@ const warehouse_data = new mongoose.Schema({
             },
             date_recieved: {
                 type: String
+            },
+            isAvailable:{
+                type: String,
+                default: "true"
+            },
+            isUsed:{
+                type: String,
+                default: "false"
+            },
+            warehouse_id_temp_inc: {
+                type: String
             }
             
         }
@@ -3397,6 +3408,26 @@ const warehouse_data_temporary = new mongoose.Schema({
     },
     date_recieved:{
         type: String
+    },
+    outgoiug_inv: {
+        type: String
+    },
+    sales_id: {
+        type: String
+    },
+    warehouse_id: {
+        type: String
+    },
+    warehouse_id_detl: {
+        type: String
+    },
+    isAvailable:{
+        type: String,
+        default: "true"
+    },
+    isUsed:{
+        type: String,
+        default: "false"
     }
 })
 

@@ -1417,6 +1417,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                                     dataFix[i].room_name = element.room
                                     dataFix[i].level = bin.bay
                                     dataFix[i].bay = bin.bin;
+                                
                                     // Update the remaining quantity
                                     remainingQuantity -= toPlace;
                                     // console.log(remainingQuantity)
@@ -1900,6 +1901,9 @@ router.post("/process/:id", auth, async (req, res) => {
             datarequest[i].date_recieved = product_details.date_recieved
             datarequest[i].purchases_id = product_details._id.valueOf()
             datarequest[i].data_type = "inc"
+            // datarequest[i].data_type = "inc"
+            datarequest[i].isAvailable = "true"
+            datarequest[i].isUsed = "false"
             
         })
         
@@ -3256,7 +3260,7 @@ router.get("/barcode/:id", auth, async (req, res) => {
 router.post("/barcode_scanner", async (req, res) => {
     const { product_code } = req.body
     
-
+// console.log(product_code)
  var checkData;
     const product_data1 = await product.aggregate([
         {

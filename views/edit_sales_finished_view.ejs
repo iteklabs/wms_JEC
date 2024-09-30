@@ -73,18 +73,18 @@
                                             
                                             
                                                     <% if(user.finalize == "False"){ %>
-                                                        <a href="/picking_list/pdf/<%= user._id %>" id="picklist" data-id="<%= user._id %>"
+                                                        <!-- <a href="/picking_list/pdf/<%= user._id %>" id="picklist" data-id="<%= user._id %>"
                                                             class="btn btn-warning btn-sm" target="_blank">
                                                             <i class="feather icon-printer"></i>
                                                             Print Picking List
-                                                        </a>
+                                                        </a> -->
                                                     <% } else{ %>
                                                         
-                                                        <a href="/picking_list/PDFFinal_own/<%= user._id %>" id="picklist" data-id="<%= user._id %>"
+                                                        <!-- <a href="/picking_list/PDFFinal_own/<%= user._id %>" id="picklist" data-id="<%= user._id %>"
                                                             class="btn btn-warning btn-sm" target="_blank">
                                                             <i class="feather icon-printer"></i>
                                                             Print Job Order
-                                                        </a>
+                                                        </a> -->
                                                     <% } %>
                                             
                                         </div>
@@ -104,18 +104,7 @@
                                                         </div>
 
 
-                                                        <div class="col-xl-4 col-sm-6">
-                                                            <div class="form-group">
-                                                                <label for="invoice_no"> Supplier / Client Ref Number <span class="text-red">*</span></label>
-                                                                <input type="text" name="SCRN" class="form-control"
-                                                                    id="SCRN" value="<%= user.SCRN  %>" readonly>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-xl-3 col-sm-6">
-                                                                <label class="form-label">Requested By</label>
-                                                                <input type="text" class="form-control" name="ReqBy" id="ReqBy" value="<%= user.ReqBy %>" readonly>
-                                                        </div>
+                                                     
 
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
@@ -150,34 +139,8 @@
                                                             </div>
                                                         </div>
 
-                                                        <!-- <div class="col-xl-3 col-sm-6">  
-                                                            <div class="form-group">
-                                                                <label for="invoice_no">Room <span class="text-red">*</span></label>
-                                                                <input type="text" name="room" class="form-control" id="room" value="<%= user.room  %>" readonly>
-                                                                
-                                                            </div>
-                                                        </div> -->
+                                                    
                                                         
-                                                        
-                                                    </div>
-                                                    <div class="row mb-3">
-                                                        <div class="col-xl-4 col-sm-6">
-            
-                                                            <div class="form-group">
-                                                                <label for="invoice_no"><%= language.mode_transpo %> Mode of transportation</label>
-                                                                <input type="text" name="mode_transpo" class="form-control" id="mode_transpo"  value="<%= user.mode_transpo %>" readonly>
-                                                            </div>
-                                                        </div>
-
-
-                                                        <div class="col-xl-4 col-sm-6">
-                                                            <div class="form-group">
-                                                                <label for="invoice_no"><%= language.name_driver %> Driver's Name</label>
-                                                                <input type="text" name="name_driver" class="form-control" id="name_driver" value="<%= user.name_driver %>" readonly>
-                                                            </div>
-                                                        </div>
-                                                         
-                                                      
                                                     </div>
 
                                                    
@@ -186,37 +149,6 @@
 
                                                     <div class="row mb-3">
 
-                                                        <div class="col-xl-3 col-sm-6">
-                                                            <div class="form-group">
-                                                                <label for="invoice_no">Type of Services  <span
-                                                                        class="text-red">*</span></label>
-
-                                                                <br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Freight" disabled>
-                                                                <label for="Freight"> Freight</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Handling In" disabled>
-                                                                <label for="HandlingIn"> Handling In</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Handling Out" disabled>
-                                                                <label for="HandlingOut"> Handling Out</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Stripping" disabled>
-                                                                <label for="Stripping"> Stripping</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Stuffing" disabled>
-                                                                <label for="Stuffing"> Stuffing</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Barcoding" disabled>
-                                                                <label for="Barcoding"> Barcoding</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Repacking" disabled>
-                                                                <label for="Repacking"> Repacking</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Reprocessing" disabled>
-                                                                <label for="Reprocessing"> Reprocessing</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Stickering" disabled>
-                                                                <label for="Stickering"> Stickering</label><br>
-                                                                <input type="checkbox" class="form-check-input" id="typeservices" name="typeservices" value="Sorting" disabled>
-                                                                <label for="Sorting"> Sorting</label><br>
-
-
-                                                                <input type="hidden" class="form-check-input" id="typeservicesData" name="typeservicesData" value="<%= user.typeservicesData %>">
-                                                            </div>
-                                                        </div>
 
                                                         <div class="col-xl-3 col-sm-6">
                                                             <div class="form-group">
@@ -243,12 +175,7 @@
                                                         </div>
 
 
-                                                        <div class="col-xl-3 col-sm-6">
-                                                            <div class="form-group">
-                                                                <label class="form-label">Destination</label>
-                                                                <input type="text" class="form-control" name="destination" id="destination" value="<%= user.destination %>" readonly>
-                                                            </div>
-                                                        </div>
+                        
 
 
                                                         <div class="col-xl-3 col-sm-6">
@@ -337,13 +264,13 @@
                                                                         <th scope="col">Batch Code</th>
                                                                         <th scope="col">Production date </th>
                                                                         <th scope="col">Expiry date </th>
-                                                                        <th scope="col"><%= language.in_stock %> </th>
+                                                                        <!-- <th scope="col"><%= language.in_stock %> </th> -->
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">Unit of Measure </th>
-                                                                        <th scope="col">Conversion</th>
+                                                                        <!-- <th scope="col">Conversion</th> -->
                                                                         <th scope="col">Room</th>
                                                                         <th scope="col">Bin </th>
-                                                                        <th scope="col">Agent </th>
+                                                                        <!-- <th scope="col">Agent </th> -->
                                                                         
                                                                     </tr>
                                                                 </thead>
@@ -386,10 +313,10 @@
                                                                                 </div>
                                                                             </td>
 
-
+<!-- 
                                                                             <td class="align-top">
                                                                                 <input type="text" name="stock" id="stock" class="form-control stock" style="width: 100px;" value="<%= user.stock %>" readonly>
-                                                                            </td>
+                                                                            </td> -->
 
 
                                                                             <td class="align-top">
@@ -402,10 +329,10 @@
                                                                                 <input type="text" name="unitodmeasure" id="unitodmeasure" class="form-control unitodmeasure" style="width: 150px;" value="<%= user.unit %>" readonly>
                                                                             </td>
 
-
+<!-- 
                                                                             <td class="align-top">
                                                                                 <input type="text" name="test" id="test" class="form-control unitodmeasure" style="width: 150px;" value="" readonly>
-                                                                            </td>
+                                                                            </td> -->
 
                                                                             <!-- <td class="align-top"> -->
                                                                                 <input type="hidden" name="secondary_unit" id="secondary_unit" class="form-control secondary_unit" style="width: 150px;" value="<%= user.secondary_unit %>" readonly>
@@ -416,13 +343,13 @@
                                                                             </td>
 
                                                                             <td class="align-top">
-                                                                                <input type="text" name="level" id="level" class="form-control level" style="width: 150px;" value="<%= user.bay %>" readonly>
+                                                                                <input type="text" name="level" id="level" class="form-control level" style="width: 150px;" value="<%= user.level+user.bay %>" readonly>
                                                                             </td>
 
 
-                                                                            <td class="align-top">
+                                                                            <!-- <td class="align-top">
                                                                                 <input type="text" name="agent_list" id="agent_list" class="form-control level" style="width: 150px;" value="<%= user.agent_id %>" readonly>
-                                                                            </td>
+                                                                            </td> -->
                                                                             <input type="hidden" name="invoice_data" id="invoice_data" class="form-control secondary_unit" style="width: 150px;" value="<%= user.invoice %>" readonly>
                                                                             <input type="hidden" name="invoice_data" id="invoice_data" class="form-control secondary_unit" style="width: 150px;" value="<%= user.invoice %>" readonly>
                                                                             <input type="hidden" name="prod_cat" id="prod_cat" class="form-control prod_cat" style="width: 150px;" value="<%= user.prod_cat %>" readonly>
@@ -458,10 +385,10 @@
                                                     
                                                  </form>
                                                  <% if(user.finalize == "False"){ %>
-                                                 <div class="row">
+                                                 <!-- <div class="row">
                                                     <button class="btn btn-primary" type="submit"
                                                         id="submit" onclick="confirmAlert()">Finalize </button>
-                                                </div>
+                                                </div> -->
                                                 <% } %>
                                                </div>
                                             </div>
@@ -577,19 +504,19 @@
             for (let index = 0; index <= DataName.length -1 ; index++) {
                 const element = DataName[index];
 
-
-                $.ajax({
-                url: '/warehousemap_Income/staff_sales_id',
-                method: 'POST',
-                data: { id: element.value },
-                success: function (response) {
-                    $.each(response, function (index, data) {
-                        element.value = data.name
-                        // console.log(data.name)
-                    })
+                console.log(element.value)
+            //     $.ajax({
+            //     url: '/warehousemap_Income/staff_sales_id',
+            //     method: 'POST',
+            //     data: { id: element.value },
+            //     success: function (response) {
+            //         $.each(response, function (index, data) {
+            //             element.value = data.name
+            //             console.log(data)
+            //         })
                     
-                }
-            });
+            //     }
+            // });
                 
             }
         }

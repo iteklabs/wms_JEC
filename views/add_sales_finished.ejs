@@ -241,8 +241,7 @@
             }
            
         }
-
-
+        
             $.ajax({
                 type: "POST",
                 url: "/all_sales_finished/barcode_scanner_auto_data",
@@ -1038,6 +1037,7 @@
             barcodeInput.type = 'text';
             barcodeInput.focus()
             document.getElementById("purchase_submit").disabled = true
+            
             var x=1;
             var lastIncre = 0;
             $('#product_code').on('input', function() {

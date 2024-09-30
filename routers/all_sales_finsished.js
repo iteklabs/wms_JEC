@@ -1,11 +1,11 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
-const { profile, master_shop, product, warehouse, staff, customer, purchases, sales, customer_payment, c_payment_data, email_settings, sales_finished, sales_return_finished, supervisor_settings, invoice_for_outgoing, sales_logs, warehouse_validation_setup } = require("../models/all_models");
+const { profile, master_shop, product, warehouse, staff, customer, purchases, sales, customer_payment, c_payment_data, email_settings, sales_finished, sales_return_finished, supervisor_settings, invoice_for_outgoing, sales_logs, warehouse_temporary, warehouse_validation_setup } = require("../models/all_models");
 const auth = require("../middleware/auth");
 const nodemailer = require('nodemailer');
 const users = require("../public/language/languages.json");
-
+const mongoose = require("mongoose");
 
 
 router.get("/view", auth, async (req, res) => {
@@ -2852,6 +2852,8 @@ router.post("/barcode_scanner_auto_data", async (req, res) => {
                 {
                     $match: { 
                         "product_details.product_code": product_code,
+                        "product_details.isAvailable": "true",
+                        "product_details.isUsed": "false"
                     }
                 },
                 {
@@ -2914,7 +2916,7 @@ router.post("/barcode_scanner_auto_data", async (req, res) => {
                         dataFix[ab].sales_category = element3.sales_category;
                         dataFix[ab].uuid = element3.uuid;
                         dataFix[ab].quantity = toPlace;
-                        dataFix[ab].standard_unit = element3.standard_unit;
+                        dataFix[ab].unit = element3.unit;
                         dataFix[ab].secondary_unit = element3.secondary_unit;
                         dataFix[ab].primary_code = element3.primary_code;
                         dataFix[ab].secondary_code = element3.secondary_code;
@@ -2979,6 +2981,8 @@ router.post("/barcode_scanner_auto_data", async (req, res) => {
     }
     
 });
+
+
 
 
 
@@ -3101,18 +3105,217 @@ router.post("/barcode_scanner_auto", async (req, res) => {
 router.post("/process/view", async (req, res) => {
     try {
         const { group_id, DRSI, dateofreq, PO_number, date, warehouse_name, typevehicle, deliverydate, driver, plate, van, TSU, actual_delivery_date, TFU, pull_out_date, sales, Customer_data, note} = req.body
-        console.log(typeof group_id)
-        for (let index = 0; index <= group_id.length-1; index++) {
-            const element = group_id[index];
-            let data_id = element.split("~");
-            var warehouse_id = data_id[0];
-            var product_detl = data_id[1];
+        
+        const ObjectId = mongoose.Types.ObjectId;
+        let datarequest = [];
+
+        const Invoice_out = new invoice_for_outgoing();
+        await Invoice_out.save();
+        const out_inv = "OUT-" + Invoice_out.invoice_init.toString().padStart(8, '0');
+
+        
+        if(typeof group_id == "string"){
+            let data_id = group_id.split("~");
+
+            var warehouse_id = ObjectId(data_id[0]);
+            var product_detl = ObjectId(data_id[1]);
             var qty_req = data_id[2];
+            let index = 0;
+            // console.log(warehouse_id + ' <> ' + product_detl + ' <> ' + qty_req)
+            const warehouse_data = await warehouse.aggregate([
+                {
+                    $match: {
+                        _id: warehouse_id
+                    }
+                },
+                {
+                    $unwind: "$product_details"
+                },
+                {
+                    $match: {
+                        "product_details._id": product_detl
+                    }
+                }
+            ]);
+
+            await warehouse.updateOne(
+                { 
+                    _id:  ObjectId(warehouse_id),
+                    "product_details._id": ObjectId(product_detl)
+                },
+                { 
+                    $set: { 
+                        "product_details.$.isUsed": "true" 
+                    } 
+                }
+            );
+
+            datarequest[index] = {};
+            for (let index2 = 0; index2 <= warehouse_data.length-1; index2++) {
+                const element2 = warehouse_data[index2];
+                console.log(element2)
+                
+                
+                datarequest[index].warehouse = element2.name
+                datarequest[index].product_id = element2.product_details.product_id
+                datarequest[index].product_name = element2.product_details.product_name
+                datarequest[index].product_code = element2.product_details.product_code
+                datarequest[index].product_stock = qty_req
+                datarequest[index].quantity = qty_req
+                datarequest[index].unit = element2.product_details.unit
+                datarequest[index].secondary_unit = element2.product_details.secondary_unit
+                datarequest[index].level = element2.product_details.level
+                datarequest[index].bay = element2.product_details.bay
+                datarequest[index].primary_code = element2.product_details.primary_code
+                datarequest[index].secondary_code =element2. product_details.secondary_code
+                datarequest[index].maxStocks = element2.product_details.maxStocks
+                datarequest[index].batch_code = element2.product_details.batch_code
+                datarequest[index].expiry_date = element2.product_details.expiry_date
+                datarequest[index].production_date = element2.product_details.production_date
+                datarequest[index].maxperunit = element2.product_details.maxperunit
+                datarequest[index].product_cat = element2.product_details.product_cat
+                datarequest[index].room_name = element2.room
+                datarequest[index].invoice = element2.product_details.invoice
+                datarequest[index].uuid = element2.product_details.uuid
+                datarequest[index].gross_price = element2.product_details.gross_price
+                datarequest[index].sales_category = element2.product_details.sales
+                datarequest[index].date_recieved = element2.product_details.date_recieved
+                datarequest[index].sales_id = element2.product_details.sales
+                datarequest[index].warehouse_id = element2._id.valueOf()
+                datarequest[index].warehouse_id_detl = element2.product_details._id.valueOf()
+                datarequest[index].data_type = "out"
+                datarequest[index].agent_id =element2.product_details.sales
+                
+            }
             
+
             
-            
+            datarequest[index].outgoiug_inv = out_inv
+            // console.log(data_id)
+        }else{
+            for (let index = 0; index <= group_id.length-1; index++) {
+                const element = group_id[index];
+                let data_id = element.split("~");
+                console.log(data_id)
+                var warehouse_id = ObjectId(data_id[0]);
+                var product_detl = ObjectId(data_id[1]);
+                var qty_req = data_id[2];
+                
+                // console.log(warehouse_id + ' <> ' + product_detl + ' <> ' + qty_req)
+                const warehouse_data = await warehouse.aggregate([
+                    {
+                        $match: {
+                            _id: warehouse_id
+                        }
+                    },
+                    {
+                        $unwind: "$product_details"
+                    },
+                    {
+                        $match: {
+                            "product_details._id": product_detl
+                        }
+                    }
+                ]);
+
+                await warehouse.updateOne(
+                    { 
+                        _id:  ObjectId(warehouse_id),
+                        "product_details._id": ObjectId(product_detl)
+                    },
+                    { 
+                        $set: { 
+                            "product_details.$.isUsed": "true" 
+                        } 
+                    }
+                );
+    
+                datarequest[index] = {};
+                for (let index2 = 0; index2 <= warehouse_data.length-1; index2++) {
+                    const element2 = warehouse_data[index2];
+                    // console.log(element2)
+                    
+                    
+                    datarequest[index].warehouse = element2.name
+                    datarequest[index].product_id = element2.product_details.product_id
+                    datarequest[index].product_name = element2.product_details.product_name
+                    datarequest[index].product_code = element2.product_details.product_code
+                    datarequest[index].product_stock = qty_req
+                    datarequest[index].quantity = qty_req
+                    datarequest[index].unit = element2.product_details.unit
+                    datarequest[index].secondary_unit = element2.product_details.secondary_unit
+                    datarequest[index].level = element2.product_details.level
+                    datarequest[index].bay = element2.product_details.bay
+                    datarequest[index].primary_code = element2.product_details.primary_code
+                    datarequest[index].secondary_code =element2. product_details.secondary_code
+                    datarequest[index].maxStocks = element2.product_details.maxStocks
+                    datarequest[index].batch_code = element2.product_details.batch_code
+                    datarequest[index].expiry_date = element2.product_details.expiry_date
+                    datarequest[index].production_date = element2.product_details.production_date
+                    datarequest[index].maxperunit = element2.product_details.maxperunit
+                    datarequest[index].product_cat = element2.product_details.product_cat
+                    datarequest[index].room_name = element2.room
+                    datarequest[index].invoice = element2.product_details.invoice
+                    datarequest[index].uuid = element2.product_details.uuid
+                    datarequest[index].gross_price = element2.product_details.gross_price
+                    datarequest[index].sales_category = element2.product_details.sales
+                    datarequest[index].date_recieved = element2.product_details.date_recieved
+                    datarequest[index].sales_id = element2.product_details.sales
+                    datarequest[index].warehouse_id = element2._id.valueOf()
+                    datarequest[index].warehouse_id_detl = element2.product_details._id.valueOf()
+                    datarequest[index].data_type = "out"
+                    datarequest[index].agent_id =element2.product_details.sales
+                    
+                }
+                
+    
+                
+                datarequest[index].outgoiug_inv = out_inv
+            }
         }
-        res.json(req.body.group_id)
+        
+        // console.log(datarequest);
+        // res.json(datarequest)
+        // return;
+
+        for (let index = 0; index <= datarequest.length - 1 ; index++) {
+            const element = datarequest[index];
+            const data = new warehouse_temporary(element);
+                await data.save();
+        }
+
+        const data = new sales_finished({ 
+            invoice: out_inv, 
+            sales_data: sales,
+            customer: Customer_data, 
+            date, 
+            warehouse_name, 
+            sale_product:datarequest, 
+            note, 
+            finalize: "False", 
+            dateofreq,
+            PO_number, 
+            typevehicle, 
+            deliverydate, 
+            driver, 
+            plate, 
+            van, 
+            DRSI, 
+            TSU, 
+            TFU, 
+            pullout_date: pull_out_date, 
+            actualdelivery_date: actual_delivery_date, 
+            typeOfProducts: "own"
+        })
+
+        const purchases_data = await data.save()
+        req.flash("success", "Sales Add successfully")
+        res.redirect("/all_sales_finished/preview/"+purchases_data._id)
+
+
+     
+
+        // res.json(datarequest)
     } catch (error) {
         console.log(error)
     }

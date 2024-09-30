@@ -5524,7 +5524,7 @@ const sales_sa_data = await sales_sa.aggregate([
         $match: {
             date: from,
             sales_staff_id: staff_id,
-            "sale_product.isFG": "false"
+            "sale_product.isFG": "false",
         }
     },
     {
@@ -5790,7 +5790,7 @@ const sales_sa_data_status = await sales_sa.aggregate([
     }
 ]);
 
-// console.log(sales_sa_data_status);
+
 
 
 const stafff_data = await staff.findById(staff_id);
@@ -5962,6 +5962,23 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     
     totalAmountAll += parseFloat(amount)
     rows.push(row);
+}
+
+
+if(sales_sa_data_status.length > 0){
+    
+    for (let index = 0; index <= sales_sa_data_status.length - 1; index++) {
+        const element = sales_sa_data_status[index];
+        console.log(element)
+        let row2 = `<tr>`;
+        row2 += `<td class="row_data" style="border: 1px solid black; text-align: center;" height="100px" colspan="${(8+(7*3))}"><b>${element.note}</b></td>`;
+        row2 += `</tr>`;
+
+        rows.push(row2);
+    }
+
+   
+    
 }
 
 function paginateRows(rows, rowsPerPage) {
@@ -6195,17 +6212,7 @@ pages.forEach((page, pageIndex) => {
 
     
 //    console.log(totalsS)
-if(sales_sa_data_status.length > 0){
-    
-    for (let index = 0; index <= sales_sa_data_status.length - 1; index++) {
-        const element = sales_sa_data_status[index];
-        console.log(element)
-        htmlContent += `<tr>`;
-        htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;" height="100px" colspan="${(8+(7*3))}"><b>${element.note}</b></td>`;
-        htmlContent += `</tr>`;
-    }
-    
-}
+
 
     
     htmlContent += `<tr>`;
@@ -6715,6 +6722,9 @@ router.post('/dsrr/pdf', auth, async (req, res) => {
             // res.json("test")
             // return;
             const datatest = await agentsdataDSICheck_DSRR(from_date, stff_data._id.valueOf(), isExcel, element);
+            // res.send(datatest)
+            // return;
+            console.log(datatest)
             let htmlContent = `
             <style>
                 table {
