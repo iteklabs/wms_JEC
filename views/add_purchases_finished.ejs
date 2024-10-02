@@ -971,8 +971,10 @@
             barcodeInput.type = 'text';
             barcodeInput.focus()
             document.getElementById("purchase_submit").disabled = true
+            var lastin = document.getElementsByName("prod_qty");
+           
             var x=1;
-            var lastIncre = 0;
+            var lastIncre = lastin.length;
             $('#product_code').on('input', function() {
                 var productCode = $(this).val(); 
 
@@ -1102,17 +1104,19 @@
                             }).appendTo(row);
 
                             $('#tblPage_new').append(row);
+                            console.log(lastIncre)
                             lastIncre++;
+                            
 
                         }
 
                     })
-                document.getElementById("product_code").value='';
+                
                 }
                 
                 })
                 
-            
+                document.getElementById("product_code").value='';
                 // alert(productCode)
             })
 

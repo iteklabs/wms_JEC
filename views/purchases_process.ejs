@@ -398,16 +398,16 @@
                                                         
                                                     
                                                     </div>
-                                                    <div class="row">
-
-                                                        <% if (purchases_data.isProcess == "false") { %>
-                                                            <button class="btn btn-primary" type="submit" id="purchase_submit"  ><%= language.submit %> </button>
-                                                        <% } %>
-                                                        
-                                                    </div>
+                                                    
                                                 </form>
 
-                                                
+                                                <div class="row">
+
+                                                    <% if (purchases_data.isProcess == "false") { %>
+                                                        <button class="btn btn-primary" type="submit" id="purchase_submit" onclick="confirm_data()"  ><%= language.submit %> </button>
+                                                    <% } %>
+                                                    
+                                                </div>
                                                     
                                                 
                                             </div>
@@ -452,7 +452,31 @@
 
 
     <script>
-
+        function confirm_data(){
+            // document.getElementById("form").submit();
+            Swal.fire({
+                    icon: 'warning',
+                    title: 'Are you sure want to finalize?',
+                    text: 'Warning: After finalizing the data, it becomes locked and unmodifiable. ',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Save',
+                    denyButtonText: `Don't save`,
+                }).then((result) => {
+            
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Loading...",
+                        html: "Please wait a moment",
+                        allowOutsideClick: false, 
+                    })
+                    Swal.showLoading()
+                    document.getElementById("form").submit();
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+                })
+        }
 
         $(document).ready(function() {
             

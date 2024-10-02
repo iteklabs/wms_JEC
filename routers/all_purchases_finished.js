@@ -1096,7 +1096,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             var product_date_array = [req.body.product_date]
             var max_product_unit_array = [req.body.max_product_unit]
             var prod_cat_array = [req.body.prod_cat]
-            var RoomAssign_array = [req.body.RoomAssign]
+            // var RoomAssign_array = [req.body.RoomAssign]
             var gross_price_array = [req.body.gross_price]
             var uuid_array = [req.body.uuid]
             var sales_data_cateory_array = [req.body.sales_data_cateory]
@@ -1116,7 +1116,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             var product_date_array = [...req.body.product_date]
             var max_product_unit_array = [...req.body.max_product_unit]
             var prod_cat_array = [...req.body.prod_cat]
-            var RoomAssign_array = [...req.body.RoomAssign]
+            // var RoomAssign_array = [...req.body.RoomAssign]
             var gross_price_array = [...req.body.gross_price]
             var uuid_array = [...req.body.uuid]
             var sales_data_cateory_array = [...req.body.sales_data_cateory]
@@ -1199,9 +1199,9 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             newproduct[i].product_cat = value
         })
 
-        RoomAssign_array.forEach((value, i) => {
-            newproduct[i].room_name = value
-        })
+        // RoomAssign_array.forEach((value, i) => {
+        //     newproduct[i].room_name = value
+        // })
 
 
         gross_price_array.forEach((value, i) => {
@@ -1215,7 +1215,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
         const new_Invoice = new invoice_for_incoming();
         await new_Invoice.save();
 
-        for (let index = 0; index <= RoomAssign_array.length -1; index++) {
+        for (let index = 0; index <= product_name_array.length -1; index++) {
             // const element = array[index];
             newproduct[index].invoice = "INC-" + new_Invoice.invoice_init.toString().padStart(8, '0');
             
@@ -1380,7 +1380,110 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                             // Distribute the quantity across bins until max is met
 
                             // console.log(element3.product_code + "===" +element2.product_code + " <> " + element2.min + " <> " + element2.max + " <> " + element2.bay + " <> " + element2.bin)
+                            let i_data = 0;
+                            for (let i = 0; i <= element.product_data.length -1  && remainingQuantity > 0; i++) {
+                                const bin = element.product_data[i];
+                                
+                                // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
+                                if(element3.product_code === bin.product_code){
+                                    dataFix[i] = {}
+                                    const maxCapacity = parseInt(bin.max);
+                                    const minCapacity = 0;
+                                    // Calculate how much can be placed in this bin
+                                    let availableSpace = maxCapacity - minCapacity;
+                                    let toPlace = Math.min(remainingQuantity, availableSpace);
+                                    // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
+                                    console.log(`Distributing ${toPlace} units to warehouse: ${element.warehouse_name}, room: ${element.room}, bay: ${bin.bay}, bin: ${bin.bin}`);
+                                    
+                                    dataFix[i].product_name = element3.product_name;
+                                    dataFix[i].product_code = element3.product_code;
+                                    dataFix[i].product_id = element3.product_id;
+                                    dataFix[i].date_recieved = element3.date_recieved;
+                                    dataFix[i].sales_category = element3.sales_category;
+                                    dataFix[i].uuid = element3.uuid;
+                                    dataFix[i].quantity = toPlace;
+                                    dataFix[i].standard_unit = element3.standard_unit;
+                                    dataFix[i].secondary_unit = element3.secondary_unit;
+                                    dataFix[i].primary_code = element3.primary_code;
+                                    dataFix[i].secondary_code = element3.secondary_code;
+                                    dataFix[i].maxStocks = element3.maxStocks;
+                                    dataFix[i].batch_code = element3.batch_code;
+                                    dataFix[i].expiry_date = element3.expiry_date;
+                                    dataFix[i].production_date = element3.production_date;
+                                    dataFix[i].maxperunit = element3.maxperunit;
+                                    dataFix[i].product_cat = element3.product_cat;
+                                    dataFix[i].invoice = element3.invoice;
+                                    dataFix[i].gross_price = element3.gross_price;
+                                    dataFix[i].room_name = element.room
+                                    dataFix[i].level = bin.bay
+                                    dataFix[i].bay = bin.bin;
+                                    console.log(i)
+                                    // Update the remaining quantity
+                                    remainingQuantity -= toPlace;
+                                    // console.log(remainingQuantity)
+                                    if (remainingQuantity <= 0) {
+                                        break;
+                                    }
+
+                                    i_data++;
+                                }
+                                
+                            }
+                            // console.log(dataFix)
+                            if (remainingQuantity <= 0) {
+                                console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 1`);
+                                req.flash('errors', `The Other ${remainingQuantity} quantity that couldn't be placed in any bin.`)
+                                break;
+                            }
+
+
+                            if (remainingQuantity > 0) {
+                                console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 2`);
+
+                                const warehouse_data2 = await warehouse.aggregate([
+                                    {
+                                        $match: {
+                                            name: warehouse_name,
+                                            isStaging: "true"
+                                        }
+                                    },
+                                    
+                                ]);
+
+                                // console.log(i_data, warehouse_data2[0].room)
+                                // console.log(element3.product_name)
+                                dataFix[i_data] = {}
+                                dataFix[i_data].product_name = element3.product_name;
+                                dataFix[i_data].product_code = element3.product_code;
+                                dataFix[i_data].product_id = element3.product_id;
+                                dataFix[i_data].date_recieved = element3.date_recieved;
+                                dataFix[i_data].sales_category = element3.sales_category;
+                                dataFix[i_data].uuid = element3.uuid;
+                                dataFix[i_data].quantity = remainingQuantity;
+                                dataFix[i_data].standard_unit = element3.standard_unit;
+                                dataFix[i_data].secondary_unit = element3.secondary_unit;
+                                dataFix[i_data].primary_code = element3.primary_code;
+                                dataFix[i_data].secondary_code = element3.secondary_code;
+                                dataFix[i_data].maxStocks = element3.maxStocks;
+                                dataFix[i_data].batch_code = element3.batch_code;
+                                dataFix[i_data].expiry_date = element3.expiry_date;
+                                dataFix[i_data].production_date = element3.production_date;
+                                dataFix[i_data].maxperunit = element3.maxperunit;
+                                dataFix[i_data].product_cat = element3.product_cat;
+                                dataFix[i_data].invoice = element3.invoice;
+                                dataFix[i_data].gross_price = element3.gross_price;
+                                dataFix[i_data].room_name = warehouse_data2[0].room;
+                                dataFix[i_data].level = "STAGING"
+                                dataFix[i_data].bay = "1"
+
+
+                                req.flash('errors', `The Other ${remainingQuantity} quantity that could be place in Staging Area`)
+                                break;
+                            }
+        
                             
+                        }else{
+                            console.log(element2.product_code + " <> " + element2.bay + " <> " + element2.bin + " <> " + remainingQuantity)
                             for (let i = 0; i <= element.product_data.length -1  && remainingQuantity > 0; i++) {
                                 const bin = element.product_data[i];
                                 
@@ -1429,17 +1532,15 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                             }
                             // console.log(dataFix)
                             if (remainingQuantity <= 0) {
+                                console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin.`);
                                 break;
                             }
 
 
                             if (remainingQuantity > 0) {
                                 console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin.`);
+                                req.flash('errors', `The Other ${remainingQuantity} quantity that couldn't be placed in any bin.`)
                             }
-        
-                            
-                        }else{
-                            console.log(element2.product_code + " <> " + element2.bay + " <> " + element2.bin)
                         }
                     }
                 }
