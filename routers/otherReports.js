@@ -5274,7 +5274,6 @@ async function agentsdataDSICheck_DSRR(from, staff_id, isExcel, number_data){
         }
     ]);
 
-   
     // const sales_sa_data = await sales_sa.aggregate([
     //     {
     //         $match: {
@@ -5997,7 +5996,7 @@ pages.forEach((page, pageIndex) => {
     if (pageIndex > 0) {
         htmlContent += `<div style="page-break-before: always;"></div>`;
     }
-    // htmlContent += `<h1>JENNY JOY AMBRE</h1>`;
+
     htmlContent += `<table>`;
     htmlContent += `<thead>`;
     const dateUSed = new Date(from);
@@ -6209,12 +6208,6 @@ pages.forEach((page, pageIndex) => {
      
     }
 
-
-    
-//    console.log(totalsS)
-
-
-    
     htmlContent += `<tr>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: center;"><b></b></td>`;
     htmlContent += `<td class="row_data" style="border: 1px solid black; text-align: left;"><b>SALES TODAY</b></td>`;
@@ -6517,7 +6510,7 @@ async function generateReferenceNumber(date, staff_id, role_data) {
   
     return refData;
     // console.log(prefix)
-  }
+}
 router.post('/dsrr/pdf', auth, async (req, res) => {
 
     const {from_date, dataview} = req.body
@@ -7347,7 +7340,7 @@ router.get("/dsrr_admin/view", auth, async (req, res) => {
 			staff_data_all: all_stff
         })
     } catch (error) {
-        
+
     }
 })
 
@@ -7557,7 +7550,7 @@ router.post('/dsrr_admin/pdf_admin', auth, async (req, res) => {
             color: black;
         }
         @media print {
-           table { page-break-inside: auto; }
+            table { page-break-inside: auto; }
             tr { page-break-inside: avoid; page-break-after: auto; }
             th { page-break-inside: avoid; page-break-after: auto; }
         }
@@ -7574,11 +7567,8 @@ router.post('/dsrr_admin/pdf_admin', auth, async (req, res) => {
                 overflow-x: auto;
             }
         }
-
-        
-            
     </style>
-`;
+    `;
 
     
     var from_string_date = new Date(from_date);
@@ -7634,7 +7624,7 @@ router.post('/dsrr_admin/pdf_admin', auth, async (req, res) => {
         zoomFactor: '1', // Ensure the same zoom level
         childProcessOptions: {
             env: {
-              OPENSSL_CONF: '/dev/null',
+                OPENSSL_CONF: '/dev/null',
             },
         } // Ensure the same zoom level
     };

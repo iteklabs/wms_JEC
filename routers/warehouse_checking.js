@@ -179,6 +179,117 @@ router.post("/confirm_data", auth, async (req, res) => {
 })
 
 
+router.post("/cancel_data", auth, async (req, res) => {
+    try {
+        const { id_data } = req.body
+        const data_warehouse = await warehouse_temporary.find({ _id: id_data});
+        // const warehouse_data = await warehouse.findOne({ name: data_warehouse.warehouse, room: data_warehouse.room_name });
+        // console.log(warehouse_data.product_details.length)   
+        // var keyCount  = JSON.parse(data_warehouse).length;
+        for (let index = 0; index <= data_warehouse.length - 1; index++) {
+            const element = data_warehouse[index];
+           
+            var x = 0;
+            
+            if(element.data_type == "inc"){
+                var warehouse_data = await warehouse.findOne({ name: element.warehouse, room: element.room_name });
+                const match_data = warehouse_data.product_details.map((data) => {
+                    if (data.product_name == element.product_name && 
+                        data.primary_code == element.primary_code && 
+                        data.secondary_code == element.secondary_code && 
+                        data.product_code == element.product_code && 
+                        data.bay == element.bay && 
+                        data.level == element.level && 
+                        data.date_recieved == element.date_recieved
+                        ) {
+                        data.product_stock = parseInt(data.product_stock) + parseInt(element.product_stock)
+                        x++
+                    }
+
+                })
+
+
+                if (x == "0") {
+                    warehouse_data.product_details = warehouse_data.product_details.concat({ 
+                        product_name: element.product_name, 
+                        product_stock: element.product_stock, 
+                        primary_code: element.primary_code, 
+                        secondary_code: element.secondary_code, 
+                        product_code: element.product_code,
+                        bay: element.bay,  
+                        level: element.level, 
+                        maxProducts: element.maxStocks, 
+                        unit: element.unit, 
+                        secondary_unit: element.secondary_unit, 
+                        maxPerUnit: element.maxperunit,
+                        alertQTY: element.alertQTY,
+                        production_date: element.production_date,
+                        expiry_date: element.expiry_date, 
+                        batch_code: element.batch_code,
+                        invoice: element.invoice,
+                        product_cat: element.product_cat,
+                        uuid: element.uuid,
+                        gross_price: element.gross_price,
+                        date_recieved: element.date_recieved,
+                        isAvailable: "true",
+                        isUsed: "false",
+                        warehouse_id_temp_inc: element._id
+
+                    })
+                }
+                // console.log(warehouse_data)
+                data_warehouse[index].isConfirm = "true"
+
+                await data_warehouse[index].save();
+                await warehouse_data.save();
+            }else if(element.data_type == "out"){
+
+                var warehouse_data = await warehouse.findOne({ name: element.warehouse, room: element.room_name });
+
+                const match_data = warehouse_data.product_details.map((data) => {
+                    if (data.product_name == element.product_name && 
+                        data.primary_code == element.primary_code && 
+                        data.secondary_code == element.secondary_code && 
+                        data.product_code == element.product_code && 
+                        data._id == element.warehouse_id_detl
+                        ) {
+                        // data.product_stock = parseInt(data.product_stock) - parseInt(element.product_stock)
+
+                        // if(data.product_stock == 0){
+                            data.isAvailable = "true"
+                            data_warehouse[index].isAvailable = "cancel"
+                            data_warehouse[index].isUsed = "true"
+                        // }else{
+                        //     data_warehouse[index].isUsed = "false"
+                        // }
+                            data.isUsed = "false"
+                        // console.log(data.product_stock)
+                        // data.isUsed = "false"
+                        x++
+                    }
+
+                })
+
+                data_warehouse[index].isConfirm = "true"
+                
+                
+
+                await data_warehouse[index].save();
+                await warehouse_data.save();
+                
+            }
+            
+        }
+
+        
+        // console.log(data_warehouse)
+        res.json({ data_main: data_warehouse, data_warehouse: warehouse_data})
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+
 
 
 
