@@ -1484,6 +1484,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                             
                         }else{
                             console.log(element2.product_code + " <> " + element2.bay + " <> " + element2.bin + " <> " + remainingQuantity)
+                            let i_data =0;
                             for (let i = 0; i <= element.product_data.length -1  && remainingQuantity > 0; i++) {
                                 const bin = element.product_data[i];
                                 
@@ -1527,6 +1528,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                                     if (remainingQuantity <= 0) {
                                         break;
                                     }
+                                    i_data++;
                                 }
                                 
                             }
@@ -1538,7 +1540,41 @@ router.post("/view/add_purchases", auth, async (req, res) => {
 
 
                             if (remainingQuantity > 0) {
-                                console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin.`);
+                                const warehouse_data2 = await warehouse.aggregate([
+                                    {
+                                        $match: {
+                                            name: warehouse_name,
+                                            isStaging: "true"
+                                        }
+                                    },
+                                    
+                                ]);
+
+                                // console.log(i_data, warehouse_data2[0].room)
+                                // console.log(element3.product_name)
+                                dataFix[i_data] = {}
+                                dataFix[i_data].product_name = element3.product_name;
+                                dataFix[i_data].product_code = element3.product_code;
+                                dataFix[i_data].product_id = element3.product_id;
+                                dataFix[i_data].date_recieved = element3.date_recieved;
+                                dataFix[i_data].sales_category = element3.sales_category;
+                                dataFix[i_data].uuid = element3.uuid;
+                                dataFix[i_data].quantity = remainingQuantity;
+                                dataFix[i_data].standard_unit = element3.standard_unit;
+                                dataFix[i_data].secondary_unit = element3.secondary_unit;
+                                dataFix[i_data].primary_code = element3.primary_code;
+                                dataFix[i_data].secondary_code = element3.secondary_code;
+                                dataFix[i_data].maxStocks = element3.maxStocks;
+                                dataFix[i_data].batch_code = element3.batch_code;
+                                dataFix[i_data].expiry_date = element3.expiry_date;
+                                dataFix[i_data].production_date = element3.production_date;
+                                dataFix[i_data].maxperunit = element3.maxperunit;
+                                dataFix[i_data].product_cat = element3.product_cat;
+                                dataFix[i_data].invoice = element3.invoice;
+                                dataFix[i_data].gross_price = element3.gross_price;
+                                dataFix[i_data].room_name = warehouse_data2[0].room;
+                                dataFix[i_data].level = "STAGING"
+                                dataFix[i_data].bay = "1"
                                 req.flash('errors', `The Other ${remainingQuantity} quantity that couldn't be placed in any bin.`)
                             }
                         }
