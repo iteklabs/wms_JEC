@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+
+    <style>
+        body {font-family: Arial, Helvetica, sans-serif;}
+        
+        /* The Modal (background) */
+        .modal {
+          display: none; /* Hidden by default */
+          position: fixed; /* Stay in place */
+          z-index: 3; /* Sit on top */
+          padding-top: 100px; /* Location of the box */
+          left: 0;
+          top: 0;
+          width: 100%; /* Full width */
+          height: 100%; /* Full height */
+          overflow: auto; /* Enable scroll if needed */
+          background-color: rgb(0,0,0); /* Fallback color */
+          background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+        }
+        
+        /* Modal Content */
+        .modal-content {
+          position: relative;
+          background-color: #fefefe;
+          margin: auto;
+          padding: 0;
+          border: 1px solid #888;
+          width: 50%;
+          box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+          -webkit-animation-name: animatetop;
+          -webkit-animation-duration: 0.4s;
+          animation-name: animatetop;
+          animation-duration: 0.4s
+        }
+        
+        /* Add Animation */
+        @-webkit-keyframes animatetop {
+          from {top:-300px; opacity:0} 
+          to {top:0; opacity:1}
+        }
+        
+        @keyframes animatetop {
+          from {top:-300px; opacity:0}
+          to {top:0; opacity:1}
+        }
+        
+        /* The Close Button */
+        .close {
+          color: white;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+        }
+        
+        .close:hover,
+        .close:focus {
+          color: #000;
+          text-decoration: none;
+          cursor: pointer;
+        }
+        
+        .modal-header {
+          padding: 2px 16px;
+          background-color: rgba(34, 34, 51, 0.705);
+          color: white;
+        }
+        
+        .modal-body {padding: 2px 16px;}
+        
+        .modal-footer {
+          padding: 2px 16px;
+          background-color: rgba(34, 34, 51, 0.705);
+          color: white;
+          display: flex;
+          justify-content: center;
+          display: grid;
+            place-items: center;
+        }
+
+
+        @media
+        only screen 
+        and (max-width: 760px), (min-device-width: 768px) 
+        and (max-device-width: 1024px)  {
+
+            /* Force table to not be like tables anymore */
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            /* Hide table headers (but not display: none;, for accessibility) */
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tr {
+                margin: 0 0 0 0;
+                font-weight: bold;
+
+            }
+
+        /* tr {
+            background: #333a54;
+        } */
+    
+            td {
+                /* Behave  like a "row" */
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+            }
+
+            td:before {
+                /* Now like a table header */
+                position: bottom;
+                /* Top/left values mimic padding */
+                top: 0;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: wrap;
+                font-weight: normal;
+            }
+
+            /* td:nth-of-type(1):before { content: "Number : "; } */
+            td:nth-of-type(1):before { content: "Item Code : "; }
+            td:nth-of-type(2):before { content: "Item Description : "; }
+            td:nth-of-type(3):before { content: "Primary Barcode : "; }
+            td:nth-of-type(4):before { content: "Batch Code : "; }
+            td:nth-of-type(5):before { content: "Production date : "; }
+            td:nth-of-type(6):before { content: "Expiry date : "; }
+            td:nth-of-type(7):before { content: "Quantity * : "; }
+            td:nth-of-type(8):before { content: "Unit of Measure : "; }
+            td:nth-of-type(9):before { content: "Conversion : "; }
+            td:nth-of-type(10):before { content: "Action"; }
+        }
+    </style>
+
+</head>
+
+<body>
+    <!--*******************
+        Preloader start
+    ********************-->
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <!--*******************
+        Preloader end
+    ********************-->
+
+    <!--**********************************
+        Main wrapper start
+    ***********************************-->
+    <div id="main-wrapper">
+
+        <!--**********************************
+            Nav header start
+        ***********************************-->
+        <%- include('./partials/header_logo'); -%>
+
+            <!--**********************************
+            Nav header end
+        ***********************************-->
+
+            <!--**********************************
+            Header start
+        ***********************************-->
+            <%- include('./partials/header',{titel: " Bin Validation Setup"}); -%>
+
+                <!--**********************************
+            Header end ti-comment-alt
+        ***********************************-->
+
+                <!--**********************************
+            Sidebar start
+        ***********************************-->
+                <%- include('./partials/sidebar'); -%>
+
+                    <!--**********************************
+            Sidebar end
+        ***********************************-->
+
+                    <!--**********************************
+            Content body start
+        ***********************************-->
+                    <div class="content-body">
+                        <div class="container-fluid">
+
+                            <!-- row -->
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Add Bin Validation</h4>
+                                            <button type="button" class="btn btn-rounded btn-outline-info"
+                                                onclick="history.back()"><i class="la la-undo"></i> <%= language.go_back %> </button>
+                                        </div>
+                                        <div class="card-body" style="display: block;" >
+                                            <div class="form-validation">
+
+                                                <form class="needs-validation" action="/master_shop/view_data/edit/<%= data._id %>" method="post" id="form">
+
+                                                    <div class="row">
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label class="form-label">Warehouse</label>
+                                                                <select class="form-control" id="warehouse_name_edit" name="warehouse_name_edit" disabled="true">
+                                                                    <option>please select</option>
+                                                                    <% warehouse.forEach(element => { %>
+                                                                        
+                                                                        <option value="<%= element.name %>" <%=element.name==data.warehouse_name ? "selected" : "" %>><%= element.name %></option>
+                                                                    <% }) %>
+                                                                </select>
+                                                                <input type="hidden" name="warehouse_name" id="warehouse_name" value="<%= data.warehouse_name %>">
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-xl-3 col-sm-6">
+                                                            <div class="form-group">
+                                                                <label for="invoice_no"> Level <span
+                                                                        class="text-red"> *</span></label>
+                                                            <select class="form-control" id="room_name_edit" name="room_name_edit" disabled="true">
+                                                                <option><span class="text-red"> Please select warehouse first</span></option>
+                                                            </select>
+                                                            <input type="hidden" name="hidden_data_room" id="hidden_data_room" value="<%= data.room+"~"+data.warehouse_id %>">
+                                                            <input type="hidden" name="room_name" id="room_name" value="<%= data.room+"~"+data.warehouse_id %>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                        
+
+                                                    <div class="row">
+                                                        <div class="col-xl-3 col-sm-6">
+                                                                <label class="form-label">Select Products</label>
+                                                                <select class="form-control" name="the_product" id="the_product_id">
+                                                                    <option>select</option>
+
+                                                                </select>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-xl-12">
+                                                        <div class="table-responsive">
+                                                            <table class="table primary-table-bordered" id="purchases_tbl_new">
+                                                                <thead class="thead-primary text-center">
+                                                                    <tr>
+                                                                        <th scope="col">Item Code </th>
+                                                                        <th scope="col">Item Description </th>
+                                                                        <th scope="col">Location </th>
+                                                                        <th scope="col">Min</th>
+                                                                        <th scope="col">Max</th>
+                                                                        <th scope="col">Action</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="tblPage_new">
+                                                                    <% let inc = 0; %>
+                                                                    <% for( let index = 0; index <= data.product_data.length-1; index++ ) { %>
+                                                                        <% var element = data.product_data[index] %>
+                                                                        <tr>
+                                                                            <td><input type="text" class="form-control" name="prod_code" value="<%= element.product_code %>" readonly></td>
+                                                                            <td><input type="text" class="form-control" name="prod_name" value="<%= element.product_name %>" readonly></td>
+                                                                            <td><select class="form-control" name="bay" id="bay<%= index %>"></select></td>
+                                                                            <td><input type="number" class="form-control" name="min_data" value="<%= element.min %>"></td>
+                                                                            <td><input type="number" class="form-control" name="max_data" value="<%= element.max %>"></td>
+                                                                            <td><button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button></td>
+                                                                            <input type="hidden" name="bay_data" id="bay_data<%= index %>" value="<%= element.bay %>">
+                                                                            <input type="hidden" name="bin_data" id="bin_data<%= index %>" value="<%= element.bin %>">
+                                                                            <input type="hidden" name="product_id" id="product_id" value="<%= element.product_id %>">
+                                                                            <input type="hidden" name="product_data_id" id="product_data_id" value="<%= element._id %>">
+                                                                        </tr>
+                                                                        <% inc++; %>
+                                                                    <% } %>
+                                                                    <input type="hidden" name="lsat_inc" id="lsat_inc" value="<%= inc %>">
+                                                                
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <button class="btn btn-primary" type="submit" id="purchase_submit"  ><%= language.submit %> </button>
+                                                    </div>
+                                                </form>
+
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!--**********************************
+            Content body end
+        ***********************************-->
+
+                    <!--**********************************
+            Footer start
+        ***********************************-->
+                    <%- include('./partials/footer'); -%>
+
+                        <!--**********************************
+            Footer end
+        ***********************************-->
+
+    </div>
+    <!--**********************************
+        Main wrapper end
+    ***********************************-->
+
+    <!-- start Toastr -->
+    <%- include('./partials/toastr'); -%>
+        <!-- End Toastr -->
+
+        <!--**********************************
+        Scripts
+    ***********************************-->
+
+       
+        <%- include('./partials/script'); -%>
+
+            <!--**********************************
+        Scripts end
+    ***********************************-->
+
+    <script>
+        function warehouse_select_room(){
+            const warehouse_data = $("#warehouse_name").val();
+
+            $.ajax({
+                type: "POST",
+                url: "/master_shop/room_edit",
+                data: { warehouse_name: warehouse_data},
+                success: function (response) {
+
+                    var room_val = document.getElementById("hidden_data_room").value;
+                    // console.log(room_val)
+                    let stroptions = '';
+                    stroptions += '<option> please select </option>';
+                    for (let index = 0; index <= response.length-1; index++) {
+                        const element = response[index];
+                        // console.log(element.room_name+"~"+element._id + " <> " + room_val)
+                        if(element.room_name+"~"+element._id == room_val){
+                            stroptions += '<option value ="'+element.room_name+"~"+element._id+'" selected>';
+                            stroptions += element.room_name;
+                            stroptions += '</option>';
+                        }else{
+                            stroptions += '<option value ="'+element.room_name+"~"+element._id+'">';
+                            stroptions += element.room_name;
+                            stroptions += '</option>';
+                        }
+                        
+                        // console.log(element)
+                    }
+                    document.getElementById("room_name_edit").innerHTML = stroptions;
+                },
+                error: function (error){
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Error",
+                        icon: "error"
+                    });
+                }
+            });
+        }
+        function BayBin(x){
+                const selectlevel= document.getElementById('bay'+x);
+                var warehouse = document.getElementById("warehouse_name").value;
+                var room_data = document.getElementById("room_name").value;
+                var seperate = room_data.split("~")
+                var room = seperate[0];
+                // console.log(room)
+                var levels = [];
+                let outputArray = [];
+                
+                if(warehouse == "TAGUIG"){
+                    
+                    switch(room){
+                        case "1":
+                        levels = [
+                            {
+                                "start": 1,
+                                "end": 16,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 17,
+                                "end": 38,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 39,
+                                "end": 60,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 61,
+                                "end": 76,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 77,
+                                "end": 92,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 93,
+                                "end": 108,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 109,
+                                "end": 124,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 125,
+                                "end": 150,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 151,
+                                "end": 176,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 177,
+                                "end": 202,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "2":
+                        levels = [
+                            {
+                                "start": 203,
+                                "end": 226,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 227,
+                                "end": 250,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 251,
+                                "end": 266,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 267,
+                                "end": 282,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 283,
+                                "end": 298,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 299,
+                                "end": 314,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 315,
+                                "end": 340,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 341,
+                                "end": 366,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 367,
+                                "end": 392,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+
+                        case "3":
+                        levels = [
+                            {
+                                "start": 393,
+                                "end": 416,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 417,
+                                "end": 440,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 441,
+                                "end": 458,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 459,
+                                "end": 476,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 477,
+                                "end": 494,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 495,
+                                "end": 512,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 513,
+                                "end": 538,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 539,
+                                "end": 563,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 564,
+                                "end": 589,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "3":
+                        levels = [
+                            {
+                                "start": 393,
+                                "end": 416,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 417,
+                                "end": 440,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 441,
+                                "end": 458,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 459,
+                                "end": 476,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 477,
+                                "end": 494,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 495,
+                                "end": 512,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 513,
+                                "end": 538,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 539,
+                                "end": 563,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 564,
+                                "end": 589,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "4":
+                        levels = [
+                            {
+                                "start": 590,
+                                "end": 607,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 608,
+                                "end": 625,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 626,
+                                "end": 643,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 644,
+                                "end": 661,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 662,
+                                "end": 689,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 690,
+                                "end": 716,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 717,
+                                "end": 744,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "5":
+                        levels = [
+                            {
+                                "start": 745,
+                                "end": 762,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 763,
+                                "end": 780,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 781,
+                                "end": 798,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 799,
+                                "end": 816,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 817,
+                                "end": 844,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 845,
+                                "end": 871,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 872,
+                                "end": 899,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "6":
+                        levels = [
+                            {
+                                "start": 899,
+                                "end": 926,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 927,
+                                "end": 953,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 954,
+                                "end": 981,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "AISLE":
+                        levels = [
+                            {
+                                "start": 1,
+                                "end": 16,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 17,
+                                "end": 32,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 39,
+                                "end": 60,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 61,
+                                "end": 76,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 77,
+                                "end": 92,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 93,
+                                "end": 108,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 109,
+                                "end": 124,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 135,
+                                "end": 150,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 151,
+                                "end": 176,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 177,
+                                "end": 202,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                        
+                        ];
+                        break;
+                    }
+                    let optionsHtml = "";
+                        levels.forEach((data, index) => {
+                            for(let x = data.start; x <= data.end; x++){
+                                optionsHtml += '<option value="'+data.letter+ x + '">'+data.letter+ x + '</option>';
+                            }
+                        });
+                    selectlevel.innerHTML = optionsHtml
+                }
+        }
+
+        function removeSelfRow(event) {
+            var row = $(event.target).closest('tr');
+            row.remove();
+        }
+        $(document).on('click', 'button#remove', function(event) {
+            removeSelfRow(event);
+        });
+
+        $(document).on('change', '#warehouse_name', function(event) {
+            const warehouse_data = $(this).val();
+
+            $.ajax({
+                type: "POST",
+                url: "/master_shop/room_edit",
+                data: { warehouse_name: warehouse_data},
+                success: function (response) {
+
+                    var room_val = document.getElementById("hidden_data_room").value;
+                    // console.log(room_val)
+                    let stroptions = '';
+                    stroptions += '<option> please select </option>';
+                    for (let index = 0; index <= response.length-1; index++) {
+                        const element = response[index];
+                        // console.log(element.room_name+"~"+element._id + " <> " + room_val)
+                        if(element.room_name+"~"+element._id == room_val){
+                            stroptions += '<option value ="'+element.room_name+"~"+element._id+'" selected>';
+                            stroptions += element.room_name;
+                            stroptions += '</option>';
+                        }else{
+                            stroptions += '<option value ="'+element.room_name+"~"+element._id+'">';
+                            stroptions += element.room_name;
+                            stroptions += '</option>';
+                        }
+                        
+                        // console.log(element)
+                    }
+                    document.getElementById("room_name").innerHTML = stroptions;
+                },
+                error: function (error){
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Error",
+                        icon: "error"
+                    });
+                }
+            });
+            
+        });
+
+   
+        var lastin = document.getElementById("lsat_inc");
+        var lastIncre = lastin.value
+        $(document).on('change', '#the_product_id', function(event) {
+            var selectedValue = $(this).val();
+
+            Swal.fire({
+                title: "Loading...",
+                html: "Please wait a moment",
+                allowOutsideClick: false, 
+            })
+            Swal.showLoading()
+            ;
+            console.log(lastIncre)
+            $.ajax({
+                type: "POST",
+                url: "/master_shop/get_product",
+                data: { product_id: selectedValue},
+                success: function (response) {
+                    // console.log(response)
+                    var row = $('<tr>');
+                    row.append($('<td>').html('<input type="text" class="form-control" name="prod_code" value="' + response.product_code + '" readonly>'));
+                    row.append($('<td>').html('<input type="text" class="form-control" name="prod_name" value="' + response.name + '" readonly>'));
+                    row.append($('<td>').html('<select class="form-control" name="bay" id="bay'+lastIncre+'"></select>'));
+                    row.append($('<td>').html('<input type="number" class="form-control" name="min_data" value="0">'));
+                    row.append($('<td>').html('<input type="number" class="form-control" name="max_data" value="0">'));
+                    row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: 'product_id',
+                        name: 'product_id',
+                        value: response._id
+                    }).appendTo(row);
+
+                    
+                    $('#tblPage_new').append(row);
+                    BayBin(lastIncre);
+                    lastIncre++;
+                },
+                error: function (error){
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Error",
+                        icon: "error"
+                    });
+                }
+            });
+        
+
+
+            setTimeout(() => {
+                const firstOption = this.options[0];
+                firstOption.selected = true;
+                Swal.close();
+            }, 500);
+            
+
+        })
+
+
+        function location_selected(){
+            const selectlevel= document.getElementsByName('bay');
+            var warehouse = document.getElementById("warehouse_name").value;
+            var room_data = document.getElementById("room_name").value;
+            var seperate = room_data.split("~")
+            var room = seperate[0];
+
+            console.log(selectlevel.length)
+
+
+            var levels = [];
+                let outputArray = [];
+                
+                if(warehouse == "TAGUIG"){
+                    
+                    switch(room){
+                        case "1":
+                        levels = [
+                            {
+                                "start": 1,
+                                "end": 16,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 17,
+                                "end": 38,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 39,
+                                "end": 60,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 61,
+                                "end": 76,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 77,
+                                "end": 92,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 93,
+                                "end": 108,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 109,
+                                "end": 124,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 125,
+                                "end": 150,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 151,
+                                "end": 176,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 177,
+                                "end": 202,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "2":
+                        levels = [
+                            {
+                                "start": 203,
+                                "end": 226,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 227,
+                                "end": 250,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 251,
+                                "end": 266,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 267,
+                                "end": 282,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 283,
+                                "end": 298,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 299,
+                                "end": 314,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 315,
+                                "end": 340,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 341,
+                                "end": 366,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 367,
+                                "end": 392,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+
+                        case "3":
+                        levels = [
+                            {
+                                "start": 393,
+                                "end": 416,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 417,
+                                "end": 440,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 441,
+                                "end": 458,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 459,
+                                "end": 476,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 477,
+                                "end": 494,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 495,
+                                "end": 512,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 513,
+                                "end": 538,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 539,
+                                "end": 563,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 564,
+                                "end": 589,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "3":
+                        levels = [
+                            {
+                                "start": 393,
+                                "end": 416,
+                                "row": 1,
+                                "letter": "B"
+                            },
+                            {
+                                "start": 417,
+                                "end": 440,
+                                "row": 1,
+                                "letter": "C"
+                            },
+                            {
+                                "start": 441,
+                                "end": 458,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 459,
+                                "end": 476,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 477,
+                                "end": 494,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 495,
+                                "end": 512,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 513,
+                                "end": 538,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 539,
+                                "end": 563,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 564,
+                                "end": 589,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "4":
+                        levels = [
+                            {
+                                "start": 590,
+                                "end": 607,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 608,
+                                "end": 625,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 626,
+                                "end": 643,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 644,
+                                "end": 661,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 662,
+                                "end": 689,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 690,
+                                "end": 716,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 717,
+                                "end": 744,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "5":
+                        levels = [
+                            {
+                                "start": 745,
+                                "end": 762,
+                                "row": 1,
+                                "letter": "D"
+                            },
+                            {
+                                "start": 763,
+                                "end": 780,
+                                "row": 1,
+                                "letter": "E"
+                            },
+                            {
+                                "start": 781,
+                                "end": 798,
+                                "row": 1,
+                                "letter": "F"
+                            },
+                            {
+                                "start": 799,
+                                "end": 816,
+                                "row": 1,
+                                "letter": "G"
+                            },
+                            {
+                                "start": 817,
+                                "end": 844,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 845,
+                                "end": 871,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 872,
+                                "end": 899,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "6":
+                        levels = [
+                            {
+                                "start": 899,
+                                "end": 926,
+                                "row": 1,
+                                "letter": "H"
+                            },
+                            {
+                                "start": 927,
+                                "end": 953,
+                                "row": 1,
+                                "letter": "I"
+                            },
+                            {
+                                "start": 954,
+                                "end": 981,
+                                "row": 1,
+                                "letter": "J"
+                            }
+                        ];
+                        break;
+
+                        case "AISLE":
+                        levels = [
+                            {
+                                "start": 1,
+                                "end": 16,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 17,
+                                "end": 32,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 39,
+                                "end": 60,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 61,
+                                "end": 76,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 77,
+                                "end": 92,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 93,
+                                "end": 108,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 109,
+                                "end": 124,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 135,
+                                "end": 150,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 151,
+                                "end": 176,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                            {
+                                "start": 177,
+                                "end": 202,
+                                "row": 1,
+                                "letter": "A"
+                            },
+                        
+                        ];
+                        break;
+                    }
+
+
+                    for (let index = 0; index <= selectlevel.length-1; index++) {
+                        // const element = selectlevel[index];
+                        var bay_data = document.getElementById("bay_data"+index).value
+                        var bin_data = document.getElementById("bin_data"+index).value
+
+                        // console.log(bay_data+bin_data);
+                        let optionsHtml = "";
+                        levels.forEach((data, index) => {
+                            for(let x = data.start; x <= data.end; x++){
+                                if(data.letter+ x == bay_data+bin_data){
+                                    optionsHtml += '<option value="'+data.letter+ x + '" selected>'+data.letter+ x + '</option>';
+                                }else{
+                                    optionsHtml += '<option value="'+data.letter+ x + '">'+data.letter+ x + '</option>';
+                                }
+                                
+                            }
+                        });
+
+                        selectlevel[index].innerHTML = optionsHtml
+                        
+                    }
+                    
+                    
+                }
+
+
+
+        }
+
+
+        $(document).ready(function() {
+            $.ajax({
+                type: "POST",
+                url: "/master_shop/product_list",
+                data: "",
+                success: function (response) {
+                    
+                    let stroptions = '';
+
+                    stroptions += '<option> please select </option>';
+                    for (let index = 0; index <= response.length-1; index++) {
+                        const element = response[index];
+                        stroptions += '<option value ="'+element._id+'">';
+                        stroptions += element.name;
+                        stroptions += '</option>';
+                        // console.log(element)
+                        
+                    }
+                    document.getElementById("the_product_id").innerHTML = stroptions;
+                    
+                },
+                error: function (error){
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Error",
+                        icon: "error"
+                    });
+                }
+            });
+
+
+            warehouse_select_room();
+            location_selected();
+        })
+
+
+    </script>
+</body>
+
+</html>

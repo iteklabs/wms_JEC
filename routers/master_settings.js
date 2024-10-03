@@ -2,11 +2,11 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 const multer  = require('multer');
-const { profile, master_shop, email_settings, supervisor_settings, discount_volume_db } = require("../models/all_models");
+const { profile, master_shop, email_settings, supervisor_settings, discount_volume_db, warehouse_validation_setup, warehouse, product } = require("../models/all_models");
 const auth = require("../middleware/auth");
 var timezones = require('timezones-list');
 const users = require("../public/language/languages.json");
-
+const mongoose = require("mongoose");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -419,5 +419,456 @@ router.post("/view_data/edit_volume_set", auth, async (req, res) => {
         
     }
 })
+
+
+router.get("/view_data/warehouse_valid", auth, async (req, res) => {
+    try {
+
+        const role_data = req.user
+        const supervisor_data = await supervisor_settings.find()
+        const profile_data = await profile.findOne({email : role_data.email})
+        const master = await master_shop.find();
+        const warehouse_validation = await warehouse_validation_setup.find();
+        // res.json(warehouse_validation);
+        // return
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("setup_warehouse_bin", {
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            role : role_data,
+            profile : profile_data,
+            master_shop : master,
+            supervisor_data: supervisor_data[0],
+            language : lan_data,
+            data: warehouse_validation
+        })
+
+    } catch (error) {
+        
+    }
+});
+
+router.get("/view_data/warehouse_valid/add", auth, async (req, res) => {
+    try {
+
+        const role_data = req.user
+        const supervisor_data = await supervisor_settings.find()
+        const profile_data = await profile.findOne({email : role_data.email})
+        const master = await master_shop.find();
+        const warehouse_validation = await warehouse_validation_setup.find();
+
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $match: { 
+                    "status" : 'Enabled',
+                }
+            },
+            {
+                $group: {
+                    _id: "$name",
+                    name: { $first: "$name"}
+                }
+            },
+            {
+                $sort:{
+                    name: 1
+                }
+            }
+        ])
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+
+        res.render("setup_warehouse_bin_add", {
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            role : role_data,
+            profile : profile_data,
+            master_shop : master,
+            supervisor_data: supervisor_data[0],
+            language : lan_data,
+            data: warehouse_validation,
+            warehouse: warehouse_data
+        })
+
+    } catch (error) {
+        
+    }
+});
+
+
+
+router.post("/view_data/warehouse_valid/add", auth, async (req, res) => {
+    try {
+        const { warehouse_name, room_name, prod_code} = req.body
+        var the_data = room_name.split("~");
+        var room = the_data[0];
+        var warehouse_id = the_data[1];
+
+        if(typeof prod_code == "string"){
+            var prod_code_array = [req.body.prod_code];
+            var prod_name_array = [req.body.prod_name];
+            var bay_array = [req.body.bay];
+            var min_data_array = [req.body.min_data];
+            var max_data_array = [req.body.max_data];
+            var product_id_array = [req.body.product_id];
+        }else{
+            var prod_name_array = [...req.body.prod_name];
+            var prod_code_array = [...req.body.prod_code];
+            var bay_array = [...req.body.bay];
+            var min_data_array = [...req.body.min_data];
+            var max_data_array = [...req.body.max_data];
+            var product_id_array = [...req.body.product_id];
+        }
+
+
+        const newproduct = prod_code_array.map((value)=>{
+            
+            return  value  = {
+                        product_code : value,
+                    }   
+        });
+        prod_name_array.forEach((value,i) => {
+            newproduct[i].product_name = value
+        });
+
+        bay_array.forEach((value,i) => {
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+
+            newproduct[i].bay = letter
+            newproduct[i].bin = number
+        });
+
+
+        min_data_array.forEach((value,i) => {
+            newproduct[i].min = value
+        });
+
+        max_data_array.forEach((value,i) => {
+            newproduct[i].max = value
+        });
+
+
+        product_id_array.forEach((value,i) => {
+            newproduct[i].product_id = value
+        });
+        // res.json(newproduct)
+
+
+        const data = new warehouse_validation_setup({ warehouse_id: warehouse_id, warehouse_name: warehouse_name, room: room, product_data : newproduct });
+        const purchases_data = await data.save();
+
+        req.flash('success', `Bin validation success`)
+        res.redirect("/master_shop/view_data/edit/"+purchases_data._id)
+    } catch (error) {
+        console.log(error)
+    }
+});
+router.post("/room", auth, async (req, res) => {
+    try {
+        const ObjectId = mongoose.Types.ObjectId;
+        const { warehouse_name } = req.body
+
+        const data_temp = await warehouse_validation_setup.aggregate([
+            {
+                $group: {
+                    _id: "$_id",
+                    warehouse_id: { $first: "$warehouse_id"}
+                }
+            },
+        ]);
+        let array_data = [];
+        for (let index = 0; index <= data_temp.length-1; index++) {
+            const elemetent_data_temp = data_temp[index];
+            // console.log(elemetent_data_temp.warehouse_id)
+            array_data.push(ObjectId(elemetent_data_temp.warehouse_id))
+            
+        }
+        const excludedArray = array_data;
+        // console.log(array_data)
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $match: { 
+                    "name": warehouse_name,
+                    "status" : 'Enabled',
+                    "_id": { $nin: excludedArray }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    room_name: { $first: "$room"}
+                }
+            },
+            {
+                $sort: {
+                  room_name: 1 // 1 for ascending order, -1 for descending order
+                }
+          }
+        ])
+
+        res.json(warehouse_data)
+    } catch (error) {
+        res.json(error)
+    }
+});
+
+
+router.post("/product_list", auth, async (req, res) => {
+    try {
+        const product_data = await product.find();
+        res.json(product_data)
+    } catch (error) {
+        res.json(error)
+    }
+});
+
+
+router.post("/get_product", auth, async (req, res) => {
+    try {
+        const { product_id } = req.body
+
+        const product_data = await product.findById(product_id);
+        res.json(product_data)
+    } catch (error) {
+        res.json(error)
+    }
+});
+
+
+
+
+router.get("/view_data/edit/:id", auth, async (req, res) => {
+    try {
+
+        const role_data = req.user
+        const supervisor_data = await supervisor_settings.find()
+        const profile_data = await profile.findOne({email : role_data.email})
+        const master = await master_shop.find();
+
+        const _id_data = req.params.id
+        const warehouse_validation = await warehouse_validation_setup.findById(_id_data);
+        // res.json(warehouse_validation)
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $match: { 
+                    "status" : 'Enabled',
+                }
+            },
+            {
+                $group: {
+                    _id: "$name",
+                    name: { $first: "$name"}
+                }
+            },
+            {
+                $sort:{
+                    name: 1
+                }
+            }
+        ])
+        if (master[0].language == "English (US)") {
+            var lan_data = users.English
+        } else if(master[0].language == "Hindi") {
+            var lan_data = users.Hindi
+
+        }else if(master[0].language == "German") {
+            var lan_data = users.German
+        
+        }else if(master[0].language == "Spanish") {
+            var lan_data = users.Spanish
+        
+        }else if(master[0].language == "French") {
+            var lan_data = users.French
+        
+        }else if(master[0].language == "Portuguese (BR)") {
+            var lan_data = users.Portuguese
+        
+        }else if(master[0].language == "Chinese") {
+            var lan_data = users.Chinese
+        
+        }else if(master[0].language == "Arabic (ae)") {
+            var lan_data = users.Arabic
+        }
+        // console.log(warehouse_validation)
+        res.render("setup_warehouse_bin_edit", {
+            success: req.flash('success'),
+            errors: req.flash('errors'),
+            role : role_data,
+            profile : profile_data,
+            master_shop : master,
+            supervisor_data: supervisor_data[0],
+            language : lan_data,
+            data: warehouse_validation,
+            warehouse: warehouse_data
+        })
+
+    } catch (error) {
+        
+    }
+});
+
+router.post("/room_edit", auth, async (req, res) => {
+    try {
+        const ObjectId = mongoose.Types.ObjectId;
+        const { warehouse_name } = req.body
+
+        const data_temp = await warehouse_validation_setup.aggregate([
+            {
+                $group: {
+                    _id: "$_id",
+                    warehouse_id: { $first: "$warehouse_id"}
+                }
+            },
+        ]);
+        let array_data = [];
+        for (let index = 0; index <= data_temp.length-1; index++) {
+            const elemetent_data_temp = data_temp[index];
+            // console.log(elemetent_data_temp.warehouse_id)
+            array_data.push(ObjectId(elemetent_data_temp.warehouse_id))
+            
+        }
+        const excludedArray = array_data;
+        // console.log(array_data)
+        const warehouse_data = await warehouse.aggregate([
+            {
+                $match: { 
+                    "name": warehouse_name,
+                    "status" : 'Enabled',
+                    // "_id": { $nin: excludedArray }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    room_name: { $first: "$room"}
+                }
+            },
+            {
+                $sort: {
+                  room_name: 1 // 1 for ascending order, -1 for descending order
+                }
+          }
+        ])
+
+        res.json(warehouse_data)
+    } catch (error) {
+        res.json(error)
+    }
+});
+
+
+router.post("/view_data/edit/:id", auth, async (req, res) => {
+    try {
+        const { prod_code } = req.body
+        const _id_data = req.params.id
+        const warehouse_validation = await warehouse_validation_setup.findById(_id_data);
+
+        if(typeof prod_code == "string"){
+            var prod_code_array = [req.body.prod_code];
+            var prod_name_array = [req.body.prod_name];
+            var bay_array = [req.body.bay];
+            var min_data_array = [req.body.min_data];
+            var max_data_array = [req.body.max_data];
+            var product_id_array = [req.body.product_id];
+        }else{
+            var prod_name_array = [...req.body.prod_name];
+            var prod_code_array = [...req.body.prod_code];
+            var bay_array = [...req.body.bay];
+            var min_data_array = [...req.body.min_data];
+            var max_data_array = [...req.body.max_data];
+            var product_id_array = [...req.body.product_id];
+        }
+
+        const newproduct = prod_code_array.map((value)=>{
+            
+            return  value  = {
+                        product_code : value,
+                    }   
+        });
+        prod_name_array.forEach((value,i) => {
+            newproduct[i].product_name = value
+        });
+
+        bay_array.forEach((value,i) => {
+            var letter = value.match(/[A-Za-z]+/)[0]; // Extracts the letter(s)
+            var number = parseInt(value.match(/\d+/)[0]);
+
+            newproduct[i].bay = letter
+            newproduct[i].bin = number
+        });
+
+
+        min_data_array.forEach((value,i) => {
+            newproduct[i].min = value
+        });
+
+        max_data_array.forEach((value,i) => {
+            newproduct[i].max = value
+        });
+
+
+        product_id_array.forEach((value,i) => {
+            newproduct[i].product_id = value
+        });
+
+        warehouse_validation.product_data = newproduct
+
+
+        const warehouse_valid_data = await warehouse_validation.save()
+
+        
+
+        req.flash('success', `Bin Location Validation update successfully`)
+        res.redirect("/master_shop/view_data/edit/"+warehouse_valid_data._id)
+        // res.json(newproduct)
+    } catch (error) {
+        res.json(error)
+    }
+});
 
 module.exports = router
