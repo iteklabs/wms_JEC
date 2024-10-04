@@ -237,11 +237,14 @@
                                                     <table class="table primary-table-bordered" id="purchases_tbl_new">
                                                         <thead class="thead-primary" style="text-align: center;">
                                                             <tr>
+                                                                <th scope="col">Process </th>
                                                                 <th scope="col">Date </th>
+                                                                <th scope="col">Warehouse</th>
                                                                 <th scope="col">Location</th>
                                                                 <th scope="col">Product </th>
                                                                 <th scope="col">Qty </th>
                                                                 <th scope="col">Confirm By </th>
+                                                                <th scope="col">Status </th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="tblPage_new">
@@ -341,6 +344,7 @@
                             dataString +='<td>'+element.level+element.bay+'</td>';
                             dataString +='<td>'+element.product_name+'</td>';
                             dataString +='<td>'+element.product_stock+'</td>';
+                            
                             dataString +='</tr>';
                             
                             
@@ -351,6 +355,48 @@
             });
             
         }
+
+
+        function show_history(){
+            var data = document.getElementById("tblPage_new");
+            let dataString = '';
+            $.ajax({
+                type: "POST",
+                url: "/warehouse_checker/view_data_all",
+                data: { data_show: "All"},
+                success: function (response) {
+                    if(response.length > 0){
+                        for (let index = 0; index <= response.length - 1; index++) {
+                            const element = response[index];
+                            console.log(element)
+                            var data_type = "Outgoing"
+                            if(element.data_type == "inc"){
+                                data_type = "Incoming"
+                            }
+                            var isAvailable = "Confirmed"
+                            if(element.isAvailable == "cancel"){
+                                isAvailable = "Cancel"
+                            }
+                            dataString +='<tr>';
+                            dataString +='<td>'+data_type+'</td>';
+                            dataString +='<td>'+element.createdDate+'</td>';
+                            dataString +='<td>'+element.warehouse+'</td>';
+                            dataString +='<td>'+element.level+element.bay+'</td>';
+                            dataString +='<td>'+element.product_name+'</td>';
+                            dataString +='<td>'+element.product_stock+'</td>';
+                            dataString +='<td>'+element.confirm_by+'</td>';
+                            dataString +='<td>'+isAvailable+'</td>';
+                            dataString +='</tr>';
+                            
+                            
+                        }
+                    }
+                    data.innerHTML = dataString;   
+                }
+            });
+            
+        }
+
 
         function toggleButton() {
             const buttonData = $('#scan_button');
@@ -604,7 +650,7 @@
             $('#scan_button').click(function () {
                 toggleButton();
             })
-
+            show_history();
 
             show_pending();
         })

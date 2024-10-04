@@ -72,9 +72,11 @@ router.post("/confirm_data", auth, async (req, res) => {
     try {
         const { id_data } = req.body
         const data_warehouse = await warehouse_temporary.find({ _id: id_data});
+        const role_data = req.user
         // const warehouse_data = await warehouse.findOne({ name: data_warehouse.warehouse, room: data_warehouse.room_name });
         // console.log(warehouse_data.product_details.length)   
         // var keyCount  = JSON.parse(data_warehouse).length;
+        const now = new Date();
         for (let index = 0; index <= data_warehouse.length - 1; index++) {
             const element = data_warehouse[index];
            
@@ -128,6 +130,8 @@ router.post("/confirm_data", auth, async (req, res) => {
                 }
                 // console.log(warehouse_data)
                 data_warehouse[index].isConfirm = "true"
+                data_warehouse[index].confirm_by = role_data.email
+                data_warehouse[index].date_time = now
 
                 await data_warehouse[index].save();
                 await warehouse_data.save();
@@ -160,7 +164,8 @@ router.post("/confirm_data", auth, async (req, res) => {
                 })
 
                 data_warehouse[index].isConfirm = "true"
-                
+                data_warehouse[index].confirm_by = role_data.email
+                data_warehouse[index].date_time = now
                 
 
                 await data_warehouse[index].save();
@@ -186,63 +191,14 @@ router.post("/cancel_data", auth, async (req, res) => {
         // const warehouse_data = await warehouse.findOne({ name: data_warehouse.warehouse, room: data_warehouse.room_name });
         // console.log(warehouse_data.product_details.length)   
         // var keyCount  = JSON.parse(data_warehouse).length;
+            const role_data = req.user
+            const now = new Date();
         for (let index = 0; index <= data_warehouse.length - 1; index++) {
             const element = data_warehouse[index];
            
             var x = 0;
             
-            if(element.data_type == "inc"){
-                var warehouse_data = await warehouse.findOne({ name: element.warehouse, room: element.room_name });
-                const match_data = warehouse_data.product_details.map((data) => {
-                    if (data.product_name == element.product_name && 
-                        data.primary_code == element.primary_code && 
-                        data.secondary_code == element.secondary_code && 
-                        data.product_code == element.product_code && 
-                        data.bay == element.bay && 
-                        data.level == element.level && 
-                        data.date_recieved == element.date_recieved
-                        ) {
-                        data.product_stock = parseInt(data.product_stock) + parseInt(element.product_stock)
-                        x++
-                    }
-
-                })
-
-
-                if (x == "0") {
-                    warehouse_data.product_details = warehouse_data.product_details.concat({ 
-                        product_name: element.product_name, 
-                        product_stock: element.product_stock, 
-                        primary_code: element.primary_code, 
-                        secondary_code: element.secondary_code, 
-                        product_code: element.product_code,
-                        bay: element.bay,  
-                        level: element.level, 
-                        maxProducts: element.maxStocks, 
-                        unit: element.unit, 
-                        secondary_unit: element.secondary_unit, 
-                        maxPerUnit: element.maxperunit,
-                        alertQTY: element.alertQTY,
-                        production_date: element.production_date,
-                        expiry_date: element.expiry_date, 
-                        batch_code: element.batch_code,
-                        invoice: element.invoice,
-                        product_cat: element.product_cat,
-                        uuid: element.uuid,
-                        gross_price: element.gross_price,
-                        date_recieved: element.date_recieved,
-                        isAvailable: "true",
-                        isUsed: "false",
-                        warehouse_id_temp_inc: element._id
-
-                    })
-                }
-                // console.log(warehouse_data)
-                data_warehouse[index].isConfirm = "true"
-
-                await data_warehouse[index].save();
-                await warehouse_data.save();
-            }else if(element.data_type == "out"){
+            if(element.data_type == "out"){
 
                 var warehouse_data = await warehouse.findOne({ name: element.warehouse, room: element.room_name });
 
@@ -259,6 +215,8 @@ router.post("/cancel_data", auth, async (req, res) => {
                             data.isAvailable = "true"
                             data_warehouse[index].isAvailable = "cancel"
                             data_warehouse[index].isUsed = "true"
+                            data_warehouse[index].confirm_by = role_data.email
+                            data_warehouse[index].date_time = now
                         // }else{
                         //     data_warehouse[index].isUsed = "false"
                         // }
@@ -294,10 +252,17 @@ router.post("/view_data_all", auth, async (req, res) => {
     try {
         const { data_show } = req.body
 
-        const data_all = await warehouse_temporary.find({ isConfirm: data_show })
+        if(data_show == "All"){
+            const data_all = await warehouse_temporary.find({ isConfirm: "true" });
+            res.json(data_all)
+        }else{
+            const data_all = await warehouse_temporary.find({ isConfirm: data_show })
+            res.json(data_all)
+        }
+
        
         // console.log(data_warehouse)
-        res.json(data_all)
+        
     } catch (error) {
         console.log(error)
     }
