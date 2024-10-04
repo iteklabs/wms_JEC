@@ -1609,7 +1609,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                                     let availableSpace = maxCapacity - minCapacity;
                                     let toPlace = Math.min(remainingQuantity, availableSpace);
                                     // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
-                                    // console.log(`Distributing ${toPlace} units to warehouse: ${element.warehouse_name}, room: ${element.room}, bay: ${bin.bay}, bin: ${bin.bin}`);
+                                    console.log(`Distributing ${toPlace} units of ${element3.product_name} to warehouse: ${element.warehouse_name}, room: ${element.room}, bay: ${bin.bay}, bin: ${bin.bin} inc = ${i_data}`);
                                     
                                     dataFix[i_data].product_name = element3.product_name;
                                     dataFix[i_data].product_code = element3.product_code;
@@ -1637,11 +1637,13 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                                     // Update the remaining quantity
                                     remainingQuantity -= toPlace;
                                     // console.log(remainingQuantity)
+                                    
+
+                                    i_data++;
+
                                     if (remainingQuantity <= 0) {
                                         break;
                                     }
-
-                                    i_data++;
                                 }
                                 
                             }
