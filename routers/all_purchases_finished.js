@@ -1223,15 +1223,274 @@ router.post("/view/add_purchases", auth, async (req, res) => {
         
         
 
+        // for (let index = 0; index <= newproduct.length-1; index++) {
+        //     const element3 = newproduct[index];
+
+        //     const findWarehouseValidation1 = await warehouse_validation_setup.aggregate([
+        //         {
+        //             $match: {
+        //                 warehouse_name: warehouse_name
+        //             }
+        //         },
+        //         {
+        //             $unwind: "$product_data" // Unwind the product_data array
+        //         },
+        //         {
+        //             $match: {
+        //                 "product_data.product_code": element3.product_code
+        //             }
+        //         },
+        //         {
+        //             $sort: {
+        //                 room: 1,               // Sort by room first
+        //                 "product_data.bay": 1, // Sort by bay within product_data (1 for ascending)
+        //                 "product_data.bin": 1  // Optional: Sort by bin as well if needed
+        //             }
+        //         },
+        //         {
+        //             $group: {
+        //                 _id: "$_id", 
+        //                 warehouse_id: { $first: "$warehouse_id" },
+        //                 warehouse_name: { $first: "$warehouse_name" },
+        //                 room: { $first: "$room" },
+        //                 product_data: { $push: "$product_data" } // Group back the product_data array
+        //             }
+        //         },
+        //         {
+        //             $sort: {
+        //                 room: 1,               // Sort by room first
+        //             }
+        //         },
+        //     ]);
+
+        //     for (let one_check = 0; one_check <= findWarehouseValidation1.length - 1; one_check++) {
+        //         const element = findWarehouseValidation1[one_check];
+
+        //         for (let index_detl = 0; index_detl <= element.product_data.length -1; index_detl++) {
+        //             const element_detl = element.product_data[index_detl];
+
+        //             const warehouse_data = await warehouse.aggregate([
+        //                 {
+        //                     $match: {
+        //                         name: element.warehouse_name,
+        //                         room: element.room
+        //                     }
+        //                 },
+        //                 {
+        //                     $unwind: "$product_details"
+        //                 },
+        //                 {
+        //                     $match: {
+        //                         "product_details.level": element_detl.bay,
+        //                         "product_details.bay": parseInt(element_detl.bin),
+        //                         "product_details.product_code": element_detl.product_code
+        //                     }
+        //                 }
+        //             ]);
+
+
+        //             for (let wew = 0; wew <= warehouse_data.length-1; wew++) {
+        //                 let warehouse_data_test = warehouse_data[wew];
+        //                 // console.log(warehouse_data_test.product_details)
+        //                 let a = 0;
+        //                 // console.log(warehouse_data_test.product_details.product_code + "==" + element_detl.product_code + "&&" +  warehouse_data_test.product_details.bay +"=="+ element_detl.bin +"&&"+ warehouse_data_test.product_details.level +"=="+ element_detl.bay)
+        //                 if(warehouse_data_test.product_details.product_code == element_detl.product_code && warehouse_data_test.product_details.bay == element_detl.bin && warehouse_data_test.product_details.level == element_detl.bay){
+        //                     element_detl.max = parseInt(element_detl.max) - parseInt(warehouse_data_test.product_details.product_stock);
+        //                     // console.log(element_detl.max)
+        //                     a++
+        //                 }
+        //                 // console.log(a)
+        //                 if (a == "0") {
+        //                     if (parseInt(element_detl.max) > 0) {
+     
+    
+        //                         findWarehouseValidation1[one_check].product_data = findWarehouseValidation1[one_check].product_data.concat({
+        //                             bay: element_detl.bay,
+        //                             bin: element_detl.bin,
+        //                             max: element_detl.max,
+        //                             min: element_detl.min,
+        //                             product_code: element_detl.product_code,
+        //                             product_id: element_detl.product_id,
+        //                             product_name: element_detl.product_name,
+        //                         });
+        //                     }
+                            
+        //             }
+                        
+        //             }
+
+
+        //         }
+        //         findWarehouseValidation1[one_check].product_data = findWarehouseValidation1[one_check].product_data.filter(item => parseInt(item.max) > 0);
+        //     }
+
+            
+
+
+
+        //     let remainingQuantity = element3.quantity;
+        //     // console.log(findWarehouseValidation1[0].product_data)
+        //     let dataFix = [];
+        //     for (let index = 0; index <= findWarehouseValidation1.length-1; index++) {
+        //         const element = findWarehouseValidation1[index];
+        //         // console.log(element)
+        //         for (let index2 = 0; index2 <= element.product_data.length -1; index2++) {
+        //             const element2 = element.product_data[index2];
+                    
+                    
+        //             if (element2.product_code === element3.product_code && remainingQuantity > 0) {
+        //                 console.log(element.room + " <> " + element2.product_code + " === " + element3.product_code + " <> " + remainingQuantity)
+
+        //                 const warehouse_data = await warehouse.aggregate([
+        //                     {
+        //                         $match: {
+        //                             name: warehouse_name,
+        //                             room: element.room
+        //                         }
+        //                     },
+        //                     {
+        //                         $unwind: "$product_details"
+        //                     },
+        //                     {
+        //                         $match: {
+        //                             "product_details.level": element2.bay,
+        //                             "product_details.bay": parseInt(element2.bin)
+        //                         }
+        //                     }
+        //                 ]);
+
+                        
+                        
+
+        //                 if (warehouse_data.length == 0) {
+        //                     // Distribute the quantity across bins until max is met
+
+        //                     // console.log(element3.product_code + "===" +element2.product_code + " <> " + element2.min + " <> " + element2.max + " <> " + element2.bay + " <> " + element2.bin)
+        //                     let i_data = 0;
+        //                     for (let i = 0; i <= element.product_data.length -1  && remainingQuantity > 0; i++) {
+        //                         const bin = element.product_data[i];
+                                
+        //                         // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
+        //                         if(element3.product_code === bin.product_code){
+        //                             dataFix[i_data] = {}
+        //                             const maxCapacity = parseInt(bin.max);
+        //                             const minCapacity = 0;
+        //                             // Calculate how much can be placed in this bin
+        //                             let availableSpace = maxCapacity - minCapacity;
+        //                             let toPlace = Math.min(remainingQuantity, availableSpace);
+        //                             // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
+        //                             console.log(`Distributing ${toPlace} units to warehouse: ${element.warehouse_name}, room: ${element.room}, bay: ${bin.bay}, bin: ${bin.bin} , increment: ${i_data}`);
+                                    
+        //                             dataFix[i_data].product_code = element3.product_code;
+        //                             dataFix[i_data].product_id = element3.product_id;
+        //                             dataFix[i_data].date_recieved = element3.date_recieved;
+        //                             dataFix[i_data].sales_category = element3.sales_category;
+        //                             dataFix[i_data].uuid = element3.uuid;
+        //                             dataFix[i_data].quantity = toPlace;
+        //                             dataFix[i_data].standard_unit = element3.standard_unit;
+        //                             dataFix[i_data].secondary_unit = element3.secondary_unit;
+        //                             dataFix[i_data].primary_code = element3.primary_code;
+        //                             dataFix[i_data].secondary_code = element3.secondary_code;
+        //                             dataFix[i_data].maxStocks = element3.maxStocks;
+        //                             dataFix[i_data].batch_code = element3.batch_code;
+        //                             dataFix[i_data].expiry_date = element3.expiry_date;
+        //                             dataFix[i_data].production_date = element3.production_date;
+        //                             dataFix[i_data].maxperunit = element3.maxperunit;
+        //                             dataFix[i_data].product_cat = element3.product_cat;
+        //                             dataFix[i_data].invoice = element3.invoice;
+        //                             dataFix[i_data].gross_price = element3.gross_price;
+        //                             dataFix[i_data].room_name = element.room
+        //                             dataFix[i_data].level = bin.bay
+        //                             dataFix[i_data].product_name = element3.product_name;
+        //                             dataFix[i_data].bay = bin.bin;
+        //                             // console.log(i)
+        //                             // Update the remaining quantity
+        //                             remainingQuantity -= toPlace;
+        //                             // console.log(remainingQuantity)
+        //                             if (remainingQuantity <= 0) {
+        //                                 break;
+        //                             }
+
+        //                             i_data++;
+        //                         }
+                                
+        //                     }
+        //                     // console.log(dataFix)
+        //                     if (remainingQuantity <= 0) {
+        //                         console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 1`);
+        //                         req.flash('errors', `The Other ${remainingQuantity} quantity that couldn't be placed in any bin.`)
+        //                         break;
+        //                     }
+
+
+        //                     // if (remainingQuantity > 0) {
+        //                     //     console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 2`);
+
+        //                     //     const warehouse_data2 = await warehouse.aggregate([
+        //                     //         {
+        //                     //             $match: {
+        //                     //                 name: warehouse_name,
+        //                     //                 isStaging: "true"
+        //                     //             }
+        //                     //         },
+                                    
+        //                     //     ]);
+
+        //                     //     dataFix[i_data] = {}
+        //                     //     dataFix[i_data].product_name = element3.product_name;
+        //                     //     dataFix[i_data].product_code = element3.product_code;
+        //                     //     dataFix[i_data].product_id = element3.product_id;
+        //                     //     dataFix[i_data].date_recieved = element3.date_recieved;
+        //                     //     dataFix[i_data].sales_category = element3.sales_category;
+        //                     //     dataFix[i_data].uuid = element3.uuid;
+        //                     //     dataFix[i_data].quantity = remainingQuantity;
+        //                     //     dataFix[i_data].standard_unit = element3.standard_unit;
+        //                     //     dataFix[i_data].secondary_unit = element3.secondary_unit;
+        //                     //     dataFix[i_data].primary_code = element3.primary_code;
+        //                     //     dataFix[i_data].secondary_code = element3.secondary_code;
+        //                     //     dataFix[i_data].maxStocks = element3.maxStocks;
+        //                     //     dataFix[i_data].batch_code = element3.batch_code;
+        //                     //     dataFix[i_data].expiry_date = element3.expiry_date;
+        //                     //     dataFix[i_data].production_date = element3.production_date;
+        //                     //     dataFix[i_data].maxperunit = element3.maxperunit;
+        //                     //     dataFix[i_data].product_cat = element3.product_cat;
+        //                     //     dataFix[i_data].invoice = element3.invoice;
+        //                     //     dataFix[i_data].gross_price = element3.gross_price;
+        //                     //     dataFix[i_data].room_name = warehouse_data2[0].room;
+        //                     //     dataFix[i_data].level = "STAGING"
+        //                     //     dataFix[i_data].bay = "1"
+
+
+        //                     //     req.flash('errors', `The Other ${remainingQuantity} quantity that could be place in Staging Area`)
+        //                     //     break;
+        //                     // }
+        
+                            
+        //                 }
+                        
+        //             }
+        //         }
+        //     }
+        //     // console.log(remainingQuantity)
+            
+
+
+        //     res.json(dataFix);
+        // }
+
+        
+
+        
+        // // res.json(findWarehouseValidation1);
+        // return;
+
         const findWarehouseValidation = await warehouse_validation_setup.aggregate([
             {
                 $match: {
                     warehouse_name : warehouse_name
                 }
-            },
+            }
         ])
-
-        
 
         for (let one_check = 0; one_check <= findWarehouseValidation.length - 1; one_check++) {
             const element = findWarehouseValidation[one_check];
@@ -1295,56 +1554,12 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             findWarehouseValidation[one_check].product_data = findWarehouseValidation[one_check].product_data.filter(item => parseInt(item.max) > 0);
         }
         
-
-        // res.json(findWarehouseValidation);
-        // return;
-
         
-        // for (let index3 = 0; index3 <= newproduct.length - 1; index3++) {
-        //     const element3 = newproduct[index3];
-
-        //     for (let index = 0; index <= findWarehouseValidation.length - 1; index++) {
-        //         const element = findWarehouseValidation[index];
-
-        //         for (let index2 = 0; index2 <= element.product_data.length - 1; index2++) {
-        //             const element2 = element.product_data[index2];
-    
-        //             if(element2.product_code === element3.product_code){
-        //                 const warehouse_data = await warehouse.aggregate([
-        //                     {
-        //                         $match: {
-        //                             name: warehouse_name,
-        //                             room: element.room
-        //                         }
-        //                     },
-        //                     {
-        //                         $unwind: "$product_details"
-        //                     },
-        //                     {
-        //                         $match:{
-        //                             level: element2.bay,
-        //                             bay: element2.bin
-        //                         }
-        //                     }
-        //                 ])
-
-        //                 if(warehouse_data.length == 0){
-        //                     if(element3.product_code === element2.product_code){
-        //                         console.log( element.warehouse_name + " <> " + element.room + " <> " +element2.bay + " <> " + element2.bin  + " <> " + element2.min + " <> " + element2.max + " <> " + element3.quantity)
-                                
-        //                     }
-        //                 }
-        //             }
-        //         }
-
-        //     }
-
-        // }
-        // console.log("findWarehouseValidation", findWarehouseValidation[0].product_data)
         let dataFix = [];
+        let i_data = 0;
         for (let index3 = 0; index3 <= newproduct.length -1; index3++) {
             const element3 = newproduct[index3];
-        
+            let remainingQuantity = element3.quantity;
             for (let index = 0; index <= findWarehouseValidation.length-1; index++) {
                 const element = findWarehouseValidation[index];
         
@@ -1352,8 +1567,9 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                     const element2 = element.product_data[index2];
         
                     // Check if the product code matches
+                    // console.log(remainingQuantity)
                     if (element2.product_code === element3.product_code) {
-                        let remainingQuantity = element3.quantity;
+                        // console.log(element.room + " <> " + element2.product_code + " === " + element3.product_code + " <> " + i_data + " <> " + remainingQuantity)
 
                         const warehouse_data = await warehouse.aggregate([
                             {
@@ -1380,44 +1596,44 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                             // Distribute the quantity across bins until max is met
 
                             // console.log(element3.product_code + "===" +element2.product_code + " <> " + element2.min + " <> " + element2.max + " <> " + element2.bay + " <> " + element2.bin)
-                            let i_data = 0;
+                            
                             for (let i = 0; i <= element.product_data.length -1  && remainingQuantity > 0; i++) {
                                 const bin = element.product_data[i];
                                 
                                 // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
                                 if(element3.product_code === bin.product_code){
-                                    dataFix[i] = {}
+                                    dataFix[i_data] = {}
                                     const maxCapacity = parseInt(bin.max);
                                     const minCapacity = 0;
                                     // Calculate how much can be placed in this bin
                                     let availableSpace = maxCapacity - minCapacity;
                                     let toPlace = Math.min(remainingQuantity, availableSpace);
                                     // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
-                                    console.log(`Distributing ${toPlace} units to warehouse: ${element.warehouse_name}, room: ${element.room}, bay: ${bin.bay}, bin: ${bin.bin}`);
+                                    // console.log(`Distributing ${toPlace} units to warehouse: ${element.warehouse_name}, room: ${element.room}, bay: ${bin.bay}, bin: ${bin.bin}`);
                                     
-                                    dataFix[i].product_name = element3.product_name;
-                                    dataFix[i].product_code = element3.product_code;
-                                    dataFix[i].product_id = element3.product_id;
-                                    dataFix[i].date_recieved = element3.date_recieved;
-                                    dataFix[i].sales_category = element3.sales_category;
-                                    dataFix[i].uuid = element3.uuid;
-                                    dataFix[i].quantity = toPlace;
-                                    dataFix[i].standard_unit = element3.standard_unit;
-                                    dataFix[i].secondary_unit = element3.secondary_unit;
-                                    dataFix[i].primary_code = element3.primary_code;
-                                    dataFix[i].secondary_code = element3.secondary_code;
-                                    dataFix[i].maxStocks = element3.maxStocks;
-                                    dataFix[i].batch_code = element3.batch_code;
-                                    dataFix[i].expiry_date = element3.expiry_date;
-                                    dataFix[i].production_date = element3.production_date;
-                                    dataFix[i].maxperunit = element3.maxperunit;
-                                    dataFix[i].product_cat = element3.product_cat;
-                                    dataFix[i].invoice = element3.invoice;
-                                    dataFix[i].gross_price = element3.gross_price;
-                                    dataFix[i].room_name = element.room
-                                    dataFix[i].level = bin.bay
-                                    dataFix[i].bay = bin.bin;
-                                    console.log(i)
+                                    dataFix[i_data].product_name = element3.product_name;
+                                    dataFix[i_data].product_code = element3.product_code;
+                                    dataFix[i_data].product_id = element3.product_id;
+                                    dataFix[i_data].date_recieved = element3.date_recieved;
+                                    dataFix[i_data].sales_category = element3.sales_category;
+                                    dataFix[i_data].uuid = element3.uuid;
+                                    dataFix[i_data].quantity = toPlace;
+                                    dataFix[i_data].standard_unit = element3.standard_unit;
+                                    dataFix[i_data].secondary_unit = element3.secondary_unit;
+                                    dataFix[i_data].primary_code = element3.primary_code;
+                                    dataFix[i_data].secondary_code = element3.secondary_code;
+                                    dataFix[i_data].maxStocks = element3.maxStocks;
+                                    dataFix[i_data].batch_code = element3.batch_code;
+                                    dataFix[i_data].expiry_date = element3.expiry_date;
+                                    dataFix[i_data].production_date = element3.production_date;
+                                    dataFix[i_data].maxperunit = element3.maxperunit;
+                                    dataFix[i_data].product_cat = element3.product_cat;
+                                    dataFix[i_data].invoice = element3.invoice;
+                                    dataFix[i_data].gross_price = element3.gross_price;
+                                    dataFix[i_data].room_name = element.room
+                                    dataFix[i_data].level = bin.bay
+                                    dataFix[i_data].bay = bin.bin;
+                                    // console.log(i)
                                     // Update the remaining quantity
                                     remainingQuantity -= toPlace;
                                     // console.log(remainingQuantity)
@@ -1431,157 +1647,205 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                             }
                             // console.log(dataFix)
                             if (remainingQuantity <= 0) {
-                                console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 1`);
+                                // console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 1`);
                                 req.flash('errors', `The Other ${remainingQuantity} quantity that couldn't be placed in any bin.`)
                                 break;
                             }
 
 
-                            if (remainingQuantity > 0) {
-                                console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 2`);
+                            // if (remainingQuantity > 0) {
+                            //     // console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 2`);
 
-                                const warehouse_data2 = await warehouse.aggregate([
-                                    {
-                                        $match: {
-                                            name: warehouse_name,
-                                            isStaging: "true"
-                                        }
-                                    },
+                            //     // const warehouse_data2 = await warehouse.aggregate([
+                            //     //     {
+                            //     //         $match: {
+                            //     //             name: warehouse_name,
+                            //     //             isStaging: "true"
+                            //     //         }
+                            //     //     },
                                     
-                                ]);
+                            //     // ]);
 
-                                // console.log(i_data, warehouse_data2[0].room)
-                                // console.log(element3.product_name)
-                                dataFix[i_data] = {}
-                                dataFix[i_data].product_name = element3.product_name;
-                                dataFix[i_data].product_code = element3.product_code;
-                                dataFix[i_data].product_id = element3.product_id;
-                                dataFix[i_data].date_recieved = element3.date_recieved;
-                                dataFix[i_data].sales_category = element3.sales_category;
-                                dataFix[i_data].uuid = element3.uuid;
-                                dataFix[i_data].quantity = remainingQuantity;
-                                dataFix[i_data].standard_unit = element3.standard_unit;
-                                dataFix[i_data].secondary_unit = element3.secondary_unit;
-                                dataFix[i_data].primary_code = element3.primary_code;
-                                dataFix[i_data].secondary_code = element3.secondary_code;
-                                dataFix[i_data].maxStocks = element3.maxStocks;
-                                dataFix[i_data].batch_code = element3.batch_code;
-                                dataFix[i_data].expiry_date = element3.expiry_date;
-                                dataFix[i_data].production_date = element3.production_date;
-                                dataFix[i_data].maxperunit = element3.maxperunit;
-                                dataFix[i_data].product_cat = element3.product_cat;
-                                dataFix[i_data].invoice = element3.invoice;
-                                dataFix[i_data].gross_price = element3.gross_price;
-                                dataFix[i_data].room_name = warehouse_data2[0].room;
-                                dataFix[i_data].level = "STAGING"
-                                dataFix[i_data].bay = "1"
+                            //     // // console.log(i_data, warehouse_data2[0].room)
+                            //     // // console.log(element3.product_name)
+                            //     // dataFix[i_data] = {}
+                            //     // dataFix[i_data].product_name = element3.product_name;
+                            //     // dataFix[i_data].product_code = element3.product_code;
+                            //     // dataFix[i_data].product_id = element3.product_id;
+                            //     // dataFix[i_data].date_recieved = element3.date_recieved;
+                            //     // dataFix[i_data].sales_category = element3.sales_category;
+                            //     // dataFix[i_data].uuid = element3.uuid;
+                            //     // dataFix[i_data].quantity = remainingQuantity;
+                            //     // dataFix[i_data].standard_unit = element3.standard_unit;
+                            //     // dataFix[i_data].secondary_unit = element3.secondary_unit;
+                            //     // dataFix[i_data].primary_code = element3.primary_code;
+                            //     // dataFix[i_data].secondary_code = element3.secondary_code;
+                            //     // dataFix[i_data].maxStocks = element3.maxStocks;
+                            //     // dataFix[i_data].batch_code = element3.batch_code;
+                            //     // dataFix[i_data].expiry_date = element3.expiry_date;
+                            //     // dataFix[i_data].production_date = element3.production_date;
+                            //     // dataFix[i_data].maxperunit = element3.maxperunit;
+                            //     // dataFix[i_data].product_cat = element3.product_cat;
+                            //     // dataFix[i_data].invoice = element3.invoice;
+                            //     // dataFix[i_data].gross_price = element3.gross_price;
+                            //     // dataFix[i_data].room_name = warehouse_data2[0].room;
+                            //     // dataFix[i_data].level = "STAGING"
+                            //     // dataFix[i_data].bay = "1"
 
 
-                                req.flash('errors', `The Other ${remainingQuantity} quantity that could be place in Staging Area`)
-                                break;
-                            }
+                                
+                            //     break;
+                            // }
         
                             
-                        }else{
-                            console.log(element2.product_code + " <> " + element2.bay + " <> " + element2.bin + " <> " + remainingQuantity)
-                            let i_data =0;
-                            for (let i = 0; i <= element.product_data.length -1  && remainingQuantity > 0; i++) {
-                                const bin = element.product_data[i];
-                                
-                                // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
-                                if(element3.product_code === bin.product_code){
-                                    dataFix[i] = {}
-                                    const maxCapacity = parseInt(bin.max);
-                                    const minCapacity = 0;
-                                    // Calculate how much can be placed in this bin
-                                    let availableSpace = maxCapacity - minCapacity;
-                                    let toPlace = Math.min(remainingQuantity, availableSpace);
-                                    // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
-                                    console.log(`Distributing ${toPlace} units to warehouse: ${element.warehouse_name}, room: ${element.room}, bay: ${bin.bay}, bin: ${bin.bin}`);
-                                    
-                                    dataFix[i].product_name = element3.product_name;
-                                    dataFix[i].product_code = element3.product_code;
-                                    dataFix[i].product_id = element3.product_id;
-                                    dataFix[i].date_recieved = element3.date_recieved;
-                                    dataFix[i].sales_category = element3.sales_category;
-                                    dataFix[i].uuid = element3.uuid;
-                                    dataFix[i].quantity = toPlace;
-                                    dataFix[i].standard_unit = element3.standard_unit;
-                                    dataFix[i].secondary_unit = element3.secondary_unit;
-                                    dataFix[i].primary_code = element3.primary_code;
-                                    dataFix[i].secondary_code = element3.secondary_code;
-                                    dataFix[i].maxStocks = element3.maxStocks;
-                                    dataFix[i].batch_code = element3.batch_code;
-                                    dataFix[i].expiry_date = element3.expiry_date;
-                                    dataFix[i].production_date = element3.production_date;
-                                    dataFix[i].maxperunit = element3.maxperunit;
-                                    dataFix[i].product_cat = element3.product_cat;
-                                    dataFix[i].invoice = element3.invoice;
-                                    dataFix[i].gross_price = element3.gross_price;
-                                    dataFix[i].room_name = element.room
-                                    dataFix[i].level = bin.bay
-                                    dataFix[i].bay = bin.bin;
-                                
-                                    // Update the remaining quantity
-                                    remainingQuantity -= toPlace;
-                                    // console.log(remainingQuantity)
-                                    if (remainingQuantity <= 0) {
-                                        break;
-                                    }
-                                    i_data++;
-                                }
-                                
-                            }
-                            // console.log(dataFix)
-                            if (remainingQuantity <= 0) {
-                                console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin.`);
-                                break;
-                            }
-
-
-                            if (remainingQuantity > 0) {
-                                const warehouse_data2 = await warehouse.aggregate([
-                                    {
-                                        $match: {
-                                            name: warehouse_name,
-                                            isStaging: "true"
-                                        }
-                                    },
-                                    
-                                ]);
-
-                                // console.log(i_data, warehouse_data2[0].room)
-                                // console.log(element3.product_name)
-                                dataFix[i_data] = {}
-                                dataFix[i_data].product_name = element3.product_name;
-                                dataFix[i_data].product_code = element3.product_code;
-                                dataFix[i_data].product_id = element3.product_id;
-                                dataFix[i_data].date_recieved = element3.date_recieved;
-                                dataFix[i_data].sales_category = element3.sales_category;
-                                dataFix[i_data].uuid = element3.uuid;
-                                dataFix[i_data].quantity = remainingQuantity;
-                                dataFix[i_data].standard_unit = element3.standard_unit;
-                                dataFix[i_data].secondary_unit = element3.secondary_unit;
-                                dataFix[i_data].primary_code = element3.primary_code;
-                                dataFix[i_data].secondary_code = element3.secondary_code;
-                                dataFix[i_data].maxStocks = element3.maxStocks;
-                                dataFix[i_data].batch_code = element3.batch_code;
-                                dataFix[i_data].expiry_date = element3.expiry_date;
-                                dataFix[i_data].production_date = element3.production_date;
-                                dataFix[i_data].maxperunit = element3.maxperunit;
-                                dataFix[i_data].product_cat = element3.product_cat;
-                                dataFix[i_data].invoice = element3.invoice;
-                                dataFix[i_data].gross_price = element3.gross_price;
-                                dataFix[i_data].room_name = warehouse_data2[0].room;
-                                dataFix[i_data].level = "STAGING"
-                                dataFix[i_data].bay = "1"
-                                req.flash('errors', `The Other ${remainingQuantity} quantity that couldn't be placed in any bin.`)
-                            }
                         }
+                        // else{
+                        //     console.log(element2.product_code + " <> " + element2.bay + " <> " + element2.bin + " <> " + remainingQuantity)
+                        //     let i_data =0;
+                        //     for (let i = 0; i <= element.product_data.length -1  && remainingQuantity > 0; i++) {
+                        //         const bin = element.product_data[i];
+                                
+                        //         // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
+                        //         if(element3.product_code === bin.product_code){
+                        //             dataFix[i] = {}
+                        //             const maxCapacity = parseInt(bin.max);
+                        //             const minCapacity = 0;
+                        //             // Calculate how much can be placed in this bin
+                        //             let availableSpace = maxCapacity - minCapacity;
+                        //             let toPlace = Math.min(remainingQuantity, availableSpace);
+                        //             // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
+                        //             console.log(`Distributing ${toPlace} units to warehouse: ${element.warehouse_name}, room: ${element.room}, bay: ${bin.bay}, bin: ${bin.bin}`);
+                                    
+                        //             dataFix[i].product_name = element3.product_name;
+                        //             dataFix[i].product_code = element3.product_code;
+                        //             dataFix[i].product_id = element3.product_id;
+                        //             dataFix[i].date_recieved = element3.date_recieved;
+                        //             dataFix[i].sales_category = element3.sales_category;
+                        //             dataFix[i].uuid = element3.uuid;
+                        //             dataFix[i].quantity = toPlace;
+                        //             dataFix[i].standard_unit = element3.standard_unit;
+                        //             dataFix[i].secondary_unit = element3.secondary_unit;
+                        //             dataFix[i].primary_code = element3.primary_code;
+                        //             dataFix[i].secondary_code = element3.secondary_code;
+                        //             dataFix[i].maxStocks = element3.maxStocks;
+                        //             dataFix[i].batch_code = element3.batch_code;
+                        //             dataFix[i].expiry_date = element3.expiry_date;
+                        //             dataFix[i].production_date = element3.production_date;
+                        //             dataFix[i].maxperunit = element3.maxperunit;
+                        //             dataFix[i].product_cat = element3.product_cat;
+                        //             dataFix[i].invoice = element3.invoice;
+                        //             dataFix[i].gross_price = element3.gross_price;
+                        //             dataFix[i].room_name = element.room
+                        //             dataFix[i].level = bin.bay
+                        //             dataFix[i].bay = bin.bin;
+                                
+                        //             // Update the remaining quantity
+                        //             remainingQuantity -= toPlace;
+                        //             // console.log(remainingQuantity)
+                        //             if (remainingQuantity <= 0) {
+                        //                 break;
+                        //             }
+                        //             i_data++;
+                        //         }
+                                
+                        //     }
+                        //     // console.log(dataFix)
+                        //     if (remainingQuantity <= 0) {
+                        //         console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin.`);
+                        //         break;
+                        //     }
+
+
+                        //     if (remainingQuantity > 0) {
+                        //         const warehouse_data2 = await warehouse.aggregate([
+                        //             {
+                        //                 $match: {
+                        //                     name: warehouse_name,
+                        //                     isStaging: "true"
+                        //                 }
+                        //             },
+                                    
+                        //         ]);
+
+                        //         // console.log(i_data, warehouse_data2[0].room)
+                        //         // console.log(element3.product_name)
+                        //         dataFix[i_data] = {}
+                        //         dataFix[i_data].product_name = element3.product_name;
+                        //         dataFix[i_data].product_code = element3.product_code;
+                        //         dataFix[i_data].product_id = element3.product_id;
+                        //         dataFix[i_data].date_recieved = element3.date_recieved;
+                        //         dataFix[i_data].sales_category = element3.sales_category;
+                        //         dataFix[i_data].uuid = element3.uuid;
+                        //         dataFix[i_data].quantity = remainingQuantity;
+                        //         dataFix[i_data].standard_unit = element3.standard_unit;
+                        //         dataFix[i_data].secondary_unit = element3.secondary_unit;
+                        //         dataFix[i_data].primary_code = element3.primary_code;
+                        //         dataFix[i_data].secondary_code = element3.secondary_code;
+                        //         dataFix[i_data].maxStocks = element3.maxStocks;
+                        //         dataFix[i_data].batch_code = element3.batch_code;
+                        //         dataFix[i_data].expiry_date = element3.expiry_date;
+                        //         dataFix[i_data].production_date = element3.production_date;
+                        //         dataFix[i_data].maxperunit = element3.maxperunit;
+                        //         dataFix[i_data].product_cat = element3.product_cat;
+                        //         dataFix[i_data].invoice = element3.invoice;
+                        //         dataFix[i_data].gross_price = element3.gross_price;
+                        //         dataFix[i_data].room_name = warehouse_data2[0].room;
+                        //         dataFix[i_data].level = "STAGING"
+                        //         dataFix[i_data].bay = "1"
+                        //         req.flash('errors', `The Other ${remainingQuantity} quantity that couldn't be placed in any bin.`)
+                        //     }
+                        // }
                     }
                 }
             }
+
+
+            if(remainingQuantity > 0){
+
+                const warehouse_data2 = await warehouse.aggregate([
+                    {
+                        $match: {
+                            name: warehouse_name,
+                            isStaging: "true"
+                        }
+                    },
+                    
+                ]);
+
+
+                dataFix[i_data] = {}
+                dataFix[i_data].product_name = element3.product_name;
+                dataFix[i_data].product_code = element3.product_code;
+                dataFix[i_data].product_id = element3.product_id;
+                dataFix[i_data].date_recieved = element3.date_recieved;
+                dataFix[i_data].sales_category = element3.sales_category;
+                dataFix[i_data].uuid = element3.uuid;
+                dataFix[i_data].quantity = remainingQuantity;
+                dataFix[i_data].standard_unit = element3.standard_unit;
+                dataFix[i_data].secondary_unit = element3.secondary_unit;
+                dataFix[i_data].primary_code = element3.primary_code;
+                dataFix[i_data].secondary_code = element3.secondary_code;
+                dataFix[i_data].maxStocks = element3.maxStocks;
+                dataFix[i_data].batch_code = element3.batch_code;
+                dataFix[i_data].expiry_date = element3.expiry_date;
+                dataFix[i_data].production_date = element3.production_date;
+                dataFix[i_data].maxperunit = element3.maxperunit;
+                dataFix[i_data].product_cat = element3.product_cat;
+                dataFix[i_data].invoice = element3.invoice;
+                dataFix[i_data].gross_price = element3.gross_price;
+                dataFix[i_data].room_name = warehouse_data2[0].room;
+                dataFix[i_data].level = "STAGING"
+                dataFix[i_data].bay = "1"
+                console.log("STAGING AREA 1" + " <> " + element3.product_code + " === " + element3.product_code + " <> " + i_data + " <> " + remainingQuantity)
+                req.flash('errors', `The Other ${remainingQuantity} quantity that could be place in Staging Area`)
+            }
+
+            
+
         }
+
+        // res.json(dataFix);
+        // return;
 
         // console.log(dataFix)
         // const cleanedDataFix = dataFix.filter((item, i) => {
