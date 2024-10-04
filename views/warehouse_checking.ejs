@@ -226,26 +226,57 @@
                                         </div>
 
 
-                                        <div class="card-header">
-                                            <h4 class="card-title"> History </h4>
-                                        </div>
+                                        
 
                                         <div class="card-body" style="display: block;" >
-                                            <div >
-                                                <table class="table primary-table-bordered" id="purchases_tbl_new">
-                                                    <thead class="thead-primary" style="text-align: center;">
-                                                        <tr>
-                                                            <th scope="col">Date </th>
-                                                            <th scope="col">Location</th>
-                                                            <th scope="col">Product </th>
-                                                            <th scope="col">Qty </th>
-                                                            <th scope="col">Confirm By </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="tblPage_new">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="card-header">
+                                                        <h4 class="card-title"> History </h4>
+                                                    </div>
+                                                    <table class="table primary-table-bordered" id="purchases_tbl_new">
+                                                        <thead class="thead-primary" style="text-align: center;">
+                                                            <tr>
+                                                                <th scope="col">Date </th>
+                                                                <th scope="col">Location</th>
+                                                                <th scope="col">Product </th>
+                                                                <th scope="col">Qty </th>
+                                                                <th scope="col">Confirm By </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tblPage_new">
+    
+                                                        </tbody>
+                                                    </table>
+                                                </div>
 
-                                                    </tbody>
-                                                </table>
+
+
+
+
+
+                                                <div class="col-lg-6">
+                                                    <div class="card-header">
+                                                        <h4 class="card-title"> Pending Status </h4>
+                                                    </div>
+                                                    <table class="table primary-table-bordered" id="purchases_tbl_pending">
+                                                        <thead class="thead-primary" style="text-align: center;">
+                                                            <tr>
+                                                                <th scope="col">Process </th>
+                                                                <th scope="col">Date </th>
+                                                                <th scope="col">Warehouse</th>
+                                                                <th scope="col">Location</th>
+                                                                <th scope="col">Product </th>
+                                                                <th scope="col">Qty </th>
+                                                                <!-- <th scope="col">Confirm By </th> -->
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tblPage_pending">
+    
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -287,6 +318,39 @@
 
 
     <script>
+        function show_pending(){
+            var data = document.getElementById("tblPage_pending");
+            let dataString = '';
+            $.ajax({
+                type: "POST",
+                url: "/warehouse_checker/view_data_all",
+                data: { data_show: "false"},
+                success: function (response) {
+                    if(response.length > 0){
+                        for (let index = 0; index <= response.length - 1; index++) {
+                            const element = response[index];
+                            console.log(element)
+                            var data_type = "Outgoing"
+                            if(element.data_type == "inc"){
+                                data_type = "Incoming"
+                            }
+                            dataString +='<tr>';
+                            dataString +='<td>'+data_type+'</td>';
+                            dataString +='<td>'+element.createdDate+'</td>';
+                            dataString +='<td>'+element.warehouse+'</td>';
+                            dataString +='<td>'+element.level+element.bay+'</td>';
+                            dataString +='<td>'+element.product_name+'</td>';
+                            dataString +='<td>'+element.product_stock+'</td>';
+                            dataString +='</tr>';
+                            
+                            
+                        }
+                    }
+                    data.innerHTML = dataString;   
+                }
+            });
+            
+        }
 
         function toggleButton() {
             const buttonData = $('#scan_button');
@@ -542,7 +606,7 @@
             })
 
 
-            
+            show_pending();
         })
     </script>
 </body>

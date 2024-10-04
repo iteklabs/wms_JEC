@@ -290,6 +290,20 @@ router.post("/cancel_data", auth, async (req, res) => {
 })
 
 
+router.post("/view_data_all", auth, async (req, res) => {
+    try {
+        const { data_show } = req.body
+
+        const data_all = await warehouse_temporary.find({ isConfirm: data_show })
+       
+        // console.log(data_warehouse)
+        res.json(data_all)
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+
 
 
 
