@@ -225,6 +225,7 @@
                                                                     <% }) %>
                                                                 </select>
                                                                 <input type="hidden" name="warehouse_name" id="warehouse_name" value="<%= data.warehouse_name %>">
+                                                                <input type="hidden" name="the_id" id="the_id" value="<%= data._id %>">
                                                             </div>
                                                         </div>
 
@@ -241,6 +242,8 @@
                                                             </div>
                                                         </div>
                                                     </div>
+
+                                                  
                                                         
 
                                                     <div class="row">
@@ -250,6 +253,10 @@
                                                                     <option>select</option>
 
                                                                 </select>
+                                                        </div>
+
+                                                        <div class="col-xl-1 offset-sm-8">
+                                                            <button type="button" id="printAll" class="btn btn-success">Print All</button>
                                                         </div>
                                                     </div>
                                                     
@@ -263,6 +270,7 @@
                                                                         <th scope="col">Location </th>
                                                                         <th scope="col">Min</th>
                                                                         <th scope="col">Max</th>
+                                                                        <th scope="col">Barcode</th>
                                                                         <th scope="col">Action</th>
                                                                     </tr>
                                                                 </thead>
@@ -276,6 +284,7 @@
                                                                             <td><select class="form-control" name="bay" id="bay<%= index %>"></select></td>
                                                                             <td><input type="number" class="form-control" name="min_data" value="<%= element.min %>"></td>
                                                                             <td><input type="number" class="form-control" name="max_data" value="<%= element.max %>"></td>
+                                                                            <td class="text-center"><svg id="barcode<%= index %>"></svg></td>
                                                                             <td><button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button></td>
                                                                             <input type="hidden" name="bay_data" id="bay_data<%= index %>" value="<%= element.bay %>">
                                                                             <input type="hidden" name="bin_data" id="bin_data<%= index %>" value="<%= element.bin %>">
@@ -339,6 +348,9 @@
             <!--**********************************
         Scripts end
     ***********************************-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 
     <script>
         function warehouse_select_room(){
@@ -878,7 +890,37 @@
             
         });
 
-   
+        
+        $(document).on('click', '#printAll', function(event) {
+            var room_name = $("#the_id").val();
+            var room_data = room_name.split("~");
+            // alert(room_name)
+            $.ajax({
+                type: "POST",
+                url: "/master_shop/view_data/print",
+                data: { warehouse_id: room_name },
+                success: function (response) {
+                    console.log(response)
+                    const pdfData = atob(response.pdfContent);
+                    const arrayBuffer = new ArrayBuffer(pdfData.length);
+                    const uint8Array = new Uint8Array(arrayBuffer);
+                    for (let i = 0; i < pdfData.length; i++) {
+                        uint8Array[i] = pdfData.charCodeAt(i);
+                    }
+                    const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+
+                    // Create a Blob URL for the PDF
+                    const url = URL.createObjectURL(blob);
+
+                    // Open PDF in a new tab
+                    window.open(url, '_blank');
+                }
+            });
+
+        
+        });
+
+
         var lastin = document.getElementById("lsat_inc");
         var lastIncre = lastin.value
         $(document).on('change', '#the_product_id', function(event) {
@@ -904,6 +946,7 @@
                     row.append($('<td>').html('<select class="form-control" name="bay" id="bay'+lastIncre+'"></select>'));
                     row.append($('<td>').html('<input type="number" class="form-control" name="min_data" value="0">'));
                     row.append($('<td>').html('<input type="number" class="form-control" name="max_data" value="0">'));
+                    row.append($('<td>').html('<svg id="barcode'+lastIncre+'">please save first to show barcode</svg>please save first to show barcode'));
                     row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
 
                     $('<input>').attr({
@@ -1446,6 +1489,25 @@
 
             warehouse_select_room();
             location_selected();
+            var waarehouse_data = document.getElementById("warehouse_name").value;
+            var room_name_data = document.getElementById("room_name").value;
+            var room_data = room_name_data.split("~");
+
+            var prod_code_data = document.getElementsByName("prod_code");
+
+            for (let index = 0; index <= prod_code_data.length-1; index++) {
+                const element = prod_code_data[index];
+                var bay_data_data = document.getElementById("bay_data"+index).value;
+                var bin_data_data = document.getElementById("bin_data"+index).value;
+                JsBarcode("#barcode"+index+"", waarehouse_data+"~"+room_data[0]+"~"+bay_data_data+"~"+bin_data_data, {
+                    // width: 4,
+                    height: 150,
+                    displayValue: false
+                });
+                
+            }
+
+            
         })
 
 

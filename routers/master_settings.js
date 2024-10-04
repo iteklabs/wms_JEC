@@ -7,6 +7,9 @@ const auth = require("../middleware/auth");
 var timezones = require('timezones-list');
 const users = require("../public/language/languages.json");
 const mongoose = require("mongoose");
+const PDFDocument = require('pdfkit-table');
+const { Canvas } = require("canvas");
+const JsBarcode = require('jsbarcode');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -870,5 +873,91 @@ router.post("/view_data/edit/:id", auth, async (req, res) => {
         res.json(error)
     }
 });
+
+
+
+router.post("/view_data/print", auth, async (req, res) => {
+    try {
+        const { warehouse_id } = req.body
+        const warehouose_data = await warehouse_validation_setup.findById(warehouse_id);
+
+
+        const inchesToPoints = inches => inches * 72; // Convert inches to points (1 inch = 72 points)
+
+        const sizeInInches = { width: 3, height: 1 }; // Size in inches
+        // Create PDF document
+        const doc = new PDFDocument({
+            margin: inchesToPoints(0.75), // 0.75 inches margin on all sides (30 mm)
+            size: [inchesToPoints(sizeInInches.width), inchesToPoints(sizeInInches.height)], // Set document size to 3 inches wide and 1 inch tall
+            bufferPages: true
+        });
+
+
+        const intdata = warehouose_data.product_data.length;
+
+        for(let i = 0; i <= intdata -1; i++){
+            var data = warehouose_data.product_data[i];
+            var the_data_need = warehouose_data.warehouse_name+"~"+warehouose_data.room+"~"+data.bay+"~"+data.bin;
+            const imageSize = { width: 400, height: 150 }; // Size of the barcode image
+            const pdfPageSize = { width: inchesToPoints(sizeInInches.width), height: inchesToPoints(sizeInInches.height) }; // Size of the PDF page
+            const canvas = new Canvas();
+
+            JsBarcode(canvas, the_data_need, {
+                format: "CODE128",
+                height: imageSize.height,
+                displayValue: true,
+                text: the_data_need
+            });
+
+
+            const imageBuffer = canvas.toBuffer();
+
+
+             // Calculate scaling factors for width and height
+             const scaleFactorWidth = pdfPageSize.width / imageSize.width;
+             const scaleFactorHeight = pdfPageSize.height / imageSize.height;
+ 
+             // Choose the smaller scaling factor to ensure the image fits within the page
+             const scaleFactor = Math.min(scaleFactorWidth, scaleFactorHeight);
+ 
+             // Calculate new dimensions based on the scaling factor
+             const newWidth = imageSize.width * scaleFactor;
+             const newHeight = imageSize.height * scaleFactor;
+ 
+             // Calculate position to center the image on the page
+             const xPosition = (pdfPageSize.width - newWidth) / 2;
+             const yPosition = (pdfPageSize.height - newHeight) / 2;
+ 
+             doc.image(imageBuffer, xPosition, yPosition, { width: newWidth, height: newHeight });
+ 
+             if (i != intdata) {
+                 doc.addPage();
+             }
+
+
+            console.log(the_data_need)
+        }
+
+
+        const buffers = [];
+            doc.on('data', buffers.push.bind(buffers));
+            doc.on('end', () => {
+                const pdfData = Buffer.concat(buffers);
+                // const pdfBlob = new Blob([pdfData], { type: 'application/pdf' });
+                // const pdfUrl = URL.createObjectURL(pdfBlob);
+                // // res.json({ pdfUrl: pdfUrl }); // Sending back the URL to the client-side
+                // res.json({ pdfContent: pdfData.toString('base64') });
+
+                const pdfBase64 = pdfData.toString('base64');
+                res.json({ pdfContent: pdfBase64 });
+            });
+
+            doc.end();
+
+        // res.json(warehouose_data)
+    } catch (error) {
+        res.json(error)
+    }
+})
 
 module.exports = router
