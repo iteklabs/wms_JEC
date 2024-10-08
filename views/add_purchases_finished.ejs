@@ -140,6 +140,37 @@
             td:nth-of-type(8):before { content: "Unit of Measure : "; }
             td:nth-of-type(9):before { content: "Conversion : "; }
             td:nth-of-type(10):before { content: "Action"; }
+
+            .data_td {
+                /* Behave  like a "row" */
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+            }
+
+            .data_td:before {
+                /* Now like a table header */
+                position: bottom;
+                /* Top/left values mimic padding */
+                top: 0;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: wrap;
+                font-weight: normal;
+            }
+
+            .data_td:nth-of-type(1):before { content: "Item Code : "; }
+            .data_td:nth-of-type(2):before { content: "Item Description : "; }
+            .data_td:nth-of-type(3):before { content: "Primary Barcode : "; }
+            .data_td:nth-of-type(4):before { content: "Batch Code : "; }
+            .data_td:nth-of-type(5):before { content: "Production date : "; }
+            .data_td:nth-of-type(6):before { content: "Expiry date : "; }
+            .data_td:nth-of-type(7):before { content: "Quantity * : "; }
+            .data_td:nth-of-type(8):before { content: "Unit of Measure : "; }
+            .data_td:nth-of-type(9):before { content: "Conversion : "; }
+
         }
     </style>
 
@@ -171,13 +202,7 @@
             SCRN.style.borderColor = "";
         }
 
-        // if(suppliers.value.length == 0){
-        //     strTemp += "Supplier is required. <br>"
-        //     suppliers.style.borderColor = "red";
-        //     suppliers.focus()
-        // }else{
-        //     suppliers.style.borderColor = "";
-        // }
+
 
         if(date.value.length == 0){
             strTemp += "Date received is required. <br>"
@@ -195,30 +220,10 @@
             warehouse_name.style.borderColor = "";
         }
 
-        // if(Room_name.value.length == 0){
-        //     strTemp += "Room  is required. <br>"
-        //     Room_name.style.borderColor = "red";
-        //     Room_name.focus()
-        // }else{
-        //     Room_name.style.borderColor = "";
-        // }
+
 
     
-        // var product_date = document.getElementsByName("product_date");
 
-        // for (let index = 0; index < product_date.length; index++) {
-        //     const inputElement  = product_date[index];
-
-        //     if(inputElement.value.length == 0){
-        //         modal.style.display = "none";
-        //         strTemp += "Production date  is required. <br>"
-        //         inputElement.style.borderColor = "red";
-        //         inputElement.focus()
-        //     }else{
-        //         inputElement.style.borderColor = "";
-        //     }
-            
-        // }
 
 
         var prod_qty = document.getElementsByName("prod_qty");
@@ -238,39 +243,9 @@
         }
 
 
-        // var expiry_date = document.getElementsByName("expiry_date");
-
-        // for (let index = 0; index < expiry_date.length; index++) {
-        //     const inputElement  = expiry_date[index];
-
-        //     if(inputElement.value.length == 0){
-        //         modal.style.display = "none";
-        //         strTemp += "Expiry date  is required. <br>"
-        //         inputElement.style.borderColor = "red";
-        //         inputElement.focus()
-        //     }else{
-        //         inputElement.style.borderColor = "";
-        //     }
-            
-        // }
 
 
-        // var batch_code = document.getElementsByName("batch_code");
-
-        // for (let index = 0; index < batch_code.length; index++) {
-        //     const inputElement  = batch_code[index];
-
-        //     if(inputElement.value.length == 0){
-        //         modal.style.display = "none";
-        //         strTemp += "Batch Code is required. <br>"
-        //         inputElement.style.borderColor = "red";
-        //         inputElement.focus()
-        //     }else{
-        //         inputElement.style.borderColor = "";
-        //     }
-            
-        // }
-
+     
         var table = document.getElementById("purchases_tbl_new");
         var noofrow = table.rows.length -1;
 
@@ -343,7 +318,7 @@
         var NodeList2 = document.getElementsByName("prod_name");
         var prod_unit = document.getElementsByName("prod_unit");
         var prod_qty = document.getElementsByName("prod_qty");
-        
+        var primary_code = document.getElementsByName("primary_code");
         var batch_code = document.getElementsByName("batch_code");
         var product_date = document.getElementsByName("product_date");
         var expiry_date = document.getElementsByName("expiry_date");
@@ -357,6 +332,7 @@
         var valbatch_code = '';
         var valproduct_date = '';
         var valexpiry_date = '';
+        var valprimary_code = '';
         // var valprod_level = '';
         var valConver = '';
 
@@ -369,41 +345,47 @@
             valproduct_date = product_date[x].value;
             valexpiry_date = expiry_date[x].value;
             valConver = Conver[x].value;
+            valprimary_code = primary_code[x].value;
 
             // const selectedIndex = prod_level[x].selectedIndex;
             // const selectedValue = prod_level[x].value;
             // valprod_level = prod_level[x].options[selectedIndex].text;
             
             html += '<tr>';
-            html += '<td>';
+            html += '<td class="data_td">';
             html += '<p>' + nodeVal + '</p>';
             html += '</td>';
 
-            html += '<td>';
+            html += '<td class="data_td">';
             html += productName;
             html += '</td>';
 
-            html += '<td>';
+
+            html += '<td class="data_td">';
+            html += valprimary_code;
+            html += '</td>';
+
+            html += '<td class="data_td">';
             html += valbatch_code;
             html += '</td>';
 
-            html += '<td>';
+            html += '<td class="data_td">';
             html += valproduct_date;
             html += '</td>';
 
-            html += '<td>';
+            html += '<td class="data_td">';
             html += valexpiry_date;
             html += '</td>';
 
-            html += '<td>';
+            html += '<td class="data_td">';
             html += valprod_qty;
             html += '</td>';
 
-            html += '<td>';
+            html += '<td class="data_td">';
             html += valprod_unit;
             html += '</td>';
             
-            html += '<td>';
+            html += '<td class="data_td">';
             html += valConver;
             html += '</td>';
 
@@ -419,13 +401,13 @@
         htmlfinal += '<tr>';
         htmlfinal += '<th scope="col">Item Code </th>';
         htmlfinal += '<th scope="col">Item Description </th>';
+        htmlfinal += '<th scope="col">Primary Code </th>';
         htmlfinal += '<th scope="col">Batch Code </th>';
         htmlfinal += '<th scope="col">Production Date </th>';
         htmlfinal += '<th scope="col">Expiry Date </th>';
         htmlfinal += '<th scope="col">Quantity </th>';
         htmlfinal += '<th scope="col">Unit of Measure </th>';
         htmlfinal += '<th scope="col">Conversion</th>';
-        htmlfinal += '<th scope="col">Bin </th>';
         htmlfinal += '</tr>';
         htmlfinal += '</thead>';
         htmlfinal += '<tbody id="tblPage_new_modal">';
