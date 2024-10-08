@@ -986,130 +986,152 @@
                 data: { product_code: productCode }, 
                 success: function(response) {
                     $.each(response, function(index, data) {
-                        console.log(data)
-                        if(data.product_cat == "P"){
-                            var row = $('<tr>');
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="prod_code" value="' + data.product_code + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 380px;" name="prod_name" id="prod_name'+ lastIncre +'" value="' + data.name + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 190px;" name="primary_code" value="' + data.primary_code + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="batch_code" value="">'));
-                            row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="product_date" value="" required>'));
-                            row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="expiry_date" id="expiry_date'+lastIncre+'" value="" required>'));
-                            row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" name="prod_qty" id="prod_qty'+ lastIncre +'" onchange="ValidationForMaxQTY('+ lastIncre +')" onkeyup="ConversionKit('+lastIncre+', '+data.maxProdPerUnit+')" value="" >'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="prod_unit" id="prod_unit'+lastIncre+'" value="' + data.unit + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+lastIncre+'" value="" readonly>'));
-                            row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
-                            
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'sales_data_cateory',
-                                name: 'sales_data_cateory',
-                                value: data.sales_category
-                            }).appendTo(row);
+                        // console.log(data)
+                        var existingIds = [];
+                        $('#tblPage_new tr').each(function() {
+                            var existingId = $(this).find('input[name="id_transactiona"]').val();
+                            existingIds.push(existingId);
+                        });
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_secondunit',
-                                name: 'prod_secondunit',
-                                value: data.secondary_unit
-                            }).appendTo(row);
+                        console.log(existingIds.indexOf(data._id))
+                        if (existingIds.indexOf(data._id) === -1) {
+                            if(data.product_cat == "P"){
+                                
+                                var row = $('<tr>');
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="prod_code" value="' + data.product_code + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 380px;" name="prod_name" id="prod_name'+ lastIncre +'" value="' + data.name + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 190px;" name="primary_code" value="' + data.primary_code + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="batch_code" value="">'));
+                                row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="product_date" value="" required>'));
+                                row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="expiry_date" id="expiry_date'+lastIncre+'" value="" required>'));
+                                row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" name="prod_qty" id="prod_qty'+ lastIncre +'" onchange="ValidationForMaxQTY('+ lastIncre +')" onkeyup="ConversionKit('+lastIncre+', '+data.maxProdPerUnit+')" value="" >'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="prod_unit" id="prod_unit'+lastIncre+'" value="' + data.unit + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+lastIncre+'" value="" readonly>'));
+                                row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+                                
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'sales_data_cateory',
+                                    name: 'sales_data_cateory',
+                                    value: data.sales_category
+                                }).appendTo(row);
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'uuid',
-                                name: 'uuid',
-                                value: uuidv4()
-                            }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_secondunit',
+                                    name: 'prod_secondunit',
+                                    value: data.secondary_unit
+                                }).appendTo(row);
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_primunit',
-                                name: 'prod_primunit',
-                                value: data.unit
-                            }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'uuid',
+                                    name: 'uuid',
+                                    value: uuidv4()
+                                }).appendTo(row);
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'secondary_code',
-                                name: 'secondary_code',
-                                value: data.secondary_code
-                            }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_primunit',
+                                    name: 'prod_primunit',
+                                    value: data.unit
+                                }).appendTo(row);
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'MaxStocks_data'+lastIncre,
-                                name: 'MaxStocks_data',
-                                value: ""
-                            }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'secondary_code',
+                                    name: 'secondary_code',
+                                    value: data.secondary_code
+                                }).appendTo(row);
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'MaxStocks_data2'+lastIncre,
-                                name: 'MaxStocks_data2',
-                                value: ""
-                            }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'MaxStocks_data'+lastIncre,
+                                    name: 'MaxStocks_data',
+                                    value: ""
+                                }).appendTo(row);
 
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'max_product_unit',
-                                name: 'max_product_unit',
-                                value: data.maxProdPerUnit
-                            }).appendTo(row);
-
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_cat'+lastIncre,
-                                name: 'prod_cat',
-                                value: data.product_cat
-                            }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'MaxStocks_data2'+lastIncre,
+                                    name: 'MaxStocks_data2',
+                                    value: ""
+                                }).appendTo(row);
 
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_othUnit'+lastIncre,
-                                name: 'prod_othUnit',
-                                value: data.otherUnit
-                            }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'max_product_unit',
+                                    name: 'max_product_unit',
+                                    value: data.maxProdPerUnit
+                                }).appendTo(row);
 
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'prod_Qty'+lastIncre,
-                                name: 'prod_Qty',
-                                value: ""
-                            }).appendTo(row);
-
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'id_transaction_from'+lastIncre,
-                                name: 'id_transaction_from',
-                                value: data._id
-                            }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_cat'+lastIncre,
+                                    name: 'prod_cat',
+                                    value: data.product_cat
+                                }).appendTo(row);
 
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'gross_price'+lastIncre,
-                                name: 'gross_price',
-                                value: data.gross_price
-                            }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_othUnit'+lastIncre,
+                                    name: 'prod_othUnit',
+                                    value: data.otherUnit
+                                }).appendTo(row);
 
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'product_id'+lastIncre,
-                                name: 'product_id',
-                                value: data._id
-                            }).appendTo(row);
 
-                            $('#tblPage_new').append(row);
-                            console.log(lastIncre)
-                            lastIncre++;
-                            
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_Qty'+lastIncre,
+                                    name: 'prod_Qty',
+                                    value: ""
+                                }).appendTo(row);
 
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'id_transaction_from'+lastIncre,
+                                    name: 'id_transaction_from',
+                                    value: data._id
+                                }).appendTo(row);
+
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'gross_price'+lastIncre,
+                                    name: 'gross_price',
+                                    value: data.gross_price
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'product_id'+lastIncre,
+                                    name: 'product_id',
+                                    value: data._id
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'id_transactiona',
+                                    name: 'id_transactiona',
+                                    value: data._id
+                                }).appendTo(row);
+
+                                $('#tblPage_new').append(row);
+                                console.log(lastIncre)
+                                lastIncre++;
+                                
+
+                            }
+                        }else{
+                            Swal.fire(
+                            '',
+                              data.name + ' is already exist!',
+                            'info'
+                            )
                         }
-
                     })
                 
                 }
