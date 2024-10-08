@@ -1491,7 +1491,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                 }
             }
         ])
-
+        // 1st level of check warehouse
         for (let one_check = 0; one_check <= findWarehouseValidation.length - 1; one_check++) {
             const element = findWarehouseValidation[one_check];
             // console.log(element.product_data.length);
@@ -1553,7 +1553,77 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             }
             findWarehouseValidation[one_check].product_data = findWarehouseValidation[one_check].product_data.filter(item => parseInt(item.max) > 0);
         }
+
+
+
+        // 2nd level of check warehouse temporaries
+        for (let two_check = 0; two_check <= findWarehouseValidation.length - 1; two_check++) {
+            const element = findWarehouseValidation[two_check];
+     
+            for (let index_detl = 0; index_detl <= element.product_data.length -1; index_detl++) {
+                const element_detl = element.product_data[index_detl];
+                // console.log(element.warehouse_name+ " <> " + element.room + " <> " + element_detl.product_code  + " <> " + element_detl.bay  + " <> " + element_detl.bin)
+
+                const warehouse_data_temp = await warehouse_temporary.aggregate([
+                    {
+                        $match: {
+                            warehouse: element.warehouse_name,
+                            room_name: element.room,
+                            isConfirm: "false",
+                            data_type: "inc",
+                            product_code: element_detl.product_code,
+                            level: element_detl.bay,
+                            bay: parseInt(element_detl.bin)
+                        }
+                    }
+                    
+                ]);
+
+
+
+                // console.log(warehouse_data_temp)
+                for (let wew = 0; wew <= warehouse_data_temp.length-1; wew++) {
+                    let warehouse_data_test = warehouse_data_temp[wew];
+                    console.log(warehouse_data_test)
+                    let a = 0;
+                //     // console.log(warehouse_data_test.product_details.product_code + "==" + element_detl.product_code + "&&" +  warehouse_data_test.product_details.bay +"=="+ element_detl.bin +"&&"+ warehouse_data_test.product_details.level +"=="+ element_detl.bay)
+                    if(warehouse_data_test.product_code == element_detl.product_code && warehouse_data_test.bay == element_detl.bin && warehouse_data_test.level == element_detl.bay){
+                        element_detl.max = parseInt(element_detl.max) - parseInt(warehouse_data_test.product_stock);
+                        // console.log(element_detl.max)
+                        a++
+                    }
+                //     // console.log(a)
+                    if (a == "0") {
+                        if (parseInt(element_detl.max) > 0) {
+ 
+
+                            findWarehouseValidation[two_check].product_data = findWarehouseValidation[two_check].product_data.concat({
+                                bay: element_detl.bay,
+                                bin: element_detl.bin,
+                                max: element_detl.max,
+                                min: element_detl.min,
+                                product_code: element_detl.product_code,
+                                product_id: element_detl.product_id,
+                                product_name: element_detl.product_name,
+                            });
+                        }
+                        
+                }
+                    
+                }
+                
+
+                // console.log(warehouse_data);
+                
+            }
+            findWarehouseValidation[two_check].product_data = findWarehouseValidation[two_check].product_data.filter(item => parseInt(item.max) > 0);
+        }
         
+        
+
+
+        // res.json(findWarehouseValidation);
+        // return;
         
         let dataFix = [];
         let i_data = 0;
@@ -1600,7 +1670,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                             for (let i = 0; i <= element.product_data.length -1  && remainingQuantity > 0; i++) {
                                 const bin = element.product_data[i];
                                 
-                                // console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
+                                console.log(element3.product_code + "===" +bin.product_code + " <> " + bin.min + " <> " + bin.max + " <> " + bin.bay + " <> " + bin.bin)
                                 if(element3.product_code === bin.product_code){
                                     dataFix[i_data] = {}
                                     const maxCapacity = parseInt(bin.max);
@@ -1656,7 +1726,7 @@ router.post("/view/add_purchases", auth, async (req, res) => {
 
 
                             // if (remainingQuantity > 0) {
-                            //     // console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 2`);
+                            //     console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 2`);
 
                             //     // const warehouse_data2 = await warehouse.aggregate([
                             //     //     {

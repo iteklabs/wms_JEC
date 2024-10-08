@@ -2934,11 +2934,7 @@ router.get("/PDFFinal_own/:id", auth, async (req, res) => {
           }
 
 
-          if(ProductDetl.prod_cat == "S"){
-            totalSecondary += ProductDetl.quantity * ProductDetl.maxperunit
-          }else{
-            totalQTY += ProductDetl.quantity
-          }
+          
           
           // dataUnit += ' / ' + ProductDetl.secondary_unit ;
           var cbm = ProductDetl.quantity * ProductDetl.CBM
