@@ -2630,6 +2630,7 @@ router.get("/PDFFinal_own/:id", auth, async (req, res) => {
 
       function addHeaders(doc, x, y) {
         // doc.image('./public/upload/JDI Logo.jpg', 20, 0, {fit: [100, 100]})
+        doc.image('./public/upload/'+master[0].image, 20, 0, {fit: [100, 100]})
         doc
         .fontSize(10)
         .font('Helvetica-Bold')
