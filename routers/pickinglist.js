@@ -1355,7 +1355,7 @@ router.get("/pdf_puchases_fin_own/:id", auth, async (req, res) => {
       doc
       .fontSize(10)
       .font('Helvetica-Bold')
-      .text('JOB ORDER - ' + user_id.suppliers, x+=190, y+=10);
+      .text('JOB ORDER', x+=190, y+=10);
       
       doc
       .fontSize(9)

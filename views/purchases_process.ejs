@@ -214,6 +214,13 @@
                                             <button type="button" class="btn btn-rounded btn-outline-info"
                                                 onclick="history.back()"><i class="la la-undo"></i> <%= language.go_back %> </button>
                                         </div>
+                                        <div class="card-body">
+                                            
+                                            <a href="/picking_list/pdf_puchases_fin_own/<%= purchases_data._id %>" id="picklist" data-id="<%= purchases_data._id %>" class="btn btn-warning btn-sm" target="_blank">
+                                                    <i class="feather icon-printer"></i>
+                                                    Print J.O
+                                            </a>
+                                        </div>
                                         <div class="card-body" style="display: block;" >
                                             <div class="form-validation">
 
