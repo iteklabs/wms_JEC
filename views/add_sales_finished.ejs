@@ -1052,6 +1052,14 @@
                 success: function(response) {
                     $.each(response, function(index, data) {
                         // console.log(data)
+
+                        var existingIds = [];
+                        $('#tblPage_new tr').each(function() {
+                            var existingId = $(this).find('input[name="id_transactiona"]').val();
+                            existingIds.push(existingId);
+                        });
+
+                        if (existingIds.indexOf(data._id) === -1) {
                         if(data.product_cat == "P"){
                             var row = $('<tr>');
                             row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="prod_code" value="' + data.product_code + '" readonly>'));
@@ -1065,12 +1073,12 @@
                             // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+lastIncre+'" value="" readonly>'));
                             row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
                             
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'sales_data_cateory',
-                            //     name: 'sales_data_cateory',
-                            //     value: data.sales_category
-                            // }).appendTo(row);
+                            $('<input>').attr({
+                                type: 'hidden',
+                                id: 'id_transactiona',
+                                name: 'id_transactiona',
+                                value: data._id
+                            }).appendTo(row);
 
                             // $('<input>').attr({
                             //     type: 'hidden',
@@ -1172,7 +1180,13 @@
                             lastIncre++;
 
                         }
-
+                        }else{
+                            Swal.fire(
+                            '',
+                            data.name + ' is already exist!',
+                            'info'
+                            )
+                        }
                     })
                 document.getElementById("product_code").value='';
                 }
