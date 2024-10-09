@@ -1554,8 +1554,6 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             findWarehouseValidation[one_check].product_data = findWarehouseValidation[one_check].product_data.filter(item => parseInt(item.max) > 0);
         }
 
-
-
         // 2nd level of check warehouse temporaries
         for (let two_check = 0; two_check <= findWarehouseValidation.length - 1; two_check++) {
             const element = findWarehouseValidation[two_check];
@@ -1618,9 +1616,6 @@ router.post("/view/add_purchases", auth, async (req, res) => {
             }
             findWarehouseValidation[two_check].product_data = findWarehouseValidation[two_check].product_data.filter(item => parseInt(item.max) > 0);
         }
-        
-        
-
 
         // res.json(findWarehouseValidation);
         // return;
@@ -1725,49 +1720,46 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                             }
 
 
-                            // if (remainingQuantity > 0) {
-                            //     console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 2`);
+                            if (remainingQuantity > 0) {
+                                console.log(`There is ${remainingQuantity} units left that couldn't be placed in any bin. 2`);
 
-                            //     // const warehouse_data2 = await warehouse.aggregate([
-                            //     //     {
-                            //     //         $match: {
-                            //     //             name: warehouse_name,
-                            //     //             isStaging: "true"
-                            //     //         }
-                            //     //     },
+                                // const warehouse_data2 = await warehouse.aggregate([
+                                //     {
+                                //         $match: {
+                                //             name: warehouse_name,
+                                //             isStaging: "true"
+                                //         }
+                                //     },
                                     
-                            //     // ]);
+                                // ]);
 
-                            //     // // console.log(i_data, warehouse_data2[0].room)
-                            //     // // console.log(element3.product_name)
-                            //     // dataFix[i_data] = {}
-                            //     // dataFix[i_data].product_name = element3.product_name;
-                            //     // dataFix[i_data].product_code = element3.product_code;
-                            //     // dataFix[i_data].product_id = element3.product_id;
-                            //     // dataFix[i_data].date_recieved = element3.date_recieved;
-                            //     // dataFix[i_data].sales_category = element3.sales_category;
-                            //     // dataFix[i_data].uuid = element3.uuid;
-                            //     // dataFix[i_data].quantity = remainingQuantity;
-                            //     // dataFix[i_data].standard_unit = element3.standard_unit;
-                            //     // dataFix[i_data].secondary_unit = element3.secondary_unit;
-                            //     // dataFix[i_data].primary_code = element3.primary_code;
-                            //     // dataFix[i_data].secondary_code = element3.secondary_code;
-                            //     // dataFix[i_data].maxStocks = element3.maxStocks;
-                            //     // dataFix[i_data].batch_code = element3.batch_code;
-                            //     // dataFix[i_data].expiry_date = element3.expiry_date;
-                            //     // dataFix[i_data].production_date = element3.production_date;
-                            //     // dataFix[i_data].maxperunit = element3.maxperunit;
-                            //     // dataFix[i_data].product_cat = element3.product_cat;
-                            //     // dataFix[i_data].invoice = element3.invoice;
-                            //     // dataFix[i_data].gross_price = element3.gross_price;
-                            //     // dataFix[i_data].room_name = warehouse_data2[0].room;
-                            //     // dataFix[i_data].level = "STAGING"
-                            //     // dataFix[i_data].bay = "1"
-
-
-                                
-                            //     break;
-                            // }
+                                // // console.log(i_data, warehouse_data2[0].room)
+                                // // console.log(element3.product_name)
+                                // dataFix[i_data] = {}
+                                // dataFix[i_data].product_name = element3.product_name;
+                                // dataFix[i_data].product_code = element3.product_code;
+                                // dataFix[i_data].product_id = element3.product_id;
+                                // dataFix[i_data].date_recieved = element3.date_recieved;
+                                // dataFix[i_data].sales_category = element3.sales_category;
+                                // dataFix[i_data].uuid = element3.uuid;
+                                // dataFix[i_data].quantity = remainingQuantity;
+                                // dataFix[i_data].standard_unit = element3.standard_unit;
+                                // dataFix[i_data].secondary_unit = element3.secondary_unit;
+                                // dataFix[i_data].primary_code = element3.primary_code;
+                                // dataFix[i_data].secondary_code = element3.secondary_code;
+                                // dataFix[i_data].maxStocks = element3.maxStocks;
+                                // dataFix[i_data].batch_code = element3.batch_code;
+                                // dataFix[i_data].expiry_date = element3.expiry_date;
+                                // dataFix[i_data].production_date = element3.production_date;
+                                // dataFix[i_data].maxperunit = element3.maxperunit;
+                                // dataFix[i_data].product_cat = element3.product_cat;
+                                // dataFix[i_data].invoice = element3.invoice;
+                                // dataFix[i_data].gross_price = element3.gross_price;
+                                // dataFix[i_data].room_name = warehouse_data2[0].room;
+                                // dataFix[i_data].level = "STAGING"
+                                // dataFix[i_data].bay = "1"
+                                break;
+                            }
         
                             
                         }
@@ -1911,9 +1903,6 @@ router.post("/view/add_purchases", auth, async (req, res) => {
                 console.log("STAGING AREA 1" + " <> " + element3.product_code + " === " + element3.product_code + " <> " + i_data + " <> " + remainingQuantity)
                 req.flash('errors', `The Other ${remainingQuantity} quantity that could be place in Staging Area`)
             }
-
-            
-
         }
 
         // res.json(dataFix);
