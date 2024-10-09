@@ -1689,7 +1689,7 @@ router.get("/pdf_puchases_fin_own/:id", auth, async (req, res) => {
 
 
         let number = 14-table.datas.length;
-
+        console.log(number);
           for(var x = 1; x <= number; x++){
 
             var rowData;

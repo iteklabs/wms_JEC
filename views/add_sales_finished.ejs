@@ -222,7 +222,7 @@
 
 
         var theProduct_code =  document.getElementsByName("prod_code");
-        var QTY_reuired_need = document.getElementsByName("prod_qty");
+        var QTY_reuired_need = document.getElementsByName("carton");
         var warehouse_name = document.getElementById("warehouse_name").value;
         var resultprd_code = '';
         var resultqty = '';
@@ -652,13 +652,14 @@
                                                                         <th scope="col">Item Code </th>
                                                                         <th scope="col">Item Description </th>
                                                                         <th scope="col">Primary Barcode </th>
+                                                                        <th scope="col">Secondary Code</th>
                                                                         <!-- <th scope="col">Batch Code</th>
                                                                         <th scope="col">Production date</th>
                                                                         <th scope="col">Expiry date </th> -->
                                                                         <!-- <th scope="col"><%= language.in_stock %> </th> -->
                                                                         <th scope="col"><%= language.quantity %> <span class="text-red">*</span></th>
                                                                         <th scope="col">Unit of Measure </th>
-                                                                        <!-- <th scope="col"> Conversion</th> -->
+                                                                        <th scope="col"> Conversion</th>
                                                                         <!-- <th scope="col"> Room</th>
                                                                         <th scope="col">Bin </th> -->
                                                                         <!-- <th scope="col">Agent </th> -->
@@ -718,6 +719,7 @@
                                                 <th>Item Code</th>
                                                 <th>Item Description</th>
                                                 <th>Primary Code</th>
+                                                <!-- <th>Secondary Code</th> -->
                                                 <th>Quantity</th>
                                                 <th>Unit of Measure</th>
                                                 <th>Rack</th>
@@ -1060,126 +1062,112 @@
                         });
 
                         if (existingIds.indexOf(data._id) === -1) {
-                        if(data.product_cat == "P"){
-                            var row = $('<tr>');
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="prod_code" value="' + data.product_code + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 380px;" name="prod_name" id="prod_name'+ lastIncre +'" value="' + data.name + '" readonly>'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 190px;" name="primary_code" value="' + data.primary_code + '" readonly>'));
-                            // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="batch_code" value="">'));
-                            // row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="product_date" value="" required>'));
-                            // row.append($('<td>').html('<input type="date" class="form-control" style="width: 150px;" name="expiry_date" id="expiry_date'+lastIncre+'" value="" required>'));
-                            row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" name="prod_qty" id="prod_qty'+ lastIncre +'" onchange="ValidationForMaxQTY('+ lastIncre +')" onkeyup="ConversionKit('+lastIncre+', '+data.maxProdPerUnit+')" value="" >'));
-                            row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="prod_unit" id="prod_unit'+lastIncre+'" value="' + data.unit + '" readonly>'));
-                            // row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+lastIncre+'" value="" readonly>'));
-                            row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
-                            
-                            $('<input>').attr({
-                                type: 'hidden',
-                                id: 'id_transactiona',
-                                name: 'id_transactiona',
-                                value: data._id
-                            }).appendTo(row);
+                            if(data.product_cat == "P"){
+                                var row = $('<tr>');
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="prod_code" value="' + data.product_code + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 380px;" name="prod_name" id="prod_name'+ lastIncre +'" value="' + data.name + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 190px;" name="primary_code" value="' + data.primary_code + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 190px;" name="secondary_code" value="' + data.secondary_code + '" readonly>'));
+                                row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" name="prod_qty" id="prod_qty'+ lastIncre +'" onchange="ValidationForMaxQTY('+ lastIncre +')" onkeyup="ConversionKit('+lastIncre+', '+data.maxProdPerUnit+')" value="" >'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="prod_unit" id="prod_unit'+lastIncre+'" value="' + data.unit + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+lastIncre+'" value="" readonly>'));
+                                row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+                                
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'id_transactiona',
+                                    name: 'id_transactiona',
+                                    value: data._id
+                                }).appendTo(row);
+                                
 
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'prod_secondunit',
-                            //     name: 'prod_secondunit',
-                            //     value: data.secondary_unit
-                            // }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_cat'+lastIncre,
+                                    name: 'prod_cat',
+                                    value: data.product_cat
+                                }).appendTo(row);
 
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'uuid',
-                            //     name: 'uuid',
-                            //     value: uuidv4()
-                            // }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'primary_unit'+lastIncre,
+                                    name: 'primary_unit',
+                                    value: data.unit
+                                }).appendTo(row);
 
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'prod_primunit',
-                            //     name: 'prod_primunit',
-                            //     value: data.unit
-                            // }).appendTo(row);
-
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'secondary_code',
-                            //     name: 'secondary_code',
-                            //     value: data.secondary_code
-                            // }).appendTo(row);
-
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'MaxStocks_data'+lastIncre,
-                            //     name: 'MaxStocks_data',
-                            //     value: ""
-                            // }).appendTo(row);
-
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'MaxStocks_data2'+lastIncre,
-                            //     name: 'MaxStocks_data2',
-                            //     value: ""
-                            // }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'secondary_unit'+lastIncre,
+                                    name: 'secondary_unit',
+                                    value: data.secondary_unit
+                                }).appendTo(row);
 
 
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'max_product_unit',
-                            //     name: 'max_product_unit',
-                            //     value: data.maxProdPerUnit
-                            // }).appendTo(row);
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'carton'+lastIncre,
+                                    name: 'carton',
+                                    value: ""
+                                }).appendTo(row);
+
+                                
+                                
+
+                                
+
+                                $('#tblPage_NewOut').append(row);
+                                lastIncre++;
+
+                            }else if(data.product_cat == "S"){
+                                var row = $('<tr>');
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 125px;" name="prod_code" value="' + data.product_code + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 380px;" name="prod_name" id="prod_name'+ lastIncre +'" value="' + data.name + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 190px;" name="primary_code" value="' + data.primary_code + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 190px;" name="secondary_code" value="' + data.secondary_code + '" readonly>'));
+                                row.append($('<td>').html('<input type="number" class="form-control" style="width: 150px;" name="prod_qty" id="prod_qty'+ lastIncre +'" onchange="ValidationForMaxQTY('+ lastIncre +')" onkeyup="ConversionKit('+lastIncre+', '+data.maxProdPerUnit+')" value="" >'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="prod_unit" id="prod_unit'+lastIncre+'" value="' + data.secondary_unit + '" readonly>'));
+                                row.append($('<td>').html('<input type="text" class="form-control" style="width: 150px;" name="test" id="Conver'+lastIncre+'" value="" readonly>'));
+                                row.append($('<td>').html('<button type="button" class="btn btn-square btn-outline-danger" id="remove">Remove</button>'));
+                                
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'id_transactiona',
+                                    name: 'id_transactiona',
+                                    value: data._id
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'prod_cat'+lastIncre,
+                                    name: 'prod_cat',
+                                    value: data.product_cat
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'primary_unit'+lastIncre,
+                                    name: 'primary_unit',
+                                    value: data.unit
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'secondary_unit'+lastIncre,
+                                    name: 'secondary_unit',
+                                    value: data.secondary_unit
+                                }).appendTo(row);
+
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    id: 'carton'+lastIncre,
+                                    name: 'carton',
+                                    value: ""
+                                }).appendTo(row);
 
 
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'prod_cat'+lastIncre,
-                            //     name: 'prod_cat',
-                            //     value: data.product_cat
-                            // }).appendTo(row);
-
-
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'prod_othUnit'+lastIncre,
-                            //     name: 'prod_othUnit',
-                            //     value: data.otherUnit
-                            // }).appendTo(row);
-
-
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'prod_Qty'+lastIncre,
-                            //     name: 'prod_Qty',
-                            //     value: ""
-                            // }).appendTo(row);
-
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'id_transaction_from'+lastIncre,
-                            //     name: 'id_transaction_from',
-                            //     value: data._id
-                            // }).appendTo(row);
-
-
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'gross_price'+lastIncre,
-                            //     name: 'gross_price',
-                            //     value: data.gross_price
-                            // }).appendTo(row);
-
-                            // $('<input>').attr({
-                            //     type: 'hidden',
-                            //     id: 'product_id'+lastIncre,
-                            //     name: 'product_id',
-                            //     value: data._id
-                            // }).appendTo(row);
-
-                            $('#tblPage_NewOut').append(row);
-                            lastIncre++;
-
-                        }
+                                $('#tblPage_NewOut').append(row);
+                                lastIncre++;
+                            }
                         }else{
                             Swal.fire(
                             '',
@@ -1266,7 +1254,7 @@
 }
     
     function ConversionKit(x,c){
-            var unit = document.getElementById("prod_unit"+x).value;
+            // var unit = document.getElementById("prod_unit"+x).value;
             var qty = document.getElementById("prod_qty"+x).value;
             var prod_cat = document.getElementById("prod_cat"+x).value;
             var prod_othUnit = document.getElementById("primary_unit"+x).value;
@@ -1275,22 +1263,20 @@
             var totalQty = 0;
             var totalQty1 = 0;
             var Carton = 0;
-            // console.log(prod_othUnit + " <> " + prod_othUnit2  + " <> " +  prod_cat + " <> " +  qty + " <> " + c)
-
             if(prod_cat == "S"){
                 totalQty1 = qty/c
-                totalQty = totalQty1 + " " + prod_othUnit
+                totalQty = totalQty1.toFixed(2) + " " + prod_othUnit
                 Carton =totalQty1;
             }else if(prod_cat == "P"){
                 totalQty1 = qty*c
-                totalQty = totalQty1 + " " + prod_othUnit2
+                totalQty = totalQty1.toFixed(2) + " " + prod_othUnit2
                 Carton =qty;
             }
             document.getElementById("carton"+x).value = Carton;
-
-            // console.log(totalQty1 + " <> " + prod_cat + " <> " + Carton)
             
             document.getElementById("Conver"+x).value = totalQty 
+
+            // console.log(x + " <> " + c + " <> " + prod_cat + " <> " + prod_othUnit + " <> " + prod_othUnit2)
 
         }
 

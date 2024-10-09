@@ -2858,7 +2858,11 @@ router.post("/barcode_scanner_auto_data", async (req, res) => {
                 },
                 {
                     // Sort by date_received in ascending order to get FIFO
-                    $sort: { "product_details.date_received": 1 }
+                    $sort: { 
+                        "product_details.date_received": 1 ,
+                        "product_details.level" : -1,
+                        "product_details.bay" : -1
+                    }
                 },
                 {
                     $group: {
