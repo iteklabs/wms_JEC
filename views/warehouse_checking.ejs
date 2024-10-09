@@ -323,11 +323,13 @@
     <script>
         function show_pending(){
             var data = document.getElementById("tblPage_pending");
+            var type_of_process = document.getElementById("type_of_process").value
+            console.log(type_of_process)
             let dataString = '';
             $.ajax({
                 type: "POST",
                 url: "/warehouse_checker/view_data_all",
-                data: { data_show: "false"},
+                data: { data_show: "false", type_proc: type_of_process },
                 success: function (response) {
                     if(response.length > 0){
                         for (let index = 0; index <= response.length - 1; index++) {
@@ -359,11 +361,12 @@
 
         function show_history(){
             var data = document.getElementById("tblPage_new");
+            var type_of_process = document.getElementById("type_of_process").value
             let dataString = '';
             $.ajax({
                 type: "POST",
                 url: "/warehouse_checker/view_data_all",
-                data: { data_show: "All"},
+                data: { data_show: "All", type_proc: type_of_process },
                 success: function (response) {
                     if(response.length > 0){
                         for (let index = 0; index <= response.length - 1; index++) {

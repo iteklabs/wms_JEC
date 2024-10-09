@@ -250,19 +250,23 @@ router.post("/cancel_data", auth, async (req, res) => {
 
 router.post("/view_data_all", auth, async (req, res) => {
     try {
-        const { data_show } = req.body
+        const { data_show, type_proc } = req.body
 
         if(data_show == "All"){
-            const data_all = await warehouse_temporary.find({ isConfirm: "true" });
+            // const data_all = await warehouse_temporary.find({ isConfirm: "true", data_type: type_proc })
+            const data_all = await warehouse_temporary.find({ 
+                isConfirm: "true", 
+                data_type: type_proc 
+            }).sort({ level: 1, bin: 1 });
+
             res.json(data_all)
         }else{
-            const data_all = await warehouse_temporary.find({ isConfirm: data_show })
+            const data_all = await warehouse_temporary.find({ 
+                isConfirm: data_show,
+                data_type: type_proc
+             }).sort({ level: 1, bin: 1 });
             res.json(data_all)
         }
-
-       
-        // console.log(data_warehouse)
-        
     } catch (error) {
         console.log(error)
     }
