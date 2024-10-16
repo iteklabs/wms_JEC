@@ -3017,7 +3017,8 @@ const sales_sa_data = await sales_sa.aggregate([
                 $lte: to
             },
             sales_staff_id: staff_id,
-            "sale_product.isFG": "false"
+            "sale_product.isFG": "false",
+            status_data: "false"
         }
     },
     {
@@ -3113,7 +3114,8 @@ const sales_sa_data = await sales_sa.aggregate([
         }
     }
 ]);
-
+// console.log(sales_sa_data);
+// return;
 let rows = [];
 let totals = {};
 let merged_totals = {};
@@ -3188,6 +3190,10 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
             const data_brand = array_data["cat_brand"][a];
             const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+            if (!data_totals[key]) {
+                data_totals[key] = [];
+            }
+            
             const sum = data_totals[key].reduce((partialSum, a) => partialSum + a, 0)
             row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? formatNumber(sum.toFixed(2)) : ""}</b></td>`;
 
@@ -3793,6 +3799,10 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
             const data_brand = array_data["cat_brand"][a];
             const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+            if (!data_totals[key]) {
+                data_totals[key] = [];
+            }
+            
             const sum = data_totals[key].reduce((partialSum, a) => partialSum + a, 0)
             row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? formatNumber(sum.toFixed(2)) : ""}</b></td>`;
 
@@ -3899,10 +3909,10 @@ router.post('/agent_reports/pdf', auth, async (req, res) => {
     const role_data = req.user
     const stff_data = await staff.findOne({ email: role_data.email })
     const image = await master_shop.find();
-    console.log(image[0].image);
+
     const datatest = await agentsdataDSICheck(from_date, to_date, stff_data._id.valueOf(), isExcel);
     const datatest_excel = await agentsdataDSICheck_excel(from_date, to_date, stff_data._id.valueOf(), isExcel);
-    // res.send(req.body);
+    // res.send(datatest);
     // return;
 
     // let htmlContent = `
