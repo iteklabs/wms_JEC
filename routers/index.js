@@ -807,6 +807,309 @@ router.get("/price_chart", auth, async(req, res) => {
 })
 
 
+router.post("/sales_data_dashboard", auth, async(req, res) => {
+    try {
+        const { date_today, first_month, first_year } = req.body
+        const { sttaff_id } = req.user
+
+
+        const product_data = await product.aggregate([
+            {
+                $group: {
+                    _id: {
+                        brand: "$brand",
+                        category: "$category"
+                    },
+                    products:{
+                        $push: {
+                            name: "$name",
+                            product_code: "$product_code"
+                        }
+                    }
+    
+                }
+            },
+            {
+                $sort: {
+                    
+                    "_id.category": -1, // Sort by category in ascending order
+                    "_id.brand": 1,  // Sort by brand in ascending order
+                }
+            }
+        ])
+        var array_data = [];
+        array_data["cat_brand"] = [];
+        for (let index = 0; index <= product_data.length -1; index++) {
+            const element = product_data[index];
+            array_data["cat_brand"].push(element)
+        }
+
+
+        const sales_sa_data_month_qty = await sales_sa.aggregate([
+            {
+                $match: {
+                    date: {
+                        $gte: first_month,
+                        $lte: date_today
+                    },
+                    sales_staff_id: sttaff_id,
+                    "sale_product.isFG": "false",
+                    status_data: "false"
+                }
+            },
+            {
+                $unwind: "$sale_product"
+            },
+            {
+                $match: {
+                    "sale_product.isFG": "false"
+                }
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "sale_product.product_code",
+                    foreignField: "product_code",
+                    as: "product_info"
+                }
+            },
+            {
+                $unwind: "$product_info"
+            },
+            {
+                $group: {
+                    _id: {
+                        category: "$product_info.category",
+                        brand: "$product_info.brand",
+                    },
+                    totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+                    products: {
+                        $push: {
+                            qty: "$sale_product.real_qty_unit_val",
+                            NetPrice: "$sale_product.totalprice",
+                            discount: "$sale_product.discount",
+                            adj_discount: "$sale_product.adj_discount",
+                            product_details: {
+                                prod_name: "$product_info.name",
+                                product_code: "$product_info.product_code",
+                                category: "$product_info.category",
+                                brand: "$product_info.brand",
+                                gross_price: "$product_info.gross_price",
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $unwind: "$products"
+            },
+            {
+                $group: {
+                    _id: {
+                        category: "$products.product_details.category",
+                        brand: "$products.product_details.brand"
+                    },
+                    totalQty: { $sum: "$products.qty" },
+                    totalGross: { $sum: { $multiply: ["$products.qty", "$products.product_details.gross_price"] } },
+                    NetPrice: { $sum: "$products.NetPrice" },
+                    discount: { $sum: "$products.discount" },
+                    adj_discount: { $sum: "$products.adj_discount" },
+                    product_details: { $first: "$products.product_details" }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        category: "$_id.category",
+                        brand: "$_id.brand"
+                    },
+                    totalQty: { $sum: "$totalQty" },
+                    totalGross: { $sum: "$totalGross" },
+                    NetPrice: { $sum: "$NetPrice" },
+                    discount: { $sum: "$discount" },
+                    adj_discount: { $sum: "$adj_discount" },
+                    products: {
+                        $push: {
+                            qty: "$totalQty",
+                            category: "$_id.category",
+                            brand: "$_id.brand",
+                            product_details: "$product_details"
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    "_id.dsi": -1, // Sort by category in ascending order
+                    "_id.date": 1,  // Sort by brand in ascending order
+                }
+            }
+        ]);
+        var array_month = [];
+        array_month["sales_sa_month"] ={};
+        for (let index = 0; index <= sales_sa_data_month_qty.length-1; index++) {
+            const element = sales_sa_data_month_qty[index];
+
+            if (!array_month["sales_sa_month"][element._id.brand]) {
+                array_month["sales_sa_month"][element._id.brand]= {};
+            }
+
+            if (!array_month["sales_sa_month"][element._id.brand][element._id.category]) {
+                array_month["sales_sa_month"][element._id.brand][element._id.category]= {};
+            }
+
+            if (!array_month["sales_sa_month"][element._id.brand][element._id.category]["qty"]) {
+                array_month["sales_sa_month"][element._id.brand][element._id.category]["qty"]= 0;
+            }
+
+            if (!array_month["sales_sa_month"][element._id.brand][element._id.category]["net"]) {
+                array_month["sales_sa_month"][element._id.brand][element._id.category]["net"]= 0;
+            }
+            array_month["sales_sa_month"][element._id.brand][element._id.category]["qty"] = element.totalQty
+            array_month["sales_sa_month"][element._id.brand][element._id.category]["net"] = element.NetPrice
+            // console.log(element)
+            
+        }
+
+
+
+        const sales_sa_year_qty = await sales_sa.aggregate([
+            {
+                $match: {
+                    date: {
+                        $gte: first_year,
+                        $lte: date_today
+                    },
+                    sales_staff_id: sttaff_id,
+                    "sale_product.isFG": "false",
+                    status_data: "false"
+                }
+            },
+            {
+                $unwind: "$sale_product"
+            },
+            {
+                $match: {
+                    "sale_product.isFG": "false"
+                }
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "sale_product.product_code",
+                    foreignField: "product_code",
+                    as: "product_info"
+                }
+            },
+            {
+                $unwind: "$product_info"
+            },
+            {
+                $group: {
+                    _id: {
+                        category: "$product_info.category",
+                        brand: "$product_info.brand",
+                    },
+                    totalQty: { $sum: "$sale_product.real_qty_unit_val" },
+                    products: {
+                        $push: {
+                            qty: "$sale_product.real_qty_unit_val",
+                            NetPrice: "$sale_product.totalprice",
+                            discount: "$sale_product.discount",
+                            adj_discount: "$sale_product.adj_discount",
+                            product_details: {
+                                prod_name: "$product_info.name",
+                                product_code: "$product_info.product_code",
+                                category: "$product_info.category",
+                                brand: "$product_info.brand",
+                                gross_price: "$product_info.gross_price",
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $unwind: "$products"
+            },
+            {
+                $group: {
+                    _id: {
+                        category: "$products.product_details.category",
+                        brand: "$products.product_details.brand"
+                    },
+                    totalQty: { $sum: "$products.qty" },
+                    totalGross: { $sum: { $multiply: ["$products.qty", "$products.product_details.gross_price"] } },
+                    NetPrice: { $sum: "$products.NetPrice" },
+                    discount: { $sum: "$products.discount" },
+                    adj_discount: { $sum: "$products.adj_discount" },
+                    product_details: { $first: "$products.product_details" }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        category: "$_id.category",
+                        brand: "$_id.brand"
+                    },
+                    totalQty: { $sum: "$totalQty" },
+                    totalGross: { $sum: "$totalGross" },
+                    NetPrice: { $sum: "$NetPrice" },
+                    discount: { $sum: "$discount" },
+                    adj_discount: { $sum: "$adj_discount" },
+                    products: {
+                        $push: {
+                            qty: "$totalQty",
+                            category: "$_id.category",
+                            brand: "$_id.brand",
+                            product_details: "$product_details"
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    "_id.dsi": -1, // Sort by category in ascending order
+                    "_id.date": 1,  // Sort by brand in ascending order
+                }
+            }
+        ]);
+
+
+
+        var array_year = [];
+        array_year["sales_sa_year"] ={};
+        for (let index = 0; index <= sales_sa_year_qty.length-1; index++) {
+            const element = sales_sa_year_qty[index];
+
+            if (!array_year["sales_sa_year"][element._id.brand]) {
+                array_year["sales_sa_year"][element._id.brand]= {};
+            }
+
+            if (!array_year["sales_sa_year"][element._id.brand][element._id.category]) {
+                array_year["sales_sa_year"][element._id.brand][element._id.category]= {};
+            }
+
+            if (!array_year["sales_sa_year"][element._id.brand][element._id.category]["qty"]) {
+                array_year["sales_sa_year"][element._id.brand][element._id.category]["qty"]= 0;
+            }
+
+            if (!array_year["sales_sa_year"][element._id.brand][element._id.category]["net"]) {
+                array_year["sales_sa_year"][element._id.brand][element._id.category]["net"]= 0;
+            }
+            array_year["sales_sa_year"][element._id.brand][element._id.category]["qty"] = element.totalQty
+            array_year["sales_sa_year"][element._id.brand][element._id.category]["net"] = element.NetPrice
+            // console.log(element)
+            
+        }
+        
+    
+        res.json({ product: array_data["cat_brand"], month_data: array_month["sales_sa_month"], year_data: array_year["sales_sa_year"] })
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+
 
 
 
