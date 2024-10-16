@@ -1582,6 +1582,10 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
             const data_brand = array_data["cat_brand"][a];
             const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+            if (!data_totals[key]) {
+                data_totals[key] = [];
+            }
+
             const sum = data_totals[key].reduce((partialSum, a) => partialSum + a, 0)
             console.log("test",key)
             row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? formatNumber(sum.toFixed(2)) : ""}</b></td>`;
@@ -2189,6 +2193,9 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
             const data_brand = array_data["cat_brand"][a];
             const key = `${data_brand._id.brand}-${data_brand._id.category}`;
+            if (!data_totals[key]) {
+                data_totals[key] = [];
+            }
             const sum = data_totals[key].reduce((partialSum, a) => partialSum + a, 0)
             console.log("test",key)
             row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? formatNumber(sum.toFixed(2)) : ""}</b></td>`;
