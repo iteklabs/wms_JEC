@@ -283,12 +283,12 @@
         function startDataRefresh() {
             const pollingInterval = 5000;
             // Call fetchDataAndUpdateChart for each data source and its corresponding chart
-            // setInterval(() => fetchDataAndUpdateChart(invoice_pending), pollingInterval);
+            setInterval(() => fetchDataAndUpdateChart(dataTableSalesYear), pollingInterval);
 
         }
 
         $(document).ready(function() {
-            // startDataRefresh();
+            startDataRefresh();
 
             dataTableSalesYear()
         })
