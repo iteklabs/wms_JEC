@@ -705,6 +705,7 @@ async function agentsdataCheck(from, to){
         }
     ]);
 
+
     const sales_data = await sales_sa.aggregate([
         {
             $match:{
@@ -777,8 +778,8 @@ async function agentsdataCheck(from, to){
         
     ])
 
-    
 
+    
 
     let htmlContent = "";
     htmlContent += `<tr>`;
@@ -3215,7 +3216,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         // row += `<td></td>`;
         // row += `<td></td>`;
         // row += `<td></td>`;
-        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(sum.toFixed(2)) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(sum) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(totalGrossAll) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(discounttotal) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(netPay) }</b></td>`;
