@@ -869,15 +869,15 @@ async function agentsdataCheck(from, to){
             if(arrdata["dataqty"][element1._id.brand][element1._id.category][element]){
                 // console.log(element1._id.brand + " <> " + element1._id.category)
                 totalData = arrdata["dataqty"][element1._id.brand][element1._id.category][element][0];
-                htmlContent += `<td class="row_data">${formatNumber(totalData.toFixed(2))}</td>`;
+                htmlContent += `<td class="row_data">${formatNumber(totalData)}</td>`;
             }else{
                 totalData = 0;
                 htmlContent += `<td class="row_data">${totalData}</td>`;
             }
-            totalQTY += totalData;
+            totalQTY += parseFloat(totalData);
         }
 
-        htmlContent += `<td class="row_data">${formatNumber(totalQTY.toFixed(2))}</td>`;
+        htmlContent += `<td class="row_data">${totalQTY.toFixed(2)}</td>`;
     }
     htmlContent += `</tr>`;
 
@@ -1571,7 +1571,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(discountAll)}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
     row += `</tr>`;
-    sum += parseFloat(sales_data_element.totalQty.toFixed(2));
+    sum += parseFloat(sales_data_element.totalQty);
     netPay += parseFloat(sales_data_element.NetPrice.toFixed(2));
     discounttotal += discountAll;
     totalGrossAll += parseFloat(sales_data_element.totalGross.toFixed(2));
@@ -1602,7 +1602,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         // row += `<td></td>`;
         // row += `<td></td>`;
         // row += `<td></td>`;
-        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(sum.toFixed(2)) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ sum.toFixed(2) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(totalGrossAll) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(discounttotal) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(netPay) }</b></td>`;
@@ -2169,7 +2169,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     }
 
     
-    console.log(sales_data_element)
+    // console.log(sales_data_element)
 
     for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
         const data_brand = array_data["cat_brand"][a];
@@ -2182,7 +2182,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(discountAll)}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
     row += `</tr>`;
-    sum += parseFloat(sales_data_element.totalQty.toFixed(2));
+    sum += parseFloat(sales_data_element.totalQty);
     netPay += parseFloat(sales_data_element.NetPrice.toFixed(2));
     discounttotal += discountAll;
     totalGrossAll += parseFloat(sales_data_element.totalGross.toFixed(2));
@@ -2212,7 +2212,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         // row += `<td></td>`;
         // row += `<td></td>`;
         // row += `<td></td>`;
-        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(sum.toFixed(2)) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(sum) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(totalGrossAll) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(discounttotal) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(netPay) }</b></td>`;
