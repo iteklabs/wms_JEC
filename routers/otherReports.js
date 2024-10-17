@@ -3173,7 +3173,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     }
 
     
-    console.log(sales_data_element)
+    // console.log(sales_data_element)
 
     for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
         const data_brand = array_data["cat_brand"][a];
@@ -3186,10 +3186,12 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(discountAll)}</td>`;
     row += `<td class="row_data"  style="border: 1px solid black; text-align: right;">${formatNumber(sales_data_element.NetPrice.toFixed(2))}</td>`;
     row += `</tr>`;
-    sum += parseFloat(sales_data_element.totalQty.toFixed(2));
+    sum += parseFloat(sales_data_element.totalQty);
     netPay += parseFloat(sales_data_element.NetPrice.toFixed(2));
     discounttotal += discountAll;
     totalGrossAll += parseFloat(sales_data_element.totalGross.toFixed(2));
+
+    
     if(z == (sales_sa_data.length -1)){
         row += `<tr>`;
         row += `<td colspan="3"><b>TOTAL<b>`;
@@ -3205,7 +3207,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
             const sum = data_totals[key].reduce((partialSum, a) => partialSum + a, 0)
             row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? formatNumber(sum.toFixed(2)) : ""}</b></td>`;
 
-            console.log(data_totals[key].reduce((partialSum, a) => partialSum + a, 0))
+            // console.log(data_totals[key].reduce((partialSum, a) => partialSum + a, 0))
         }
        
 
@@ -3216,14 +3218,14 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
         // row += `<td></td>`;
         // row += `<td></td>`;
         // row += `<td></td>`;
-        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(sum) }</b></td>`;
+        row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(sum.toFixed(2)) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(totalGrossAll) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(discounttotal) }</b></td>`;
         row += `<td style="border: 1px solid black; text-align: right;"><b>${ formatNumber(netPay) }</b></td>`;
         row += `</tr>`;
     }
    
-    
+    console.log('Checking: ',sum +"+="+ parseFloat(sales_data_element.totalQty))
     rows.push(row);
 }
 
@@ -3290,7 +3292,7 @@ pages.forEach((page, pageIndex) => {
     });
 
 
-    console.log(data_totals);
+    // console.log(data_totals);
 
     
     htmlContent += `</tbody>`;
@@ -3782,7 +3784,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
     }
 
     
-    console.log(sales_data_element)
+    // console.log(sales_data_element)
 
     for (let a = 0; a <= array_data["cat_brand"].length-1; a++) {
         const data_brand = array_data["cat_brand"][a];
@@ -3814,7 +3816,7 @@ for (let z = 0; z <= sales_sa_data.length -1; z++) {
             const sum = data_totals[key].reduce((partialSum, a) => partialSum + a, 0)
             row += `<td class="row_data" style="border: 1px solid black; text-align: right;"><b>${sum !== undefined ? formatNumber(sum.toFixed(2)) : ""}</b></td>`;
 
-            console.log(data_totals[key].reduce((partialSum, a) => partialSum + a, 0))
+            // console.log(data_totals[key].reduce((partialSum, a) => partialSum + a, 0))
         }
        
 
