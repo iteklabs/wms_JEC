@@ -1658,7 +1658,7 @@ router.get("/pdf_puchases_fin_own/:id", auth, async (req, res) => {
               Units = ProductDetl.secondary_unit
               totalPerUnit = ProductDetl.quantity * ProductDetl.maxperunit
             }
-            console.log(ProductDetl)
+            // console.log(ProductDetl)
 
           var cbm = ProductDetl.quantity*ProductDetl.CBM;
           const rowData = {
@@ -1689,7 +1689,8 @@ router.get("/pdf_puchases_fin_own/:id", auth, async (req, res) => {
 
 
         let number = 14-table.datas.length;
-        console.log(number);
+        // let number = 100;
+       
           for(var x = 1; x <= number; x++){
 
             var rowData;
@@ -1708,7 +1709,8 @@ router.get("/pdf_puchases_fin_own/:id", auth, async (req, res) => {
               };
   
 
-            }else{
+            }
+            else{
               rowData = {
 
               
@@ -1739,212 +1741,418 @@ router.get("/pdf_puchases_fin_own/:id", auth, async (req, res) => {
           
          
         });
-        // var lastTableY = doc.y
-        var lastTableY = doc.page.height -300
+        
+        var lastTableY = doc.y
+        // var lastTableY = doc.page.height-300
         var lastTableX = doc.x
+        if(lastTableY > 617){
+          var lastTableY = 20
+        // var lastTableY = doc.page.height-300
+        var lastTableX = 10
+          doc.addPage();
+          doc
+          .fontSize(9)
+          .text('NUMBER OF PALLETS', lastTableX, lastTableY);
+
+          
+
+          doc
+          .fontSize(9)
+          .text(':', lastTableX+100, lastTableY);
+
+
+          doc
+          .fontSize(9)
+          .text(formatNumber(pallet), lastTableX+150, lastTableY);
+
+          doc.moveTo(lastTableX+105, lastTableY+10); // Move to the starting point
+          doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
+          doc.stroke();
+
+
+          doc
+          .fontSize(9)
+          .text('NUMBER OF CARTONS', lastTableX+270, lastTableY);
+
+          doc.moveTo(lastTableX+380, lastTableY+10); // Move to the starting point
+          doc.lineTo(lastTableX+570, lastTableY+10); // Draw a line to the ending point
+          doc.stroke();
+
+          doc
+          .fontSize(9)
+          .text(formatNumber(totalQTY), lastTableX+400, lastTableY);
+
+
+          // doc
+          // .fontSize(9)
+          // .text('NUMBER OF CBM', lastTableX, lastTableY+=13);
+
+          // doc
+          // .fontSize(9)
+          // .text(':', lastTableX+100, lastTableY);
+
+          // doc
+          // .fontSize(9)
+          // .text(TotalCBM.toFixed(3), lastTableX+150, lastTableY);
+
+          
+
+          // doc.moveTo(lastTableX+105, lastTableY+10); // Move to the starting point
+          // doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
+          // doc.stroke();
 
 
 
+          
 
-        doc
-        .fontSize(9)
-        .text('NUMBER OF PALLETS', lastTableX, lastTableY);
+
+          doc
+          .fontSize(9)
+          .text('NUMBER OF PCS', lastTableX+270, lastTableY+=13);
+          doc.moveTo(lastTableX+380, lastTableY+10); // Move to the starting point
+          doc.lineTo(lastTableX+570, lastTableY+10); // Draw a line to the ending point
+          doc.stroke();
+
+          doc
+          .fontSize(9)
+          .text(formatNumber(totalSecondary), lastTableX+400, lastTableY);
+
+
+
+          
+          doc
+          .fontSize(9)
+          .text('TIME START UNLOADING', lastTableX, lastTableY+=50);
+
+          doc
+          .fontSize(9)
+          .text(':', lastTableX+110, lastTableY);
+
+          const StartUnloading = formatTime(user_id.TSU);
+          const FinishUnloading = formatTime(user_id.TFU);
+
+          doc
+          .fontSize(9)
+          .text(StartUnloading, lastTableX+150, lastTableY);
+
+          doc.moveTo(lastTableX+115, lastTableY+10); // Move to the starting point
+          doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
+          doc.stroke();
+
+          doc
+          .fontSize(9)
+          .text('TIME FINISH UNLOADING', lastTableX, lastTableY+=20);
+
+          doc
+          .fontSize(9)
+          .text(':', lastTableX+110, lastTableY);
+
+          doc
+          .fontSize(9)
+          .text(FinishUnloading, lastTableX+150, lastTableY);
+
+          doc.moveTo(lastTableX+115, lastTableY+10); // Move to the starting point
+          doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
+          doc.stroke();
+
+
+
+          doc.rect(lastTableX+235, lastTableY-50, (lastTableX+645)/2, 120).stroke(); // (x, y, width, height)
+
+
+          doc.rect(lastTableX, lastTableY+75, lastTableX+547, 20).stroke(); // (x, y, width, height)
+
+          doc
+          .fontSize(9)
+          .text('NOTE: THE ABOVE STOCKS ARE RECEIVED IN GOOD CONDITION', lastTableX+=155, lastTableY+=82);
+
+
+          doc
+          .fontSize(9)
+          .text('Checked by:', lastTableX-=155, lastTableY+=25);
+
+
+          doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
+          doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
+          doc.stroke();
+
+
+          doc
+          .fontSize(9)
+          .text('Checker', lastTableX+35, lastTableY+=35);
+
+
+          doc
+          .fontSize(9)
+          .text('Counter Checked by:', lastTableX+=150, lastTableY-=35);
+
+          doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
+          doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
+          doc.stroke();
+
+
+          doc
+          .fontSize(9)
+          .text('Guard on duty', lastTableX+20, lastTableY+=35);
+
+
+          doc
+          .fontSize(9)
+          .text('Checked by:', lastTableX+=150, lastTableY-=35);
+
+          doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
+          doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
+          doc.stroke();
+
+
+          doc
+          .fontSize(9)
+          .text('Truck Driver Signature', lastTableX, lastTableY+=35);
+
+
+
+          doc
+          .fontSize(9)
+          .text('Noted by:', lastTableX+=150, lastTableY-=35);
+        
+          // doc
+          // .fontSize(9)
+          // .text(supervisor_data[0].RMSName, lastTableX+5, lastTableY+20);
+
+          
+          doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
+          doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
+          doc.stroke();
+          
+
+          doc
+          .fontSize(9)
+          .text('Warehouse Supervisor', lastTableX, lastTableY+=35);
 
         
+        // const pageNumber = doc.bufferedPageRange().start + 1; 
+        let pages = doc.bufferedPageRange();
 
+        // let pages = doc.bufferedPageRange();
+        for (let i = 0; i < pages.count; i++) {
+        doc.switchToPage(i);
+
+        //Footer: Add page number
+        let oldBottomMargin = doc.page.margins.bottom;
+        doc.page.margins.bottom = 0 //Dumb: Have to remove bottom margin in order to write into it
         doc
-        .fontSize(9)
-        .text(':', lastTableX+100, lastTableY);
-
-
-        doc
-        .fontSize(9)
-        .text(formatNumber(pallet), lastTableX+150, lastTableY);
-
-        doc.moveTo(lastTableX+105, lastTableY+10); // Move to the starting point
-        doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
-        doc.stroke();
-
-
-        doc
-        .fontSize(9)
-        .text('NUMBER OF CARTONS', lastTableX+270, lastTableY);
-
-        doc.moveTo(lastTableX+380, lastTableY+10); // Move to the starting point
-        doc.lineTo(lastTableX+570, lastTableY+10); // Draw a line to the ending point
-        doc.stroke();
-
-        doc
-        .fontSize(9)
-        .text(formatNumber(totalQTY), lastTableX+400, lastTableY);
-
-
-        // doc
-        // .fontSize(9)
-        // .text('NUMBER OF CBM', lastTableX, lastTableY+=13);
-
-        // doc
-        // .fontSize(9)
-        // .text(':', lastTableX+100, lastTableY);
-
-        // doc
-        // .fontSize(9)
-        // .text(TotalCBM.toFixed(3), lastTableX+150, lastTableY);
-
-        
-
-        // doc.moveTo(lastTableX+105, lastTableY+10); // Move to the starting point
-        // doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
-        // doc.stroke();
-
-
-
-        
-
-
-        doc
-        .fontSize(9)
-        .text('NUMBER OF PCS', lastTableX+270, lastTableY+=13);
-        doc.moveTo(lastTableX+380, lastTableY+10); // Move to the starting point
-        doc.lineTo(lastTableX+570, lastTableY+10); // Draw a line to the ending point
-        doc.stroke();
-
-        doc
-        .fontSize(9)
-        .text(formatNumber(totalSecondary), lastTableX+400, lastTableY);
-
-
-
-        
-        doc
-        .fontSize(9)
-        .text('TIME START UNLOADING', lastTableX, lastTableY+=50);
-
-        doc
-        .fontSize(9)
-        .text(':', lastTableX+110, lastTableY);
-
-        const StartUnloading = formatTime(user_id.TSU);
-        const FinishUnloading = formatTime(user_id.TFU);
-
-        doc
-        .fontSize(9)
-        .text(StartUnloading, lastTableX+150, lastTableY);
-
-        doc.moveTo(lastTableX+115, lastTableY+10); // Move to the starting point
-        doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
-        doc.stroke();
-
-        doc
-        .fontSize(9)
-        .text('TIME FINISH UNLOADING', lastTableX, lastTableY+=20);
-
-        doc
-        .fontSize(9)
-        .text(':', lastTableX+110, lastTableY);
-
-        doc
-        .fontSize(9)
-        .text(FinishUnloading, lastTableX+150, lastTableY);
-
-        doc.moveTo(lastTableX+115, lastTableY+10); // Move to the starting point
-        doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
-        doc.stroke();
-
-
-
-        doc.rect(lastTableX+235, lastTableY-50, (lastTableX+645)/2, 120).stroke(); // (x, y, width, height)
-
-
-        doc.rect(lastTableX, lastTableY+75, lastTableX+547, 20).stroke(); // (x, y, width, height)
-
-        doc
-        .fontSize(9)
-        .text('NOTE: THE ABOVE STOCKS ARE RECEIVED IN GOOD CONDITION', lastTableX+=155, lastTableY+=82);
-
-
-        doc
-        .fontSize(9)
-        .text('Checked by:', lastTableX-=155, lastTableY+=25);
-
-
-        doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
-        doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
-        doc.stroke();
-
-
-        doc
-        .fontSize(9)
-        .text('Checker', lastTableX+35, lastTableY+=35);
-
-
-        doc
-        .fontSize(9)
-        .text('Counter Checked by:', lastTableX+=150, lastTableY-=35);
-
-        doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
-        doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
-        doc.stroke();
-
-
-        doc
-        .fontSize(9)
-        .text('Guard on duty', lastTableX+20, lastTableY+=35);
-
-
-        doc
-        .fontSize(9)
-        .text('Checked by:', lastTableX+=150, lastTableY-=35);
-
-        doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
-        doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
-        doc.stroke();
-
-
-        doc
-        .fontSize(9)
-        .text('Truck Driver Signature', lastTableX, lastTableY+=35);
-
-
-
-        doc
-        .fontSize(9)
-        .text('Noted by:', lastTableX+=150, lastTableY-=35);
-       
-        // doc
-        // .fontSize(9)
-        // .text(supervisor_data[0].RMSName, lastTableX+5, lastTableY+20);
-
-        
-        doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
-        doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
-        doc.stroke();
-        
-
-        doc
-        .fontSize(9)
-        .text('Warehouse Supervisor', lastTableX, lastTableY+=35);
-
-       
-      // const pageNumber = doc.bufferedPageRange().start + 1; 
-      let pages = doc.bufferedPageRange();
-
-      // let pages = doc.bufferedPageRange();
-      for (let i = 0; i < pages.count; i++) {
-      doc.switchToPage(i);
-
-      //Footer: Add page number
-      let oldBottomMargin = doc.page.margins.bottom;
-      doc.page.margins.bottom = 0 //Dumb: Have to remove bottom margin in order to write into it
-      doc
-          .text(
-          `Page: ${i + 1} of ${pages.count}`,
-          0,
-          doc.page.height - (oldBottomMargin/2), // Centered vertically in bottom margin
-          { align: 'center' }
-          );
-      doc.page.margins.bottom = oldBottomMargin; // ReProtect bottom margin
+            .text(
+            `Page: ${i + 1} of ${pages.count}`,
+            0,
+            doc.page.height - (oldBottomMargin/2), // Centered vertically in bottom margin
+            { align: 'center' }
+            );
+        doc.page.margins.bottom = oldBottomMargin; // ReProtect bottom margin
       }
+        }else{
+          doc
+          .fontSize(9)
+          .text('NUMBER OF PALLETS', lastTableX, lastTableY);
+
+          
+
+          doc
+          .fontSize(9)
+          .text(':', lastTableX+100, lastTableY);
+
+
+          doc
+          .fontSize(9)
+          .text(formatNumber(pallet), lastTableX+150, lastTableY);
+
+          doc.moveTo(lastTableX+105, lastTableY+10); // Move to the starting point
+          doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
+          doc.stroke();
+
+
+          doc
+          .fontSize(9)
+          .text('NUMBER OF CARTONS', lastTableX+270, lastTableY);
+
+          doc.moveTo(lastTableX+380, lastTableY+10); // Move to the starting point
+          doc.lineTo(lastTableX+570, lastTableY+10); // Draw a line to the ending point
+          doc.stroke();
+
+          doc
+          .fontSize(9)
+          .text(formatNumber(totalQTY), lastTableX+400, lastTableY);
+
+
+          // doc
+          // .fontSize(9)
+          // .text('NUMBER OF CBM', lastTableX, lastTableY+=13);
+
+          // doc
+          // .fontSize(9)
+          // .text(':', lastTableX+100, lastTableY);
+
+          // doc
+          // .fontSize(9)
+          // .text(TotalCBM.toFixed(3), lastTableX+150, lastTableY);
+
+          
+
+          // doc.moveTo(lastTableX+105, lastTableY+10); // Move to the starting point
+          // doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
+          // doc.stroke();
+
+
+
+          
+
+
+          doc
+          .fontSize(9)
+          .text('NUMBER OF PCS', lastTableX+270, lastTableY+=13);
+          doc.moveTo(lastTableX+380, lastTableY+10); // Move to the starting point
+          doc.lineTo(lastTableX+570, lastTableY+10); // Draw a line to the ending point
+          doc.stroke();
+
+          doc
+          .fontSize(9)
+          .text(formatNumber(totalSecondary), lastTableX+400, lastTableY);
+
+
+
+          
+          doc
+          .fontSize(9)
+          .text('TIME START UNLOADING', lastTableX, lastTableY+=50);
+
+          doc
+          .fontSize(9)
+          .text(':', lastTableX+110, lastTableY);
+
+          const StartUnloading = formatTime(user_id.TSU);
+          const FinishUnloading = formatTime(user_id.TFU);
+
+          doc
+          .fontSize(9)
+          .text(StartUnloading, lastTableX+150, lastTableY);
+
+          doc.moveTo(lastTableX+115, lastTableY+10); // Move to the starting point
+          doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
+          doc.stroke();
+
+          doc
+          .fontSize(9)
+          .text('TIME FINISH UNLOADING', lastTableX, lastTableY+=20);
+
+          doc
+          .fontSize(9)
+          .text(':', lastTableX+110, lastTableY);
+
+          doc
+          .fontSize(9)
+          .text(FinishUnloading, lastTableX+150, lastTableY);
+
+          doc.moveTo(lastTableX+115, lastTableY+10); // Move to the starting point
+          doc.lineTo(lastTableX+210, lastTableY+10); // Draw a line to the ending point
+          doc.stroke();
+
+
+
+          doc.rect(lastTableX+235, lastTableY-50, (lastTableX+645)/2, 120).stroke(); // (x, y, width, height)
+
+
+          doc.rect(lastTableX, lastTableY+75, lastTableX+547, 20).stroke(); // (x, y, width, height)
+
+          doc
+          .fontSize(9)
+          .text('NOTE: THE ABOVE STOCKS ARE RECEIVED IN GOOD CONDITION', lastTableX+=155, lastTableY+=82);
+
+
+          doc
+          .fontSize(9)
+          .text('Checked by:', lastTableX-=155, lastTableY+=25);
+
+
+          doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
+          doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
+          doc.stroke();
+
+
+          doc
+          .fontSize(9)
+          .text('Checker', lastTableX+35, lastTableY+=35);
+
+
+          doc
+          .fontSize(9)
+          .text('Counter Checked by:', lastTableX+=150, lastTableY-=35);
+
+          doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
+          doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
+          doc.stroke();
+
+
+          doc
+          .fontSize(9)
+          .text('Guard on duty', lastTableX+20, lastTableY+=35);
+
+
+          doc
+          .fontSize(9)
+          .text('Checked by:', lastTableX+=150, lastTableY-=35);
+
+          doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
+          doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
+          doc.stroke();
+
+
+          doc
+          .fontSize(9)
+          .text('Truck Driver Signature', lastTableX, lastTableY+=35);
+
+
+
+          doc
+          .fontSize(9)
+          .text('Noted by:', lastTableX+=150, lastTableY-=35);
+        
+          // doc
+          // .fontSize(9)
+          // .text(supervisor_data[0].RMSName, lastTableX+5, lastTableY+20);
+
+          
+          doc.moveTo(lastTableX, lastTableY+30); // Move to the starting point
+          doc.lineTo(lastTableX+100, lastTableY+30); // Draw a line to the ending point
+          doc.stroke();
+          
+
+          doc
+          .fontSize(9)
+          .text('Warehouse Supervisor', lastTableX, lastTableY+=35);
+
+        
+        // const pageNumber = doc.bufferedPageRange().start + 1; 
+        let pages = doc.bufferedPageRange();
+
+        // let pages = doc.bufferedPageRange();
+        for (let i = 0; i < pages.count; i++) {
+        doc.switchToPage(i);
+
+        //Footer: Add page number
+        let oldBottomMargin = doc.page.margins.bottom;
+        doc.page.margins.bottom = 0 //Dumb: Have to remove bottom margin in order to write into it
+        doc
+            .text(
+            `Page: ${i + 1} of ${pages.count}`,
+            0,
+            doc.page.height - (oldBottomMargin/2), // Centered vertically in bottom margin
+            { align: 'center' }
+            );
+        doc.page.margins.bottom = oldBottomMargin; // ReProtect bottom margin
+      }
+        }
+        console.log("TEST",lastTableX + " <> " + lastTableY + " <> "  );
+
+
     
       
       const lasttextY = doc.y
