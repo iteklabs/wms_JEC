@@ -1411,7 +1411,63 @@ router.post("/sales_data__admin_dashboard", auth, async(req, res) => {
 })
 
 
+router.get("/fg_line", auth, async(req, res) => {
+    try {
+        const purchases_line_graph_data = await purchases_finished.aggregate([
+            {
+                $unwind: "$product" 
+            },
+            {
+                $group: {
+                
+                _id: "$date",
+                totalQuantity: { $sum: "$product.quantity" },
+                date: { $first: "$date" },
+                
+                }
+            },
+            {
+                $sort: { date: 1 } // Sort by date in ascending order
+            }
+        ])
+        res.json(purchases_line_graph_data);
 
+    } catch (error) {
+        res.json(error);
+    }
+})
+
+
+router.get("/fg_out_line", auth, async(req, res) => {
+    try {
+        const purchases_line_graph_data = await sales_finished.aggregate([
+            {
+                $match : {
+                    "finalize" : "False"
+                }
+            },
+            {
+                $unwind: "$sale_product" 
+            },
+            {
+                $group: {
+                
+                _id: "$date",
+                totalQuantity: { $sum: "$sale_product.quantity" },
+                date: { $first: "$date" },
+                
+                }
+            },
+            {
+                $sort: { date: 1 } // Sort by date in ascending order
+            }
+        ])
+        res.json(purchases_line_graph_data);
+
+    } catch (error) {
+        res.json(error);
+    }
+})
 
 
 

@@ -8,7 +8,7 @@
 
 
 
-        <div class="col-lg-3">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Incoming</h4>
@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <div class="col-lg-3">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Outgoing</h4>
@@ -34,7 +34,7 @@
             </div>
         </div>
 
-         <div class="col-lg-3">
+         <!-- <div class="col-lg-3">
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Adjustment</h4>
@@ -45,9 +45,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
-        <div class="col-lg-3">
+        <!-- <div class="col-lg-3">
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Transfer</h4>
@@ -58,7 +58,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 
 </div>
@@ -69,8 +69,8 @@
 
     var ctxFG = document.getElementById('myLineChartFG').getContext('2d');
     var ctx1FG = document.getElementById('myLineChart1FG').getContext('2d');
-    var ctx2FG = document.getElementById('myLineChart2FG').getContext('2d');
-    var ctx3FG = document.getElementById('myLineChart3FG').getContext('2d');
+    // var ctx2FG = document.getElementById('myLineChart2FG').getContext('2d');
+    // var ctx3FG = document.getElementById('myLineChart3FG').getContext('2d');
     
 
 
@@ -284,47 +284,47 @@
         },
         options: options1
     });
-    var myLineChart2FG = new Chart(ctx2FG, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Total Quantity - ',
-                backgroundColor: 'rgb(144, 238, 144)',
-                borderColor: 'rgb(144, 238, 144)',
-                data: [],
-                fill: false,
-                pointStyle: 'rectRot',
-                pointRadius: 5,
-                pointBorderColor: 'rgb(0, 0, 0)',
-                borderWidth: 1,
-            }]
-        },
-        options: options1
-    });
-    var myLineChart3FG = new Chart(ctx3FG, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Total Quantity - ',
-                backgroundColor: 'rgb(211, 211, 211)',
-                borderColor: 'rgb(211, 211, 211)',
-                data: [],
-                fill: false,
-                pointStyle: 'rectRot',
-                pointRadius: 5,
-                pointBorderColor: 'rgb(0, 0, 0)',
-                borderWidth: 1,
-            }]
-        },
-        options: options1
-    });
+    // var myLineChart2FG = new Chart(ctx2FG, {
+    //     type: 'line',
+    //     data: {
+    //         labels: [],
+    //         datasets: [{
+    //             label: 'Total Quantity - ',
+    //             backgroundColor: 'rgb(144, 238, 144)',
+    //             borderColor: 'rgb(144, 238, 144)',
+    //             data: [],
+    //             fill: false,
+    //             pointStyle: 'rectRot',
+    //             pointRadius: 5,
+    //             pointBorderColor: 'rgb(0, 0, 0)',
+    //             borderWidth: 1,
+    //         }]
+    //     },
+    //     options: options1
+    // });
+    // var myLineChart3FG = new Chart(ctx3FG, {
+    //     type: 'line',
+    //     data: {
+    //         labels: [],
+    //         datasets: [{
+    //             label: 'Total Quantity - ',
+    //             backgroundColor: 'rgb(211, 211, 211)',
+    //             borderColor: 'rgb(211, 211, 211)',
+    //             data: [],
+    //             fill: false,
+    //             pointStyle: 'rectRot',
+    //             pointRadius: 5,
+    //             pointBorderColor: 'rgb(0, 0, 0)',
+    //             borderWidth: 1,
+    //         }]
+    //     },
+    //     options: options1
+    // });
 
     fetchDataFG();
     fetchDataOutFG();
-    fetchDataADJFG();
-    fetchDataTFGJFG();
+    // fetchDataADJFG();
+    // fetchDataTFGJFG();
 
 
 
@@ -341,8 +341,8 @@
         const pollingInterval = 5000;
         setInterval(() => fetchDataAndUpdateChart1(fetchDataFG, ctxFG), pollingInterval);
         setInterval(() => fetchDataAndUpdateChart1(fetchDataOutFG, ctx1FG), pollingInterval);
-        setInterval(() => fetchDataAndUpdateChart1(fetchDataADJFG, ctx2FG), pollingInterval);
-        setInterval(() => fetchDataAndUpdateChart1(fetchDataTFGJFG, ctx3FG), pollingInterval);
+        // setInterval(() => fetchDataAndUpdateChart1(fetchDataADJFG, ctx2FG), pollingInterval);
+        // setInterval(() => fetchDataAndUpdateChart1(fetchDataTFGJFG, ctx3FG), pollingInterval);
     }
 
     // startDataRefresh();
