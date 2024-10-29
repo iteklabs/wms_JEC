@@ -209,6 +209,9 @@ app.use("/so_approvers", approval_so_setup)
 const warehouse_checking = require("./routers/warehouse_checking");
 app.use("/warehouse_checker", warehouse_checking)
 
+const adminroutes = require("./routers/invoice");
+app.use("/sales_sa_admin", adminroutes);
+
 app.listen(port, () => {
   console.log(`server running on port ${port}`);
 });
