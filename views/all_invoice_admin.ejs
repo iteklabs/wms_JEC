@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head'); -%>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css" />
+
+</head>
+
+<body>
+    <!--*******************
+    Preloader start
+********************-->
+    <div id="preloader">
+        <div class="sk-three-bounce">
+            <div class="sk-child sk-bounce1"></div>
+            <div class="sk-child sk-bounce2"></div>
+            <div class="sk-child sk-bounce3"></div>
+        </div>
+    </div>
+    <!--*******************
+    Preloader end
+********************-->
+
+    <!--**********************************
+    Main wrapper start
+***********************************-->
+    <div id="main-wrapper">
+
+        <!--**********************************
+        Nav header start
+    ***********************************-->
+        <%- include('./partials/header_logo'); -%>
+
+            <!--**********************************
+        Nav header end
+    ***********************************-->
+
+            <!--**********************************
+        Header start
+    ***********************************-->
+            <%- include('./partials/header',{titel: "Invoice"}); -%>
+
+                <!--**********************************
+        Header end ti-comment-alt
+    ***********************************-->
+
+                <!--**********************************
+        Sidebar start
+    ***********************************-->
+                <%- include('./partials/sidebar_sales_admin'); -%>
+
+                    <!--**********************************
+        Sidebar end
+    ***********************************-->
+
+                    <div class="content-body">
+                        <div class="container-fluid">
+                            <!-- row -->
+                            <div class="card">
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <label for="date_start">Start Date:</label>
+                                        <input type="date" class="form-control" id="date_start">
+                                    </div>
+                                    
+                                    <div class="col-lg-4">
+                                        <label for="date_end">End Date:</label>
+                                        <input type="date" class="form-control" id="date_end">
+                                    </div>
+                                    
+                                    <div class="col-lg-4">
+                                        <label for="agent">Agent:</label>
+                                        <!-- <input type="text" id="agent"> -->
+                                        <select class="form-control" id="agent">
+                                            <option value="">ALL</option>
+                                            <% staff_data.forEach(element => { %>
+                                                <option value="<%= element.name %>"><%= element.name %></option>
+                                            <% }) %>
+                                        </select>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-12">
+                                <div class="card">
+
+                                    <div class="card-body">
+
+                                        <div class="d-none">
+                                            <input type="hidden" value="<%= master_shop[0].currency %>" id="hidden_currency">
+                                            <input type="hidden" value="<%= master_shop[0].currency_placement %>" id="hidden_currency_placement">
+                                        </div>
+
+                                        <div class="table-responsive">
+                                            
+                                            <table id="tbl_main" class="table table-responsive-sm text-center">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Document Number</th>
+                                                        <th><%= language.date %> </th>
+                                                        <th>DSI </th>
+                                                        <th>Customer </th>
+                                                        <th>Agent </th>
+                                                        <th>View  </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbody_data">
+                                                    
+                                                </tbody>
+
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+               
+
+                    <!--**********************************
+            Footer start
+        ***********************************-->
+                    <%- include('./partials/footer'); -%>
+
+                        <!--**********************************
+            Footer end
+        ***********************************-->
+
+    </div>
+    <!--**********************************
+        Main wrapper end
+    ***********************************-->
+
+    <!-- start Toastr -->
+    <%- include('./partials/toastr'); -%>
+        <!-- End Toastr -->
+
+        <!--**********************************
+        Scripts
+    ***********************************-->
+       
+
+        <%- include('./partials/script'); -%>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+        <script>
+
+            $(document).ready(function () {
+                $('#tbl_main').DataTable({
+                    "ajax": {
+                        "url": "./getInvoice",
+                        "type": "POST",
+                        "dataSrc": ""
+                    },
+                    "columns": [
+                        { "data": "invoice" },
+                        { "data": "date" },
+                        { "data": "dsi",  "name": "dsi", render: function (data, type, row) {
+                            var data_string = data;
+                            if(typeof data == "undefined"){
+                                data_string = ' - '
+                            }
+                            // console.log(data_string)
+                            return data_string;
+                        } },
+                        { "data": "customer",  "name": "customer", render: function (data, type, row) {
+                            var data_string = data;
+                            if(typeof data == "undefined"){
+                                data_string = ' - '
+                            }
+                            return data_string;
+                        } },
+                        { "data": "staff_docs.name" },
+                        { "data": "_id", "name": "_id", render: function (data, type, row) {
+                            return "<a href='/sales_sa_admin/view_sales/"+data+"' class='btn btn-primary h-45 w-100' id='filter_dssr' target='_blank'><i class='la la-filter'></i>View</a>";
+                        }
+                        }
+                    ]
+                });
+                const table = new DataTable('#tbl_main');
+                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                    const minDate = $('#date_start').val();
+                    const maxDate = $('#date_end').val();
+                    const agent = $('#agent').val().toLowerCase();
+                    
+                    // Get date and agent from row data
+                    const rowDate = data[1]; // Assuming date is in the second column
+                    const rowAgent = data[4].toLowerCase(); // Assuming agent is in the fifth column
+
+                    // Convert dates to a comparable format
+                    const rowDateObj = new Date(rowDate);
+                    const minDateObj = minDate ? new Date(minDate) : null;
+                    const maxDateObj = maxDate ? new Date(maxDate) : null;
+
+                    // Date range condition
+                    const dateInRange = (!minDateObj || rowDateObj >= minDateObj) && (!maxDateObj || rowDateObj <= maxDateObj);
+                    
+                    // Agent condition
+                    const agentMatch = agent === "" || rowAgent.includes(agent);
+
+                    // Only display rows that match both conditions
+                    return dateInRange && agentMatch;
+                });
+
+                // Listen for changes in date range or agent input
+                $('#date_start, #date_end, #agent').on('change keyup', function() {
+                    table.draw(); // Redraw table with new filter conditions
+                });
+                
+            });
+        </script>
+
+            <!--**********************************
+        Scripts end
+    ***********************************-->
+</body>
+
+</html>
